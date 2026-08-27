@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { PersuasionShell } from "@/components/PersuasionShell";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import {
   Accordion,
   AccordionContent,
@@ -680,6 +681,14 @@ export default function Services() {
           </Link>
         </Button>
       </div>
+      <PublicConversionPanel
+        source="services"
+        audience="Hospice reps, sales leaders, and provider organizations with a specific execution or growth problem."
+        promise="A scoped engagement with live coaching, practical deliverables, and a next-step plan."
+        evidence="Services are organized by role and delivery format; the first conversation confirms fit before scope is set."
+        primary={{ label: "Book a strategy call", href: "/contact?service=Consulting", token: "strategy_call" }}
+        secondary={{ label: "See structured programs", href: "/programs", token: "programs" }}
+      />
     </PersuasionShell>
   );
 }

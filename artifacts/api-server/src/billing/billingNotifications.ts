@@ -12,6 +12,8 @@ import {
   sendMembershipActivatedEmail,
 } from "../resend";
 import { recordBillingEmailFailure } from "./billingEmailMetrics";
+import { logger } from "../lib/logger";
+import { safeLogFields } from "../observability/safeLog";
 
 export async function logBillingEvent(
   type: string,
@@ -26,7 +28,10 @@ export async function logBillingEvent(
       meta: { organizationId: orgId, ...(meta || {}) },
     });
   } catch (err) {
-    console.warn("logBillingEvent failed:", type, err);
+    logger.warn(
+      safeLogFields({ event: "billing_event_log_failed", billingEventType: type, err }),
+      "Billing audit event could not be written",
+    );
   }
 }
 
@@ -41,25 +46,24 @@ async function activeMembers(orgId: number) {
  * After invoice.payment_failed / past_due subscription:
  * email members + admin alert.
  */
-export async function notifyPaymentFailed(org: ClientOrganization): Promise<void> {
+export async function notifyPaymentFailed(org: ClientOrganization): Promise<boolean> {
   await logBillingEvent("billing_payment_failed", org.id, {
     billingStatus: org.billingStatus,
     stripeSubscriptionId: org.stripeSubscriptionId,
   });
 
   const members = await activeMembers(org.id);
+  let delivered = true;
   for (const m of members) {
     try {
-      await sendBillingPaymentFailedEmail(m.email, m.name, org.name);
+      if ((await sendBillingPaymentFailedEmail(m.email, m.name, org.name)) === false) delivered = false;
     } catch (err) {
+      delivered = false;
       recordBillingEmailFailure("payment_failed", org.id);
-      console.error("billing_email_failed", {
-        event: "billing_email_failed",
-        type: "payment_failed",
-        orgId: org.id,
-        email: m.email,
-        err,
-      });
+      logger.error(
+        safeLogFields({ event: "billing_email_failed", type: "payment_failed", orgId: org.id, err }),
+        "Billing payment-failed email could not be sent",
+      );
     }
   }
 
@@ -68,22 +72,22 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
     process.env.OPS_DIGEST_EMAIL ||
     "nick@spartanhospicecoaching.com";
   try {
-    await sendBillingPastDueAdminAlert(adminTo, {
+    if ((await sendBillingPastDueAdminAlert(adminTo, {
       orgId: org.id,
       orgName: org.name,
       billingPlan: org.billingPlan,
       billingStatus: org.billingStatus || "past_due",
       memberEmails: members.map((m) => m.email),
-    });
+    })) === false) delivered = false;
   } catch (err) {
+    delivered = false;
     recordBillingEmailFailure("past_due_admin_alert", org.id);
-    console.error("billing_email_failed", {
-      event: "billing_email_failed",
-      type: "past_due_admin_alert",
-      orgId: org.id,
-      err,
-    });
+    logger.error(
+      safeLogFields({ event: "billing_email_failed", type: "past_due_admin_alert", orgId: org.id, err }),
+      "Billing past-due admin alert could not be sent",
+    );
   }
+  return delivered;
 }
 
 /**
@@ -93,7 +97,7 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
 export async function notifySubscriptionCanceled(
   org: ClientOrganization,
   opts?: { atPeriodEnd?: boolean; periodEnd?: Date | null },
-): Promise<void> {
+): Promise<boolean> {
   await logBillingEvent("billing_subscription_canceled", org.id, {
     atPeriodEnd: opts?.atPeriodEnd ?? false,
     periodEnd: opts?.periodEnd?.toISOString() ?? org.currentPeriodEnd?.toISOString() ?? null,
@@ -101,23 +105,23 @@ export async function notifySubscriptionCanceled(
   });
 
   const members = await activeMembers(org.id);
+  let delivered = true;
   for (const m of members) {
     try {
-      await sendBillingCanceledEmail(m.email, m.name, org.name, {
+      if ((await sendBillingCanceledEmail(m.email, m.name, org.name, {
         atPeriodEnd: opts?.atPeriodEnd ?? Boolean(org.cancelAtPeriodEnd),
         periodEnd: opts?.periodEnd ?? org.currentPeriodEnd ?? null,
-      });
+      })) === false) delivered = false;
     } catch (err) {
+      delivered = false;
       recordBillingEmailFailure("canceled", org.id);
-      console.error("billing_email_failed", {
-        event: "billing_email_failed",
-        type: "canceled",
-        orgId: org.id,
-        email: m.email,
-        err,
-      });
+      logger.error(
+        safeLogFields({ event: "billing_email_failed", type: "canceled", orgId: org.id, err }),
+        "Billing cancellation email could not be sent",
+      );
     }
   }
+  return delivered;
 }
 
 /**
@@ -125,7 +129,7 @@ export async function notifySubscriptionCanceled(
  * Uses membership-activated copy (Command Center first) + admin alert.
  * Note: Stripe redeliveries may re-send email; audit event always logged.
  */
-export async function notifySubscriptionActive(org: ClientOrganization): Promise<void> {
+export async function notifySubscriptionActive(org: ClientOrganization): Promise<boolean> {
   await logBillingEvent("billing_subscription_active", org.id, {
     billingPlan: org.billingPlan,
     billingStatus: org.billingStatus,
@@ -133,18 +137,17 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
   });
 
   const members = await activeMembers(org.id);
+  let delivered = true;
   for (const m of members) {
     try {
-      await sendMembershipActivatedEmail(m.email, m.name, org.name);
+      if ((await sendMembershipActivatedEmail(m.email, m.name, org.name)) === false) delivered = false;
     } catch (err) {
+      delivered = false;
       recordBillingEmailFailure("active", org.id);
-      console.error("billing_email_failed", {
-        event: "billing_email_failed",
-        type: "active",
-        orgId: org.id,
-        email: m.email,
-        err,
-      });
+      logger.error(
+        safeLogFields({ event: "billing_email_failed", type: "active", orgId: org.id, err }),
+        "Billing activation email could not be sent",
+      );
     }
   }
 
@@ -153,19 +156,19 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
     process.env.OPS_DIGEST_EMAIL ||
     "nick@spartanhospicecoaching.com";
   try {
-    await sendBillingActiveAdminAlert(adminTo, {
+    if ((await sendBillingActiveAdminAlert(adminTo, {
       orgId: org.id,
       orgName: org.name,
       billingPlan: org.billingPlan,
       memberEmails: members.map((m) => m.email),
-    });
+    })) === false) delivered = false;
   } catch (err) {
+    delivered = false;
     recordBillingEmailFailure("active_admin_alert", org.id);
-    console.error("billing_email_failed", {
-      event: "billing_email_failed",
-      type: "active_admin_alert",
-      orgId: org.id,
-      err,
-    });
+    logger.error(
+      safeLogFields({ event: "billing_email_failed", type: "active_admin_alert", orgId: org.id, err }),
+      "Billing activation admin alert could not be sent",
+    );
   }
+  return delivered;
 }

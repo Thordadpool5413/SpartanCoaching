@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Spartan Coaching — Make the next hospice conversation count.</title>
+    <meta
+      name="description"
+      content="Practical coaching for hospice growth leaders, liaisons, and directors."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f4efe6;
+        --paper-deep: #e8dfd2;
+        --ink: #16232c;
+        --navy: #12232d;
+        --navy-soft: #1b303b;
+        --red: #a62f32;
+        --red-deep: #852529;
+        --cream: #fbf7ef;
+        --line: rgba(22, 35, 44, 0.22);
+        --line-light: rgba(251, 247, 239, 0.28);
+        --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+        --body: "DM Sans", ui-sans-serif, sans-serif;
+      }
+
+      @page {
+        size: Letter portrait;
+        margin: 0;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 8.5in;
+        height: 11in;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: #c9c4bc;
+        color: var(--ink);
+        font-family: var(--body);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .flyer {
+        position: relative;
+        width: 8.5in;
+        height: 11in;
+        margin: 0 auto;
+        overflow: hidden;
+        background: var(--paper);
+        isolation: isolate;
+      }
+
+      .flyer::before {
+        position: absolute;
+        z-index: -1;
+        top: 0.25in;
+        right: 0.46in;
+        width: 0.72in;
+        height: 0.72in;
+        border-top: 1px solid var(--red);
+        border-right: 1px solid var(--red);
+        content: "";
+      }
+
+      .flyer::after {
+        position: absolute;
+        z-index: -1;
+        right: 0.46in;
+        bottom: 0.45in;
+        width: 0.72in;
+        height: 0.72in;
+        border-right: 1px solid var(--red);
+        border-bottom: 1px solid var(--red);
+        content: "";
+      }
+
+      .top-field {
+        position: relative;
+        height: 7.55in;
+        background: var(--paper);
+      }
+
+      .top-rule {
+        position: absolute;
+        top: 0.48in;
+        left: 0.66in;
+        width: 1.12in;
+        height: 0.075in;
+        background: var(--red);
+      }
+
+      .copy-column {
+        position: absolute;
+        top: 0.69in;
+        left: 0.66in;
+        width: 4.62in;
+      }
+
+      .eyebrow,
+      .method-label,
+      .footer-note {
+        margin: 0;
+        font-family: var(--body);
+        font-size: 0.105in;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        color: var(--red);
+      }
+
+      h1 {
+        max-width: 4.7in;
+        margin: 0.23in 0 0;
+        color: var(--ink);
+        font-family: var(--display);
+        font-size: 0.7in;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        line-height: 0.91;
+      }
+
+      .intro {
+        max-width: 3.55in;
+        margin: 0.35in 0 0;
+        color: var(--ink);
+        font-size: 0.18in;
+        font-weight: 500;
+        letter-spacing: -0.012em;
+        line-height: 1.42;
+      }
+
+      .field-mark {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 2.83in;
+        height: 7.55in;
+        overflow: hidden;
+        background: var(--navy);
+      }
+
+      .field-mark::before {
+        position: absolute;
+        top: 0.54in;
+        left: 0.37in;
+        width: 0.06in;
+        height: 0.58in;
+        background: var(--red);
+        content: "";
+      }
+
+      .field-mark::after {
+        position: absolute;
+        right: -0.33in;
+        bottom: 0.62in;
+        width: 2.05in;
+        height: 2.05in;
+        border: 1px solid rgba(251, 247, 239, 0.16);
+        border-radius: 50%;
+        content: "";
+      }
+
+      .mark-content {
+        position: relative;
+        height: 100%;
+        padding: 0.54in 0.38in;
+      }
+
+      .logo {
+        display: block;
+        width: 2.05in;
+        height: 2.05in;
+        object-fit: contain;
+        object-position: left top;
+        filter: saturate(0.9);
+      }
+
+      .mark-caption {
+        position: absolute;
+        bottom: 0.47in;
+        left: 0.38in;
+        margin: 0;
+        color: var(--cream);
+        font-family: var(--display);
+        font-size: 0.27in;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        line-height: 0.98;
+        text-transform: uppercase;
+      }
+
+      .mark-caption span {
+        display: block;
+        margin-top: 0.09in;
+        color: #d9a5a0;
+        font-family: var(--body);
+        font-size: 0.095in;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        line-height: 1.25;
+      }
+
+      .red-slash {
+        position: absolute;
+        top: 4.93in;
+        left: 0.66in;
+        width: 0.82in;
+        height: 0.04in;
+        background: var(--red);
+        transform: rotate(-17deg);
+        transform-origin: left center;
+      }
+
+      .lower-field {
+        position: relative;
+        height: 3.45in;
+        padding: 0.42in 0.66in 0.33in;
+        background: var(--navy);
+        color: var(--cream);
+      }
+
+      .lower-field::before {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 2.11in;
+        height: 0.075in;
+        background: var(--red);
+        content: "";
+      }
+
+      .method-label {
+        color: #e5a19d;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        column-gap: 0.17in;
+        margin-top: 0.22in;
+        padding-top: 0.15in;
+        border-top: 1px solid var(--line-light);
+      }
+
+      .step {
+        min-width: 0;
+      }
+
+      .step-number {
+        display: block;
+        margin-bottom: 0.08in;
+        color: var(--red);
+        font-family: var(--display);
+        font-size: 0.27in;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1;
+      }
+
+      .step-name {
+        display: block;
+        color: var(--cream);
+        font-family: var(--display);
+        font-size: 0.205in;
+        font-weight: 600;
+        letter-spacing: 0.035em;
+        line-height: 1;
+      }
+
+      .supporting {
+        margin: 0.33in 0 0;
+        color: var(--cream);
+        font-family: var(--display);
+        font-size: 0.29in;
+        font-weight: 400;
+        letter-spacing: 0.005em;
+        line-height: 1.02;
+      }
+
+      .audience {
+        margin: 0.11in 0 0;
+        color: #c3cbc9;
+        font-size: 0.125in;
+        font-weight: 500;
+        letter-spacing: 0.005em;
+        line-height: 1.3;
+      }
+
+      .bottom-row {
+        position: absolute;
+        right: 0.66in;
+        bottom: 0.33in;
+        left: 0.66in;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.35in;
+      }
+
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-width: 2.28in;
+        min-height: 0.41in;
+        padding: 0.1in 0.17in 0.1in;
+        border: 1px solid var(--cream);
+        color: var(--cream);
+        font-family: var(--body);
+        font-size: 0.115in;
+        font-weight: 700;
+        letter-spacing: 0.015em;
+        line-height: 1.1;
+        text-decoration: none;
+      }
+
+      .cta::after {
+        width: 0.22in;
+        height: 1px;
+        margin-left: auto;
+        background: var(--red);
+        content: "";
+      }
+
+      .cta:hover,
+      .cta:focus-visible {
+        background: var(--red);
+        border-color: var(--red);
+        outline: none;
+      }
+
+      .cta:hover::after,
+      .cta:focus-visible::after {
+        background: var(--cream);
+      }
+
+      .footer-stack {
+        text-align: left;
+      }
+
+      .url {
+        display: block;
+        margin: 0 0 0.09in;
+        color: var(--cream);
+        font-size: 0.105in;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+        line-height: 1.2;
+        text-decoration: none;
+      }
+
+      .footer-note {
+        color: #9fafae;
+        font-size: 0.085in;
+        letter-spacing: 0.1em;
+      }
+
+      @media screen and (max-width: 8.5in) {
+        html,
+        body {
+          width: 100%;
+          height: auto;
+          min-height: 100%;
+        }
+
+        body {
+          padding: 0;
+          background: var(--paper);
+        }
+
+        .flyer {
+          width: 100vw;
+          height: 129.4118vw;
+          min-height: 100vh;
+          margin: 0;
+        }
+      }
+
+      @media print {
+        html,
+        body {
+          width: 8.5in;
+          height: 11in;
+          margin: 0;
+          padding: 0;
+          background: var(--paper);
+        }
+
+        .flyer {
+          width: 8.5in;
+          height: 11in;
+          margin: 0;
+          page-break-after: avoid;
+          page-break-before: avoid;
+        }
+
+        a {
+          color: inherit;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="flyer" aria-label="Spartan Coaching introduction flyer">
+      <section class="top-field" aria-labelledby="flyer-headline">
+        <div class="top-rule" aria-hidden="true"></div>
+        <div class="copy-column">
+          <p class="eyebrow">PRACTICAL COACHING FOR HOSPICE GROWTH</p>
+          <h1 id="flyer-headline">Make the next hospice conversation count.</h1>
+          <p class="intro">
+            Spartan Coaching helps hospice growth teams turn good intentions
+            into consistent field execution.
+          </p>
+        </div>
+
+        <aside class="field-mark" aria-label="Spartan Coaching brand mark">
+          <div class="mark-content">
+            <img
+              class="logo"
+              src="/__mockup/images/spartan-logo-stamp.png"
+              alt="Spartan Coaching helmet and stamp logo"
+            />
+            <p class="mark-caption">
+              Spartan<br />Coaching
+              <span>Hospice growth / field execution</span>
+            </p>
+          </div>
+        </aside>
+        <div class="red-slash" aria-hidden="true"></div>
+      </section>
+
+      <section class="lower-field" aria-labelledby="method-heading">
+        <p class="method-label" id="method-heading">THE FIELD SYSTEM</p>
+        <div class="steps" role="list" aria-label="The Field System steps">
+          <div class="step" role="listitem">
+            <span class="step-number">01</span>
+            <span class="step-name">PREPARE</span>
+          </div>
+          <div class="step" role="listitem">
+            <span class="step-number">02</span>
+            <span class="step-name">PRACTICE</span>
+          </div>
+          <div class="step" role="listitem">
+            <span class="step-number">03</span>
+            <span class="step-name">EXECUTE</span>
+          </div>
+          <div class="step" role="listitem">
+            <span class="step-number">04</span>
+            <span class="step-name">REVIEW</span>
+          </div>
+        </div>
+        <p class="supporting">Better conversations begin before the conversation.</p>
+        <p class="audience">Built for growth leaders, liaisons, and directors.</p>
+
+        <div class="bottom-row">
+          <a class="cta" href="https://spartanhospicecoaching.com">
+            Explore Spartan Coaching
+          </a>
+          <div class="footer-stack">
+            <a class="url" href="https://spartanhospicecoaching.com">
+              spartanhospicecoaching.com
+            </a>
+            <p class="footer-note">Practical. Ethical. Field-ready.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

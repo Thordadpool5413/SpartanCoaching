@@ -5,6 +5,7 @@ import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Shield, Lock, Heart, AlertTriangle, CheckCircle, ShieldOff, BookOpen, Target, ServerCrash, FileCheck, ArrowRight, Mail } from "lucide-react";
 import { Link } from "wouter";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 const dataCollectedItems = [
   { text: "Name, email, phone number, and organization (provided via contact form)" },
@@ -22,7 +23,7 @@ const noPhiItems = [
 
 const dataProtectionItems = [
   { icon: Lock, text: "All data transmitted over HTTPS with TLS encryption in transit" },
-  { icon: ServerCrash, text: "Application hosted on secure, SOC 2-compliant infrastructure" },
+  { icon: ServerCrash, text: "Application infrastructure is operated with security controls appropriate to authenticated membership features" },
   { icon: Shield, text: "Access controls limit data visibility to authorized personnel only" },
   { icon: FileCheck, text: "Regular review of data handling practices and security posture" },
 ];
@@ -236,6 +237,14 @@ export default function ComplianceEthics() {
               </div>
             </div>
           </FadeIn>
+          <PublicConversionPanel
+            source="compliance"
+            audience="Provider teams and procurement stakeholders reviewing data boundaries, ethics, or a potential BAA."
+            promise="Clarify whether the proposed use stays within the no-PHI coaching and field-work boundaries."
+            evidence="The page states product limits, no-PHI expectations, and legal routes without claiming unverified certifications."
+            primary={{ label: "Ask a compliance question", href: "/contact?service=HIPAA+BAA+Request", token: "compliance_contact" }}
+            secondary={{ label: "Read the Trust Center", href: "/trust", token: "trust_center" }}
+          />
         </div>
       </div>
     </div>

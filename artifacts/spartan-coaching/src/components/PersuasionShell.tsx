@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { PublicPageShell } from "@/components/PublicPageShell";
 
 /**
  * Soft conversion surface for public hire / long-read pages
@@ -20,18 +20,12 @@ export function PersuasionShell({
   narrow?: boolean;
 }) {
   return (
-    <div
-      className={cn("page-persuasion w-full", className)}
-      data-testid="page-persuasion"
+    <PublicPageShell
+      className={className}
+      narrow={narrow}
+      testId="page-persuasion"
     >
-      <div
-        className={cn(
-          "w-full mx-auto spacing-container spacing-section",
-          narrow ? "max-w-3xl" : "max-w-7xl",
-        )}
-      >
-        {children}
-      </div>
-    </div>
+      {children}
+    </PublicPageShell>
   );
 }

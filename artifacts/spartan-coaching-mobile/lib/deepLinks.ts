@@ -11,6 +11,16 @@ export type DeepTarget = {
   params?: Record<string, string>;
 };
 
+const LOGIN_RETURN_TARGETS = new Set([
+  "/sales-workflow",
+  "/tool/[tab]",
+  "/(tabs)/tools",
+  "/(tabs)/my-work",
+  "/(tabs)/account",
+  "/(tabs)/coach",
+  "/(tabs)",
+]);
+
 const SCHEME = "spartan-coaching-mobile";
 export const UNIVERSAL_LINK_HOSTS = new Set([
   "spartanhospicecoaching.com",
@@ -42,6 +52,10 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
     const first = (hostIsRoute ? host : parts[0] || "").toLowerCase();
     const second = hostIsRoute ? parts[0] : parts[1];
 
+    if (first === "app") {
+      const target = (u.searchParams.get("open") || "home").toLowerCase();
+      return mapSecureDeepLinkKey(target === "my-work" ? "my_work" : target) ?? { pathname: "/(tabs)" };
+    }
     if (first === "tool" || first === "tools" || first === "explore") {
       const tab = (second || u.searchParams.get("tab") || "").toLowerCase();
       if (isToolTab(tab)) {
@@ -124,6 +138,58 @@ export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
       return { pathname: "/login" };
     default:
       return null;
+  }
+}
+
+export function requiresFieldKitTarget(target: DeepTarget): boolean {
+  return (
+    target.pathname.includes("sales-workflow") ||
+    target.pathname.startsWith("/tool/") ||
+    target.pathname.includes("command")
+  );
+}
+
+export function requiresAuthenticationForTarget(target: DeepTarget): boolean {
+  return !(
+    target.pathname === "/login" ||
+    target.pathname === "/reset-password" ||
+    target.pathname === "/membership" ||
+    target.pathname === "/(tabs)"
+  );
+}
+
+/**
+ * Keeps only known, internal targets across the native sign-in boundary.
+ * The serialized value is never treated as a URL and is validated again
+ * before Expo Router receives it.
+ */
+export function serializeLoginReturnTarget(target: DeepTarget): string {
+  return JSON.stringify(target);
+}
+
+export function parseLoginReturnTarget(raw: string | string[] | undefined): DeepTarget | null {
+  if (typeof raw !== "string") return null;
+  try {
+    const parsed = JSON.parse(raw) as DeepTarget;
+    if (!parsed || typeof parsed.pathname !== "string" || !LOGIN_RETURN_TARGETS.has(parsed.pathname)) {
+      return null;
+    }
+    if (parsed.params !== undefined) {
+      if (!parsed.params || Object.values(parsed.params).some((value) => typeof value !== "string")) {
+        return null;
+      }
+      if (parsed.pathname === "/tool/[tab]" && !isToolTab(parsed.params.tab || "")) return null;
+      if (
+        parsed.pathname === "/(tabs)/tools" &&
+        parsed.params.view !== undefined &&
+        parsed.params.view !== "library"
+      ) {
+        return null;
+      }
+    }
+    return { pathname: parsed.pathname, ...(parsed.params ? { params: parsed.params } : {}) };
+  } catch {
+    return null;
   }
 }
 

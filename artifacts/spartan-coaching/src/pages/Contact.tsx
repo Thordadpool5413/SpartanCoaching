@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -31,6 +31,8 @@ import { Link } from "wouter";
 import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PersuasionShell } from "@/components/PersuasionShell";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -55,12 +57,23 @@ const STEP_FIELDS: Record<number, (keyof ContactFormData)[]> = {
 };
 
 const STEP_LABELS = ["About You", "Your Situation", "What You Need"];
+const SERVICE_PREFILLS: Record<string, ContactFormData["serviceType"]> = {
+  "HIPAA BAA Request": "HIPAA BAA Request",
+  Consulting: "Corporate Consulting",
+  "Hospice Sales Coaching": "Individual Coaching",
+  "Provider Program": "Team Training",
+  "Hospice Sales Pro": "Other",
+};
 
 export default function Contact() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState(1);
   const [serviceParam, setServiceParam] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const movedBetweenSteps = useRef(false);
+  const hasTrackedStart = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -68,8 +81,9 @@ export default function Contact() {
     if (service) {
       const decoded = decodeURIComponent(service);
       setServiceParam(decoded);
-      if (decoded === "HIPAA BAA Request") {
-        form.setValue("serviceType", "HIPAA BAA Request");
+      const prefill = SERVICE_PREFILLS[decoded];
+      if (prefill) {
+        form.setValue("serviceType", prefill);
       }
     }
   }, []);
@@ -116,28 +130,55 @@ export default function Contact() {
       });
     },
     onSuccess: () => {
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactSubmit, "contact_form");
       setSubmitted(true);
+      setSubmitError(null);
       form.reset();
       setStep(1);
     },
-    onError: (error: Error) => {
+    onError: () => {
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactFailure, "contact_form");
+      const message = "We couldn't send your request right now. Your answers are still here, so you can try again.";
+      setSubmitError(message);
       toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
+        title: "Request not sent",
+        description: message,
         variant: "destructive",
       });
     },
   });
 
+  useEffect(() => {
+    if (!movedBetweenSteps.current) return;
+    stepHeadingRef.current?.focus();
+  }, [step]);
+
   const handleNext = async () => {
-    const valid = await form.trigger(STEP_FIELDS[step]);
-    if (valid) setStep((s) => s + 1);
+    const valid = await form.trigger(STEP_FIELDS[step], { shouldFocus: true });
+    if (valid) {
+      movedBetweenSteps.current = true;
+      setSubmitError(null);
+      setStep((s) => s + 1);
+    }
   };
 
-  const handleBack = () => setStep((s) => s - 1);
+  const handleBack = () => {
+    movedBetweenSteps.current = true;
+    setSubmitError(null);
+    setStep((s) => s - 1);
+  };
 
   const onSubmit = (data: ContactFormData) => {
+    setSubmitError(null);
     submitMutation.mutate(data);
+  };
+
+  const retrySubmit = () => form.handleSubmit(onSubmit)();
+
+  const trackStart = () => {
+    if (hasTrackedStart.current) return;
+    hasTrackedStart.current = true;
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactStart, "contact_form");
   };
 
   return (
@@ -151,7 +192,7 @@ export default function Contact() {
               Book a Discovery Call
             </h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
-              Answer a few quick questions so Nick can come prepared. Takes about 90 seconds.
+              Share a little context so Nick can come prepared. After you submit, expect scheduling options within one business day.
             </p>
             <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground" data-testid="section-contact-compliance">
               <Shield className="w-3.5 h-3.5 text-primary" />
@@ -159,6 +200,15 @@ export default function Contact() {
             </div>
           </div>
         </FadeIn>
+        <PublicConversionPanel
+          source="contact"
+          audience="Hospice professionals and provider leaders deciding whether coaching, a program, or team access fits."
+          promise="A prepared discovery conversation with the service context kept with the request."
+          evidence="A human review and scheduling options within one business day; no PHI is requested."
+          primary={{ label: "Complete the request below", href: "#contact-form", token: "complete_request" }}
+          secondary={{ label: "Review data practices", href: "/trust", token: "trust_center" }}
+          className="mb-10"
+        />
 
         <FadeIn delay={0.1}>
           {submitted ? (
@@ -182,7 +232,7 @@ export default function Contact() {
               </div>
             </Card>
           ) : (
-            <Card className="spacing-card border-2 bg-card shadow-sm" data-testid="card-contact-form">
+            <Card id="contact-form" className="spacing-card border-2 bg-card shadow-sm" data-testid="card-contact-form">
               {/* Service context chip */}
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
@@ -201,14 +251,17 @@ export default function Contact() {
                   </button>
                 </div>
               )}
+              <div className="sr-only" role="status" aria-live="polite">
+                Step {step} of {STEP_LABELS.length}: {STEP_LABELS[step - 1]}
+              </div>
               {/* Step dot indicator */}
-              <div className="flex items-start mb-8" data-testid="section-step-progress">
+              <ol className="flex items-start mb-8" data-testid="section-step-progress" aria-label="Contact request progress">
                 {STEP_LABELS.map((label, i) => {
                   const stepNum = i + 1;
                   const isComplete = step > stepNum;
                   const isActive = step === stepNum;
                   return (
-                    <div key={stepNum} className="flex items-start flex-1">
+                    <li key={stepNum} className="flex items-start flex-1" aria-current={isActive ? "step" : undefined}>
                       <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
                         <div
                           className={cn(
@@ -216,6 +269,7 @@ export default function Contact() {
                             isComplete ? "bg-primary border-primary" : isActive ? "border-primary bg-primary/10" : "border-border bg-transparent"
                           )}
                           data-testid={`step-dot-${stepNum}`}
+                          aria-hidden="true"
                         >
                           {isComplete ? (
                             <CheckCircle className="w-4 h-4 text-white" />
@@ -223,18 +277,39 @@ export default function Contact() {
                             <span className={cn("text-xs font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
                           )}
                         </div>
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive ? "text-primary" : isComplete ? "text-white/50" : "text-muted-foreground/50")}>{label}</span>
+                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </div>
                       {i < STEP_LABELS.length - 1 && (
                         <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ol>
 
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  onFocusCapture={trackStart}
+                  className="space-y-5"
+                >
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
+                    Step {step}: {STEP_LABELS[step - 1]}
+                  </h2>
+                  {submitError && (
+                    <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-foreground" data-testid="contact-submit-error">
+                      <p className="font-semibold">Your request was not sent.</p>
+                      <p className="mt-1 text-muted-foreground">{submitError}</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <Button type="button" variant="outline" onClick={retrySubmit} disabled={submitMutation.isPending} data-testid="button-contact-retry">
+                          Try again
+                        </Button>
+                        <a href="mailto:nick@spartanhospicecoaching.com" className="font-semibold text-primary underline underline-offset-4">
+                          Email Nick directly
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
                   {/* ── STEP 1: About You ── */}
                   {step === 1 && (
@@ -512,6 +587,8 @@ export default function Contact() {
                       <Button
                         type="submit"
                         disabled={submitMutation.isPending}
+                        aria-describedby={submitError ? "contact-submit-error" : undefined}
+                        aria-busy={submitMutation.isPending}
                         className="font-bold"
                         data-testid="button-contact-submit"
                       >

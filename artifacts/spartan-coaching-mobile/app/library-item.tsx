@@ -102,12 +102,13 @@ export default function LibraryItemScreen() {
   const resolvedDescription = downloaded?.description || article?.description || description;
   const resolvedSourceUrl = safeUrl(article?.linkedinUrl || undefined) || sourceUrl;
   const resolvedDocumentUrl = safeUrl(article?.pdfUrl || undefined) || activeUrl;
+  const isOfflineAvailable = Boolean(downloaded && downloaded.availability !== "unavailable");
 
   const toggleDownload = async () => {
     if (!downloadKey || Platform.OS === "web" || downloadBusy) return;
     setDownloadBusy(true);
     try {
-      if (downloaded) {
+      if (isOfflineAvailable) {
         await removeDownloadedLibraryItem(downloadKey);
         setDownloaded(null);
       } else if (kind === "article" && (articleContent || resolvedDescription)) {
@@ -140,16 +141,16 @@ export default function LibraryItemScreen() {
         {downloadKey && (url || articleContent || (kind === "article" && resolvedDescription)) && Platform.OS !== "web" ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={downloaded ? "Remove offline download" : "Download for offline use"}
+            accessibilityLabel={isOfflineAvailable ? "Remove offline download" : "Download for offline use"}
             onPress={() => void toggleDownload()}
             disabled={downloadBusy}
             style={styles.downloadButton}
           >
-            {downloadBusy ? <ActivityIndicator color={colors.primary} /> : <Feather name={downloaded ? "check-circle" : "download"} size={19} color={colors.primary} />}
+            {downloadBusy ? <ActivityIndicator color={colors.primary} /> : <Feather name={isOfflineAvailable ? "check-circle" : "download"} size={19} color={colors.primary} />}
           </Pressable>
         ) : null}
       </View>
-      {downloaded ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : null}
+      {isOfflineAvailable ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : downloaded ? <View style={styles.offlineBanner}><Feather name="cloud" size={14} color={colors.primary} /><Text style={styles.offlineBannerText}>Listed in your Library, but not downloaded on this iPhone. Download again for offline use.</Text></View> : null}
       {kind === "article" ? (
         <NativeArticleReader
           title={article?.title || title}

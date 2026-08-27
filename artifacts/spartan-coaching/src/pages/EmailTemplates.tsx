@@ -18,6 +18,7 @@ import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { useReminderHistory } from "@/hooks/use-reminder-history";
 import type { PendingReminder } from "@/hooks/use-reminder-history";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -409,6 +410,29 @@ export default function EmailTemplates() {
                       )}
                     </Button>
                   </div>
+                  <ToolResultActions
+                    toolId="email-templates"
+                    title="Choose the follow-through"
+                    description="Review the draft, then send it to the intended recipient or set a reminder to follow up later."
+                    actions={[
+                      {
+                        id: "send",
+                        label: "Send this email",
+                        icon: Send,
+                        onClick: handleSend,
+                        disabled: isSending || !recipientEmail,
+                        analyticsOutcome: "workflow_completion",
+                        testId: "button-next-send-email",
+                      },
+                      {
+                        id: "practice-ask",
+                        label: "Practice the ask",
+                        href: "/tools/role-play",
+                      },
+                    ]}
+                    persistenceNote="Generating a draft does not send or save it. The send action delivers it to the address you enter; download creates a local PDF copy."
+                    testId="email-next-action"
+                  />
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">

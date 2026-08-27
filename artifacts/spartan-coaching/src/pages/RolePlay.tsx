@@ -47,7 +47,9 @@ import {
   Share2,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from "lucide-react";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 const SCENARIOS = [
   { id: "skeptical_oncologist", title: "Skeptical Oncologist", description: "Push through hesitation about hospice timing with a doubting specialist.", icon: Stethoscope, difficulty: "Advanced" as const },
@@ -532,19 +534,27 @@ export default function RolePlay() {
               </div>
             </SlideUp>
 
-            <CoachingCTA className="mb-6" />
+            <ToolResultActions
+              toolId="role-play"
+              description="Carry the coaching into the field: draft the follow-up you will send, or run the scenario again with one improvement."
+              actions={[
+                {
+                  id: "draft-follow-up",
+                  label: "Draft Follow-Up Email",
+                  href: "/tools/email-templates",
+                },
+                {
+                  id: "practice-again",
+                  label: "Practice Again",
+                  icon: RotateCcw,
+                  onClick: handlePracticeAgain,
+                },
+              ]}
+              persistenceNote="This role-play session and feedback are retained in your member workspace. Do not add patient identifiers or other sensitive details."
+              testId="roleplay-next-action"
+            />
 
-            <FadeIn delay={0.6}>
-              <Button
-                onClick={handlePracticeAgain}
-                size="lg"
-                className="font-bold touch-manipulation"
-                data-testid="button-practice-again"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Practice Again
-              </Button>
-            </FadeIn>
+            <CoachingCTA className="mb-6" />
           </Card>
         </FadeIn>
       <LeadGateDialog gateState={gateState} />

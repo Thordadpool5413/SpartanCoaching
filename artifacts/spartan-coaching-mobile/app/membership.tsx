@@ -14,22 +14,6 @@ import { font } from "@/lib/typography";
 
 type Plan = "standard_weekly" | "elite_weekly";
 
-const SHARED = [
-  "Complete planning and preparation tools",
-  "Objection handling, role play, and practice tools",
-  "Measurement and business calculators",
-  "Complete Library, Method, drills, and approved resources",
-  "Saved work, downloads, website continuity, and offline access",
-];
-
-const ELITE_ONLY = [
-  "Private Spartan Coach",
-  "Voice rehearsal and transcription",
-  "Advanced feedback and personalized recommendations",
-  "Optional editable Coach memory",
-  "Elite field and deidentified clinical education tools",
-];
-
 export default function MembershipScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -114,12 +98,12 @@ export default function MembershipScreen() {
         ) : (
           <>
             <Text style={styles.kicker}>{canUseFieldKit ? "STANDARD ACTIVE" : "INDIVIDUAL MEMBERSHIP"}</Text>
-            <Text style={styles.title}>{canUseFieldKit ? "Add private Coach when you want the complete system." : "Know exactly what you are buying before Apple asks you to confirm."}</Text>
-            <Text style={styles.subtitle}>{canUseFieldKit ? "Your Standard access, history, preferences, commitments, and saved work stay intact when you upgrade." : "Browse the app first. Choose Standard or Elite here. Payment happens through Apple before Spartan account creation."}</Text>
+            <Text style={styles.title}>{canUseFieldKit ? "Add private Coach when you want the complete system." : "Choose the membership that fits your work."}</Text>
+            <Text style={styles.subtitle}>{canUseFieldKit ? "Your Standard access, history, preferences, commitments, and saved work stay intact when you upgrade." : "Use the Access map for the full capability comparison. Choose Standard or Elite here, then confirm the purchase through Apple."}</Text>
 
             <Pressable onPress={() => router.push("/access" as any)} style={styles.accessMapRow} accessibilityRole="button">
               <View style={styles.accessMapIcon}><Feather name="grid" size={19} color={colors.primary} /></View>
-              <View style={{ flex: 1 }}><Text style={styles.accessMapTitle}>See the complete access map</Text><Text style={styles.accessMapBody}>Every destination, capability, offline rule, and privacy boundary before you subscribe.</Text></View>
+              <View style={{ flex: 1 }}><Text style={styles.accessMapTitle}>See the complete access map</Text><Text style={styles.accessMapBody}>Compare every destination, capability, offline rule, and privacy boundary.</Text></View>
               <Feather name="chevron-right" size={20} color={colors.primary} />
             </Pressable>
 
@@ -132,7 +116,7 @@ export default function MembershipScreen() {
                 price={standardPrice}
                 descriptor="Complete field operating system"
                 bestFor="For reps who want structure, preparation, practice, measurement, and continuity."
-                outcome="Plan the week, prepare conversations, practice objections, use the full Library, save work, download resources, and continue offline."
+                value="The full field system for daily preparation and follow-through."
                 badge={canUseFieldKit ? "CURRENT" : undefined}
                 disabled={canUseFieldKit}
                 onPress={() => selectPlan("standard_weekly")}
@@ -143,18 +127,10 @@ export default function MembershipScreen() {
                 price={elitePrice}
                 descriptor="Complete system plus private Coach"
                 bestFor="For reps who want a private practice partner before and after the room."
-                outcome="Everything in Standard plus Coach, voice rehearsal, transcription, advanced feedback, personalized recommendations, and Elite tools."
+                value="Adds private Coach and Elite practice to the Standard field system."
                 badge="COMPLETE"
                 onPress={() => selectPlan("elite_weekly")}
               />
-            </View>
-
-            <View style={styles.compareCard}>
-              <Text style={styles.compareKicker}>BOTH PLANS INCLUDE</Text>
-              {SHARED.map((feature) => <FeatureRow key={feature} label={feature} included />)}
-              <View style={styles.compareDivider} />
-              <Text style={styles.compareKicker}>ELITE ADDS</Text>
-              {ELITE_ONLY.map((feature) => <FeatureRow key={feature} label={feature} included elite />)}
             </View>
 
             <View style={styles.purchaseCard}>
@@ -190,7 +166,7 @@ export default function MembershipScreen() {
   );
 }
 
-function PlanCard({ selected, title, price, descriptor, bestFor, outcome, badge, disabled = false, onPress }: { selected: boolean; title: string; price: string; descriptor: string; bestFor: string; outcome: string; badge?: string; disabled?: boolean; onPress: () => void }) {
+function PlanCard({ selected, title, price, descriptor, bestFor, value, badge, disabled = false, onPress }: { selected: boolean; title: string; price: string; descriptor: string; bestFor: string; value: string; badge?: string; disabled?: boolean; onPress: () => void }) {
   const colors = useColors();
   return (
     <Pressable accessibilityRole="radio" accessibilityState={{ checked: selected, disabled }} disabled={disabled} onPress={onPress} style={[stylesStatic.planCard, { backgroundColor: selected ? colors.primaryMuted : colors.card, borderColor: selected ? colors.primary : colors.borderStrong, borderWidth: selected ? 2 : 1, opacity: disabled ? 0.72 : 1 }]}>
@@ -200,16 +176,11 @@ function PlanCard({ selected, title, price, descriptor, bestFor, outcome, badge,
       <Text style={[stylesStatic.planDescriptor, { color: colors.foreground }]}>{descriptor}</Text>
       <Text style={[stylesStatic.planSectionLabel, { color: colors.primary }]}>BEST FOR</Text>
       <Text style={[stylesStatic.planValue, { color: colors.mutedForeground }]}>{bestFor}</Text>
-      <Text style={[stylesStatic.planSectionLabel, { color: colors.primary }]}>WHAT YOU GET</Text>
-      <Text style={[stylesStatic.planValue, { color: colors.mutedForeground }]}>{outcome}</Text>
+      <Text style={[stylesStatic.planSectionLabel, { color: colors.primary }]}>MEMBERSHIP FOCUS</Text>
+      <Text style={[stylesStatic.planValue, { color: colors.mutedForeground }]}>{value}</Text>
       <View style={[stylesStatic.radio, { borderColor: selected ? colors.primary : colors.borderStrong }]}>{selected ? <View style={[stylesStatic.radioDot, { backgroundColor: colors.primary }]} /> : null}</View>
     </Pressable>
   );
-}
-
-function FeatureRow({ label, included, elite = false }: { label: string; included: boolean; elite?: boolean }) {
-  const colors = useColors();
-  return <View style={stylesStatic.featureRow}><Feather name={included ? "check-circle" : "minus"} size={18} color={elite ? colors.primary : colors.success} /><Text style={[stylesStatic.featureLabel, { color: colors.foreground }]}>{label}</Text>{elite ? <Text style={[stylesStatic.eliteTag, { color: colors.primary }]}>ELITE</Text> : null}</View>;
 }
 
 const stylesStatic = StyleSheet.create({
@@ -223,9 +194,6 @@ const stylesStatic = StyleSheet.create({
   planValue: { fontSize: 11, lineHeight: 17, marginTop: 4, maxWidth: 330 },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: "center", justifyContent: "center", position: "absolute", right: 13, top: 13 },
   radioDot: { width: 12, height: 12, borderRadius: 6 },
-  featureRow: { minHeight: 46, flexDirection: "row", alignItems: "center", gap: 10 },
-  featureLabel: { flex: 1, fontSize: 12, lineHeight: 17, fontWeight: "600" },
-  eliteTag: { fontSize: 8, letterSpacing: 1, fontWeight: "800" },
 });
 
 function makeStyles(colors: ReturnType<typeof useColors>) {
@@ -249,9 +217,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     currentPlanTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
     currentPlanBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     planGrid: { gap: 12, marginTop: 5 },
-    compareCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 15, paddingVertical: 12 },
-    compareKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.3, marginVertical: 6, ...font("bold") },
-    compareDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderStrong, marginVertical: 7 },
     purchaseCard: { borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.card, padding: 17, gap: 8 },
     purchaseTitle: { color: colors.foreground, fontSize: 18, ...font("heavy") },
     purchaseBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, ...font("regular") },

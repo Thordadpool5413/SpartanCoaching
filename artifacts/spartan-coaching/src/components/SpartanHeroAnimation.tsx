@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 const spartanStamp = "/spartan-logo-stamp.png";
@@ -66,18 +66,18 @@ function Scene1_Intro() {
           Hospice Sales
         </motion.h2>
         <div className="overflow-hidden">
-          <motion.h1 className="text-[9vw] text-white font-display font-black uppercase tracking-tight leading-[0.9]"
+          <motion.div className="text-[9vw] text-white font-display font-black uppercase tracking-tight leading-[0.9]"
             initial={{ y: "110%" }} animate={phase >= 2 ? { y: 0 } : { y: "110%" }}
             transition={{ type: "spring", stiffness: 900, damping: 38 }}>
             IS NOT A
-          </motion.h1>
+          </motion.div>
         </div>
         <div className="overflow-hidden">
-          <motion.h1 className="text-[9vw] text-[#e8291e] font-display font-black uppercase tracking-tight leading-[0.9]"
+          <motion.div className="text-[9vw] text-[#e8291e] font-display font-black uppercase tracking-tight leading-[0.9]"
             initial={{ y: "110%" }} animate={phase >= 2 ? { y: 0 } : { y: "110%" }}
             transition={{ type: "spring", stiffness: 900, damping: 38, delay: 0.04 }}>
             MYSTERY
-          </motion.h1>
+          </motion.div>
         </div>
         <motion.div className="h-[3px] bg-[#e8291e] mt-7 origin-left"
           initial={{ scaleX: 0 }}
@@ -111,19 +111,19 @@ function Scene2_Buildup() {
           animate={{ width: "90vw", height: "90vw", opacity: 0 }}
           transition={{ duration: 0.7 + i * 0.18, delay: i * 0.12, ease: "easeOut" }} />
       ))}
-      <motion.h1 className="text-[16vw] font-display font-black uppercase leading-none absolute select-none"
+      <motion.div className="text-[16vw] font-display font-black uppercase leading-none absolute select-none"
         style={{ color: "rgba(255,255,255,0.05)" }}
         initial={{ opacity: 0 }}
         animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.3 }}>
         IT IS A
-      </motion.h1>
-      <motion.h1 className="text-[20vw] font-display font-black uppercase text-[#e8291e] leading-none absolute mix-blend-screen"
+      </motion.div>
+      <motion.div className="text-[20vw] font-display font-black uppercase text-[#e8291e] leading-none absolute mix-blend-screen"
         initial={{ opacity: 0, scale: 2.2, filter: "blur(40px)" }}
         animate={phase >= 2 ? { opacity: 1, scale: 1, filter: "blur(0px)" } : { opacity: 0, scale: 2.2, filter: "blur(40px)" }}
         transition={{ duration: 0.35, type: "spring", stiffness: 500, damping: 28 }}>
         PROMISE
-      </motion.h1>
+      </motion.div>
       <motion.div className="absolute bottom-16 left-16 h-[3px] bg-[#e8291e] origin-left"
         style={{ width: "40vw" }}
         initial={{ scaleX: 0 }}
@@ -163,27 +163,27 @@ function Scene3_Kinetic() {
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}>
       <div className="absolute inset-0 flex flex-col justify-center px-[8vw]">
         <div className="overflow-hidden mb-3">
-          <motion.h1 className="text-[7.5vw] font-display font-black uppercase text-white leading-none"
+          <motion.div className="text-[7.5vw] font-display font-black uppercase text-white leading-none"
             initial={{ y: "110%" }} animate={phase >= 1 ? { y: 0 } : { y: "110%" }}
             transition={{ type: "spring", stiffness: 700, damping: 32 }}>
             THE PROMISE IS SIMPLE:
-          </motion.h1>
+          </motion.div>
         </div>
         {phase >= 1 && <ScanLine trigger={1} />}
         <div className="overflow-hidden mb-3">
-          <motion.h1 className="text-[7.5vw] font-display font-black uppercase text-[#e8291e] leading-none"
+          <motion.div className="text-[7.5vw] font-display font-black uppercase text-[#e8291e] leading-none"
             initial={{ y: "110%" }} animate={phase >= 2 ? { y: 0 } : { y: "110%" }}
             transition={{ type: "spring", stiffness: 700, damping: 32 }}>
             WHEN A PERSON IS ELIGIBLE
-          </motion.h1>
+          </motion.div>
         </div>
         {phase >= 2 && <ScanLine trigger={2} />}
         <div className="overflow-hidden">
-          <motion.h1 className="text-[7.5vw] font-display font-black uppercase text-white leading-none"
+          <motion.div className="text-[7.5vw] font-display font-black uppercase text-white leading-none"
             initial={{ y: "110%" }} animate={phase >= 3 ? { y: 0 } : { y: "110%" }}
             transition={{ type: "spring", stiffness: 700, damping: 32 }}>
             THEY DESERVE CARE.
-          </motion.h1>
+          </motion.div>
         </div>
         {phase >= 3 && <ScanLine trigger={3} />}
         <motion.div className="absolute inset-0 bg-[#e8291e] z-20 pointer-events-none"
@@ -258,11 +258,11 @@ function Scene4_CrestHero() {
           animate={phase >= 1 ? { scale: 1, opacity: 1, rotateX: 0 } : { scale: 0.3, opacity: 0, rotateX: 60 }}
           transition={{ type: "spring", stiffness: 300, damping: 22 }}
           style={{ transformPerspective: 1200 }} />
-        <motion.h1 className="absolute text-[18vw] font-display font-black text-white/[0.035] uppercase whitespace-nowrap pointer-events-none"
+        <motion.div className="absolute text-[18vw] font-display font-black text-white/[0.035] uppercase whitespace-nowrap pointer-events-none"
           initial={{ x: "25%" }} animate={{ x: "-25%" }}
           transition={{ duration: 6, ease: "linear" }}>
           SPARTAN COACHING
-        </motion.h1>
+        </motion.div>
         <motion.div className="absolute bottom-12 flex flex-col items-center px-8"
           initial={{ opacity: 0, y: 40 }}
           animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -307,9 +307,9 @@ function Scene5_Outro() {
           initial={{ opacity: 0, y: 20 }}
           animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ type: "spring", stiffness: 600, damping: 30 }}>
-          <h1 className="text-[4.5vw] font-display font-black uppercase tracking-[0.3em] text-white leading-none">
+          <div className="text-[4.5vw] font-display font-black uppercase tracking-[0.3em] text-white leading-none">
             SPARTAN COACHING
-          </h1>
+          </div>
           <motion.div className="h-[3px] bg-[#e8291e] w-full origin-left mt-4 mb-4"
             initial={{ scaleX: 0 }}
             animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
@@ -335,12 +335,17 @@ const SCENE_COMPONENTS: Record<string, React.ComponentType> = {
 };
 
 export function SpartanHeroAnimation({ onComplete }: { onComplete?: () => void }) {
+  const prefersReducedMotion = useReducedMotion();
   const { currentSceneKey, sceneIndex } = useHeroPlayer(onComplete);
   const baseKey = currentSceneKey.replace(/_loop_\d+$/, "");
   const SceneComponent = SCENE_COMPONENTS[baseKey];
 
+  if (prefersReducedMotion) {
+    return null;
+  }
+
   return (
-    <div className="absolute inset-0 overflow-hidden bg-background">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-background">
       {/* Persistent background glow orbs */}
       <div className="absolute inset-0 z-0">
         <motion.div

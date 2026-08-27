@@ -13,6 +13,8 @@
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
     "budget": "node scripts/performance-budget.mjs",
+    "audit:public": "node scripts/public-site-audit.mjs",
+    "launch:check": "pnpm --filter @workspace/spartan-coaching exec vitest run src/lib/a11y.contract.test.ts src/lib/publicLaunch.contract.test.ts && pnpm --filter @workspace/spartan-coaching run build && node scripts/verify-public-site-server.mjs && pnpm run budget && pnpm run audit:public",
     "smoke:health": "node scripts/smoke-health.mjs",
     "smoke:parity": "node scripts/smoke-parity.mjs",
     "smoke:parity:auth": "node scripts/smoke-parity-auth.mjs",

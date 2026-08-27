@@ -83,7 +83,8 @@ export const newsletterLimit = rateLimit({
 /** Lightweight analytics pings */
 export const analyticsLimit = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 30,
+  keyGenerator: memberOrIpKey,
   ...common,
 });
 

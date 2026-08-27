@@ -13,6 +13,7 @@ import {
   TRUST_CENTER_SECTIONS,
   FIELD_KIT_PHI,
 } from "@/lib/complianceCopy";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function TrustCenter() {
   return (
@@ -100,6 +101,14 @@ export default function TrustCenter() {
           {PUBLIC_CLAIM_SAFE.fieldCraft} · {PUBLIC_CLAIM_SAFE.ethics}
         </p>
       </Card>
+      <PublicConversionPanel
+        source="trust"
+        audience="Buyers, members, and provider teams validating pricing, data handling, and professional boundaries."
+        promise="Know what the product is designed to do, how access works, and where to ask a specific question."
+        evidence="This center uses canonical pricing and states only practices the product is designed to support."
+        primary={{ label: "Review Hospice Sales Pro access", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+        secondary={{ label: "Ask a trust or compliance question", href: "/contact?service=HIPAA+BAA+Request", token: "trust_contact" }}
+      />
     </div>
   );
 }

@@ -13,8 +13,6 @@ const quickLinks = [
 ];
 
 export default function NotFound() {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6 py-16">
       <SEO
@@ -22,7 +20,7 @@ export default function NotFound() {
         description="The page you are looking for does not exist. Return to Spartan Coaching to access expert hospice sales training and tools."
         keywords="404, page not found, error page"
         ogImage="/spartan-logo.png"
-        canonical={`${baseUrl}/`}
+        noIndex
       />
       <FadeIn>
         <div className="text-center max-w-lg mx-auto">

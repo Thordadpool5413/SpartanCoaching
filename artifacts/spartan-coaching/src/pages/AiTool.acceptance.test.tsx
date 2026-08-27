@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,7 +18,18 @@ import AiToolPage from "./AiTool";
 const routeState = vi.hoisted(() => ({ toolId: "" }));
 
 vi.mock("wouter", () => ({
-  Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Link: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
   useParams: () => ({ toolId: routeState.toolId }),
   useLocation: () => ["/tools/ai/test", vi.fn()],
 }));
@@ -142,6 +154,17 @@ describe("AI tool web acceptance", () => {
       });
       expect(await screen.findByText(/^Acceptance$/i)).toBeTruthy();
       expect(screen.getByText("passed")).toBeTruthy();
+      expect(screen.getByTestId("ai-tool-result-actions")).toBeTruthy();
+      expect(
+        within(screen.getByTestId("ai-tool-result-actions")).getByText(
+          /one-time, deidentified result|retained in recent runs/i,
+        ),
+      ).toBeTruthy();
+      expect(
+        within(screen.getByTestId("ai-tool-workflow-guide")).getByText(
+          /one-time, deidentified result|retained in recent runs/i,
+        ),
+      ).toBeTruthy();
     },
   );
 

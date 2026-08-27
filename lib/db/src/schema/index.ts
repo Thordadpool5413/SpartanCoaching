@@ -28,3 +28,5 @@ export * from "./providerResources";
 export * from "./memberPersonalization";
 export * from "./memberNotifications";
 export * from "./coach";
+export * from "./memberContinuity";
+export * from "./memberSync";
