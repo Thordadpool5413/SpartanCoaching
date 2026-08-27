@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildPolicyBrief } from "./policyIntelligence";
+import { searchCmsHospices } from "./cmsHospiceLookup";
 import { POLICY_TOPICS, buildPolicyBrief } from "./policyIntelligence";
 import { getCmsHospiceProfile, searchCmsHospices } from "./cmsHospiceLookup";
 
@@ -8,6 +10,7 @@ describe("buildPolicyBrief", () => {
   it("labels the educational baseline honestly", () => {
     const result = buildPolicyBrief("documentation", null);
     expect(result.source.liveCmsSnapshot).toBe(false);
+    expect(result.boundary).toContain("live CMS coverage snapshot is not currently attached");
     expect(result.sources).toHaveLength(2);
     expect(result.whatNotToSay).toHaveLength(2);
     expect(result.escalation).toContain("clinical reviewer");
@@ -39,6 +42,14 @@ describe("buildPolicyBrief", () => {
 
 describe("searchCmsHospices", () => {
   it("maps a CMS enrollment row into customer ready fields", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify([{
+      NPI: "1234567890", CCN: "101500", "ORGANIZATION NAME": "SPARTAN HOSPICE",
+      "DOING BUSINESS AS NAME": "SPARTAN", CITY: "TAMPA", STATE: "FL",
+      "ZIP CODE": "33601", PROPRIETARY_NONPROFIT: "N", "ORGANIZATION TYPE STRUCTURE": "CORPORATION",
+    }]), { status: 200 }));
+    const result = await searchCmsHospices({ state: "fl", city: "tampa" });
+    expect(result[0]).toMatchObject({ organizationName: "SPARTAN HOSPICE", ownership: "Nonprofit", state: "FL" });
+    expect(String(vi.mocked(fetch).mock.calls[0][0])).toContain("filter%5BSTATE%5D=FL");
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(new Response(JSON.stringify({ count: 1, results: [{
         cms_certification_number_ccn: "101500", facility_name: "SPARTAN HOSPICE",
