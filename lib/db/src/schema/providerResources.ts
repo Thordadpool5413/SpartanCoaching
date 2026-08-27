@@ -36,6 +36,17 @@ export type ProviderResourceStatus =
   | "archived"
   | "deleted";
 
+export type ProviderResourceWorkflowMeta = {
+  /** Organization-authored description of the field job this resource supports. */
+  job?: string;
+  /** Organization-authored description of the usable result. */
+  expectedOutput?: string;
+  /** Organization-authored human review checkpoint. */
+  reviewCheckpoint?: string;
+  /** Must reference an ID in the shared Field Kit catalog. */
+  nextToolId?: string;
+};
+
 export type ProviderResourceMeta = {
   tags?: string[];
   audience?: string[];
@@ -43,6 +54,7 @@ export type ProviderResourceMeta = {
   reviewDueAt?: string | null;
   reviewer?: string | null;
   versionLabel?: string;
+  workflow?: ProviderResourceWorkflowMeta | null;
 };
 
 export const providerResources = pgTable(

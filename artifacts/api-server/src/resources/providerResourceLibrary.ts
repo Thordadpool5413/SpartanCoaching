@@ -5,6 +5,10 @@
  * `resources`; provider private items use `provider_resources` only.
  */
 
+import { getToolById } from "@workspace/field-kit-catalog";
+import type { ProviderResourceWorkflowMeta } from "@workspace/db";
+import { findPotentialIdentifiers } from "../clinical/deidentification";
+
 export const PROVIDER_RESOURCE_LIBRARY_VERSION = "provider-resource-library-v1";
 
 export const CORE_OWNERSHIP_LABEL = "Hospice Sales Pro Core";
@@ -33,6 +37,87 @@ export type ProviderResourceStatusId =
   | "published"
   | "archived"
   | "deleted";
+
+const WORKFLOW_TEXT_MAX = 500;
+const WORKFLOW_KEYS = new Set([
+  "job",
+  "expectedOutput",
+  "reviewCheckpoint",
+  "nextToolId",
+]);
+
+export type ProviderWorkflowValidation =
+  | { ok: true; value: ProviderResourceWorkflowMeta | null }
+  | { ok: false; code: string; message: string };
+
+/**
+ * Validate the small, static workflow contract stored with a provider item.
+ * A catalog ID is required instead of accepting arbitrary URLs or member
+ * context, so clients can only link to a real Field Kit destination.
+ */
+export function validateWorkflowMetadata(input: unknown): ProviderWorkflowValidation {
+  if (input === undefined || input === null) return { ok: true, value: null };
+  if (typeof input !== "object" || Array.isArray(input)) {
+    return {
+      ok: false,
+      code: "INVALID_WORKFLOW",
+      message: "workflow must be an object.",
+    };
+  }
+
+  const raw = input as Record<string, unknown>;
+  for (const key of Object.keys(raw)) {
+    if (!WORKFLOW_KEYS.has(key)) {
+      return {
+        ok: false,
+        code: "INVALID_WORKFLOW",
+        message: `workflow.${key} is not supported.`,
+      };
+    }
+  }
+
+  const value: ProviderResourceWorkflowMeta = {};
+  for (const key of ["job", "expectedOutput", "reviewCheckpoint"] as const) {
+    const rawValue = raw[key];
+    if (rawValue === undefined || rawValue === null || rawValue === "") continue;
+    if (typeof rawValue !== "string" || rawValue.trim().length > WORKFLOW_TEXT_MAX) {
+      return {
+        ok: false,
+        code: "INVALID_WORKFLOW",
+        message: `workflow.${key} must be text no longer than ${WORKFLOW_TEXT_MAX} characters.`,
+      };
+    }
+    const trimmed = rawValue.trim();
+    if (trimmed) value[key] = trimmed;
+  }
+
+  const nextToolId = raw.nextToolId;
+  if (nextToolId !== undefined && nextToolId !== null && nextToolId !== "") {
+    if (
+      typeof nextToolId !== "string" ||
+      !nextToolId.trim() ||
+      !getToolById(nextToolId.trim())
+    ) {
+      return {
+        ok: false,
+        code: "INVALID_NEXT_TOOL",
+        message: "workflow.nextToolId must reference a Field Kit catalog tool.",
+      };
+    }
+    value.nextToolId = nextToolId.trim();
+  }
+
+  if (findPotentialIdentifiers(value).length) {
+    return {
+      ok: false,
+      code: "POTENTIAL_PHI_DETECTED",
+      message:
+        "Remove patient identifiers and member contact details before saving workflow guidance.",
+    };
+  }
+
+  return { ok: true, value: Object.keys(value).length ? value : null };
+}
 
 export type ProviderResourceRow = {
   id: number;
@@ -161,6 +246,10 @@ export function sanitizeMeta(
   if (typeof raw.versionLabel === "string" && raw.versionLabel.trim()) {
     out.versionLabel = raw.versionLabel.trim().slice(0, 32);
   }
+  const workflow = validateWorkflowMetadata(raw.workflow);
+  if (workflow.ok && workflow.value) {
+    out.workflow = workflow.value;
+  }
   return Object.keys(out).length ? out : null;
 }
 
@@ -178,7 +267,9 @@ export function presentProviderResource(row: ProviderResourceRow) {
     /** Explicit contrast with Core library. */
     isProviderOwned: true,
     isCore: false,
-    meta: row.meta,
+    // Normalize old JSONB on every read. A malformed or identifier-bearing
+    // legacy workflow must fall back to the catalog guide, never reach a UI.
+    meta: sanitizeMeta(row.meta),
     createdByMemberId: row.createdByMemberId,
     updatedByMemberId: row.updatedByMemberId,
     createdAt: row.createdAt,

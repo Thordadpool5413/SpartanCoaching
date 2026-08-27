@@ -14,6 +14,11 @@ export default function Register() {
   const { login, isAuthenticated, canUseFieldKit, isLoading, refresh } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const requestedPlan =
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("plan") === "standard_weekly"
+      ? "standard_weekly"
+      : "elite_weekly";
+  const requestedPlanLabel = requestedPlan === "elite_weekly" ? "Elite at $19.99/week" : "Standard at $14.99/week";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +29,7 @@ export default function Register() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated && !pending) {
-      setLocation(canUseFieldKit ? "/portal" : "/account");
+      setLocation(canUseFieldKit ? "/portal" : `/account?subscribe=1&plan=${requestedPlan}`);
     }
   }, [isLoading, isAuthenticated, canUseFieldKit, setLocation, pending]);
 
@@ -77,9 +82,10 @@ export default function Register() {
       await refresh();
       toast({
         title: "Account created",
+        description: `Next: confirm ${requestedPlanLabel}. Cancel anytime.`,
         description: "Next: choose recommended Elite at $19.99/week or Standard at $14.99/week. Cancel anytime.",
       });
-      setLocation("/account?welcome=1");
+      setLocation(`/account?welcome=1&subscribe=1&plan=${requestedPlan}`);
     } catch (err: any) {
       toast({
         title: "Registration failed",
@@ -111,6 +117,8 @@ export default function Register() {
             Create your account
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
+            You selected <strong className="text-foreground">{requestedPlanLabel}</strong>. You can review
+            the other plan before checkout, and you can cancel anytime.{" "}
             Then subscribe for{" "}
             <strong className="text-foreground">Elite at $19.99/week</strong>, recommended for the complete product, or Standard at $14.99/week. Cancel
             anytime.{" "}

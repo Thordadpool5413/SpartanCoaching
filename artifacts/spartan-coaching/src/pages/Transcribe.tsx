@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { downloadPdf } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 export default function Transcribe() {
   const { capture, gateState } = useLeadGate("Call Transcription");
@@ -293,6 +294,37 @@ export default function Transcribe() {
               </p>
             </div>
           )}
+          <div className="mt-4">
+            <ToolResultActions
+              toolId="transcribe"
+              description={
+                analysis
+                  ? "Choose one coaching point to rehearse before the next live conversation."
+                  : "Review the transcript, then request coaching to find the one improvement to take into the next call."
+              }
+              actions={
+                analysis
+                  ? [
+                      {
+                        id: "practice-coaching-point",
+                        label: "Practice in Role-Play",
+                        href: "/tools/role-play",
+                      },
+                    ]
+                  : [
+                      {
+                        id: "analyze",
+                        label: "Analyze with AI Coaching",
+                        icon: Sparkles,
+                        onClick: () => capture(handleAnalyze),
+                        disabled: isAnalyzing,
+                      },
+                    ]
+              }
+              persistenceNote="Transcripts and coaching analysis are not automatically added to My Work or synced to iPhone. Copy or download only the field notes you need."
+              testId="transcript-next-action"
+            />
+          </div>
         </Card>
       )}
 
@@ -312,6 +344,21 @@ export default function Transcribe() {
             <h2 className="text-h2 font-bold text-foreground">Coaching Analysis</h2>
           </div>
           <MarkdownContent content={analysis} />
+          <div className="mt-5">
+            <ToolResultActions
+              toolId="transcribe"
+              description="Use one coaching point immediately: rehearse it once, then carry it into the next real conversation."
+              actions={[
+                {
+                  id: "practice-coaching-point",
+                  label: "Practice in Role-Play",
+                  href: "/tools/role-play",
+                },
+              ]}
+              persistenceNote="This analysis is shown for the current page session. It is not automatically saved or synced; download creates a local copy."
+              testId="transcribe-analysis-next-action"
+            />
+          </div>
         </Card>
       )}
 

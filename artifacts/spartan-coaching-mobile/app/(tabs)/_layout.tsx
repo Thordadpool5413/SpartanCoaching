@@ -52,6 +52,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tools"
         options={{
+          title: "Tools",
+          tabBarIcon: ({ color }) => <TabIcon route="tools" color={color} />,
           title: "Explore",
           tabBarIcon: ({ color }) => <TabIcon name="explore" color={color} size={24} />,
         }}

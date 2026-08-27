@@ -1,3 +1,5 @@
+import seoRoutes from "../../public/seo-routes.json";
+
 export interface SEOConfig {
   title: string;
   description: string;
@@ -8,6 +10,12 @@ export interface SEOConfig {
 }
 
 export const SITE_NAME = 'Spartan Coaching';
+/** The one public origin used by crawlers, social previews, and iPhone handoff links. */
+export const SITE_ORIGIN = 'https://spartanhospicecoaching.com';
+export const DEFAULT_OG_IMAGE = '/og-image.png';
+
+/** Paths (prefix match) that should never appear in search results */
+export const NOINDEX_PREFIXES = seoRoutes.noindexPrefixes;
 export const DEFAULT_OG_IMAGE = '/og-image.png';
 
 /** Paths (prefix match) that should never appear in search results */
@@ -102,6 +110,80 @@ const seoDefaults: Record<string, SEOConfig> = {
       'Hospice Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Use the Spartan system daily on web and iPhone.',
     keywords: 'Hospice Sales Pro, $14.99 week, hospice sales tools, team seats, cancel anytime',
   },
+  '/app': {
+    title: 'Hospice Sales Pro for iPhone | Spartan Coaching',
+    description:
+      'Take Hospice Sales Pro into the field on iPhone. Use the same account for Command Center, practice tools, plans, and resources.',
+    keywords: 'Hospice Sales Pro iPhone app, hospice sales field tools, hospice sales coaching app',
+  },
+  '/field-kit-membership': {
+    title: 'Hospice Sales Pro Elite $19.99/week | Spartan Coaching',
+    description:
+      'Choose recommended Hospice Sales Pro Elite at $19.99/week or Standard at $14.99/week. Create an account, subscribe, and cancel anytime.',
+    keywords: 'Hospice Sales Pro, $14.99 week, hospice sales tools, team seats, cancel anytime',
+  },
+  '/pricing/field-kit': {
+    title: 'Hospice Sales Pro Elite and Standard | Spartan Coaching',
+    description:
+      'Hospice Sales Pro pricing: recommended Elite is $19.99/week, Standard is $14.99/week, and team seats use a hospice contract.',
+    keywords: 'Hospice Sales Pro pricing, hospice consulting tools, $14.99 week',
+  },
+  '/tools/playbooks': {
+    title: 'Sales Playbook Generator | Spartan Coaching',
+    description:
+      'Generate customized hospice sales playbooks — strategies, talking points, and action plans for field scenarios. Client and evaluator access.',
+    keywords: 'sales playbook generator, hospice sales strategies, talking points',
+    noIndex: true,
+  },
+  '/tools/objections': {
+    title: 'Objection Handler | Spartan Coaching',
+    description:
+      'Master hospice sales objections with confident, ethical responses that keep conversations moving.',
+    keywords: 'objection handling, hospice objections, empathetic responses',
+    noIndex: true,
+  },
+  '/tools/research': {
+    title: 'Territory Research | Spartan Coaching',
+    description:
+      'Research facilities, demographics, and market opportunities to focus hospice outreach.',
+    keywords: 'territory research, hospice demographics, facility research',
+    noIndex: true,
+  },
+  '/tools/transcribe': {
+    title: 'Call Transcriber | Spartan Coaching',
+    description:
+      'Transcribe sales calls for coaching notes and follow-ups. Never enter PHI.',
+    keywords: 'call transcriber, sales call notes, coaching transcription',
+    noIndex: true,
+  },
+  '/tools/email-templates': {
+    title: 'Email Templates | Spartan Coaching',
+    description:
+      'Professional hospice outreach emails — follow-ups, thank-yous, and value-adds that build referral relationships.',
+    keywords: 'email templates, hospice outreach, follow-up emails',
+    noIndex: true,
+  },
+  '/tools/roi-calculator': {
+    title: 'ROI Calculator | Spartan Coaching',
+    description:
+      'Estimate coaching impact on hospice referrals, conversion, and revenue growth.',
+    keywords: 'ROI calculator, hospice ROI, sales coaching ROI',
+    noIndex: true,
+  },
+  '/tools/role-play': {
+    title: 'AI Role-Play Practice | Spartan Coaching',
+    description:
+      'Practice hospice sales conversations with AI role-play and coaching feedback on empathy and strategy.',
+    keywords: 'role-play practice, sales simulation, AI coaching',
+    noIndex: true,
+  },
+  '/drills': {
+    title: 'Daily Coaching Drills | Spartan Coaching',
+    description:
+      'Daily practice drills for objection handling, prospecting, and field habits.',
+    keywords: 'daily drills, sales practice, hospice sales habits',
+    noIndex: true,
+  },
   '/field-kit-membership': {
     title: 'Hospice Sales Pro Elite $19.99/week | Spartan Coaching',
     description:
@@ -175,6 +257,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     description:
       'Downloadable scripts, templates, checklists, and guides for hospice sales teams.',
     keywords: 'training resources, sales scripts, hospice sales guides',
+  },
+  '/resources/activity-tracker': {
+    title: 'Activity Tracker | Spartan Coaching',
+    description: 'Plan and review hospice sales activity with a focused weekly tracker.',
+    keywords: 'hospice sales activity tracker, weekly activity planning',
   },
   '/resources/weekly-plan': {
     title: 'Weekly Action Plan | Spartan Coaching',
@@ -262,6 +349,47 @@ const seoDefaults: Record<string, SEOConfig> = {
     description:
       'HIPAA Business Associate Agreement for corporate hospice engagements. Platform does not store PHI; BAA available for procurement.',
     keywords: 'HIPAA BAA, business associate agreement, PHI',
+  },
+  '/trust': {
+    title: 'Trust Center | Spartan Coaching',
+    description:
+      'Review Spartan Coaching’s privacy, security, no-PHI stance, and responsible-use commitments.',
+    keywords: 'Spartan Coaching trust center, privacy, security, no PHI',
+  },
+  '/legal': {
+    title: 'Legal Agreements | Spartan Coaching',
+    description: 'Consulting engagement agreements including BAA, Services Contract, NDA, and related forms.',
+    keywords: 'legal agreements, consulting contracts',
+  },
+  '/contract': {
+    title: 'Services Contract | Spartan Coaching',
+    description: 'Consulting services contract covering scope, fees, confidentiality, and engagement terms.',
+    keywords: 'services contract, consulting agreement',
+  },
+  '/nda': {
+    title: 'Non-Disclosure Agreement | Spartan Coaching',
+    description: 'Mutual NDA protecting confidential business information in consulting engagements.',
+    keywords: 'NDA, confidentiality agreement',
+  },
+  '/emr-access': {
+    title: 'EMR/Data Access Agreement | Spartan Coaching',
+    description: 'Terms for limited consultant access to client systems when required by an engagement.',
+    keywords: 'EMR access agreement, data access',
+  },
+  '/conflict-of-interest': {
+    title: 'Conflict of Interest Disclosure | Spartan Coaching',
+    description: 'How Spartan manages work across multiple hospice organizations and information barriers.',
+    keywords: 'conflict of interest, consulting ethics',
+  },
+  '/liability-waiver': {
+    title: 'Liability Waiver | Spartan Coaching',
+    description: 'Hold harmless terms for consulting services and training activities.',
+    keywords: 'liability waiver, consulting liability',
+  },
+  '/testimonial-release': {
+    title: 'Testimonial Release | Spartan Coaching',
+    description: 'Permission form for client testimonials and case study use in marketing.',
+    keywords: 'testimonial release, case study permission',
   },
   '/legal': {
     title: 'Legal Agreements | Spartan Coaching',
@@ -394,6 +522,12 @@ const defaultConfig: SEOConfig = {
   ogImage: DEFAULT_OG_IMAGE,
 };
 
+/** True only when the route has intentional, route-specific crawl metadata. */
+export function hasExplicitSEOConfig(path: string): boolean {
+  const clean = path.split('?')[0].split('#')[0] || '/';
+  return Boolean(seoDefaults[clean]);
+}
+
 export function getSEOConfig(path: string): SEOConfig {
   const clean = path.split('?')[0].split('#')[0] || '/';
   const exact = seoDefaults[clean];
@@ -411,6 +545,7 @@ export function getSEOConfig(path: string): SEOConfig {
 }
 
 /** Public URLs for sitemap generation (relative paths). */
+export const PUBLIC_SITEMAP_PATHS = seoRoutes.publicPaths;
 export const PUBLIC_SITEMAP_PATHS = [
   '/',
   '/welcome',

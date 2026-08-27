@@ -41,6 +41,8 @@ describe("product analytics contract", () => {
     const meta = sanitizeAnalyticsMetadata({
       toolId: "objections",
       surface: "web",
+      campaign: "hospice_sales_pro",
+      creative: "walk_in_prepared",
       freeText: "secret note",
       email: "x@y.com",
     });
@@ -48,6 +50,8 @@ describe("product analytics contract", () => {
     const parsed = JSON.parse(meta!);
     expect(parsed.toolId).toBe("objections");
     expect(parsed.surface).toBe("web");
+    expect(parsed.campaign).toBe("hospice_sales_pro");
+    expect(parsed.creative).toBe("walk_in_prepared");
     expect(parsed.freeText).toBeUndefined();
     expect(parsed.email).toBeUndefined();
   });

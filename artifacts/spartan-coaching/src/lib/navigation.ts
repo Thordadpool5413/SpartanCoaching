@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
   Home,
   Info,
@@ -61,6 +62,9 @@ export const navSections: SiteNavSection[] = [
   {
     title: "Hospice Sales Pro",
     items: [
+      { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · web + iOS`, icon: Wrench },
+      { path: "/tools", label: "Tools", description: "Interactive help for visits, objections, plans, and numbers", icon: Calculator },
+      { path: "/resources", label: "Field resources", description: "Downloadable templates, scripts, and checklists", icon: FolderOpen },
       { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Elite recommended $19.99/wk · Standard $14.99/wk · web + iOS", icon: Wrench },
       { path: "/tools", label: "Tools", description: "Start from intent — visits, objections, week plans, numbers", icon: Calculator },
       { path: "/resources", label: "Field resources", description: "Work aids: templates, scripts, checklists — not only Learn", icon: FolderOpen },
@@ -86,6 +90,7 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
   { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
+  { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`, icon: Wrench },
   { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Elite recommended $19.99/wk · Standard $14.99/wk", icon: Wrench },
   { path: "/membership", label: "Hospice Sales Pro (legacy URL)", description: "Redirects to Hospice Sales Pro", icon: DollarSign },
   { path: "/field-kit", label: "Legacy product URL", description: "Redirects to Hospice Sales Pro", icon: Flame },

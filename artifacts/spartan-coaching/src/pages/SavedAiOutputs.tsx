@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 type SavedRun = {
   id: string;
@@ -153,7 +154,19 @@ export default function SavedAiOutputs() {
                       <ToolResultPanel title={experience.resultTitle} copyText={readable} disclaimer={run.watermark ?? "Suggested guidance from Spartan Coaching. Review and adapt before use."}>
                         <p className="whitespace-pre-wrap leading-7">{readable}</p>
                       </ToolResultPanel>
-                      <Button asChild><Link href={tool.webPath}>Open {experience.title ?? tool.name}</Link></Button>
+                      <ToolResultActions
+                        toolId={run.toolId}
+                        description="Review the saved result, then return to the tool when you are ready to turn it into the next field action."
+                        actions={[
+                          {
+                            id: "reopen-tool",
+                            label: `Open ${experience.title ?? tool.name}`,
+                            href: tool.webPath,
+                          },
+                        ]}
+                        persistenceNote="This nonclinical result is saved in My Work. Opening it again does not copy the result into a new record."
+                        testId={`saved-output-next-action-${run.id}`}
+                      />
                     </div>
                   )}
                 </Card>

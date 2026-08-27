@@ -18,6 +18,11 @@ const BUDGETS = {
   /** Any single JS chunk */
   maxJsChunk: 900 * 1024,
   /**
+   * The entry requested by the initial HTML document. Keep visitor-facing
+   * marketing routes below Vite's warning threshold with room for growth.
+   */
+  maxInitialJs: 450 * 1024,
+  /**
    * Total JS under assets/.
    * CI measured ~2.80 MiB after stacked HSP features (was 2.8 MiB ceiling —
    * 2867.3 KiB failed 2867.2 KiB by ~100 bytes). Soft ceiling is 3.0 MiB to
@@ -29,6 +34,14 @@ const BUDGETS = {
   maxCssChunk: 250 * 1024,
   /** Total CSS under assets/ */
   maxCssTotal: 400 * 1024,
+  /** Initial HTML must remain small enough for a fast document response. */
+  maxHtmlDocument: 100 * 1024,
+  /** Desktop hero media is intentionally cinematic, but must remain capped. */
+  maxDesktopHeroVideo: 10 * 1024 * 1024,
+  /** Narrow-screen hero keeps a separate, lower transfer ceiling. */
+  maxMobileHeroVideo: 4 * 1024 * 1024,
+  /** Poster reserves space before dynamic hero work begins. */
+  maxHeroPoster: 500 * 1024,
 };
 
 function walk(dir, acc = []) {
@@ -44,6 +57,20 @@ function walk(dir, acc = []) {
 
 function kb(n) {
   return `${(n / 1024).toFixed(1)} KiB`;
+}
+
+function checkFileBudget(file, limit, label, report) {
+  if (!fs.existsSync(file)) {
+    report.push(`FAIL ${label} is missing: ${path.relative(distPublic, file)}`);
+    return true;
+  }
+  const size = fs.statSync(file).size;
+  if (size > limit) {
+    report.push(`FAIL ${label} = ${kb(size)} > ${kb(limit)}`);
+    return true;
+  }
+  report.push(`OK  ${label} ${kb(size)} / ${kb(limit)}`);
+  return false;
 }
 
 function main() {
@@ -90,6 +117,33 @@ function main() {
     report.push(`FAIL CSS total ${kb(cssTotal)} > ${kb(BUDGETS.maxCssTotal)}`);
   } else {
     report.push(`OK  CSS total ${kb(cssTotal)} / ${kb(BUDGETS.maxCssTotal)} (${css.length} files)`);
+  }
+
+  const html = path.join(distPublic, "index.html");
+  const desktopHero = path.join(distPublic, "hero-video.mp4");
+  const mobileHero = path.join(distPublic, "hero-video-mobile.mp4");
+  const heroPoster = path.join(distPublic, "hero-poster.jpg");
+  failed = checkFileBudget(html, BUDGETS.maxHtmlDocument, "HTML document", report) || failed;
+  failed = checkFileBudget(desktopHero, BUDGETS.maxDesktopHeroVideo, "desktop hero video", report) || failed;
+  failed = checkFileBudget(mobileHero, BUDGETS.maxMobileHeroVideo, "mobile hero video", report) || failed;
+  failed = checkFileBudget(heroPoster, BUDGETS.maxHeroPoster, "hero poster", report) || failed;
+
+  const htmlContents = fs.existsSync(html) ? fs.readFileSync(html, "utf8") : "";
+  if (/uppy-(?:core|dashboard|styles)\.css/.test(htmlContents)) {
+    failed = true;
+    report.push("FAIL public HTML directly loads Uppy upload styles");
+  } else {
+    report.push("OK  public HTML excludes Uppy upload styles");
+  }
+
+  const initialScriptMatch = htmlContents.match(/<script[^>]+type="module"[^>]+src="([^"]+\.js)"/);
+  if (!initialScriptMatch?.[1]) {
+    failed = true;
+    report.push("FAIL initial JS entry is not referenced by dist/public/index.html");
+  } else {
+    const initialScript = path.resolve(distPublic, initialScriptMatch[1].replace(/^[/\\]/, ""));
+    failed =
+      checkFileBudget(initialScript, BUDGETS.maxInitialJs, "initial JS entry", report) || failed;
   }
 
   console.log("[performance-budget]");

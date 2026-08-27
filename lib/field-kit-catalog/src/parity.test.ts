@@ -22,9 +22,21 @@ import {
   filterDiscoveryIntents,
   secondaryCategoriesStillSupported,
   getToolById as getTool,
+   getToolWorkGuide,
+   getResourceWorkGuide,
+  validateDestinationContracts,
+  catalogOwnershipErrors,
 } from "./index";
 
 describe("Membership mobile parity", () => {
+  it("defines the seven destination jobs and only known cross-links", () => {
+    expect(validateDestinationContracts()).toEqual([]);
+  });
+
+  it("requires every searchable or tourable catalog destination to name an owner", () => {
+    expect(catalogOwnershipErrors(FIELD_KIT_TOOLS)).toEqual([]);
+  });
+
   it("ships at least 12 catalog tools", () => {
     expect(FIELD_KIT_TOOLS.length).toBeGreaterThanOrEqual(12);
   });
@@ -79,6 +91,100 @@ describe("Membership mobile parity", () => {
         false,
       );
     }
+  });
+});
+
+describe("Catalog-backed completion guidance", () => {
+  it("gives every catalog tool safe input, output, and persistence guidance", () => {
+    for (const tool of FIELD_KIT_TOOLS) {
+      const guide = getToolWorkGuide(tool);
+      expect(guide.inputHint.length).toBeGreaterThan(20);
+      expect(guide.outputPreview.length).toBeGreaterThan(20);
+      expect(guide.persistence.length).toBeGreaterThan(20);
+      expect(guide.inputHint).toMatch(/PHI|deidentified/i);
+    }
+  });
+
+  it("routes the highest-use workflows to a real next catalog tool", () => {
+    for (const id of [
+      "sales-workflow",
+      "playbooks",
+      "objections",
+      "role-play",
+      "weekly-plan",
+      "cold-call",
+      "email-templates",
+    ]) {
+      const nextToolId = getToolWorkGuide(id).nextToolId;
+      expect(nextToolId).toBeTruthy();
+      expect(getToolById(nextToolId!)).toBeDefined();
+    }
+  });
+
+  it("keeps role-play feedback session-only", () => {
+    const persistence = getToolWorkGuide("role-play").persistence;
+    expect(persistence).toMatch(/current session|session only/i);
+    expect(persistence).toMatch(/not added to run history|not.*saved/i);
+  });
+
+  it("gives every resource type an actionable, safe workflow contract", () => {
+    for (const category of ["template", "script", "checklist", "guide", "policy", "form"]) {
+      const guide = getResourceWorkGuide({ category });
+      expect(guide.job.length).toBeGreaterThan(20);
+      expect(guide.outputPreview.length).toBeGreaterThan(20);
+      expect(guide.inputHint).toMatch(/PHI|deidentified/i);
+      expect(guide.persistence.length).toBeGreaterThan(20);
+      expect(guide.reviewCheckpoint.length).toBeGreaterThan(20);
+      expect(guide.nextToolId).toBeTruthy();
+      expect(getToolById(guide.nextToolId!)).toBeDefined();
+    }
+  });
+
+  it("applies provider workflow overrides while retaining safe defaults", () => {
+    const guide = getResourceWorkGuide({
+      category: "policy",
+      workflow: {
+        job: "Prepare the approved escalation conversation.",
+        expectedOutput: "A concise escalation summary with an accountable owner.",
+        reviewCheckpoint: "Confirm the policy version and manager before acting.",
+        nextToolId: "sales-workflow",
+      },
+    });
+    expect(guide.job).toBe("Prepare the approved escalation conversation.");
+    expect(guide.outputPreview).toBe(
+      "A concise escalation summary with an accountable owner.",
+    );
+    expect(guide.reviewCheckpoint).toBe(
+      "Confirm the policy version and manager before acting.",
+    );
+    expect(guide.nextToolId).toBe("sales-workflow");
+
+    const invalidNextTool = getResourceWorkGuide({
+      category: "policy",
+      workflow: { nextToolId: "does-not-exist" },
+    });
+    expect(getToolById(invalidNextTool.nextToolId!)).toBeDefined();
+  });
+
+  it("falls back safely when a legacy provider workflow has malformed values", () => {
+    const guide = getResourceWorkGuide({
+      category: "policy",
+      workflow: {
+        job: 7,
+        expectedOutput: ["unsafe"],
+        reviewCheckpoint: { text: "unsafe" },
+        nextToolId: 3,
+      } as unknown as {
+        job?: string;
+        expectedOutput?: string;
+        reviewCheckpoint?: string;
+        nextToolId?: string;
+      },
+    });
+    expect(guide.job.length).toBeGreaterThan(20);
+    expect(guide.outputPreview.length).toBeGreaterThan(20);
+    expect(guide.reviewCheckpoint.length).toBeGreaterThan(20);
+    expect(getToolById(guide.nextToolId!)).toBeDefined();
   });
 });
 

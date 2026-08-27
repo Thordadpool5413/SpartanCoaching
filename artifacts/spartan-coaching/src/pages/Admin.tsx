@@ -283,6 +283,13 @@ export default function Admin() {
         mobileAiToolUsage: Array<{ eventName: string; count: number }>;
         mobileToolViews: Array<{ eventName: string; count: number }>;
         mobileAppOpens: { day: number; week: number; month: number };
+        publicFunnel: {
+          ctaClicks: number;
+          contactStarts: number;
+          contactSuccesses: number;
+          contactFailures: number;
+          appInterest: number;
+        };
       };
     }>({
       queryKey: ["/api/analytics/events"],
@@ -2093,6 +2100,34 @@ export default function Admin() {
           </div>
         ) : eventAnalyticsData?.analytics ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="md:col-span-3" data-testid="card-public-funnel">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Public Funnel — traffic to completed intent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+                  {[
+                    ["CTA clicks", eventAnalyticsData.analytics.publicFunnel.ctaClicks, "cta-clicks"],
+                    ["Contact starts", eventAnalyticsData.analytics.publicFunnel.contactStarts, "contact-starts"],
+                    ["Successful sends", eventAnalyticsData.analytics.publicFunnel.contactSuccesses, "contact-successes"],
+                    ["Send failures", eventAnalyticsData.analytics.publicFunnel.contactFailures, "contact-failures"],
+                    ["iPhone interest", eventAnalyticsData.analytics.publicFunnel.appInterest, "app-interest"],
+                  ].map(([label, value, testId]) => (
+                    <div key={String(testId)}>
+                      <div className="text-2xl font-bold" data-testid={`text-public-funnel-${testId}`}>
+                        {value}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Aggregate all-time counts. Contact success is recorded by the server only; no form answers or visitor identity are included.
+                </p>
+              </CardContent>
+            </Card>
             <Card data-testid="card-ai-tool-usage">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">

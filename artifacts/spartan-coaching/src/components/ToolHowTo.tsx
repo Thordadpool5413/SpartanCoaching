@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import type { FieldKitTool } from "@/lib/fieldKitCatalog";
 import { getToolByPath } from "@/lib/fieldKitCatalog";
+import { getToolWorkGuide } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "spartan.toolHowTo.open";
@@ -84,7 +85,7 @@ export function ToolHowTo({
       </div>
 
       {open && (
-        <div className="grid sm:grid-cols-3 gap-4 text-sm">
+        <div className="grid sm:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="font-bold text-foreground mb-1">When</p>
             <p className="text-muted-foreground leading-relaxed">{tool.whenToUse}</p>
@@ -100,6 +101,12 @@ export function ToolHowTo({
           <div>
             <p className="font-bold text-foreground mb-1">Why</p>
             <p className="text-muted-foreground leading-relaxed">{tool.why}</p>
+          </div>
+          <div>
+            <p className="font-bold text-foreground mb-1">Field phase</p>
+            <p className="text-muted-foreground leading-relaxed">
+              {getToolWorkGuide(tool).phase} · {getToolWorkGuide(tool).audience}
+            </p>
           </div>
         </div>
       )}

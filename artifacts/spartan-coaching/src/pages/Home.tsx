@@ -2,6 +2,24 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { TrustStrip } from "@/components/TrustStrip";
+import { ProofStrip } from "@/components/ProofStrip";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { lazy, Suspense, Component } from "react";
+import type { ReactNode } from "react";
+import { useReducedMotion } from "framer-motion";
+import nickPhoto from "@assets/nick-photo.jpg";
+import { SITE_ORIGIN } from "@/lib/seo-config";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
+
+const CANONICAL_ORIGIN = SITE_ORIGIN;
+
+/** Kinetic brand hero, progressively enhanced with a static, readable message. */
 import { ArrowRight, Briefcase, Wrench, CheckCircle, Sparkles, ShieldCheck, MapPinned } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
@@ -30,6 +48,7 @@ class AnimationErrorBoundary extends Component<
   }
   render() {
     return this.state.failed ? (
+      <div className="absolute inset-0 bg-background" />
       <div className="absolute inset-0 bg-black" />
     ) : (
       this.props.children
@@ -38,6 +57,8 @@ class AnimationErrorBoundary extends Component<
 }
 
 export default function Home() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div className="flex flex-col">
       <SEO />
@@ -87,6 +108,85 @@ export default function Home() {
         </script>
       </Helmet>
 
+      {/* ── 1. HERO — the film leads, with the offer kept in a dedicated column ── */}
+      <section
+        className="relative overflow-hidden bg-background"
+        data-testid="section-hero"
+        aria-labelledby="home-hero-title"
+      >
+        <img
+          src="/hero-poster.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
+          fetchPriority="high"
+          decoding="async"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/70" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="flex flex-col gap-10 xl:gap-14 items-center">
+            <div className="order-2 max-w-3xl mx-auto text-center">
+            <p className="text-kicker mb-5 justify-center">Hospice sales consulting + Hospice Sales Pro</p>
+            <h1
+              id="home-hero-title"
+              className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight text-foreground leading-[0.95]"
+              data-testid="text-home-hero-title"
+            >
+              Make the next hospice conversation count.
+            </h1>
+            <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Practical consulting for growth leaders. A focused field system for the people who
+              carry the work forward every day.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+              <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
+                <Link
+                  href="/contact"
+                  onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
+                >
+                  Explore consulting
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold min-h-12 bg-background/70" data-testid="button-hero-product">
+                <Link
+                  href="/hospice-sales-pro"
+                  onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
+                >
+                  See Hospice Sales Pro
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-5 text-xs font-medium text-muted-foreground">
+              Consulting for teams. Hospice Sales Pro for daily execution.
+            </p>
+            </div>
+            <div className="order-1 w-full max-w-5xl mx-auto">
+              <div
+                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20"
+                data-testid="hero-video-frame"
+                aria-label="Spartan Coaching hero film"
+              >
+                <img
+                  src="/hero-poster.jpg"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                />
+                {!prefersReducedMotion && (
+                  <AnimationErrorBoundary>
+                    <Suspense fallback={null}>
+                      <SpartanHeroAnimation />
+                    </Suspense>
+                  </AnimationErrorBoundary>
+                )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-24 bg-gradient-to-t from-black/70 to-transparent" />
+                <p className="pointer-events-none absolute bottom-4 left-5 z-[51] text-[10px] font-bold uppercase tracking-[0.22em] text-white/75">
+                  Spartan Coaching · Hospice sales is not a mystery
+                </p>
+              </div>
+            </div>
+          </div>
       {/* ── 1. HERO — SpartanHeroAnimation only (no HTML text overlay) ── */}
       <section
         className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
@@ -177,12 +277,26 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
+                      <Link
+                        href="/contact"
+                        onClick={() =>
+                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
+                        }
+                      >
                     <Link href="/contact">
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
+                      <Link
+                        href="/about"
+                        onClick={() =>
+                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
+                        }
+                      >
+                        About Nick Lynch
+                      </Link>
                     <Link href="/about">About Nick Lynch</Link>
                   </Button>
                 </div>
@@ -221,6 +335,9 @@ export default function Home() {
             <div className="text-center mb-8 sm:mb-12 lg:mb-14">
               <p className="text-kicker justify-center mb-4">How Spartan helps</p>
               <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
+              Choose human coaching for the team or a field system for the work between conversations.
+            </p>
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
                 Hire Spartan for human consulting — or run{" "}
                 <strong className="text-foreground">Hospice Sales Pro</strong> for Command Center, tools, and
@@ -250,6 +367,7 @@ export default function Home() {
                   "Sales Command Center",
                   "Objections · role-play · email · playbooks",
                   "Weekly plan · activity · ROI · branch math",
+                  `Elite recommended · ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`,
                   "Elite recommended · $19.99/wk · Standard $14.99/wk",
                 ],
                 href: "/hospice-sales-pro",
@@ -282,6 +400,15 @@ export default function Home() {
                       ))}
                     </ul>
                     <Button asChild className="font-bold w-full min-h-11" variant={p.primary ? "default" : "outline"}>
+                      <Link
+                        href={p.href}
+                        onClick={() =>
+                          trackPublicFunnelEvent(
+                            PUBLIC_FUNNEL_EVENT.ctaClick,
+                            p.primary ? "home_consulting" : "home_hospice_sales_pro",
+                          )
+                        }
+                      >
                       <Link href={p.href}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-4 h-4" />
@@ -292,6 +419,19 @@ export default function Home() {
               );
             })}
           </StaggerContainer>
+        </div>
+      </section>
+
+      {/* ── 4b. WEB ↔ IPHONE — same product, clear handoff ── */}
+      <section className="relative bg-background py-12 sm:py-16 lg:py-20" data-testid="section-app-handoff">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <AppHandoffPanel
+              destination="command"
+              title="The field system does not stay at your desk."
+              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
+            />
+          </FadeIn>
         </div>
       </section>
 
@@ -337,6 +477,17 @@ export default function Home() {
             <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
               Stop winging it.
             </h2>
+              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+               Start with the next move that fits your work. We will keep the path clear from there.
+             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
+                <Link
+                  href="/contact"
+                  onClick={() =>
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")
+                  }
+                >
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
               If you are ready to build a system that holds when the week is hard, reach out. Honest conversation — no pressure.
             </p>
@@ -348,6 +499,14 @@ export default function Home() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-hospice-sales-pro">
+                <Link
+                  href="/hospice-sales-pro"
+                  onClick={() =>
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")
+                  }
+                >
+                  Explore Hospice Sales Pro
+                </Link>
                 <Link href="/hospice-sales-pro">Explore Hospice Sales Pro</Link>
               </Button>
             </div>
@@ -364,6 +523,14 @@ export default function Home() {
           </div>
         </FadeIn>
       </section>
+      <PublicConversionPanel
+        source="home"
+        audience="Hospice growth leaders, sales professionals, and provider teams choosing between human consulting and daily field tools."
+        promise="A practical path from the next conversation to a repeatable operating rhythm."
+        evidence="Field-tested coaching, role-based proof, and clear no-PHI product boundaries."
+        primary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
+        secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+      />
     </div>
   );
 }

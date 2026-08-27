@@ -27,7 +27,7 @@ describe("Elite iOS experience contract", () => {
 
     expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Explore"');
+    expect(tabs).toContain('title: "Tools"');
     expect(tabs).toContain('title: "My Work"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: "flex"');

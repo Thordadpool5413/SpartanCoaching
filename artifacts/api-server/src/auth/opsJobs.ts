@@ -17,6 +17,7 @@ import {
 import { runClinicalRetentionSweep } from "../clinical/retention";
 import { runEphemeralClinicalSweep } from "../clinical/ephemeral";
 import { runCoachRetentionSweep } from "../routes/coachRoutes";
+import { runAnalyticsRetentionSweep } from "../analytics/retention";
 
 export type OpsDigestResult = {
   sent: boolean;
@@ -457,6 +458,9 @@ export function startBackgroundJobScheduler(): void {
         if (r.conversationsDeleted) console.log("[jobs] Coach retention", r);
       })
       .catch((err) => console.error("[jobs] Coach retention failed", err));
+
+    void runAnalyticsRetentionSweep()
+      .catch((err) => console.error("[jobs] analytics retention failed", err));
 
     void runMemberOffboardingRetentionSweep()
       .then((r) => {

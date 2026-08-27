@@ -30,5 +30,5 @@ Disallow: /drills
 Disallow: /quiz
 Disallow: /learn/
 
-# Sitemap (update host if production domain differs)
-Sitemap: https://spartancoaching.com/sitemap.xml
+# Canonical public sitemap
+Sitemap: https://spartanhospicecoaching.com/sitemap.xml

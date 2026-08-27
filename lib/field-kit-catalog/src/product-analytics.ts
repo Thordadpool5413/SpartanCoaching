@@ -36,6 +36,8 @@ export const SAFE_METADATA_KEYS = [
   "surface",
   "platform",
   "source",
+  "campaign",
+  "creative",
   "stepId",
   "outcome",
   "plan",

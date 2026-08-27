@@ -37,7 +37,7 @@ describe("complete native member journeys", () => {
     expect(result).not.toContain("webPath");
     expect(result).not.toContain("Linking.openURL");
     expect(result).not.toContain("Open on website");
-    expect(result).toContain("Saved to your Spartan account");
+    expect(result).toContain("Copy and Share do not save or sync this result.");
   });
 
   it("uses an in app authentication session for calendar connections", () => {

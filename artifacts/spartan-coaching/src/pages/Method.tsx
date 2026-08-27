@@ -5,6 +5,7 @@ import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function Method() {
   const subjects = [
@@ -452,6 +453,14 @@ export default function Method() {
             </div>
           </div>
         </Card>
+        <PublicConversionPanel
+          source="method"
+          audience="Hospice operators who want an ethical, repeatable way to prepare, practice, and follow through."
+          promise="A shared language for turning field preparation into better conversations and measurable next actions."
+          evidence="The method maps each principle to a subject, a behavior, and a traceable field output rather than a vague promise."
+          primary={{ label: "Apply the method with coaching", href: "/contact?service=Hospice+Sales+Coaching", token: "strategy_call" }}
+          secondary={{ label: "Read the Spartan Ethos", href: "/manifesto", token: "manifesto" }}
+        />
       </div>
     </div>
   );

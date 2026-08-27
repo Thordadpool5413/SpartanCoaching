@@ -32,6 +32,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
   FIELD_KIT_WHAT,
   FIELD_KIT_HOW,
@@ -44,6 +45,7 @@ import {
   filterDiscoveryIntents,
   type FieldKitTool,
   type DiscoveryIntent,
+  getToolWorkGuide,
 } from "@/lib/fieldKitCatalog";
 
 const TOOL_ICONS: Record<string, ReactNode> = {
@@ -86,7 +88,9 @@ export default function Tools() {
         tool.description.toLowerCase().includes(query) ||
         tool.category.toLowerCase().includes(query) ||
         tool.whenToUse.toLowerCase().includes(query) ||
-        tool.why.toLowerCase().includes(query)
+          tool.why.toLowerCase().includes(query) ||
+          (tool.scenario || "").toLowerCase().includes(query) ||
+          (tool.outcome || "").toLowerCase().includes(query)
       );
     });
   }, [searchQuery]);
@@ -142,6 +146,13 @@ export default function Tools() {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+              <span className="font-semibold uppercase tracking-wide text-primary">
+                {getToolWorkGuide(tool).phase}
+              </span>
+              {" · "}
+              {getToolWorkGuide(tool).audience}
+            </p>
             <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
               <span className="font-semibold text-foreground">When: </span>
               {tool.whenToUse}
@@ -269,6 +280,10 @@ export default function Tools() {
                     Preview open · live tools locked
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
+                    Browse every tool before you decide. Standard unlocks live field work and eligible saves;
+                    Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
+                    the same email to restore access.
+                  </p>
                     Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
                     Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
                     email (access restores from your account).
@@ -356,7 +371,7 @@ export default function Tools() {
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
-                  Start with intent
+                  Start with the job
                 </p>
                 <h2 className="text-h2 text-foreground">Professional entry points</h2>
               </div>
@@ -365,7 +380,7 @@ export default function Tools() {
                 className="text-sm font-semibold text-primary hover:underline"
                 data-testid="link-field-resources-from-tools"
               >
-                {PRODUCT_SURFACE_PLACEMENT.field_resources.label} →
+                  Templates & guides →
               </Link>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

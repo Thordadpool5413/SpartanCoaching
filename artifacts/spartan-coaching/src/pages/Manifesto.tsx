@@ -4,6 +4,7 @@ import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { ArrowRight, Shield, Heart, Target, Eye } from "lucide-react";
 import { FadeIn, SlideUpFade, StaggerContainer, StaggerItem } from "@/components/animations";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
@@ -398,6 +399,16 @@ export default function Manifesto() {
           </div>
         </FadeIn>
       </section>
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 pb-16">
+        <PublicConversionPanel
+          source="manifesto"
+          audience="Hospice operators who care about disciplined, ethical relationship-building before they choose support."
+          promise="Put the values into a real field rhythm through coaching or a practical tool system."
+          evidence="The ethos makes its boundaries explicit: no pressure tactics, no inducements, and no clinical shortcuts."
+          primary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
+          secondary={{ label: "Explore the method", href: "/method", token: "method" }}
+        />
+      </div>
     </div>
   );
 }

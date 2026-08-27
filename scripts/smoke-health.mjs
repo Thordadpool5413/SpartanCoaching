@@ -4,12 +4,8 @@
  *
  * Exits 0 if all checks pass, 1 if any fail.
  * Suitable as a post-deploy check: run this after each deployment to catch
- * misconfigured secrets (e.g. stale STRIPE_WEBHOOK_SECRET) before they cause
- * silent billing failures.
- *
- * The /api/admin/stripe-webhook-health check is intentionally strict:
- *  - HTTP 503 OR ok:false in the JSON body both count as failures.
- *  - The reason + hint from the response are printed so the fix is obvious.
+ * basic runtime failures. Detailed billing diagnostics require administrator
+ * authorization and are deliberately not fetched by this public smoke.
  */
 const base = (process.argv[2] || process.env.SITE_URL || "").replace(/\/$/, "");
 if (!base) {
@@ -176,14 +172,6 @@ await checkJsonEndpoint("/api/healthz");
   }
 }
 await checkJsonEndpoint("/api/admin/bootstrap-status");
-
-// Webhook health: check both HTTP status AND JSON body ok field, and print
-// the actionable reason+hint when it fails so the fix is clear in deploy logs.
-await checkJsonEndpoint("/api/admin/stripe-webhook-health", { checkBodyOk: true });
-
-// Billing-email health: fail if ok:false (≥3 failures in 1h or ≥10 in 24h).
-// HTTP 503 or ok:false in JSON body both count as failures.
-await checkJsonEndpoint("/api/admin/billing-email-health", { checkBodyOk: true });
 
 // Clinical runtime: soft by default so half-configured BAA flags do not red-light
 // marketing deploys. Set REQUIRE_PHI_SMOKE=1 to fail when PHI mode is selected

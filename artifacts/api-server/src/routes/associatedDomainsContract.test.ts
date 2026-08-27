@@ -8,6 +8,7 @@ describe("Associated Domains contract", () => {
     const value = JSON.parse(fs.readFileSync(file, "utf8"));
     expect(value.applinks.details[0].appIDs).toContain("65C25YHCX9.com.spartancoaching.fieldkit");
     expect(value.applinks.details[0].components).toContainEqual({ "/": "/coach*" });
+    expect(value.applinks.details[0].components).toContainEqual({ "/": "/app*" });
   });
 
   it("keeps the API fallback JSON and cache headers explicit", () => {
@@ -15,5 +16,6 @@ describe("Associated Domains contract", () => {
     expect(source).toContain("/.well-known/apple-app-site-association");
     expect(source).toContain("application/json");
     expect(source).toContain("65C25YHCX9.com.spartancoaching.fieldkit");
+    expect(source).toContain('{ "/": "/app*" }');
   });
 });

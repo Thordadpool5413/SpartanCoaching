@@ -1,57 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
-import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { SavedResponsesSection } from "@/components/SavedResponsesSection";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
-import {
-  loadToolDraft,
-  loadToolLastResult,
-  saveToolDraft,
-  saveToolLastResult,
-} from "@/lib/toolDraftCache";
-import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 const TOOL_ID = "playbook";
 
 export function PlaybookTool() {
   const colors = useColors();
   const { canUseFieldKit } = useAuth();
-  const saved = useSavedResponses("playbook");
   const [scenario, setScenario] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedId, setSavedId] = useState<string | null>(null);
-  const [fromCache, setFromCache] = useState(false);
-
-  useEffect(() => {
-    void (async () => {
-      const draft = await loadToolDraft<{ scenario?: string; desiredOutcomes?: string }>(TOOL_ID);
-      if (draft?.scenario) setScenario(draft.scenario);
-      if (draft?.desiredOutcomes) setDesiredOutcomes(draft.desiredOutcomes);
-      const last = await loadToolLastResult(TOOL_ID);
-      if (last) {
-        setResult(last);
-        setFromCache(true);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      void saveToolDraft(TOOL_ID, { scenario, desiredOutcomes });
-    }, 400);
-    return () => clearTimeout(t);
-  }, [scenario, desiredOutcomes]);
 
   const generate = async () => {
     if (scenario.trim().length < 10) return;
@@ -62,32 +32,18 @@ export function PlaybookTool() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLoading(true);
     setError(null);
-    setSavedId(null);
-    setFromCache(false);
     try {
       const data = await apiPost<{ playbook: string }>("/api/playbooks", {
         scenario,
         desiredOutcomes: desiredOutcomes || undefined,
       });
       setResult(data.playbook);
-      await saveToolLastResult(TOOL_ID, data.playbook);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
-        await enqueueGenerate({
-          toolId: TOOL_ID,
-          path: "/api/playbooks",
-          body: { scenario, desiredOutcomes: desiredOutcomes || undefined },
-          label: "Playbook Generator",
-        });
-        setError("Offline or network error. Queued to retry. Showing the last result if available.");
+        setError("No playbook was created while you were offline. Reconnect and submit again; your input was not saved.");
       } else {
         setError(userFacingApiError(e));
-      }
-      const last = await loadToolLastResult(TOOL_ID);
-      if (last) {
-        setResult(last);
-        setFromCache(true);
       }
     } finally {
       setLoading(false);
@@ -99,6 +55,7 @@ export function PlaybookTool() {
       title="Playbook Generator"
       subtitle="Custom talking points and a clear next step for this visit."
       category="Prepare"
+      catalogToolId="playbooks"
       whenToUse="Before an account visit when you need a specific approach, not a generic script."
       howSteps={["Describe the scenario (no PHI).", "Optional: desired outcomes.", "Generate and execute."]}
       ctaTitle={result ? "Create another playbook" : "Build playbook"}
@@ -107,13 +64,6 @@ export function PlaybookTool() {
       ctaDisabled={scenario.trim().length < 10}
       testID="tool-playbook"
     >
-      {fromCache && result ? (
-        <View style={[styles.offlineBanner, { backgroundColor: colors.primaryMuted }]}>
-          <Text style={[{ color: colors.primary, fontSize: 12 }, font("semibold")]}>
-            Showing last successful result (may be offline / cached)
-          </Text>
-        </View>
-      ) : null}
       <Text style={[styles.label, { color: colors.foreground }, font("semibold")]}>
         Describe the sales scenario
       </Text>
@@ -149,16 +99,7 @@ export function PlaybookTool() {
         content={result || undefined}
         loading={loading && !result}
         error={error}
-        onSave={
-          result
-            ? async () => {
-                const title = scenario.length > 60 ? scenario.slice(0, 57) + "…" : scenario;
-                await saved.saveResponse(title, result);
-                setSavedId("saved");
-              }
-            : undefined
-        }
-        saved={!!savedId}
+        nextAction={MOBILE_FIELD_RESULT_ACTIONS.playbooks}
       />
       {!!result && (
         <>
@@ -167,7 +108,6 @@ export function PlaybookTool() {
             body="Your playbook is ready. Set a reminder to put it into action."
             storageKey="playbook"
           />
-          <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />
         </>
       )}
     </ToolShell>

@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Quote, TrendingUp, Users, Award, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { FadeIn } from "@/components/animations";
@@ -195,6 +196,14 @@ export default function Testimonials() {
           </Button>
         </div>
       </FadeIn>
+      <PublicConversionPanel
+        source="testimonials"
+        audience="Leaders and reps looking for relevant examples before they start a conversation."
+        promise="A grounded way to compare your challenge with outcomes operators describe."
+        evidence="Proof is anonymized and role-based; named logos and claims are used only with permission."
+        primary={{ label: "Discuss your situation", href: "/contact", token: "strategy_call" }}
+        secondary={{ label: "Review the method", href: "/method", token: "method" }}
+      />
     </div>
   );
 }

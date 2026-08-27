@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { FieldKitPreviewLock } from "@/components/FieldKitPreviewLock";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { ClinicalToolDisclaimer } from "@/components/ClinicalToolDisclaimer";
+import { PageLoadingState } from "@/components/RouteRecovery";
 import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
 import { useLocation } from "wouter";
 
@@ -19,11 +20,7 @@ export function RequireFieldKit({ children }: { children: ReactNode }) {
   const clinical = aiToolId ? getSpartanAiTool(aiToolId)?.containsPhi === true : false;
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-24">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageLoadingState label="Checking your Hospice Sales Pro access" />;
   }
 
   if (!canUseFieldKit) {

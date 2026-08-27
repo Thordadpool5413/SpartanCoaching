@@ -15,6 +15,7 @@ export function ToolResultPanel({
   copyText,
   disclaimer,
   footer,
+  actions,
   className,
   empty,
   loading,
@@ -26,6 +27,8 @@ export function ToolResultPanel({
   copyText?: string;
   disclaimer?: string;
   footer?: ReactNode;
+  /** Concrete next action(s) to take after reviewing the result */
+  actions?: ReactNode;
   className?: string;
   empty?: boolean;
   loading?: boolean;
@@ -117,6 +120,8 @@ export function ToolResultPanel({
       )}
 
       {footer}
+
+      {actions}
 
       {disclaimer && (
         <p className="text-xs text-muted-foreground leading-relaxed border-t border-border/60 pt-3">

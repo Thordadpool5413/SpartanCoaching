@@ -63,9 +63,9 @@ export default function AccessScreen() {
 
       <View style={styles.body}>
         <Text style={styles.kicker}>WHAT YOU HAVE</Text>
-        <Text style={styles.title}>No guessing. Every part of the app has a job.</Text>
+        <Text style={styles.title}>Compare access in one place.</Text>
         <Text style={styles.subtitle}>
-          {tierLabel}. This map shows what each destination does, whether it is available to you, and what still works when your connection disappears at the worst possible moment.
+          {tierLabel}. This is the capability map: see what each destination does, what your access includes, and its offline and privacy boundaries before you choose or manage membership.
         </Text>
 
         <View style={styles.planStrip}>

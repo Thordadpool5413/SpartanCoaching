@@ -184,23 +184,23 @@ describe("FieldKitMembership hero copy — 'Hospice Sales Pro'", () => {
   });
 });
 
-describe("FieldKitMembership hero headline — elite positioning", () => {
-  it("shows 'The tools product for hospice growth' in the hero when unauthenticated", async () => {
+describe("FieldKitMembership hero headline — access-first positioning", () => {
+  it("shows the access-first headline in the hero when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
   });
 
-  it("shows 'The tools product for hospice growth' in the hero when can-subscribe", async () => {
+  it("shows the access-first headline in the hero when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
   });
 
-  it("shows 'The tools product for hospice growth' in the hero when already subscribed", async () => {
+  it("shows the access-first headline in the hero when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
   });
 
-  it("shows web and iPhone + $14.99/week framing in the hero", async () => {
+  it("shows individual pricing and cross-surface access framing", async () => {
     await renderMembership(UNAUTHED);
     expect(screen.getAllByText(/Web and iPhone/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
@@ -294,13 +294,13 @@ describe("FieldKitMembership individual tier card — 'Hospice Sales Pro'", () =
   });
 });
 
-describe("FieldKitMembership how-to-access — honest funnel", () => {
-  it("lists preview → create account → subscribe steps", async () => {
+describe("FieldKitMembership access flow", () => {
+  it("lists choose → sign in → manage access steps", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/How to get access/i)).toBeTruthy();
-    expect(screen.getAllByText(/Preview free/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Create your account/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Subscribe/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Choose or manage access/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Choose Standard or Elite/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Create or sign in to your account/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Manage from Account/i).length).toBeGreaterThan(0);
   });
 
   it("does NOT claim immediate access after register alone", async () => {
@@ -310,13 +310,12 @@ describe("FieldKitMembership how-to-access — honest funnel", () => {
   });
 });
 
-describe("FieldKitMembership end-user why section", () => {
-  it("frames value as prepared field work, not provider Medicare revenue", async () => {
+describe("FieldKitMembership access context", () => {
+  it("points visitors to product discovery without repeating the product pitch", async () => {
     await renderMembership(UNAUTHED);
-    const section = screen.getByTestId("section-why-membership");
-    // HSP-40: confident professional tone — prepared work, not gimmicky "other rep" framing
-    expect(section.textContent).toMatch(/Walk in prepared/i);
-    expect(section.textContent).toMatch(/prepared field work/i);
+    const section = screen.getByTestId("section-membership-context");
+    expect(section.textContent).toMatch(/See the workspaces first/i);
+    expect(section.textContent).toMatch(/Use the directory to see a specific job/i);
     expect(section.textContent).not.toMatch(/Medicare revenue/i);
     expect(section.textContent).not.toMatch(/admit rate.*annual/i);
   });
