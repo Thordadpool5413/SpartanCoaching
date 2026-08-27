@@ -30,7 +30,7 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
         "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
-        "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       },
       "ios": {
         "buildConfiguration": "Release",
@@ -59,7 +59,7 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
         "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
-        "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       },
       "ios": {
         "buildConfiguration": "Release",
