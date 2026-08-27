@@ -294,7 +294,7 @@ export async function runSpartanAiTool(
             new OpenAI({
               apiKey,
               timeout: timeoutMs,
-              maxRetries: 0,
+              maxRetries: 1,
             });
           const systemMessages = [
             { role: "system" as const, content: SPARTAN_VOICE_STANDARD },

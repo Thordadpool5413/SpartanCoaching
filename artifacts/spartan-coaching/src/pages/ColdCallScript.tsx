@@ -218,6 +218,7 @@ export default function ColdCallScript() {
               </div>
               <ToolResultActions
                 toolId="cold-call-script"
+                saveResult={{ toolId: "cold-call-script", title: `${prospectName || prospectType} call script`, value: script, input: { prospectType, prospectName, situation, repName }, nextAction: { title: "Practice the opening", href: "/tools/role-play" } }}
                 description="Read the opening aloud once, then use Role-Play to pressure-test the ask before you dial."
                 actions={[
                   {
@@ -226,7 +227,7 @@ export default function ColdCallScript() {
                     href: "/tools/role-play",
                   },
                 ]}
-                persistenceNote="This script is shown for this session only. Copy or download it if you need a working copy; it is not automatically saved or synced."
+                persistenceNote="Save the script with its prospect context before rehearsing it."
               />
             </Card>
           )}

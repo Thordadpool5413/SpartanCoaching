@@ -297,6 +297,7 @@ export default function Transcribe() {
           <div className="mt-4">
             <ToolResultActions
               toolId="transcribe"
+              saveResult={analysis ? undefined : { toolId: "transcribe", kind: "transcript", status: "draft", title: uploadFileName || "Call transcript", value: JSON.stringify({ transcript }), nextAction: { title: "Complete coaching analysis", href: "/tools/transcribe" } }}
               description={
                 analysis
                   ? "Choose one coaching point to rehearse before the next live conversation."
@@ -347,6 +348,7 @@ export default function Transcribe() {
           <div className="mt-5">
             <ToolResultActions
               toolId="transcribe"
+              saveResult={{ toolId: "transcribe", kind: "transcript", title: uploadFileName || "Call coaching analysis", value: JSON.stringify({ transcript, analysis }), nextAction: { title: "Practice one coaching point", href: "/tools/role-play" } }}
               description="Use one coaching point immediately: rehearse it once, then carry it into the next real conversation."
               actions={[
                 {
@@ -355,7 +357,7 @@ export default function Transcribe() {
                   href: "/tools/role-play",
                 },
               ]}
-              persistenceNote="This analysis is shown for the current page session. It is not automatically saved or synced; download creates a local copy."
+              persistenceNote="Save only deidentified professional conversations. Detected patient identifiers are rejected."
               testId="transcribe-analysis-next-action"
             />
           </div>

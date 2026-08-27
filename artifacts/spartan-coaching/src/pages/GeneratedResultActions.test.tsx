@@ -68,7 +68,8 @@ describe("standalone generated-result actions", () => {
 
     const action = await screen.findByTestId("research-next-action-build-playbook");
     expect(action.getAttribute("href")).toBe("/tools/playbooks");
-    expect(screen.getByText(/not automatically saved to my work/i)).toBeTruthy();
+    expect(screen.getByText(/save verified research with its original question/i)).toBeTruthy();
+    expect(screen.getByTestId("research-next-action-save")).toBeTruthy();
   });
 
   it("hands a completed transcript to coaching, then to role-play", async () => {

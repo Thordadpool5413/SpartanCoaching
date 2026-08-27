@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -19,6 +19,7 @@ import { useReminderHistory } from "@/hooks/use-reminder-history";
 import type { PendingReminder } from "@/hooks/use-reminder-history";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { ToolResultActions } from "@/components/ToolResultActions";
+import { useWorkHandoff, workHandoffText } from "@/hooks/useWorkHandoff";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -94,6 +95,8 @@ export default function EmailTemplates() {
   const [emailSubject, setEmailSubject] = useState("");
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
+  const { item: incomingWork } = useWorkHandoff();
+  useEffect(() => { if (incomingWork) { setContext((current) => current || `Follow up on ${incomingWork.title}`); setCustomization((current) => current || workHandoffText(incomingWork)); } }, [incomingWork]);
 
   const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
 
@@ -412,6 +415,7 @@ export default function EmailTemplates() {
                   </div>
                   <ToolResultActions
                     toolId="email-templates"
+                    saveResult={{ toolId: "email-templates", title: `${templateType} email`, value: generatedTemplate, input: { templateType, recipientName, context, customization }, nextAction: { title: "Complete the account follow-through", href: "/tools/sales-workflow" } }}
                     title="Choose the follow-through"
                     description="Review the draft, then send it to the intended recipient or set a reminder to follow up later."
                     actions={[
@@ -430,7 +434,7 @@ export default function EmailTemplates() {
                         href: "/tools/role-play",
                       },
                     ]}
-                    persistenceNote="Generating a draft does not send or save it. The send action delivers it to the address you enter; download creates a local PDF copy."
+                    persistenceNote="Save the draft and its context before sending or continuing the account workflow."
                     testId="email-next-action"
                   />
                 </div>

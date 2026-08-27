@@ -224,6 +224,7 @@ export default function Research() {
             )}
             <ToolResultActions
               toolId="research"
+              saveResult={{ toolId: "research", title: query, value: results.text, input: { query }, nextAction: { title: "Build a playbook", href: "/tools/playbooks" } }}
               description="Turn one verified insight into a specific conversation plan before the next visit."
               actions={[
                 {
@@ -232,7 +233,7 @@ export default function Research() {
                   href: "/tools/playbooks",
                 },
               ]}
-              persistenceNote="Research is shown in this page session. It is not automatically saved to My Work; review the sources and copy only what you need."
+              persistenceNote="Save verified research with its original question before using it in another tool."
               testId="research-next-action"
             />
           </Card>
