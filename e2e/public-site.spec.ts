@@ -73,7 +73,7 @@ test.describe("public website release gate", () => {
       page.on("pageerror", (error) => pageErrors.push(error.message));
 
       await isolatePublicPage(page);
-      const response = await page.goto(entry.path, { waitUntil: "networkidle" });
+      const response = await page.goto(entry.path, { waitUntil: "domcontentloaded" });
 
       expect(response?.ok(), `${entry.path} must return a successful document`).toBe(true);
       await expect(page.locator("h1").first()).toBeVisible();
@@ -98,7 +98,7 @@ test.describe("public website release gate", () => {
 
   test("home preserves the approved business hierarchy", async ({ page }) => {
     await isolatePublicPage(page);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
@@ -111,16 +111,17 @@ test.describe("public website release gate", () => {
 
   test("primary navigation reaches both customer paths", async ({ page }) => {
     await isolatePublicPage(page);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await page.getByRole("link", { name: /book a strategy call/i }).first().click();
     await expect(page).toHaveURL(/\/contact$/);
     await expect(page.locator("h1").first()).toBeVisible();
 
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.getByRole("link", { name: /explore hospice sales pro/i }).first().click();
     await expect(page).toHaveURL(/\/hospice-sales-pro$/);
-    await expect(page.locator("h1").first()).toContainText("tools product");
-    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
+    await expect(page.locator("h1").first()).toContainText("access to your field system");
+    await expect(page.locator("main")).toContainText("Elite");
+    await expect(page.locator("main")).toContainText("Standard");
   });
 });
