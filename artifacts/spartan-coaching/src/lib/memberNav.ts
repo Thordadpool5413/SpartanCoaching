@@ -71,11 +71,11 @@ export const MEMBER_NAV: MemberNavItem[] = [
       loc.startsWith("/learn/"),
   },
   {
-    href: "/resources/weekly-plan",
-    label: "Saved work",
-    short: "Saved",
+    href: "/my-work",
+    label: "My Work",
+    short: "My Work",
     icon: FolderOpen,
-    match: (loc) => loc.startsWith("/resources/weekly-plan"),
+    match: (loc) => loc.startsWith("/my-work"),
   },
   {
     href: "/account",
