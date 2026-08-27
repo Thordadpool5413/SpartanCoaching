@@ -105,6 +105,7 @@ const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 const AiToolsHub = lazy(() => import("@/pages/AiToolsHub"));
 const AiTool = lazy(() => import("@/pages/AiTool"));
 const SavedAiOutputs = lazy(() => import("@/pages/SavedAiOutputs"));
+const MyWork = lazy(() => import("@/pages/MyWork"));
 
 function withFieldKit(Page: ComponentType): ComponentType {
   return function GatedPage() {
@@ -136,6 +137,7 @@ const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
 const GatedAiToolsHub = withFieldKit(AiToolsHub);
 const GatedAiTool = withFieldKit(AiTool);
 const GatedSavedAiOutputs = withFieldKit(SavedAiOutputs);
+const GatedMyWork = withFieldKit(MyWork);
 
 function AssessmentRoute() {
   return <Assessment />;
@@ -254,6 +256,7 @@ function Router() {
           <Route path="/spartan-intelligence" component={GatedSpartanIntelligence} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
           <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
+          <Route path="/my-work" component={GatedMyWork} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />
           <Route path="/drills" component={GatedDrills} />
 

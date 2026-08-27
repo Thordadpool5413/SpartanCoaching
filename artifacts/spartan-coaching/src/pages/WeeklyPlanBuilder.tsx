@@ -260,6 +260,7 @@ export default function WeeklyPlanBuilder() {
               </div>
               <ToolResultActions
                 toolId="weekly-plan"
+                saveResult={{ toolId: "weekly-plan", title: "Weekly execution plan", value: plan, input: { accounts, weeklyGoal, customGoal, territoryFocus, challenges }, nextAction: { title: "Run the first account action", href: "/tools/sales-workflow" } }}
                 description="Open your first account, run the Monday visit, and use the Command Center to keep the week moving."
                 actions={[
                   {
@@ -268,7 +269,7 @@ export default function WeeklyPlanBuilder() {
                     href: "/tools/sales-workflow",
                   },
                 ]}
-                persistenceNote="This plan is not saved automatically. Copy or download it if you need a working copy; downloads are not synced to iPhone."
+                persistenceNote="Save the plan with its accounts and goal so the Command Center can continue the work."
               />
             </Card>
           )}

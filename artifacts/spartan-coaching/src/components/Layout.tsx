@@ -537,6 +537,7 @@ export function Footer() {
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
     { href: "/portal/coach", label: "Coach" },
+    { href: "/my-work", label: "My Work" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];

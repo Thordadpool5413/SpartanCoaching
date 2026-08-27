@@ -1,9 +1,12 @@
 import type { LucideIcon } from "lucide-react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Save } from "lucide-react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { trackProductOutcome } from "@/lib/analytics";
 import type { ProductOutcome } from "@workspace/field-kit-catalog";
+import { saveMemberWork, type SaveMemberWork } from "@/lib/memberWorkClient";
+import { useToast } from "@/hooks/use-toast";
 
 export type ToolResultAction = {
   id: string;
@@ -27,6 +30,7 @@ export function ToolResultActions({
   title = "Next field action",
   description,
   persistenceNote,
+  saveResult,
   testId = "tool-result-actions",
 }: {
   toolId: string;
@@ -34,9 +38,25 @@ export function ToolResultActions({
   title?: string;
   description?: string;
   persistenceNote?: string;
+  saveResult?: SaveMemberWork;
   testId?: string;
 }) {
-  if (actions.length === 0) return null;
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState("");
+  if (actions.length === 0 && !saveResult) return null;
+
+  const save = async () => {
+    if (!saveResult || saving || savedId) return;
+    setSaving(true);
+    try {
+      const saved = await saveMemberWork(saveResult);
+      setSavedId(saved.id);
+      toast({ title: "Saved to My Work", description: "The inputs, result, and next action are available across devices." });
+    } catch (error) {
+      toast({ title: "Could not save", description: error instanceof Error ? error.message : "Try again.", variant: "destructive" });
+    } finally { setSaving(false); }
+  };
 
   const activate = (action: ToolResultAction) => {
     trackProductOutcome(action.analyticsOutcome ?? "next_action_confirmation", {
@@ -61,6 +81,12 @@ export function ToolResultActions({
         )}
       </div>
       <div className="flex flex-wrap gap-2">
+        {saveResult && (
+          <Button type="button" size="sm" variant={actions.length ? "outline" : "default"} disabled={saving || Boolean(savedId)} onClick={() => void save()} data-testid={`${testId}-save`}>
+            <Save aria-hidden />
+            {savedId ? "Saved" : saving ? "Saving…" : "Save to My Work"}
+          </Button>
+        )}
         {actions.map((action, index) => {
           const Icon = action.icon ?? (index === 0 ? ArrowRight : undefined);
           const buttonProps = {
@@ -72,9 +98,10 @@ export function ToolResultActions({
             "data-testid": action.testId ?? `${testId}-${action.id}`,
           };
 
-          return action.href && !action.disabled ? (
+          const href = action.href && savedId ? `${action.href}${action.href.includes("?") ? "&" : "?"}work=${savedId}` : action.href;
+          return href && !action.disabled ? (
             <Button key={action.id} asChild {...buttonProps}>
-              <Link href={action.href}>
+              <Link href={href}>
                 {Icon && <Icon aria-hidden />}
                 {action.label}
               </Link>

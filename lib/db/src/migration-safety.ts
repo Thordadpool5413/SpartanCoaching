@@ -901,6 +901,22 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0025_member_work_items",
+    title: "Normalized member work history",
+    forwardPath: "lib/db/migrations/0025_member_work_items.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_work_items') IS NOT NULL AS ok`,
+      `SELECT count(*) = 0 AS ok FROM member_work_items WHERE organization_id IS NULL OR member_id IS NULL`,
+    ],
+    rollbackOrRecovery: "Recovery: retain the additive owner-scoped work history during an application rollback and restore from the pre-deploy logical backup if required.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_work_items"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -977,6 +993,7 @@ export const MIGRATE_ONLY_LIB_DB_TABLES = [
   "stripe_webhook_notifications",
   // 0023 continuity
   "member_sync_records",
+  "member_work_items",
   // 0012
   "sessions",
   "users",
