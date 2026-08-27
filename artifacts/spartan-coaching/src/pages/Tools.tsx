@@ -17,6 +17,9 @@ import {
   KeyRound,
   BrainCircuit,
   Crosshair,
+  Sparkles,
+  ShieldCheck,
+  MapPinned,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -217,6 +220,53 @@ export default function Tools() {
         </div>
       </SlideUp>
 
+      <SlideUp delay={0.05}>
+        <section className="mb-12" data-testid="public-spartan-intelligence">
+          <Card className="overflow-hidden border border-amber-500/45 bg-gradient-to-br from-amber-500/[0.12] via-card to-card p-6 sm:p-8 shadow-elite">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
+                      New in Hospice Sales Pro Elite
+                    </p>
+                    <h2 className="text-2xl font-display font-black tracking-tight text-foreground sm:text-3xl">
+                      Spartan Intelligence
+                    </h2>
+                  </div>
+                </div>
+                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+                  Walk into the room with verified provider context, a clearer policy conversation,
+                  and a focused view of the hospice market you serve.
+                </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {[
+                    { icon: ShieldCheck, title: "Referral Intelligence", body: "Verify public provider records and prepare the right conversation." },
+                    { icon: BrainCircuit, title: "CMS Policy Navigator", body: "Turn complex Medicare topics into clear field language." },
+                    { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by state and city." },
+                  ].map(({ icon: Icon, title, body }) => (
+                    <div key={title} className="rounded-xl border border-border/80 bg-background/60 p-4">
+                      <Icon className="mb-3 h-5 w-5 text-amber-500" />
+                      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Button asChild size="lg" className="min-h-12 w-full shrink-0 font-bold lg:w-auto">
+                <Link href="/spartan-intelligence" data-testid="button-public-spartan-intelligence">
+                  Explore Spartan Intelligence
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        </section>
+      </SlideUp>
+
       {showCatalogGate && (
         <SlideUp delay={0.05}>
           <Card className="mb-10 border border-border p-5 sm:p-6" data-testid="tools-access-banner">
@@ -234,6 +284,24 @@ export default function Tools() {
                     Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
                     the same email to restore access.
                   </p>
+                    Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
+                    Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
+                    email (access restores from your account).
+                  </p>
+                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Live generation on field tools
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
+                    </li>
+                  </ul>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">

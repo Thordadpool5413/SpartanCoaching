@@ -10,6 +10,8 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "test:web": "pnpm --filter @workspace/spartan-coaching test",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report",
     "budget": "node scripts/performance-budget.mjs",
     "audit:public": "node scripts/public-site-audit.mjs",
     "launch:check": "pnpm --filter @workspace/spartan-coaching exec vitest run src/lib/a11y.contract.test.ts src/lib/publicLaunch.contract.test.ts && pnpm --filter @workspace/spartan-coaching run build && node scripts/verify-public-site-server.mjs && pnpm run budget && pnpm run audit:public",
@@ -35,6 +37,7 @@
     "@replit/connectors-sdk": "^0.4.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.55.1",
     "@types/node": "catalog:",
     "prettier": "^3.9.5",
     "typescript": "~5.9.3",

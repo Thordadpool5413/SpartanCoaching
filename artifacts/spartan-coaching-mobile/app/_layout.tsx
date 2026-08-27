@@ -23,6 +23,8 @@ import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
 import { AppearanceProvider } from "@/lib/AppearanceContext";
 import { LaunchExperience } from "@/components/LaunchExperience";
+import { CoachSessionProvider } from "@/lib/CoachSessionContext";
+import { VoiceActivityBanner } from "@/components/VoiceActivityBanner";
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 260, fade: true });
@@ -73,6 +75,7 @@ function RootLayoutNav() {
       <Stack.Screen name="roi-calculator" options={{ title: "ROI Calculator" }} />
       <Stack.Screen name="rep-cost-calculator" options={{ title: "Rep Cost Calculator" }} />
       <Stack.Screen name="transcriber" options={{ title: "Call Transcriber" }} />
+      <Stack.Screen name="spartan-intelligence" options={{ headerShown: false }} />
       <Stack.Screen name="library-item" options={{ title: "Library", headerBackTitle: "Library" }} />
       <Stack.Screen name="method-guide" options={{ title: "Spartan Method", headerBackTitle: "Library" }} />
       <Stack.Screen name="consulting-schedule" options={{ title: "Choose a time", headerBackTitle: "Consulting" }} />
@@ -118,17 +121,20 @@ export default function RootLayout() {
         <ErrorBoundary>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              <ClientConfigBootstrap />
-              <AppOpenTracker />
-              <DeepLinkRouter />
-              <ActivationCeremony />
-              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <KeyboardProvider>
-                  <RootLayoutNav />
-                </KeyboardProvider>
-                {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
-              </GestureHandlerRootView>
+              <CoachSessionProvider>
+                <ClientConfigBootstrap />
+                <AppOpenTracker />
+                <DeepLinkRouter />
+                <ActivationCeremony />
+                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <KeyboardProvider>
+                    <VoiceActivityBanner />
+                    <RootLayoutNav />
+                  </KeyboardProvider>
+                  {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+                </GestureHandlerRootView>
+              </CoachSessionProvider>
             </AuthProvider>
           </QueryClientProvider>
         </ErrorBoundary>

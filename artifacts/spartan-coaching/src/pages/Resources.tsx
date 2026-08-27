@@ -251,6 +251,7 @@ export default function Resources() {
     member?.role === "org_admin" || member?.role === "platform_admin";
 
   const { data: resourcesData, isLoading, isError, refetch: refetchResources } = useQuery<{
+  const { data: resourcesData, isLoading, isError } = useQuery<{
     resources: SelectResource[];
     ownershipLabel?: string;
   }>({
@@ -517,6 +518,7 @@ export default function Resources() {
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
             ? "Current templates, scripts, and checklists for work you want to take into the field."
+            ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
@@ -524,6 +526,17 @@ export default function Resources() {
             This library is for downloadable work aids. Use{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
             {" "}when you need an interactive workspace.
+            Start from intent on{" "}
+            <Link href="/tools" className="font-semibold text-primary hover:underline">
+              Tools
+            </Link>
+            {" "}
+            (e.g. handle an objection → Objection Handler + objection cards).{" "}
+            <Link href="/articles" className="font-semibold text-primary hover:underline">
+              Learn
+            </Link>
+            {" "}
+            is for articles and fundamentals.
           </p>
         )}
       </div>
@@ -840,6 +853,30 @@ export default function Resources() {
                       );
                     })()}
 
+
+                    {(() => {
+                      const life = (
+                        resource as SelectResource & {
+                          lifecycle?: {
+                            hasNewerVersion?: boolean;
+                            documentVersionLine?: string;
+                            currentVersion?: { id: number; versionLabel: string; title: string };
+                          };
+                        }
+                      ).lifecycle;
+                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
+                      return (
+                        <div
+                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                          data-testid={`resource-newer-${resource.id}`}
+                        >
+                          A newer version is available (v{life.currentVersion.versionLabel}
+                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
+                          ). This copy is retained for history — do not treat it as current.
+                        </div>
+                      );
+                    })()}
+
                     {resource.description && (
                       <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                         {resource.description}
@@ -848,6 +885,17 @@ export default function Resources() {
 
                     {(() => {
                       const arch = resourceArchitecture(resource);
+                      const arch =
+                        (
+                          resource as SelectResource & {
+                            architecture?: {
+                              whenToUse?: string;
+                              expectedOutcome?: string;
+                              experienceLevel?: string;
+                              clinicalSensitivity?: string;
+                            };
+                          }
+                        ).architecture || resource.contentArchitecture;
                       if (!arch) return null;
                       return (
                         <div className="space-y-2 mb-4 text-sm text-muted-foreground">

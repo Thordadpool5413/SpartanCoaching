@@ -6,6 +6,7 @@ import {
   Home,
   LayoutDashboard,
   MessageCircle,
+  Sparkles,
   UserCircle,
   Wrench,
 } from "lucide-react";
@@ -43,7 +44,17 @@ export const MEMBER_NAV: MemberNavItem[] = [
     icon: Wrench,
     match: (loc) =>
       (loc === "/tools" || loc.startsWith("/tools/")) &&
-      !loc.startsWith("/tools/sales-workflow"),
+      !loc.startsWith("/tools/sales-workflow") &&
+      !loc.startsWith("/tools/intelligence"),
+  },
+  {
+    href: "/tools/intelligence",
+    label: "Intelligence",
+    short: "Intel",
+    icon: Sparkles,
+    match: (loc) =>
+      loc.startsWith("/tools/intelligence") ||
+      loc.startsWith("/spartan-intelligence"),
   },
   {
     href: "/resources",

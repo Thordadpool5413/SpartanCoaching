@@ -75,6 +75,7 @@ function MobileNavSection({ title }: { title: string }) {
 }
 
 export function NavDropdown({ label, items, dataTestId }: {
+function NavDropdown({ label, items, dataTestId }: {
   label: string;
   items: { path: string; label: string; description: string }[];
   dataTestId: string;
