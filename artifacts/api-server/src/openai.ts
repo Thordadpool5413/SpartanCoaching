@@ -673,7 +673,7 @@ IMPORTANT RULES:
     return normalizeAiPresentationText(text);
   } catch (error: any) {
     console.error("OpenAI API error (roleplay response):", error);
-    return "I need a moment to think about that. Can you tell me more?";
+    throw new Error("AI role-play is temporarily unavailable. Please retry.");
   }
 }
 
