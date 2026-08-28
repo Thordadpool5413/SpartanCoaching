@@ -71,6 +71,7 @@ const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCatalog, setShowCatalog] = useState(false);
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
   const filteredTools = useMemo(() => {
@@ -369,11 +370,37 @@ export default function Tools() {
         </SlideUp>
       )}
 
-      {!searchQuery.trim() ? (
-        <div className="space-y-12">
+      {!searchQuery.trim() && !showCatalog ? (
+        <Card className="border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">Full workspace</p>
+              <h2 className="mt-1 text-xl font-display font-bold text-foreground">Know the tool you want?</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 shrink-0 font-bold"
+              aria-expanded={showCatalog}
+              aria-controls="tools-full-catalog"
+              onClick={() => setShowCatalog(true)}
+              data-testid="button-show-tools-catalog"
+            >
+              Browse all tools <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </Card>
+      ) : !searchQuery.trim() ? (
+        <div id="tools-full-catalog" className="space-y-12">
+          <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-            Or browse by tool category
+            All tools by job
           </p>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setShowCatalog(false)}>
+            Show less
+          </Button>
+          </div>
           {/* Hero: Command Center */}
           {(() => {
             const command = filteredTools.find((t) => t.id === "sales-workflow");

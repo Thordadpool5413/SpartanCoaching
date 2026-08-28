@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Mail, User, Printer, Sparkles } from "lucide-react";
+import { Download, Mail, User, Printer, Sparkles, Search } from "lucide-react";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -274,6 +274,8 @@ export default function Resources() {
   });
 
   const [providerSearch, setProviderSearch] = useState("");
+  const [resourceSearch, setResourceSearch] = useState("");
+  const [resourceCategory, setResourceCategory] = useState("all");
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newKind, setNewKind] = useState("script");
@@ -461,7 +463,21 @@ export default function Resources() {
     },
   });
 
-  const groupedResources = resources.reduce((acc, resource) => {
+  const visibleResources = resources.filter((resource) => {
+    const architecture = resourceArchitecture(resource);
+    const query = resourceSearch.trim().toLowerCase();
+    const matchesCategory = resourceCategory === "all" || resource.category === resourceCategory;
+    const matchesQuery = !query || [
+      resource.title,
+      resource.description || "",
+      resource.category,
+      architecture.whenToUse || "",
+      architecture.expectedOutcome || "",
+    ].some((value) => value.toLowerCase().includes(query));
+    return matchesCategory && matchesQuery;
+  });
+
+  const groupedResources = visibleResources.reduce((acc, resource) => {
     if (!acc[resource.category]) {
       acc[resource.category] = [];
     }
@@ -550,6 +566,44 @@ export default function Resources() {
         </div>
         <Button asChild variant="outline" className="shrink-0"><Link href="/my-work">Open My Work</Link></Button>
       </Card>
+      <section className="mb-8 rounded-2xl border border-border/80 bg-card p-4 sm:p-5" aria-labelledby="core-library-heading">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Core field library</p>
+            <h2 id="core-library-heading" className="mt-1 text-h2">Find the right working asset</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Search by the conversation, outcome, or resource you need.</p>
+          </div>
+          <div className="relative w-full lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Label htmlFor="resource-library-search" className="sr-only">Search core resources</Label>
+            <Input
+              id="resource-library-search"
+              type="search"
+              className="pl-9"
+              placeholder="Search scripts, checklists, guides…"
+              value={resourceSearch}
+              onChange={(event) => setResourceSearch(event.target.value)}
+              data-testid="input-core-resource-search"
+            />
+          </div>
+        </div>
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Filter resources by type">
+          {["all", "template", "script", "checklist", "guide"].map((category) => (
+            <Button
+              key={category}
+              type="button"
+              size="sm"
+              variant={resourceCategory === category ? "default" : "outline"}
+              className="min-h-10 shrink-0"
+              aria-pressed={resourceCategory === category}
+              onClick={() => setResourceCategory(category)}
+              data-testid={`resource-filter-${category}`}
+            >
+              {category === "all" ? `All ${resources.length}` : categoryNames[category]}
+            </Button>
+          ))}
+        </div>
+      </section>
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -567,13 +621,16 @@ export default function Resources() {
                 .
               </p>
             </div>
+            <div className="w-full sm:max-w-xs">
+            <Label htmlFor="provider-resource-search" className="sr-only">Search provider library</Label>
             <Input
-              className="max-w-xs"
+              id="provider-resource-search"
               placeholder="Search provider library"
               value={providerSearch}
               onChange={(e) => setProviderSearch(e.target.value)}
               data-testid="input-provider-resource-search"
             />
+            </div>
           </div>
 
           {isOrgAdmin && (
@@ -990,6 +1047,15 @@ export default function Resources() {
             </div>
           </div>
         ))}
+        {visibleResources.length === 0 ? (
+          <Card className="p-8 text-center" data-testid="resources-empty-search">
+            <h2 className="text-lg font-bold text-foreground">No resources match that search</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
+            <Button type="button" variant="outline" className="mt-4" onClick={() => { setResourceSearch(""); setResourceCategory("all"); }}>
+              Clear filters
+            </Button>
+          </Card>
+        ) : null}
       </div>
 
       <div className="mt-16">

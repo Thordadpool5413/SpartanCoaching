@@ -109,12 +109,12 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/70" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="flex flex-col gap-10 xl:gap-14 items-center">
-            <div className="order-2 max-w-3xl mx-auto text-center">
-            <p className="text-kicker mb-5 justify-center">Hospice sales consulting + Hospice Sales Pro</p>
+          <div className="grid items-center gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 xl:gap-16">
+            <div className="max-w-2xl text-left">
+            <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
             <h1
               id="home-hero-title"
-              className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight text-foreground leading-[0.95]"
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-black tracking-tight text-foreground leading-[0.98]"
               data-testid="text-home-hero-title"
             >
               Make the next hospice conversation count.
@@ -123,7 +123,7 @@ export default function Home() {
               Practical consulting for growth leaders. A focused field system for the people who
               carry the work forward every day.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
                 <Link
                   href="/contact"
@@ -146,7 +146,7 @@ export default function Home() {
               Consulting for teams. Hospice Sales Pro for daily execution.
             </p>
             </div>
-            <div className="order-1 w-full max-w-5xl mx-auto">
+            <div className="w-full min-w-0">
               <div
                 className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20"
                 data-testid="hero-video-frame"

@@ -144,6 +144,7 @@ export function NpiLookupPanel({
           variant={mode === "person" ? "default" : "outline"}
           className="font-bold"
           onClick={() => setMode("person")}
+          aria-pressed={mode === "person"}
         >
           <User className="w-3.5 h-3.5 mr-1" />
           Person
@@ -154,6 +155,7 @@ export function NpiLookupPanel({
           variant={mode === "org" ? "default" : "outline"}
           className="font-bold"
           onClick={() => setMode("org")}
+          aria-pressed={mode === "org"}
         >
           <Building2 className="w-3.5 h-3.5 mr-1" />
           Organization
@@ -164,18 +166,19 @@ export function NpiLookupPanel({
         {mode === "person" ? (
           <>
             <div className="space-y-1.5">
-              <Label className="text-xs">First name</Label>
-              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Optional" />
+              <Label htmlFor="npi-first-name" className="text-xs">First name</Label>
+              <Input id="npi-first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Optional" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Last name</Label>
-              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Required" />
+              <Label htmlFor="npi-last-name" className="text-xs">Last name</Label>
+              <Input id="npi-last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Required" />
             </div>
           </>
         ) : (
           <div className="space-y-1.5 sm:col-span-2">
-            <Label className="text-xs">Organization</Label>
+            <Label htmlFor="npi-organization" className="text-xs">Organization</Label>
             <Input
+              id="npi-organization"
               value={organization}
               onChange={(e) => setOrganization(e.target.value)}
               placeholder="Facility or practice name"
@@ -183,12 +186,13 @@ export function NpiLookupPanel({
           </div>
         )}
         <div className="space-y-1.5">
-          <Label className="text-xs">City</Label>
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Optional" />
+          <Label htmlFor="npi-city" className="text-xs">City</Label>
+          <Input id="npi-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Optional" />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs">State</Label>
+          <Label htmlFor="npi-state" className="text-xs">State</Label>
           <Input
+            id="npi-state"
             value={state}
             onChange={(e) => setState(e.target.value.toUpperCase().slice(0, 2))}
             placeholder="e.g. FL"
@@ -202,10 +206,10 @@ export function NpiLookupPanel({
         Search NPI
       </Button>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
 
       {results.length > 0 && (
-        <ul className="space-y-2 max-h-72 overflow-y-auto">
+        <ul className="space-y-2 max-h-72 overflow-y-auto" aria-label="NPI search results">
           {results.map((r) => (
             <li
               key={r.npi}
@@ -248,13 +252,13 @@ export function NpiLookupPanel({
             <Label className="text-xs">Relationship</Label>
             <div className="flex flex-wrap gap-2">
               {([['new', 'New'], ['developing', 'Developing'], ['active', 'Active'], ['reengage', 'Reconnect']] as const).map(([value, label]) => (
-                <Button key={value} type="button" size="sm" variant={relationshipStage === value ? "default" : "outline"} onClick={() => setRelationshipStage(value)}>{label}</Button>
+                <Button key={value} type="button" size="sm" variant={relationshipStage === value ? "default" : "outline"} aria-pressed={relationshipStage === value} onClick={() => setRelationshipStage(value)}>{label}</Button>
               ))}
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">What needs to happen in this meeting?</Label>
-            <Input value={meetingPurpose} onChange={(e) => setMeetingPurpose(e.target.value)} placeholder="Optional. Use the recommended objective or add your own." />
+            <Label htmlFor="npi-meeting-purpose" className="text-xs">What needs to happen in this meeting?</Label>
+            <Input id="npi-meeting-purpose" value={meetingPurpose} onChange={(e) => setMeetingPurpose(e.target.value)} placeholder="Optional. Use the recommended objective or add your own." />
           </div>
           <Button type="button" className="w-full font-bold" disabled={briefLoading} onClick={buildBrief}>
             {briefLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
