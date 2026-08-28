@@ -54,5 +54,7 @@ describe("iOS release associated-domains contract", () => {
     expect(verifier).toContain("resolveProfile(profileName).env?.EAS_SKIP_ASSOCIATED_DOMAINS");
     expect(verifier).toContain("git rev-list --count HEAD..origin/main");
     expect(verifier).not.toContain('if [[ "$PROFILE" == *"-applinks" ]]');
+    expect(verifier).toContain("/api/healthz/ai");
+    expect(verifier).toContain('v.ok!==true || v.status!=="ready"');
   });
 });
