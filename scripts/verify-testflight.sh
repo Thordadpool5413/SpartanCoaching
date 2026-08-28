@@ -2,8 +2,8 @@
 set -euo pipefail
 
 PROFILE="${1:-testflight}"
-if [[ "$PROFILE" != "preview" && "$PROFILE" != "testflight" && "$PROFILE" != "testflight-applinks" && "$PROFILE" != "production" && "$PROFILE" != "production-applinks" ]]; then
-  echo "Usage: bash scripts/verify-testflight.sh [preview|testflight|testflight-applinks|production|production-applinks]" >&2
+if [[ "$PROFILE" != "preview" && "$PROFILE" != "testflight" && "$PROFILE" != "testflight-applinks" && "$PROFILE" != "testflight-no-applinks" && "$PROFILE" != "production" && "$PROFILE" != "production-applinks" && "$PROFILE" != "production-no-applinks" ]]; then
+  echo "Usage: bash scripts/verify-testflight.sh [preview|testflight|testflight-applinks|testflight-no-applinks|production|production-applinks|production-no-applinks]" >&2
   exit 2
 fi
 
@@ -15,6 +15,15 @@ export COREPACK_HOME="${COREPACK_HOME:-/tmp/spartan-corepack}"
 PNPM=(corepack pnpm)
 MOBILE="artifacts/spartan-coaching-mobile"
 PRODUCTION_URL="https://spartanhospicecoaching.com"
+
+if git show-ref --verify --quiet refs/remotes/origin/main; then
+  BEHIND_ORIGIN_MAIN="$(git rev-list --count HEAD..origin/main)"
+  if [[ "$BEHIND_ORIGIN_MAIN" -gt 0 ]]; then
+    echo "FAIL: this checkout is $BEHIND_ORIGIN_MAIN commit(s) behind origin/main." >&2
+    echo "Fetch and reconcile the local branch before creating an EAS release." >&2
+    exit 1
+  fi
+fi
 
 echo "[1/9] Install locked dependencies"
 "${PNPM[@]}" install --frozen-lockfile
@@ -48,25 +57,42 @@ bash -n scripts/verify-testflight.sh "$MOBILE/scripts/start-dev.sh"
 git diff --check
 
 echo "[7/9] Resolve the exact Expo public configuration"
-if [[ "$PROFILE" == *"-applinks" ]]; then
-  export EAS_SKIP_ASSOCIATED_DOMAINS=0
-else
-  export EAS_SKIP_ASSOCIATED_DOMAINS=1
-fi
+PROFILE_SKIP_ASSOCIATED_DOMAINS="$(node - "$MOBILE/eas.json" "$PROFILE" <<'NODE'
+const fs = require("node:fs");
+const [file, profileName] = process.argv.slice(2);
+const eas = JSON.parse(fs.readFileSync(file, "utf8"));
+const seen = new Set();
+function resolveProfile(name) {
+  if (seen.has(name)) throw new Error(`Circular EAS profile inheritance: ${name}`);
+  const profile = eas.build?.[name];
+  if (!profile) throw new Error(`Unknown EAS build profile: ${name}`);
+  seen.add(name);
+  const parent = profile.extends ? resolveProfile(profile.extends) : {};
+  return { ...parent, ...profile, env: { ...(parent.env || {}), ...(profile.env || {}) } };
+}
+const value = resolveProfile(profileName).env?.EAS_SKIP_ASSOCIATED_DOMAINS;
+if (value !== "0" && value !== "1") {
+  throw new Error(`${profileName} must explicitly set EAS_SKIP_ASSOCIATED_DOMAINS to 0 or 1`);
+}
+process.stdout.write(value);
+NODE
+)"
+export EAS_SKIP_ASSOCIATED_DOMAINS="$PROFILE_SKIP_ASSOCIATED_DOMAINS"
 export EXPO_PUBLIC_API_URL="$PRODUCTION_URL"
 export EXPO_PUBLIC_DOMAIN="spartanhospicecoaching.com"
 CONFIG_JSON="$(mktemp)"
 (cd "$MOBILE" && "${PNPM[@]}" exec expo config --type public --json) > "$CONFIG_JSON"
-node - "$CONFIG_JSON" "$PROFILE" <<'NODE'
+node - "$CONFIG_JSON" "$PROFILE" "$PROFILE_SKIP_ASSOCIATED_DOMAINS" <<'NODE'
 const fs = require("node:fs");
-const [file, profile] = process.argv.slice(2);
+const [file, profile, skipAssociatedDomains] = process.argv.slice(2);
 const config = JSON.parse(fs.readFileSync(file, "utf8"));
 if (config.ios?.bundleIdentifier !== "com.spartancoaching.fieldkit") throw new Error("Wrong iOS bundle identifier");
 const router = config.plugins?.find((item) => Array.isArray(item) && item[0] === "expo-router");
 if (router?.[1]?.origin !== "https://spartanhospicecoaching.com") throw new Error("Wrong Expo Router production origin");
 const domains = config.ios?.associatedDomains || [];
-if (profile.endsWith("-applinks") && !domains.includes("applinks:spartanhospicecoaching.com")) throw new Error("Associated Domains missing");
-if (!profile.endsWith("-applinks") && domains.length) throw new Error("This profile must omit Associated Domains");
+const requestsAssociatedDomains = skipAssociatedDomains === "0";
+if (requestsAssociatedDomains && !domains.includes("applinks:spartanhospicecoaching.com")) throw new Error("Associated Domains missing");
+if (!requestsAssociatedDomains && domains.length) throw new Error("This profile must omit Associated Domains");
 console.log(JSON.stringify({ bundleIdentifier: config.ios.bundleIdentifier, routerOrigin: router[1].origin, associatedDomains: domains }));
 NODE
 
@@ -84,7 +110,7 @@ if ! APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PROD
   exit 1
 fi
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok"||v.configured!==true) throw new Error("Production Apple billing verification is not configured")' "$APPLE_HEALTH_JSON"
-if [[ "$PROFILE" == *"-applinks" ]]; then
+if [[ "$PROFILE_SKIP_ASSOCIATED_DOMAINS" == "0" ]]; then
   AASA_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/.well-known/apple-app-site-association")"
   node -e 'const v=JSON.parse(process.argv[1]); const ids=v.applinks?.details?.flatMap(x=>x.appIDs||[])||[]; if(!ids.includes("65C25YHCX9.com.spartancoaching.fieldkit")) throw new Error("Production AASA appID missing")' "$AASA_JSON"
 fi

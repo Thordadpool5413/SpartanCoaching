@@ -11,6 +11,10 @@ describe("iOS release associated-domains contract", () => {
   const packageJson = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf8"),
   ) as { scripts: Record<string, string> };
+  const verifier = fs.readFileSync(
+    path.resolve(__dirname, "../../../scripts/verify-testflight.sh"),
+    "utf8",
+  );
 
   it("keeps standard store builds compatible with profiles that lack Associated Domains", () => {
     expect(eas.build.testflight.env?.EAS_SKIP_ASSOCIATED_DOMAINS).toBe("1");
@@ -38,5 +42,11 @@ describe("iOS release associated-domains contract", () => {
     expect(packageJson.scripts["build:ios:with-applinks"]).toContain(
       "--profile production-applinks",
     );
+  });
+
+  it("verifies the actual EAS profile and rejects a checkout behind main", () => {
+    expect(verifier).toContain("resolveProfile(profileName).env?.EAS_SKIP_ASSOCIATED_DOMAINS");
+    expect(verifier).toContain("git rev-list --count HEAD..origin/main");
+    expect(verifier).not.toContain('if [[ "$PROFILE" == *"-applinks" ]]');
   });
 });
