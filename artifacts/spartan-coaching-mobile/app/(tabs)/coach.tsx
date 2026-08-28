@@ -47,7 +47,6 @@ import { cacheCommitment } from "@/lib/commitmentCache";
 import { userFacingApiError } from "@/lib/offlineQueue";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
-import { HelmetMark } from "@/components/brand/HelmetMark";
 import { cleanFieldCopy } from "@/components/FieldResultPanel";
 import { CoachEliteGate } from "@/components/coach/CoachEliteGate";
 import { CoachSettingsPanel } from "@/components/coach/CoachSettingsPanel";
@@ -433,7 +432,6 @@ export default function CoachScreen() {
           showsVerticalScrollIndicator={false}
         >
           <SpartanHeader title="Coach" />
-          <HelmetMark size={52} />
           <View style={styles.coachHomeBadge}>
             <Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text>
           </View>

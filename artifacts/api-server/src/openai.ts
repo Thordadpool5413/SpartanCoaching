@@ -12,12 +12,43 @@ function getOpenAI(): OpenAI {
   openaiClient = new OpenAI({
     apiKey,
     timeout: 90_000,
-    maxRetries: 1,
+    maxRetries: 2,
   });
   return openaiClient;
 }
 
 const MODEL = process.env.OPENAI_MODEL ?? "gpt-5";
+
+type ChatCompletionRequest = {
+  model: string;
+  messages: Array<{
+    role: "system" | "user" | "assistant";
+    content: string;
+  }>;
+  reasoning_effort?: "minimal";
+  max_completion_tokens: number;
+};
+
+async function createNonEmptyChatCompletion(
+  operation: string,
+  request: ChatCompletionRequest,
+): Promise<string> {
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const response = await getOpenAI().chat.completions.create(request);
+    const content = response.choices[0]?.message?.content?.trim();
+    if (content) return content;
+
+    console.error("OpenAI returned an empty completion", {
+      operation,
+      attempt,
+      model: request.model,
+      finishReason: response.choices[0]?.finish_reason,
+      usage: response.usage,
+    });
+  }
+
+  throw new Error(`${operation} returned an empty response after retry.`);
+}
 
 const TRUSTED_OUTPUT_STYLE = `
 Write like a trusted senior coach speaking to one professional.
@@ -176,7 +207,7 @@ export async function generateComplexResponse(
   systemInstruction?: string,
 ): Promise<string> {
   try {
-    const response = await getOpenAI().chat.completions.create({
+    const content = await createNonEmptyChatCompletion("complex response", {
       model: MODEL,
       messages: [
         {
@@ -188,7 +219,7 @@ export async function generateComplexResponse(
       max_completion_tokens: 4096,
     });
 
-    return normalizeAiPresentationText(response.choices[0].message.content || "");
+    return normalizeAiPresentationText(content);
   } catch (error: any) {
     console.error("OpenAI API error (complex response):", error);
     throw new Error(`AI generation failed: ${error.message}`);
@@ -200,7 +231,7 @@ export async function generateComplexResponse(
  */
 export async function generateQuickResponse(prompt: string): Promise<string> {
   try {
-    const response = await getOpenAI().chat.completions.create({
+    const text = await createNonEmptyChatCompletion("quick response", {
       model: MODEL,
       messages: [
         { role: "system", content: withTrustedOutputStyle(SPARTAN_SYSTEM_INSTRUCTION) },
@@ -209,16 +240,6 @@ export async function generateQuickResponse(prompt: string): Promise<string> {
       reasoning_effort: "minimal",
       max_completion_tokens: 1200,
     });
-
-    const text = response.choices[0]?.message?.content?.trim();
-    if (!text) {
-      console.error("OpenAI returned empty quick response", {
-        model: MODEL,
-        finishReason: response.choices[0]?.finish_reason,
-        usage: response.usage,
-      });
-      throw new Error("AI returned an empty response.");
-    }
 
     return normalizeAiPresentationText(text);
   } catch (error: any) {
@@ -516,13 +537,13 @@ export async function generateChatResponse(
 
     messages.push({ role: "user", content: message });
 
-    const response = await getOpenAI().chat.completions.create({
+    const content = await createNonEmptyChatCompletion("chat response", {
       model: MODEL,
       messages,
       max_completion_tokens: 1000,
     });
 
-    return normalizeAiPresentationText(response.choices[0].message.content || "");
+    return normalizeAiPresentationText(content);
   } catch (error: any) {
     console.error("OpenAI API error (chat):", error);
     throw new Error(`Chat generation failed: ${error.message}`);
@@ -561,21 +582,12 @@ export async function generateSpartanCoachResponse(
     { role: "user", content: message },
   ];
   try {
-    const response = await getOpenAI().chat.completions.create({
+    const content = await createNonEmptyChatCompletion("Spartan Coach", {
       model: MODEL,
       messages,
       reasoning_effort: "minimal",
       max_completion_tokens: tokenBudget,
     });
-    const content = response.choices[0]?.message?.content?.trim();
-    if (!content) {
-      console.error("OpenAI returned empty Spartan Coach response", {
-        model: MODEL,
-        finishReason: response.choices[0]?.finish_reason,
-        usage: response.usage,
-      });
-      throw new Error("Spartan Coach did not complete the response. Please try again.");
-    }
     return normalizeAiPresentationText(content);
   } catch (error) {
     console.error("OpenAI API error (Spartan Coach):", error instanceof Error ? error.name : "unknown");
@@ -653,20 +665,15 @@ IMPORTANT RULES:
 
     messages.push({ role: "user", content: userMessage });
 
-    const response = await getOpenAI().chat.completions.create({
+    const text = await createNonEmptyChatCompletion("role-play response", {
       model: MODEL,
       messages,
       max_completion_tokens: 500,
     });
-
-    const text = response.choices[0]?.message?.content?.trim();
-    if (!text) {
-      return "I need a moment to think about that.";
-    }
     return normalizeAiPresentationText(text);
   } catch (error: any) {
     console.error("OpenAI API error (roleplay response):", error);
-    return "I need a moment to think about that. Can you tell me more?";
+    throw new Error("AI role-play is temporarily unavailable. Please retry.");
   }
 }
 
@@ -709,7 +716,7 @@ How well did they demonstrate:
 ## Key Takeaway
 One most important thing to practice before the next conversation.`;
 
-    const response = await getOpenAI().chat.completions.create({
+    const text = await createNonEmptyChatCompletion("role-play feedback", {
       model: MODEL,
       messages: [
         {
@@ -722,8 +729,6 @@ One most important thing to practice before the next conversation.`;
       ],
       max_completion_tokens: 1500,
     });
-
-    const text = response.choices[0]?.message?.content || "";
 
     const ratingMatch = text.match(/RATING:\s*(\d+)/i);
     const rating = ratingMatch

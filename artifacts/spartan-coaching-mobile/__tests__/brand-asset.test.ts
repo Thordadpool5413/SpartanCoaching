@@ -62,9 +62,12 @@ describe("protected Spartan Coaching brand asset", () => {
     const home = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/index.tsx"), "utf8");
     const coach = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/coach.tsx"), "utf8");
     const helmet = fs.readFileSync(path.resolve(__dirname, "../components/brand/HelmetMark.tsx"), "utf8");
+    const header = fs.readFileSync(path.resolve(__dirname, "../components/ui/SpartanHeader.tsx"), "utf8");
     expect(login).toContain("<HelmetMark");
     expect(home).toContain("<SpartanHeader");
-    expect(coach).toContain("<HelmetMark");
+    expect(coach).toContain("<SpartanHeader");
+    expect(coach).not.toContain("<HelmetMark");
+    expect(header).toContain("<HelmetMark");
     expect(helmet).toContain('require("@/assets/images/helmet-mark.png")');
     expect(helmet).not.toContain("backgroundColor");
     expect(login).toContain("Forgot password");

@@ -4,6 +4,7 @@ import { startBackgroundJobScheduler } from "./auth/opsJobs";
 import { checkWebhookSecretOnStartup } from "./billing/webhookSecretCheck";
 import { hydrateBillingEmailMetrics } from "./billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "./clinical/runtimeReadiness";
+import { runLiveAiProviderProbe } from "./ai/providerReadiness";
 
 const rawPort = process.env["PORT"];
 
@@ -37,6 +38,30 @@ app.listen(port, (err) => {
     },
     "[clinical] Runtime readiness",
   );
+
+  void runLiveAiProviderProbe()
+    .then((result) => {
+      if (result.ok) {
+        logger.info(
+          { probes: result.probes.map(({ id, durationMs }) => ({ id, durationMs })) },
+          "[ai] Provider readiness verified",
+        );
+        return;
+      }
+      logger.error(
+        {
+          errorClass: "errorClass" in result ? result.errorClass : undefined,
+          probes: result.probes,
+        },
+        "[ai] Provider readiness degraded",
+      );
+    })
+    .catch((error) => {
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        "[ai] Provider readiness probe failed",
+      );
+    });
   // Non-blocking startup guard: verify webhook secret looks consistent with
   // the endpoint registered in Stripe. Logs a warning if stale; never crashes.
   checkWebhookSecretOnStartup().catch((e) => {

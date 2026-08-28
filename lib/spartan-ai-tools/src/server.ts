@@ -297,7 +297,7 @@ export async function runSpartanAiTool(
             new OpenAI({
               apiKey,
               timeout: timeoutMs,
-              maxRetries: 1,
+              maxRetries: 2,
             });
           const systemMessages = [
             { role: "system" as const, content: SPARTAN_VOICE_STANDARD },
@@ -306,43 +306,50 @@ export async function runSpartanAiTool(
               ? [{ role: "system" as const, content: jurisdictionInstruction(jurisdiction) }]
               : []),
           ];
-          const response = await client.responses.parse(
-            {
-              model,
-              store: false,
-              reasoning: { effort: isClinicalTool(tool) ? "low" : "minimal" },
-              max_output_tokens: isClinicalTool(tool) ? 4_000 : 2_400,
-              input: [
-                ...systemMessages,
-                {
-                  role: "user",
-                  content: tool.buildPrompt(parsed.data as never),
+          for (let attempt = 1; attempt <= 2; attempt += 1) {
+            const response = await client.responses.parse(
+              {
+                model,
+                store: false,
+                reasoning: { effort: isClinicalTool(tool) ? "low" : "minimal" },
+                max_output_tokens: isClinicalTool(tool) ? 4_000 : 2_400,
+                input: [
+                  ...systemMessages,
+                  {
+                    role: "user",
+                    content: tool.buildPrompt(parsed.data as never),
+                  },
+                ],
+                text: {
+                  format: zodTextFormat(
+                    tool.outputSchema as ZodType,
+                    tool.id.replaceAll("-", "_"),
+                  ),
                 },
-              ],
-              text: {
-                format: zodTextFormat(
-                  tool.outputSchema as ZodType,
-                  tool.id.replaceAll("-", "_"),
-                ),
               },
-            },
-            {
-              timeout: timeoutMs,
-              signal: options.signal,
-              headers: options.requestId
-                ? { "X-Client-Request-Id": options.requestId }
-                : undefined,
-            },
-          );
-          if (!response.output_parsed) {
-            throw new SpartanAiToolError(
-              "INVALID_MODEL_OUTPUT",
-              502,
-              "AI returned an invalid structured response.",
-              true,
+              {
+                timeout: timeoutMs,
+                signal: options.signal,
+                headers: options.requestId
+                  ? { "X-Client-Request-Id": options.requestId }
+                  : undefined,
+              },
             );
+            if (response.output_parsed) {
+              return tool.outputSchema.parse(response.output_parsed);
+            }
+            console.error("OpenAI returned invalid structured tool output", {
+              toolId: tool.id,
+              attempt,
+              model,
+            });
           }
-          return tool.outputSchema.parse(response.output_parsed);
+          throw new SpartanAiToolError(
+            "INVALID_MODEL_OUTPUT",
+            502,
+            "AI returned an invalid structured response after retry.",
+            true,
+          );
         })();
 
     return {
