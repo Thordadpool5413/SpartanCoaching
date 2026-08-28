@@ -110,52 +110,49 @@ async function executeLiveAiProviderProbe(env: NodeJS.ProcessEnv = process.env) 
   const client = new OpenAI({
     apiKey: env.OPENAI_API_KEY,
     timeout: PROBE_TIMEOUT_MS,
-    maxRetries: 1,
+    maxRetries: 2,
   });
   const model = configuration.model;
-  const probes: AiProbeResult[] = [];
-
-  probes.push(await timedProbe("chat", async () => {
-    const result = await client.chat.completions.create({
-      model,
-      messages: [{ role: "user", content: "Reply with READY." }],
-      reasoning_effort: "minimal",
-      max_completion_tokens: 256,
-    });
-    if (!result.choices[0]?.message?.content?.trim()) throw new Error("Empty chat completion");
-  }));
-
-  probes.push(await timedProbe("responses", async () => {
-    const result = await client.responses.create({
-      model,
-      input: "Reply with READY.",
-      reasoning: { effort: "minimal" },
-      max_output_tokens: 256,
-      store: false,
-    });
-    if (!result.output_text?.trim()) throw new Error("Empty response output");
-  }));
-
-  probes.push(await timedProbe("structured", async () => {
-    const result = await client.responses.parse({
-      model,
-      input: "Return a JSON object whose status is ready.",
-      reasoning: { effort: "minimal" },
-      max_output_tokens: 256,
-      store: false,
-      text: { format: zodTextFormat(structuredProbeSchema, "ai_readiness") },
-    });
-    if (result.output_parsed?.status !== "ready") throw new Error("Invalid structured output");
-  }));
-
-  probes.push(await timedProbe("transcription", async () => {
-    const file = await toFile(toneWav(), "readiness.wav", { type: "audio/wav" });
-    await client.audio.transcriptions.create({
-      file,
-      model: configuration.transcriptionModel,
-      response_format: "text",
-    });
-  }));
+  const probes = await Promise.all([
+    timedProbe("chat", async () => {
+      const result = await client.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: "Reply with READY." }],
+        reasoning_effort: "minimal",
+        max_completion_tokens: 256,
+      });
+      if (!result.choices[0]?.message?.content?.trim()) throw new Error("Empty chat completion");
+    }),
+    timedProbe("responses", async () => {
+      const result = await client.responses.create({
+        model,
+        input: "Reply with READY.",
+        reasoning: { effort: "minimal" },
+        max_output_tokens: 256,
+        store: false,
+      });
+      if (!result.output_text?.trim()) throw new Error("Empty response output");
+    }),
+    timedProbe("structured", async () => {
+      const result = await client.responses.parse({
+        model,
+        input: "Return a JSON object whose status is ready.",
+        reasoning: { effort: "minimal" },
+        max_output_tokens: 256,
+        store: false,
+        text: { format: zodTextFormat(structuredProbeSchema, "ai_readiness") },
+      });
+      if (result.output_parsed?.status !== "ready") throw new Error("Invalid structured output");
+    }),
+    timedProbe("transcription", async () => {
+      const file = await toFile(toneWav(), "readiness.wav", { type: "audio/wav" });
+      await client.audio.transcriptions.create({
+        file,
+        model: configuration.transcriptionModel,
+        response_format: "text",
+      });
+    }),
+  ] satisfies Array<Promise<AiProbeResult>>);
 
   return {
     ok: probes.every((probe) => probe.ok),
