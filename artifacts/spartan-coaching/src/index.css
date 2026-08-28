@@ -743,14 +743,6 @@ body {
       height: auto;
     }
 
-    /* Better mobile navigation */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: var(--background);
-    }
-
     /* Ensure horizontal-scroll tables don't cause full-page overflow */
     .overflow-x-auto {
       -webkit-overflow-scrolling: touch;

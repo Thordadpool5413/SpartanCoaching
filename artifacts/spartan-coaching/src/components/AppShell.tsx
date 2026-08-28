@@ -121,7 +121,7 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   const [location] = useLocation();
-  const { member, canUseFieldKit, organization } = useAuth();
+  const { member, canUseFieldKit, organization, logout } = useAuth();
   const primary = primaryWorkspaceNav(member?.role);
   const utility = utilityWorkspaceNav(member?.role).filter(
     (i) => i.id !== "settings" && i.id !== "recent" && i.id !== "notifications",
@@ -218,6 +218,20 @@ function SidebarBody({
           onNavigate={onNavigate}
           testId="workspace-nav-settings"
         />
+        {!collapsed && (
+          <div className="grid grid-cols-2 gap-2 pt-1 md:hidden">
+            <AppearanceControls compact testId="workspace-mobile-appearance" />
+            <Button
+              type="button"
+              variant="outline"
+              className="justify-start"
+              onClick={() => void logout()}
+              data-testid="workspace-mobile-logout"
+            >
+              <LogOut className="mr-2 h-4 w-4" /> Sign out
+            </Button>
+          </div>
+        )}
         {!collapsed && (
           <p className="text-[10px] text-muted-foreground px-1" data-testid="workspace-shell-version">
             {WORKSPACE_SHELL_VERSION}
@@ -408,7 +422,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   // allow click on results
                   window.setTimeout(() => setSearchOpen(false), 150);
                 }}
-                placeholder="Search tools, resources, workspace…"
+                placeholder="Search workspace…"
                 className="pl-9 h-10 bg-muted/40 border-border/80"
                 aria-label="Universal workspace search"
                 data-testid="workspace-search"
@@ -466,6 +480,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="hidden sm:inline-flex"
                     aria-label="Recent activity"
                     data-testid="workspace-recent"
                   >
@@ -500,11 +515,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <NotificationCenter />
 
-              <AppearanceControls compact testId="workspace-appearance" />
+              <div className="hidden sm:block">
+                <AppearanceControls compact testId="workspace-appearance" />
+              </div>
 
               <Button
                 variant="ghost"
                 size="icon"
+                className="hidden sm:inline-flex"
                 aria-label="Sign out"
                 data-testid="workspace-logout"
                 onClick={() => void logout()}

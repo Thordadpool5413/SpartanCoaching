@@ -39,4 +39,15 @@ describe("FieldKit legacy page", () => {
     expect(resources).toContain('toolId="resources"');
     expect(resources).toContain("does not save it to My Work or sync it to iPhone");
   });
+
+  it("keeps the main workspace decision surfaces focused and searchable", () => {
+    const tools = readFileSync(resolve(import.meta.dirname, "Tools.tsx"), "utf8");
+    expect(tools).toContain('data-testid="tools-catalog-disclosure"');
+    expect(tools).toContain('aria-controls="tools-full-catalog"');
+
+    const resources = readFileSync(resolve(import.meta.dirname, "Resources.tsx"), "utf8");
+    expect(resources).toContain('id="resource-library-search"');
+    expect(resources).toContain('data-testid={`resource-filter-${category}`}');
+    expect(resources).toContain('data-testid="resources-empty-search"');
+  });
 });
