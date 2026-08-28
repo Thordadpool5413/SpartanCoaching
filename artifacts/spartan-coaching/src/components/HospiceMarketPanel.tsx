@@ -83,7 +83,7 @@ export function HospiceMarketPanel() {
           <div className="grid gap-4 md:grid-cols-2"><MeasureGroup title="Quality measures" items={profile.quality} /><MeasureGroup title="Family experience" items={profile.familyExperience} /></div>
           <Section title="Questions to verify"><List items={profile.questionsToAsk} /></Section>
           <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 text-xs leading-relaxed text-muted-foreground">{profile.interpretation}</div>
-          <ToolResultActions toolId="spartan-intelligence" title="Keep this market profile" description="Save the verified CMS profile to My Work." saveResult={{ toolId: "spartan-intelligence", title: profile.organization.facilityName + " market profile", kind: "market_profile", value: JSON.stringify(profile), input: { ccn: profile.organization.ccn, state, city, county, zipCode }, nextAction: { title: "Prepare the next account conversation", href: "/tools/intelligence" } }} actions={[{ id: "my-work", label: "Open My Work", href: "/my-work" }]} testId="market-profile-actions" />
+          <ToolResultActions toolId="spartan-intelligence" title="Keep this market profile" description="Save the verified CMS profile to My Work." saveResult={{ toolId: "spartan-intelligence", title: profile.organization.facilityName + " market profile", kind: "intelligence_brief", value: JSON.stringify(profile), input: { ccn: profile.organization.ccn, state, city, county, zipCode }, nextAction: { title: "Prepare the next account conversation", href: "/tools/intelligence" } }} actions={[{ id: "my-work", label: "Open My Work", href: "/my-work" }]} testId="market-profile-actions" />
         </div>}
       </Card>
     </div> : null}
