@@ -63,7 +63,9 @@ export default function Coach() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, sending]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
 
   async function createConversation() {
     setError(null);

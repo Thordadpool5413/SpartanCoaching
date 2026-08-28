@@ -7,7 +7,7 @@ import { ActivityIndicator, Alert, DeviceEventEmitter, Pressable, ScrollView, Sh
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
-import { apiGet, apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 
@@ -181,11 +181,11 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
     if (!selected) return;
     setBriefLoading(true);
     try {
-      const response = await apiPost<{ brief: Brief }>("/api/intelligence/account-brief", {
-        provider: selected,
-        relationshipStage: stage,
-        meetingPurpose: purpose,
-      });
+      const response = await apiPost<{ brief: Brief }>(
+        "/api/intelligence/account-brief",
+        { provider: selected, relationshipStage: stage, meetingPurpose: purpose },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setBrief(response.brief);
     } catch (error) {
       Alert.alert("Brief unavailable", error instanceof Error ? error.message : "Try again in a moment.");
@@ -197,7 +197,11 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
   const createPolicyBrief = async () => {
     setPolicyLoading(true);
     try {
-      const response = await apiPost<{ brief: PolicyBrief }>("/api/intelligence/policy-brief", { topic: policyTopic });
+      const response = await apiPost<{ brief: PolicyBrief }>(
+        "/api/intelligence/policy-brief",
+        { topic: policyTopic },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setPolicyBrief(response.brief);
     } catch (error) {
       Alert.alert("Guide unavailable", error instanceof Error ? error.message : "Try again in a moment.");
@@ -304,10 +308,14 @@ const styles = StyleSheet.create({
     if (!selected) return;
     setStatus("Building the account strategy");
     try {
-      const response = await apiPost<{ brief: AccountBrief }>("/api/intelligence/account-brief", {
-        provider: selected, accountType, relationshipStage: stage, meetingPurpose: purpose,
-        knownBarrier: barrier, stakeholderRole: stakeholder, desiredCommitment: commitment,
-      });
+      const response = await apiPost<{ brief: AccountBrief }>(
+        "/api/intelligence/account-brief",
+        {
+          provider: selected, accountType, relationshipStage: stage, meetingPurpose: purpose,
+          knownBarrier: barrier, stakeholderRole: stakeholder, desiredCommitment: commitment,
+        },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setBrief(response.brief);
     } catch (error) { Alert.alert("Plan unavailable", message(error)); }
     finally { setStatus(""); }
@@ -392,7 +400,14 @@ function PolicyWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
   const [concern, setConcern] = useState(""); const [brief, setBrief] = useState<PolicyBrief | null>(null); const [status, setStatus] = useState("");
   const build = async () => {
     setStatus("Building the guide from current official references");
-    try { const response = await apiPost<{ brief: PolicyBrief }>("/api/intelligence/policy-brief", { topic, audience, concern }); setBrief(response.brief); }
+    try {
+      const response = await apiPost<{ brief: PolicyBrief }>(
+        "/api/intelligence/policy-brief",
+        { topic, audience, concern },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
+      setBrief(response.brief);
+    }
     catch (error) { Alert.alert("Guide unavailable", message(error)); }
     finally { setStatus(""); }
   };

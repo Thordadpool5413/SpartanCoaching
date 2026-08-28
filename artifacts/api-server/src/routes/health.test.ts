@@ -171,6 +171,41 @@ describe("GET /healthz — billing-email hydration", () => {
   });
 });
 
+describe("GET /healthz/ai — provider configuration", () => {
+  const originalKey = process.env.OPENAI_API_KEY;
+
+  afterEach(() => {
+    if (originalKey == null) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = originalKey;
+  });
+
+  it("fails closed when the production AI credential is missing", async () => {
+    delete process.env.OPENAI_API_KEY;
+    const res = await request(buildApp()).get("/healthz/ai");
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe("not_configured");
+    expect(Object.values(res.body.pipelines)).not.toContain(true);
+  });
+
+  it("reports every shared web and iOS AI pipeline without claiming an unprobed provider is ready", async () => {
+    process.env.OPENAI_API_KEY = "sk-valid-runtime-test-value";
+    const res = await request(buildApp()).get("/healthz/ai");
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe("not_verified");
+    expect(res.body.pipelines).toEqual({
+      publicChat: true,
+      coach: true,
+      classicTools: true,
+      advancedTools: true,
+      commandCenter: true,
+      roleplay: true,
+      intelligence: true,
+      transcription: true,
+    });
+    expect(JSON.stringify(res.body)).not.toContain("sk-valid-runtime-test-value");
+  });
+});
+
 describe("GET /healthz/reliability — SLO snapshot", () => {
   it("returns targets, ownership, and live metrics without secrets", async () => {
     const app = buildApp();

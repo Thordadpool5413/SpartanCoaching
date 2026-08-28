@@ -5,6 +5,7 @@ import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 const TOKEN_KEY = "spartan_session_token";
 const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com";
 const DEFAULT_TIMEOUT_MS = 45_000;
+export const AI_REQUEST_TIMEOUT_MS = 90_000;
 
 /**
  * EAS may override the origin for preview builds. Store builds always retain a
@@ -152,7 +153,7 @@ async function fetchApi(
 export async function apiPost<T>(
   path: string,
   body: unknown,
-  options?: { idempotencyKey?: string; retry?: boolean },
+  options?: { idempotencyKey?: string; retry?: boolean; timeoutMs?: number },
 ): Promise<T> {
   const res = await fetchApi(path, {
     method: "POST",
@@ -162,7 +163,10 @@ export async function apiPost<T>(
         : undefined,
     ),
     body: JSON.stringify(body),
-  }, { retry: Boolean(options?.idempotencyKey || options?.retry) });
+  }, {
+    retry: Boolean(options?.idempotencyKey || options?.retry),
+    timeoutMs: options?.timeoutMs,
+  });
   if (!res.ok) {
     throw await readApiError(res);
   }
@@ -221,17 +225,38 @@ export async function transcribeAudio(uri: string): Promise<string> {
   } as unknown as Blob);
   const headers: Record<string, string> = clientPlatformHeaders();
   if (token) headers.Authorization = `Bearer ${token}`;
-  const response = await fetch(`${getBase()}/api/transcribe`, {
-    method: "POST",
-    headers,
-    body: form,
-  });
-  if (!response.ok) throw await readApiError(response);
-  const value = (await response.json()) as { transcript?: string };
-  if (!value.transcript?.trim()) {
-    throw new ApiError("The recording did not contain clear speech.", 422, "EMPTY_TRANSCRIPT");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), AI_REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${getBase()}/api/transcribe`, {
+      method: "POST",
+      headers,
+      body: form,
+      signal: controller.signal,
+    });
+    if (!response.ok) throw await readApiError(response);
+    const value = (await response.json()) as { transcript?: string };
+    if (!value.transcript?.trim()) {
+      throw new ApiError("The recording did not contain clear speech.", 422, "EMPTY_TRANSCRIPT");
+    }
+    return value.transcript.trim();
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new ApiError(
+        "Transcription took too long. Your recording remains on this device, so you can try again.",
+        504,
+        "REQUEST_TIMEOUT",
+      );
+    }
+    throw new ApiError(
+      "Spartan could not reach the secure transcription service. Check your connection and try again.",
+      0,
+      "NETWORK_UNAVAILABLE",
+    );
+  } finally {
+    clearTimeout(timeout);
   }
-  return value.transcript.trim();
 }
 
 export async function uploadToSignedUrl(

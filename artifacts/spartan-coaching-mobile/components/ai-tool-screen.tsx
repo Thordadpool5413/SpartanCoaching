@@ -34,7 +34,7 @@ import {
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { useColors } from "@/hooks/useColors";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { apiGet, apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { fetchJurisdictionContext, type JurisdictionContext } from "@/lib/jurisdictionApi";
@@ -310,11 +310,15 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         const response = await apiPost<{ result: ToolRun }>(
           `/api/ai-tools/${tool.id}/ephemeral-runs`,
           { input, confirmedDeidentified },
-          { retry: true },
+          { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
         );
         completed = response.result;
       } else {
-        const response = await apiPost<{ run: ToolRun }>(`/api/ai-tools/${tool.id}/runs`, { input }, { idempotencyKey: Crypto.randomUUID() });
+        const response = await apiPost<{ run: ToolRun }>(
+          `/api/ai-tools/${tool.id}/runs`,
+          { input },
+          { idempotencyKey: Crypto.randomUUID(), timeoutMs: AI_REQUEST_TIMEOUT_MS },
+        );
         completed = response.run;
         setHistory((current) => [response.run, ...current.filter((item) => item.id !== response.run.id)]);
       }

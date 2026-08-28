@@ -44,6 +44,7 @@ import {
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
+import { userFacingApiError } from "@/lib/offlineQueue";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { HelmetMark } from "@/components/brand/HelmetMark";
@@ -159,7 +160,10 @@ export default function CoachScreen() {
       const message =
         error instanceof ApiError && error.status === 403
           ? "Hospice Sales Pro Elite is required for private voice rehearsal."
-          : "The recording could not be transcribed. You can still type your rehearsal.";
+          : userFacingApiError(
+              error,
+              "The recording could not be transcribed. You can still type your rehearsal.",
+            );
       Alert.alert("Transcription unavailable", message);
     } finally {
       setBusy(false);
@@ -203,7 +207,10 @@ export default function CoachScreen() {
             ? "Your account needs Hospice Sales Pro Elite to use Spartan Coach."
             : error instanceof ApiError && error.status === 401
               ? "Sign in again. Your rehearsal remains on this iPhone."
-              : "Coach could not review this rehearsal. Your wording remains here.";
+              : userFacingApiError(
+                  error,
+                  "Coach could not review this rehearsal. Your wording remains here.",
+                );
       Alert.alert("Review unavailable", message);
     } finally {
       setBusy(false);
@@ -243,7 +250,10 @@ export default function CoachScreen() {
             ? "Your account needs Hospice Sales Pro Elite to continue with Coach."
             : error instanceof ApiError && error.status === 401
               ? "Sign in again to continue this private conversation."
-              : "Coach could not respond. Your message is still here so you can try again.";
+              : userFacingApiError(
+                  error,
+                  "Coach could not respond. Your message is still here so you can try again.",
+                );
       Alert.alert("Coach unavailable", message);
     } finally {
       setCoachReplying(false);
@@ -280,7 +290,10 @@ export default function CoachScreen() {
       const message =
         error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
           ? "Remove names, dates, contact details, and other patient identifiers."
-          : "Coach could not start the conversation. Your message is still here so you can try again.";
+          : userFacingApiError(
+              error,
+              "Coach could not start the conversation. Your message is still here so you can try again.",
+            );
       Alert.alert("Coach unavailable", message);
     } finally {
       setCoachReplying(false);
