@@ -103,6 +103,28 @@ if ! HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION
   exit 1
 fi
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok") throw new Error("Production health is not ok")' "$HEALTH_JSON"
+
+echo "Checking production AI readiness"
+AI_READY=0
+AI_HEALTH_JSON=""
+for attempt in 1 2 3 4 5 6; do
+  AI_HEALTH_JSON="$(curl --silent --show-error --max-time 20 "$PRODUCTION_URL/api/healthz/ai" || true)"
+  if node -e 'const v=JSON.parse(process.argv[1]); if(v.ok!==true || v.status!=="ready") process.exit(1)' "$AI_HEALTH_JSON" 2>/dev/null; then
+    AI_READY=1
+    break
+  fi
+  if [[ "$attempt" -lt 6 ]]; then
+    echo "AI is not ready yet (attempt $attempt/6); retrying in 10 seconds"
+    sleep 10
+  fi
+done
+if [[ "$AI_READY" -ne 1 ]]; then
+  echo "FAIL: production AI is not verified at $PRODUCTION_URL/api/healthz/ai" >&2
+  echo "Response: ${AI_HEALTH_JSON:-<empty>}" >&2
+  echo "Republish the API and confirm the live provider probe passes before creating TestFlight." >&2
+  exit 1
+fi
+
 echo "Checking production Apple billing health"
 if ! APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/billing/apple/health")"; then
   echo "FAIL: Apple billing API is not deployed at $PRODUCTION_URL/api/billing/apple/health" >&2
