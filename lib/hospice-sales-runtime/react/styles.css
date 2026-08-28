@@ -8,3 +8,24 @@
 @media(max-width:560px){.hsw-top{padding:.8rem}.hsw-top>div .hsw-kicker{display:none}.hsw-top>.hsw-primary{font-size:.8rem}.hsw-main{padding:.8rem}.hsw-hero{padding:1.5rem}.hsw-hero h2{font-size:2.5rem}.hsw-score{display:none}.hsw-stack{grid-template-columns:1fr}.hsw-agenda li{grid-template-columns:1fr;gap:.4rem}.hsw-agenda li>button{grid-column:1}.hsw-form{grid-template-columns:1fr}.hsw-form>*{grid-column:1!important}.hsw-page-head{display:grid}.hsw-modal{padding:.35rem}.hsw-modal>section{max-height:98vh}.hsw-debrief-actions{flex-direction:column;align-items:stretch}.hsw-debrief-actions .hsw-muted{max-width:none}}
 @media(prefers-reduced-motion:reduce){.hsw *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 @media(forced-colors:active){.hsw-card,.hsw-metric,.hsw-account,.hsw-primary{border:1px solid CanvasText!important}}
+
+/* Host-aware workspace skin. The web shell supplies these variables so Command
+   Center reads as one product instead of a light microsite embedded in it. */
+.hsw{min-height:auto;border:1px solid var(--hsw-line);border-radius:18px;overflow:hidden;background:var(--hsw-paper)}
+.hsw-top{position:relative;top:auto;background:color-mix(in srgb,var(--hsw-paper) 92%,transparent);padding:1rem clamp(1rem,2.5vw,2rem);gap:1rem}
+.hsw-top nav{background:color-mix(in srgb,var(--hsw-card) 86%,transparent)}
+.hsw-top nav button.is-active{background:var(--hsw-coral);color:white}
+.hsw-main{padding:clamp(1rem,2.5vw,2rem)}
+.hsw-hero{padding:clamp(1.25rem,2.5vw,2.25rem);background:var(--hsw-card);color:var(--hsw-ink);border:1px solid var(--hsw-line);border-radius:16px}
+.hsw-hero label,.hsw-hero p{color:var(--hsw-muted)}
+.hsw-hero input{color:var(--hsw-ink);border-color:var(--hsw-line)}
+.hsw-score{width:8rem;height:8rem;background:var(--hsw-coral);color:white}
+.hsw-columns{grid-template-columns:minmax(0,2fr) minmax(15rem,.75fr);gap:1rem;margin-top:1rem}
+.hsw-card,.hsw-metric,.hsw-account,.hsw-privacy,.hsw-coach-card{box-shadow:none}
+.hsw-practice li{background:color-mix(in srgb,var(--hsw-card) 82%,var(--hsw-paper));color:var(--hsw-ink)}
+.hsw-practice li.hsw-learner{background:var(--hsw-coral);color:white}
+.hsw-practice textarea,.hsw-form input,.hsw-form select,.hsw-form textarea{background:var(--hsw-paper);color:var(--hsw-ink)}
+.hsw-note{background:color-mix(in srgb,var(--hsw-card) 75%,var(--hsw-paper));color:var(--hsw-muted)}
+.hsw-account{min-height:10rem}
+.hsw-page-head h2{font-size:clamp(2rem,4vw,3.5rem)}
+@media(max-width:900px){.hsw-top{position:relative}.hsw-columns{grid-template-columns:1fr}}

@@ -3,7 +3,7 @@ import { Text, TextInput } from "react-native";
 import { impactLight, notifySuccess } from "@/lib/iosProductQuality";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
@@ -59,9 +59,11 @@ export function ObjectionTool() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiPost<{ response: string; citations?: CitationItem[] }>("/api/objections", {
-        objection,
-      });
+      const data = await apiPost<{ response: string; citations?: CitationItem[] }>(
+        "/api/objections",
+        { objection },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setResult(data.response);
       setCitations(data.citations || []);
       void notifySuccess(reduceMotion);

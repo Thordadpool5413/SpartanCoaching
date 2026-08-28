@@ -220,7 +220,7 @@ export default function EmailTemplates() {
   };
 
   return (
-    <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-4xl">
+    <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-6xl">
       <SEO />
         <div className="mb-8">
           <h1 className="text-h1 font-black mb-6">Email Templates</h1>
@@ -231,9 +231,9 @@ export default function EmailTemplates() {
 
         <PendingReminders reminders={reminders} onRemove={handleRemoveReminder} />
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid min-w-0 gap-5 xl:grid-cols-2 xl:items-start">
           {/* Input Form */}
-          <Card className="border-2 shadow-lg spacing-card">
+          <Card className="min-w-0 border shadow-sm spacing-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
@@ -316,12 +316,12 @@ export default function EmailTemplates() {
           </Card>
 
           {/* Generated Template */}
-          <Card className="border-2 shadow-lg spacing-card">
+          <Card className="min-w-0 border shadow-sm spacing-card">
             <CardHeader>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle>Generated Template</CardTitle>
                 {generatedTemplate && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
                       size="default"
@@ -357,7 +357,7 @@ export default function EmailTemplates() {
             <CardContent>
               {generatedTemplate ? (
                 <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-lg" data-testid="text-generated-template">
+                  <div className="min-w-0 overflow-hidden break-words bg-muted p-4 rounded-lg [&_*]:max-w-full" data-testid="text-generated-template">
                     <MarkdownContent content={generatedTemplate} />
                   </div>
 

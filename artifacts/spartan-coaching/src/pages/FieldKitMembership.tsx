@@ -94,7 +94,7 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      <Card className="mb-14 border border-border bg-card p-6 sm:p-8" data-testid="section-membership-context">
+      <Card className="mb-10 border border-border bg-card p-5 sm:p-6" data-testid="section-membership-context">
         <p className="text-kicker mb-3">Before you choose</p>
         <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -111,13 +111,13 @@ export default function FieldKitMembership() {
         </div>
       </Card>
       {/* ── Product map BEFORE pricing (understandability) ── */}
-      <div className="mb-14" data-testid="section-tool-grid">
+      <div className="mb-10" data-testid="section-tool-grid">
         <SectionHeader
           kicker="What's inside"
           title="One daily spine. Clear tool groups."
           description="Hospice Sales Pro is not thirteen equal features. Open Command Center for the day, then use practice, plan, and resources as satellites — same product on web and iPhone."
         />
-        <ProductMap className="mb-8" />
+        <ProductMap className="mb-6" />
 
         <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
           <summary className="cursor-pointer text-sm font-bold text-foreground">
@@ -154,7 +154,7 @@ export default function FieldKitMembership() {
       </div>
 
       {/* ── Access options (pricing after product understanding) ── */}
-      <div className="mb-14">
+      <div className="mb-10">
         <SectionHeader
           kicker="Access"
           title="How people get Hospice Sales Pro"

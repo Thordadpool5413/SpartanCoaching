@@ -14,11 +14,12 @@ import {
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiGet, apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { NextFieldActionCard } from "@/components/NextFieldActionCard";
 import { font } from "@/lib/typography";
 import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
+import { userFacingApiError } from "@/lib/offlineQueue";
 
 type RoleplayPhase = "select" | "active" | "feedback";
 
@@ -159,12 +160,13 @@ export function RolePlayTool({
       const data = await apiPost<{ session: RoleplaySession; initialMessage: string }>(
         "/api/roleplay/sessions",
         body,
+        { timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       setRoleplaySession(data.session);
       setRoleplayMessages([{ role: "character", content: data.initialMessage }]);
       setRoleplayPhase("active");
-    } catch {
-      setRoleplayError("Could not start the session. Please try again.");
+    } catch (error) {
+      setRoleplayError(userFacingApiError(error, "Could not start the session. Please try again."));
     } finally {
       setRoleplayLoading(false);
     }
@@ -183,11 +185,12 @@ export function RolePlayTool({
       const data = await apiPost<{ response: string }>(
         `/api/roleplay/sessions/${roleplaySession.id}/messages`,
         { content },
+        { timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       setRoleplayMessages((prev) => [...prev, { role: "character", content: data.response }]);
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-    } catch {
-      setRoleplayError("Failed to get a response. Please try again.");
+    } catch (error) {
+      setRoleplayError(userFacingApiError(error, "Failed to get a response. Please try again."));
     } finally {
       setRoleplayLoading(false);
     }
@@ -202,12 +205,13 @@ export function RolePlayTool({
       const data = await apiPost<{ feedback: string; rating: number }>(
         `/api/roleplay/sessions/${roleplaySession.id}/feedback`,
         {},
+        { timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       setRoleplayFeedback(data.feedback);
       setRoleplayRating(data.rating);
       setRoleplayPhase("feedback");
-    } catch {
-      setRoleplayError("Could not generate feedback. Please try again.");
+    } catch (error) {
+      setRoleplayError(userFacingApiError(error, "Could not generate feedback. Please try again."));
     } finally {
       setEndingSession(false);
     }

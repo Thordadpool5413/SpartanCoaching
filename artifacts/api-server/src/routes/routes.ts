@@ -93,6 +93,10 @@ import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntellige
 import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
 import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import {
+  aiProviderReadinessSnapshot,
+  runLiveAiProviderProbe,
+} from "../ai/providerReadiness";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -107,6 +111,13 @@ function paramInt(req: Request, key: string): number {
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
+  if (process.env.AI_STARTUP_PROBE_ENABLED !== "false") {
+    void runLiveAiProviderProbe().then((result) => {
+      if (!result.ok) console.error("AI startup readiness probe failed", result);
+    }).catch((error) => {
+      console.error("AI startup readiness probe crashed", error instanceof Error ? error.message : "unknown");
+    });
+  }
   console.log("Deferred initialization complete");
 }
 
@@ -723,11 +734,13 @@ CONTENT RULES
 1. Use only the facts provided.
 2. Do not claim an existing referral, trust, partnership, patient need, service capability, resource, next meeting, or personal preference unless it appears above.
 3. Keep the body between 90 and 140 words.
-4. Sound warm, observant, and confident.
-5. Include one natural next step only when the context supports it.
-6. Do not use bullets, Markdown, or any dash character.
-7. Do not use generic praise or inflated language.
-8. If the context is too thin, write a restrained note instead of inventing detail.
+4. Sound like a seasoned Spartan Coaching field professional: direct, warm, observant, specific, and easy to read aloud.
+5. Open by connecting to the concrete interaction or detail in the context. Do not begin with a generic thank you sentence when a more specific opening is available.
+6. Include one natural next step only when the context supports it. Make the ask easy to answer.
+7. Preserve the sender's authority without sounding promotional, overly polished, or eager for a referral.
+8. Do not use bullets, Markdown, or any dash character.
+9. Do not use generic praise, corporate filler, or inflated language.
+10. If the context is too thin, write a restrained note and name the one detail the sender should confirm before sending instead of inventing it.
 
 Use this exact format:
 SUBJECT
@@ -737,7 +750,7 @@ MESSAGE
 The complete email with greeting, short paragraphs, and this signature placeholder:
 [Your name]`;
 
-      const systemInstruction = `You are a senior communications advisor for hospice growth professionals. Write credible relationship centered emails that respect the recipient's time. Every sentence must be grounded in the supplied context or be a neutral courtesy. The result should feel personally written, not generated.`;
+      const systemInstruction = `You are the Spartan Coaching field communication editor for hospice growth professionals. Turn the member's real context into a credible note they could naturally say out loud. Protect their voice, respect the recipient's time, and make the next move clear. Every sentence must be grounded in supplied context or be a neutral courtesy.`;
 
       const template = await generateComplexResponse(prompt, systemInstruction);
       
@@ -1664,6 +1677,16 @@ Build a specific Monday–Friday territory plan for this week.`;
       console.error("AI usage lookup failed:", error);
       res.status(503).json({ error: "AI usage is temporarily unavailable." });
     }
+  });
+
+  app.get("/api/admin/ai-readiness", requireAdmin, (_req, res) => {
+    const status = aiProviderReadinessSnapshot();
+    res.status(status.ok ? 200 : 503).json(status);
+  });
+
+  app.post("/api/admin/ai-readiness/probe", requireAdmin, heavyAiLimit, async (_req, res) => {
+    const result = await runLiveAiProviderProbe();
+    res.status(result.ok ? 200 : 503).json(result);
   });
 
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)

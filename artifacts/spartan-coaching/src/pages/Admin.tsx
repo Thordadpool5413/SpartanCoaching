@@ -58,6 +58,8 @@ import {
   Link as LinkIcon,
   Printer,
   KeyRound,
+  Activity,
+  RefreshCw,
 } from "lucide-react";
 import { AccessDesk } from "@/components/AccessDesk";
 import type {
@@ -307,6 +309,50 @@ export default function Admin() {
     queryFn: () => adminGet("/api/admin/ai-usage"),
     enabled: isAuthenticated,
     refetchInterval: 30000,
+  });
+
+  type AiReadiness = {
+    ok: boolean;
+    status: "not_configured" | "checking" | "ready" | "degraded" | "not_verified";
+    provider: string;
+    pipelines: Record<string, boolean>;
+    lastProbe: null | {
+      checkedAt?: string;
+      probes: Array<{
+        id: string;
+        ok: boolean;
+        durationMs: number;
+        errorClass?: string;
+      }>;
+    };
+  };
+
+  const { data: aiReadinessData, refetch: refetchAiReadiness } = useQuery<AiReadiness>({
+    queryKey: ["/api/admin/ai-readiness"],
+    queryFn: () => adminGet("/api/admin/ai-readiness"),
+    enabled: isAuthenticated,
+    retry: false,
+    refetchInterval: 60000,
+  });
+
+  const aiReadinessProbe = useMutation({
+    mutationFn: () =>
+      adminFetch("/api/admin/ai-readiness/probe", { method: "POST" }),
+    onSuccess: async () => {
+      await refetchAiReadiness();
+      toast({
+        title: "AI readiness verified",
+        description: "Chat, structured generation, and transcription passed live provider checks.",
+      });
+    },
+    onError: async (error: Error) => {
+      await refetchAiReadiness();
+      toast({
+        title: "AI readiness failed",
+        description: error.message || "One or more AI pipelines could not reach the provider.",
+        variant: "destructive",
+      });
+    },
   });
 
   const { data: resourceLeadsData, isLoading: resourceLeadsLoading } =
@@ -2052,6 +2098,58 @@ export default function Admin() {
 
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Event Analytics</h2>
+
+        <Card className="mb-4" data-testid="card-ai-readiness">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Live AI readiness
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  Provider-level verification for website and iPhone AI workflows.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant={aiReadinessData?.ok ? "outline" : "default"}
+                className="gap-2"
+                disabled={aiReadinessProbe.isPending}
+                onClick={() => aiReadinessProbe.mutate()}
+                data-testid="button-run-ai-readiness"
+              >
+                <RefreshCw className={`h-4 w-4 ${aiReadinessProbe.isPending ? "animate-spin" : ""}`} />
+                {aiReadinessProbe.isPending ? "Running live checks…" : "Run live checks"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={aiReadinessData?.ok ? "default" : "destructive"}>
+                {aiReadinessData?.status === "ready"
+                  ? "All AI pipelines ready"
+                  : aiReadinessData?.status === "checking"
+                    ? "Checking"
+                    : aiReadinessData?.status === "degraded"
+                      ? "Provider degraded"
+                      : aiReadinessData?.status === "not_configured"
+                        ? "Provider not configured"
+                        : "Live check required"}
+              </Badge>
+              {aiReadinessData?.lastProbe?.probes.map((probe) => (
+                <Badge key={probe.id} variant={probe.ok ? "secondary" : "destructive"}>
+                  {probe.id}: {probe.ok ? `${probe.durationMs} ms` : probe.errorClass || "failed"}
+                </Badge>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Covers public chat, Coach, classic and advanced tools, Command Center,
+              role-play, Intelligence, and audio transcription. No member content is
+              sent during this diagnostic.
+            </p>
+          </CardContent>
+        </Card>
 
         {aiUsageData && (
           <div className="mb-4">
