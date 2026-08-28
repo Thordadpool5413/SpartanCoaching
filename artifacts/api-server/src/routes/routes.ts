@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 35333)
-Total output lines: 3291
-
 import type { Express } from "express";
 import express from "express";
 import {
@@ -1473,7 +1470,574 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.put("/api/case-studies/:id", requireAdmin, async (req, res) => {
-    …5333 tokens truncated…, error);
+    try {
+      const item = await storage.updateCaseStudy(paramInt(req, "id"), req.body);
+      res.json({ caseStudy: item });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to update case study" });
+    }
+  });
+
+  app.delete("/api/case-studies/:id", requireAdmin, async (req, res) => {
+    try {
+      await storage.deleteCaseStudy(paramInt(req, "id"));
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to delete case study" });
+    }
+  });
+
+  // Delete Resource (Admin only)
+  app.delete("/api/resources/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid resource ID" });
+      }
+
+      await storage.deleteResource(id);
+      
+      console.log("Resource deleted:", id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete resource error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete resource") });
+    }
+  });
+
+  // Podcast Management Routes
+  
+  // Get All Podcasts (Public)
+  app.get("/api/podcasts", async (req, res) => {
+    try {
+      const podcasts = await storage.getAllPodcasts();
+      
+      res.json({ podcasts });
+    } catch (error: any) {
+      console.error("Get podcasts error (DB may be unavailable):", error);
+      res.json({ podcasts: [] });
+    }
+  });
+
+  // Create Podcast (Admin only)
+  app.post("/api/podcasts", requireAdmin, async (req, res) => {
+    try {
+      const podcastData = insertPodcastSchema.parse(req.body);
+      
+      const podcast = await storage.createPodcast(podcastData);
+      
+      console.log("New podcast created:", podcast);
+      
+      res.json({ success: true, podcast });
+    } catch (error: any) {
+      console.error("Create podcast error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid podcast data" });
+      } else {
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create podcast") });
+      }
+    }
+  });
+
+  // Update Podcast (Admin only)
+  app.put("/api/podcasts/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid podcast ID" });
+      }
+
+      const podcastData = insertPodcastSchema.parse(req.body);
+      
+      // Check if podcast exists first
+      const existingPodcast = await storage.getPodcast(id);
+      if (!existingPodcast) {
+        return res.status(404).json({ error: "Podcast not found" });
+      }
+      
+      const podcast = await storage.updatePodcast(id, podcastData);
+      
+      console.log("Podcast updated:", podcast);
+      
+      res.json({ success: true, podcast });
+    } catch (error: any) {
+      console.error("Update podcast error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid podcast data" });
+      } else {
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to update podcast") });
+      }
+    }
+  });
+
+  // Delete Podcast (Admin only)
+  app.delete("/api/podcasts/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid podcast ID" });
+      }
+
+      await storage.deletePodcast(id);
+      
+      console.log("Podcast deleted:", id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete podcast error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete podcast") });
+    }
+  });
+
+  // Track Visitor
+  app.post("/api/analytics/track", analyticsLimit, async (req, res) => {
+    try {
+      const visitorData = insertVisitorSchema.parse(req.body);
+      if (
+        !isSafeAnalyticsPagePath(visitorData.pagePath)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics page path" });
+      }
+      
+      await storage.trackVisitor(visitorData);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Track visitor error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to track visitor") });
+    }
+  });
+
+  // Get Visitor Analytics
+  app.get("/api/analytics/visitors", requireAdmin, async (req, res) => {
+    try {
+      const raw = await storage.getVisitorAnalytics();
+      const analytics = visitorAnalyticsSchema.parse(raw);
+      res.json({ analytics });
+    } catch (error: any) {
+      console.error("Get analytics error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve analytics") });
+    }
+  });
+
+  app.post("/api/analytics/events", analyticsLimit, async (req, res) => {
+    try {
+      // Never trust client-supplied memberId — derive it from the authenticated session.
+      // loadSession runs globally and populates req.clientMemberId when a valid Bearer
+      // token or session cookie is present (mobile app and web app both set this).
+      // Never store free-text / PHI-like metadata (HSP-42).
+      const { memberId: _stripped, ...bodyWithoutMemberId } = req.body as Record<string, unknown>;
+      const sessionMemberId = (req as import("../auth/middleware").AuthedRequest).clientMemberId ?? null;
+      const safeMetadata = sanitizeAnalyticsMetadata(
+        (bodyWithoutMemberId as { metadata?: unknown }).metadata,
+      );
+      const parsedEvent = insertEventTrackingSchema.safeParse({
+        ...bodyWithoutMemberId,
+        metadata: safeMetadata,
+        memberId: sessionMemberId,
+      });
+      if (!parsedEvent.success) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
+      const eventData = parsedEvent.data;
+      if (
+        !isSafeAnalyticsLabel(eventData.eventType) ||
+        !isSafeAnalyticsLabel(eventData.eventName) ||
+        !isAcceptedClientAnalyticsEvent(eventData.eventType, eventData.eventName)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
+      await storage.trackEvent(eventData);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Track event error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to track event") });
+    }
+  });
+
+  app.get("/api/analytics/events", requireAdmin, async (req, res) => {
+    try {
+      const raw = await storage.getEventAnalytics();
+      // Validate at the boundary so a future refactor that drops a field
+      // breaks the build or throws at runtime rather than silently serving
+      // an incomplete response.
+      const analytics = eventAnalyticsSchema.parse(raw);
+      res.json({ analytics });
+    } catch (error: any) {
+      console.error("Get event analytics error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve event analytics") });
+    }
+  });
+
+  app.get("/api/admin/ai-usage", requireAdmin, async (_req, res) => {
+    try {
+      res.json(await getAiUsageToday());
+    } catch (error) {
+      console.error("AI usage lookup failed:", error);
+      res.status(503).json({ error: "AI usage is temporarily unavailable." });
+    }
+  });
+
+  app.get("/api/admin/ai-readiness", requireAdmin, (_req, res) => {
+    const status = aiProviderReadinessSnapshot();
+    res.status(status.ok ? 200 : 503).json(status);
+  });
+
+  app.post("/api/admin/ai-readiness/probe", requireAdmin, heavyAiLimit, async (_req, res) => {
+    const result = await runLiveAiProviderProbe();
+    res.status(result.ok ? 200 : 503).json(result);
+  });
+
+  // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
+  app.post("/api/objects/upload", requireAdmin, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const localUploadId = uploadURL.match(/^\/api\/objects\/upload\/([0-9a-f-]{36})$/i)?.[1];
+      if (localUploadId) {
+        const now = new Date();
+        await db.delete(objectUploadTokens).where(lt(objectUploadTokens.expiresAt, now));
+        await db.insert(objectUploadTokens).values({ token: localUploadId, expiresAt: new Date(now.getTime() + 15 * 60 * 1000) });
+      }
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error("Upload URL generation error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate upload URL") });
+    }
+  });
+
+  // Local deployments receive a capability URL from the endpoint above. The UUID
+  // is intentionally unguessable and is valid only for a single object upload.
+  app.put("/api/objects/upload/:objectId", express.raw({ type: "*/*", limit: "100mb" }), async (req, res) => {
+    try {
+      const [uploadToken] = await db
+        .delete(objectUploadTokens)
+        .where(and(eq(objectUploadTokens.token, req.params.objectId), gt(objectUploadTokens.expiresAt, new Date())))
+        .returning({ token: objectUploadTokens.token });
+      if (!uploadToken) {
+        return res.status(404).json({ error: "Upload URL expired or not found" });
+      }
+      const objectStorageService = new ObjectStorageService();
+      await objectStorageService.saveLocalUpload(
+        req.params.objectId,
+        Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0),
+        req.headers["content-type"],
+      );
+      res.status(204).end();
+    } catch (error: any) {
+      console.error("Local object upload error:", error);
+      res.status(400).json({ error: error.message || "Failed to upload object" });
+    }
+  });
+
+  // Normalize PDF upload URL and set ACL policy
+  app.post("/api/articles/normalize-pdf", requireAdmin, async (req, res) => {
+    try {
+      const { uploadURL } = req.body;
+      
+      if (!uploadURL) {
+        return res.status(400).json({ error: "uploadURL is required" });
+      }
+      
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        uploadURL,
+        {
+          owner: "admin",
+          visibility: "public",
+        }
+      );
+      
+      res.json({ normalizedPath });
+    } catch (error: any) {
+      console.error("Error normalizing PDF path:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to normalize PDF path") });
+    }
+  });
+
+  // ===== SESSION-ONLY ROLE-PLAY PRACTICE =====
+  // Current sessions live only in this process and are discarded after feedback
+  // or a short idle TTL. Legacy database rows are never restored here.
+
+  app.post(
+    "/api/roleplay/sessions",
+    requireFieldKit,
+    roleplayLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const member = req.fieldKit?.member;
+        const org = req.fieldKit?.org;
+        if (!member || !org) {
+          return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+        }
+
+        const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
+        const session = createEphemeralRoleplaySession({
+          memberId: member.id,
+          organizationId: org.id,
+          scenarioId,
+          scenarioTitle,
+          scenarioDescription: scenarioDescription ?? null,
+          status: "active",
+        });
+
+        const initialResponse = await generateRoleplayResponse(
+          scenarioId,
+          scenarioTitle,
+          "Hello, I'm here to speak with you today.",
+          [],
+          scenarioDescription,
+        );
+        appendEphemeralRoleplayMessage(session, {
+          role: "character",
+          content: initialResponse,
+        });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_start" }).catch(() => {});
+        res.json({ session, initialMessage: initialResponse });
+      } catch (error: any) {
+        console.error("Roleplay session creation error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid role-play start data" });
+        }
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create roleplay session") });
+      }
+    },
+  );
+
+  /**
+   * List sessions as a JSON array (mobile + web).
+   * Always member-scoped on this product path (no cross-tenant dump for platform admins).
+   * Unowned legacy rows are never included.
+   */
+  app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      res.json([]);
+    } catch (error: any) {
+      console.error("Get roleplay sessions error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/stats", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      res.json([]);
+    } catch (error: any) {
+      console.error("Get roleplay stats error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid session id" });
+
+      const session = getEphemeralRoleplaySession(
+        id,
+        req.clientMemberId!,
+        req.fieldKit?.member?.organizationId ?? -1,
+      );
+      if (!session) return res.status(404).json({ error: "Session not found" });
+
+      res.json({ session, messages: session.messages });
+    } catch (error: any) {
+      console.error("Get roleplay session error:", error);
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to get session") });
+    }
+  });
+
+  app.post(
+    "/api/roleplay/sessions/:id/messages",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const { content } = roleplayMessageSchema.parse(req.body);
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+        if (session.status !== "active") {
+          return res.status(400).json({ error: "Session is no longer active" });
+        }
+
+        const history = [...session.messages];
+        appendEphemeralRoleplayMessage(session, { role: "user", content });
+
+        const response = await generateRoleplayResponse(
+          session.scenarioId,
+          session.scenarioTitle,
+          content,
+          history,
+          session.scenarioDescription ?? undefined,
+        );
+        appendEphemeralRoleplayMessage(session, { role: "character", content: response });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
+        res.json({ response });
+      } catch (error: any) {
+        console.error("Roleplay message error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid message" });
+        }
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to send message") });
+      }
+    },
+  );
+
+  app.post(
+    "/api/roleplay/sessions/:id/feedback",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+
+        const transcript = session.messages;
+
+        const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
+        const updated = finishEphemeralRoleplaySession(session, feedback, rating);
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_feedback" }).catch(() => {});
+        res.json({ session: updated, feedback, rating });
+      } catch (error: any) {
+        console.error("Roleplay feedback error:", error);
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to generate feedback") });
+      }
+    },
+  );
+
+  // ===== DAILY DRILL ROUTES =====
+
+  app.post("/api/drills/completions", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const data = drillCompletionRequestSchema.parse(req.body);
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      const completion = await storage.createDrillCompletion({
+        ...data,
+        memberId: member.id,
+        organizationId: member.organizationId,
+      });
+      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "drill_completion" }).catch(() => {});
+      res.json(completion);
+    } catch (error: any) {
+      console.error("Drill completion error:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid completion data" });
+      }
+      res.status(503).json({ error: "Unable to save completion right now. Please try again shortly." });
+    }
+  });
+
+  app.get("/api/drills/completions", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      // Always member-scoped on this product path (no cross-tenant dump).
+      const completions = await storage.getDrillCompletionsForMember(member.id);
+      res.json(completions);
+    } catch (error: any) {
+      console.error("Get drill completions error:", error);
+      res.json([]);
+    }
+  });
+
+  // ===== SEND EMAIL ROUTE =====
+
+  app.post("/api/send-email", requireFieldKit, outboundEmailLimit, globalDailyEmailCap, async (req: AuthedRequest, res) => {
+    try {
+      const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      // Abuse controls: size caps + accountable footer (relay stays member-usable for outreach drafts)
+      if (subject.length > 200 || body.length > 20000) {
+        return res.status(400).json({ error: "Subject or body too long" });
+      }
+      const footer = `\n\n---\nSent via Hospice Sales Pro by ${member.name} <${member.email}>. Do not include PHI.`;
+      const safeBody = body.includes("Sent via Hospice Sales Pro") || body.includes("Sent via Spartan Field Kit")
+        ? body
+        : `${body}${footer}`;
+      const success = await sendGeneratedEmail(to, subject.slice(0, 200), safeBody);
+      if (!success) {
+        return res.status(500).json({ error: "Failed to send email" });
+      }
+      storage
+        .trackEvent({
+          eventType: "ai_tool_usage",
+          eventName: "email_sent",
+          metadata: JSON.stringify({ memberId: member.id, organizationId: member.organizationId }),
+        })
+        .catch(() => {});
+      res.json({ success: true, message: "Email sent successfully" });
+    } catch (error: any) {
+      console.error("Send email error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: "Invalid email data" });
+      } else {
+        res.status(500).json({ error: "Failed to send email" });
+      }
+    }
+  });
+
+  // Audio transcription endpoint
+  app.post("/api/transcribe", requireElite, heavyAiLimit, globalDailyAiCap, async (req, res) => {
+    try {
+      const multer = (await import("multer")).default;
+      const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+      upload.single("audio")(req, res as any, async (err) => {
+        if (err) {
+          return res.status(400).json({ error: "File upload failed: " + err.message });
+        }
+        if (!req.file) {
+          return res.status(400).json({ error: "No audio file provided" });
+        }
+        try {
+          const OpenAI = (await import("openai")).default;
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+          const { toFile } = await import("openai");
+          const audioFile = await toFile(req.file.buffer, req.file.originalname || "audio.webm", { type: req.file.mimetype });
+          const transcription = await openai.audio.transcriptions.create({
+            file: audioFile,
+            model: "whisper-1",
+            response_format: "json",
+          });
+          return res.json({ transcript: transcription.text });
+        } catch (apiErr: any) {
+          console.error("Transcription API error:", apiErr);
+          return res.status(500).json({ error: "Transcription failed: " + apiErr.message });
+        }
+      });
+    } catch (error: any) {
+      console.error("Transcribe route error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

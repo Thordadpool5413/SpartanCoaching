@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 65930)
-Total output lines: 6510
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
@@ -2018,7 +2015,3095 @@ export default function Admin() {
                 >
                   {analytics.day}
                 </div>
-                <p class…35930 tokens truncated…          </h4>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-week">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  This Week
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-visitors-week"
+                >
+                  {analytics.week}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-month">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  This Month
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-visitors-month"
+                >
+                  {analytics.month}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-quarter">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  This Quarter
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-visitors-quarter"
+                >
+                  {analytics.quarter}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-year">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  This Year
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-visitors-year"
+                >
+                  {analytics.year}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No visitor data available</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Event Analytics</h2>
+
+        <Card className="mb-4" data-testid="card-ai-readiness">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Live AI readiness
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  Provider-level verification for website and iPhone AI workflows.
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant={aiReadinessData?.ok ? "outline" : "default"}
+                className="gap-2"
+                disabled={aiReadinessProbe.isPending}
+                onClick={() => aiReadinessProbe.mutate()}
+                data-testid="button-run-ai-readiness"
+              >
+                <RefreshCw className={`h-4 w-4 ${aiReadinessProbe.isPending ? "animate-spin" : ""}`} />
+                {aiReadinessProbe.isPending ? "Running live checks…" : "Run live checks"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={aiReadinessData?.ok ? "default" : "destructive"}>
+                {aiReadinessData?.status === "ready"
+                  ? "All AI pipelines ready"
+                  : aiReadinessData?.status === "checking"
+                    ? "Checking"
+                    : aiReadinessData?.status === "degraded"
+                      ? "Provider degraded"
+                      : aiReadinessData?.status === "not_configured"
+                        ? "Provider not configured"
+                        : "Live check required"}
+              </Badge>
+              {aiReadinessData?.lastProbe?.probes.map((probe) => (
+                <Badge key={probe.id} variant={probe.ok ? "secondary" : "destructive"}>
+                  {probe.id}: {probe.ok ? `${probe.durationMs} ms` : probe.errorClass || "failed"}
+                </Badge>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Covers public chat, Coach, classic and advanced tools, Command Center,
+              role-play, Intelligence, and audio transcription. No member content is
+              sent during this diagnostic.
+            </p>
+          </CardContent>
+        </Card>
+
+        {aiUsageData && (
+          <div className="mb-4">
+            <Card data-testid="card-ai-daily-usage">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  AI Calls Today (Rate-Limited)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end gap-2">
+                  <span
+                    className="text-3xl font-bold"
+                    data-testid="text-ai-calls-today"
+                  >
+                    {aiUsageData.count}
+                  </span>
+                  <span className="text-muted-foreground mb-0.5">
+                    / {aiUsageData.cap}
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min((aiUsageData.count / aiUsageData.cap) * 100, 100)}%`,
+                      backgroundColor:
+                        aiUsageData.count / aiUsageData.cap > 0.8
+                          ? "hsl(var(--destructive))"
+                          : "hsl(var(--primary))",
+                    }}
+                    data-testid="progress-ai-usage"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Resets at midnight · Refreshes every 30s
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {eventAnalyticsLoading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading event analytics...</p>
+          </div>
+        ) : eventAnalyticsData?.analytics ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="md:col-span-3" data-testid="card-public-funnel">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Public Funnel — traffic to completed intent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
+                  {[
+                    ["CTA clicks", eventAnalyticsData.analytics.publicFunnel.ctaClicks, "cta-clicks"],
+                    ["Contact starts", eventAnalyticsData.analytics.publicFunnel.contactStarts, "contact-starts"],
+                    ["Successful sends", eventAnalyticsData.analytics.publicFunnel.contactSuccesses, "contact-successes"],
+                    ["Send failures", eventAnalyticsData.analytics.publicFunnel.contactFailures, "contact-failures"],
+                    ["iPhone interest", eventAnalyticsData.analytics.publicFunnel.appInterest, "app-interest"],
+                  ].map(([label, value, testId]) => (
+                    <div key={String(testId)}>
+                      <div className="text-2xl font-bold" data-testid={`text-public-funnel-${testId}`}>
+                        {value}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Aggregate all-time counts. Contact success is recorded by the server only; no form answers or visitor identity are included.
+                </p>
+              </CardContent>
+            </Card>
+            <Card data-testid="card-ai-tool-usage">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  AI Tool Usage
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.aiToolUsage.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.aiToolUsage.map((item) => (
+                      <div
+                        key={item.eventName}
+                        className="flex items-center justify-between"
+                        data-testid={`ai-tool-${item.eventName}`}
+                      >
+                        <span className="text-sm capitalize">
+                          {item.eventName.replace(/_/g, " ")}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No AI tool usage recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-resource-downloads">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Resource Downloads
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.resourceDownloads.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.resourceDownloads.map(
+                      (item) => (
+                        <div
+                          key={item.eventName}
+                          className="flex items-center justify-between gap-2"
+                          data-testid={`resource-download-${item.eventName}`}
+                        >
+                          <span className="text-sm truncate">
+                            {item.eventName}
+                          </span>
+                          <Badge variant="secondary" className="shrink-0">
+                            {item.count}
+                          </Badge>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No resource downloads recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-contact-submissions">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Contact Form Submissions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-contact-submissions"
+                >
+                  {eventAnalyticsData.analytics.contactSubmissions}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  total submissions tracked
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-ai-tool-usage">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile AI Tool Usage
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.mobileAiToolUsage.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.mobileAiToolUsage.map((item) => (
+                      <div
+                        key={item.eventName}
+                        className="flex items-center justify-between"
+                        data-testid={`mobile-ai-tool-${item.eventName}`}
+                      >
+                        <span className="text-sm capitalize">
+                          {item.eventName.replace(/_/g, " ")}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No mobile AI tool usage recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-tool-views">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile Browse Views
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.mobileToolViews.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.mobileToolViews.map((item) => (
+                      <div
+                        key={item.eventName}
+                        className="flex items-center justify-between"
+                        data-testid={`mobile-tool-view-${item.eventName}`}
+                      >
+                        <span className="text-sm capitalize">
+                          {item.eventName.replace(/_/g, " ")}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No mobile browse views recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-app-opens">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile App Opens
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-day"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.day}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Today</p>
+                  </div>
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-week"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.week}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">7 days</p>
+                  </div>
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-month"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.month}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">30 days</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  device launches by time window
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No event data available</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Button asChild size="sm" className="font-bold gap-1.5" data-testid="link-open-access-desk">
+          <a href="/admin/access-desk">
+            <KeyRound className="w-3.5 h-3.5" />
+            Open Access Desk (fast)
+          </a>
+        </Button>
+        <p className="text-xs text-muted-foreground self-center">
+          Prefer the dedicated ops page — loads without the full CMS.
+        </p>
+      </div>
+
+      <Tabs defaultValue="access" className="space-y-6">
+        <TabsList className="flex w-full max-w-6xl overflow-x-auto">
+          <TabsTrigger
+            value="access"
+            data-testid="tab-access"
+            className="gap-2"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+            Access Desk
+          </TabsTrigger>
+          <TabsTrigger
+            value="inquiries"
+            data-testid="tab-inquiries"
+            className="gap-2"
+          >
+            Inquiries ({inquiries.length})
+            {inquiries.filter((i) => !i.isRead).length > 0 && (
+              <Badge
+                variant="destructive"
+                className="text-xs px-1.5 py-0 h-5 min-w-[1.25rem]"
+              >
+                {inquiries.filter((i) => !i.isRead).length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="subscribers" data-testid="tab-subscribers">
+            Subscribers ({subscribers.length})
+          </TabsTrigger>
+          <TabsTrigger value="articles" data-testid="tab-articles">
+            Articles ({articles.length})
+          </TabsTrigger>
+          <TabsTrigger value="resources" data-testid="tab-resources">
+            Resources ({resources.length})
+          </TabsTrigger>
+          <TabsTrigger value="podcasts" data-testid="tab-podcasts">
+            Podcasts ({podcasts.length})
+          </TabsTrigger>
+          <TabsTrigger value="testimonials" data-testid="tab-testimonials">
+            Testimonials ({testimonialsList.length})
+          </TabsTrigger>
+          <TabsTrigger value="agreements" data-testid="tab-agreements">
+            Agreements ({agreements.length})
+          </TabsTrigger>
+          <TabsTrigger value="roleplay" data-testid="tab-roleplay">
+            Role-Play ({roleplaySessions.length})
+          </TabsTrigger>
+          <TabsTrigger value="drills" data-testid="tab-drills">
+            Drills ({drillCompletions.length})
+          </TabsTrigger>
+          <TabsTrigger value="leads" data-testid="tab-leads" className="gap-2">
+            Leads ({groupedLeads.length})
+            {groupedLeads.filter((l) => l.interactions >= 3).length > 0 && (
+              <Badge
+                variant="destructive"
+                className="text-xs px-1.5 py-0 h-5 min-w-[1.25rem]"
+              >
+                {groupedLeads.filter((l) => l.interactions >= 3).length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="assessments" data-testid="tab-assessments">
+            Assessments ({assessmentsList.length})
+          </TabsTrigger>
+          <TabsTrigger value="linkedin" data-testid="tab-linkedin">
+            LinkedIn
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="access" className="space-y-4">
+          <AccessDesk />
+        </TabsContent>
+
+        <TabsContent value="inquiries" className="space-y-4">
+          {inquiriesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading inquiries...</p>
+            </div>
+          ) : inquiries.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No inquiries yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-export-inquiries"
+                  onClick={() =>
+                    downloadCSV(
+                      [
+                        [
+                          "Date",
+                          "Name",
+                          "Email",
+                          "Phone",
+                          "Company",
+                          "Service",
+                          "Message",
+                        ],
+                        ...inquiries.map((i) => [
+                          new Date(i.submittedAt).toLocaleDateString(),
+                          i.name,
+                          i.email,
+                          i.phone,
+                          i.company || "",
+                          i.serviceType || "",
+                          i.message,
+                        ]),
+                      ],
+                      `inquiries-${new Date().toISOString().slice(0, 10)}.csv`,
+                    )
+                  }
+                >
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+              {inquiries.map((inquiry) => (
+                <Card
+                  key={inquiry.id}
+                  data-testid={`inquiry-${inquiry.id}`}
+                  className={inquiry.isRead ? "" : "border-primary/50"}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <div className="flex items-start gap-3 min-w-0">
+                        {!inquiry.isRead && (
+                          <div
+                            className="w-2 h-2 rounded-full bg-primary mt-2.5 shrink-0"
+                            data-testid={`dot-unread-${inquiry.id}`}
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <CardTitle className="text-2xl">
+                            {inquiry.name}
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-2 mt-2">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(inquiry.submittedAt).toLocaleDateString()}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {inquiry.serviceType && (
+                          <Badge variant="secondary">
+                            {inquiry.serviceType}
+                          </Badge>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-xs"
+                          data-testid={`button-mark-read-${inquiry.id}`}
+                          disabled={markReadMutation.isPending}
+                          onClick={() =>
+                            markReadMutation.mutate({
+                              id: inquiry.id,
+                              isRead: !inquiry.isRead,
+                            })
+                          }
+                        >
+                          {inquiry.isRead ? (
+                            <>
+                              <Circle className="w-3.5 h-3.5" />
+                              Mark Unread
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                              Mark Read
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <a
+                        href={`mailto:${inquiry.email}`}
+                        className="hover:underline"
+                      >
+                        {inquiry.email}
+                      </a>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <a
+                        href={`tel:${inquiry.phone}`}
+                        className="hover:underline"
+                      >
+                        {inquiry.phone}
+                      </a>
+                    </div>
+                    {inquiry.company && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building className="w-4 h-4 text-muted-foreground" />
+                        {inquiry.company}
+                      </div>
+                    )}
+                    <div className="mt-4 p-4 bg-muted rounded-lg">
+                      <p className="text-sm whitespace-pre-wrap">
+                        {inquiry.message}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="subscribers" className="space-y-4">
+          {/* Newsletter Broadcast */}
+          <Card data-testid="card-newsletter-broadcast">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="w-5 h-5" />
+                Send Newsletter
+              </CardTitle>
+              <CardDescription>
+                Compose and send an email to all {subscribers.length} subscriber
+                {subscribers.length !== 1 ? "s" : ""}.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="broadcast-subject">Subject</Label>
+                <Input
+                  id="broadcast-subject"
+                  value={broadcastSubject}
+                  onChange={(e) => setBroadcastSubject(e.target.value)}
+                  placeholder="e.g. Weekly Coaching Tip: Territory Planning"
+                  data-testid="input-broadcast-subject"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="broadcast-body">Message</Label>
+                <Textarea
+                  id="broadcast-body"
+                  value={broadcastBody}
+                  onChange={(e) => setBroadcastBody(e.target.value)}
+                  placeholder="Write your newsletter content here. Each line break becomes a new paragraph."
+                  rows={6}
+                  data-testid="textarea-broadcast-body"
+                />
+              </div>
+              <Button
+                onClick={() =>
+                  broadcastMutation.mutate({
+                    subject: broadcastSubject,
+                    body: broadcastBody,
+                  })
+                }
+                disabled={
+                  broadcastMutation.isPending ||
+                  subscribers.length === 0 ||
+                  broadcastSubject.trim().length < 3 ||
+                  broadcastBody.trim().length < 10
+                }
+                data-testid="button-send-broadcast"
+              >
+                {broadcastMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send to {subscribers.length} Subscriber
+                    {subscribers.length !== 1 ? "s" : ""}
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {subscribersLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading subscribers...</p>
+            </div>
+          ) : subscribers.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No subscribers yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-export-subscribers"
+                  onClick={() =>
+                    downloadCSV(
+                      [
+                        ["Date", "Email"],
+                        ...subscribers.map((s) => [
+                          new Date(s.subscribedAt).toLocaleDateString(),
+                          s.email,
+                        ]),
+                      ],
+                      `subscribers-${new Date().toISOString().slice(0, 10)}.csv`,
+                    )
+                  }
+                >
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Newsletter Subscribers
+                  </CardTitle>
+                  <CardDescription>
+                    {subscribers.length} active subscribers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {subscribers.map((subscriber) => (
+                      <div
+                        key={subscriber.id}
+                        className="flex items-center justify-between p-3 rounded-lg hover-elevate"
+                        data-testid={`subscriber-${subscriber.id}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <span>{subscriber.email}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(
+                            subscriber.subscribedAt,
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="articles" className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Manage Articles</h2>
+            <Button
+              onClick={() => {
+                setEditingArticle(null);
+                resetArticleForm();
+                setArticleDialogOpen(true);
+              }}
+              className="gap-2"
+              data-testid="button-add-article"
+            >
+              <Plus className="w-4 h-4" />
+              Add Article
+            </Button>
+          </div>
+
+          {articlesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading articles...</p>
+            </div>
+          ) : articles.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  No articles yet. Click "Add Article" to create your first
+                  article.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {articles.map((article) => (
+                <Card key={article.id} data-testid={`article-${article.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-xl">
+                            {article.title}
+                          </CardTitle>
+                          {article.featured && (
+                            <Badge variant="default" className="gap-1">
+                              <Star className="w-3 h-3 fill-current" />
+                              Featured
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(article.publishDate).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEditArticle(article)}
+                          data-testid={`button-edit-article-${article.id}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteArticle(article.id)}
+                          disabled={deleteArticleMutation.isPending}
+                          data-testid={`button-delete-article-${article.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      {article.description}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                      <a
+                        href={article.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        View on LinkedIn
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="resources" className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Manage Resources</h2>
+          </div>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Add New Resource</CardTitle>
+              <CardDescription>
+                Upload training materials, templates, scripts, and checklists
+                for your team
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSaveResource} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="resource-title">Title *</Label>
+                  <Input
+                    id="resource-title"
+                    value={resourceForm.title}
+                    onChange={(e) =>
+                      setResourceForm({
+                        ...resourceForm,
+                        title: e.target.value,
+                      })
+                    }
+                    placeholder="e.g., Cold Call Script Template"
+                    required
+                    data-testid="input-resource-title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-description">Description</Label>
+                  <Textarea
+                    id="resource-description"
+                    value={resourceForm.description}
+                    onChange={(e) =>
+                      setResourceForm({
+                        ...resourceForm,
+                        description: e.target.value,
+                      })
+                    }
+                    placeholder="Brief description of this resource"
+                    rows={3}
+                    data-testid="input-resource-description"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-category">Category *</Label>
+                  <Select
+                    value={resourceForm.category}
+                    onValueChange={(value) =>
+                      setResourceForm({ ...resourceForm, category: value })
+                    }
+                  >
+                    <SelectTrigger
+                      id="resource-category"
+                      data-testid="select-resource-category"
+                    >
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="template">Template</SelectItem>
+                      <SelectItem value="script">Script</SelectItem>
+                      <SelectItem value="checklist">Checklist</SelectItem>
+                      <SelectItem value="guide">Guide</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-when">When to use</Label>
+                    <Textarea
+                      id="resource-when"
+                      value={resourceForm.whenToUse}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          whenToUse: e.target.value,
+                        })
+                      }
+                      rows={2}
+                      placeholder="When a rep should open this"
+                      data-testid="input-resource-when-to-use"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-outcome">Expected outcome</Label>
+                    <Textarea
+                      id="resource-outcome"
+                      value={resourceForm.expectedOutcome}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          expectedOutcome: e.target.value,
+                        })
+                      }
+                      rows={2}
+                      placeholder="What success looks like"
+                      data-testid="input-resource-expected-outcome"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-why">Why it matters</Label>
+                  <Textarea
+                    id="resource-why"
+                    value={resourceForm.whyItMatters}
+                    onChange={(e) =>
+                      setResourceForm({
+                        ...resourceForm,
+                        whyItMatters: e.target.value,
+                      })
+                    }
+                    rows={2}
+                    data-testid="input-resource-why-it-matters"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Experience level</Label>
+                    <Select
+                      value={resourceForm.experienceLevel}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          experienceLevel: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-experience">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All levels</SelectItem>
+                        <SelectItem value="new_hire">New hire</SelectItem>
+                        <SelectItem value="experienced">Experienced</SelectItem>
+                        <SelectItem value="leader">Leader</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Clinical sensitivity</Label>
+                    <Select
+                      value={resourceForm.clinicalSensitivity}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          clinicalSensitivity: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-clinical">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                        <SelectItem value="clinical_adjacent">
+                          Clinical adjacent
+                        </SelectItem>
+                        <SelectItem value="restricted">Restricted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Premium rule</Label>
+                    <Select
+                      value={resourceForm.premiumRule}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          premiumRule: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-premium">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="field_kit">Field Kit</SelectItem>
+                        <SelectItem value="premium">Premium</SelectItem>
+                        <SelectItem value="org_only">Org only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-author">Author</Label>
+                    <Input
+                      id="resource-author"
+                      value={resourceForm.author}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          author: e.target.value,
+                        })
+                      }
+                      data-testid="input-resource-author"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-owner">Content owner</Label>
+                    <Input
+                      id="resource-owner"
+                      value={resourceForm.contentOwner}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          contentOwner: e.target.value,
+                        })
+                      }
+                      data-testid="input-resource-content-owner"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Resource File (PDF) *</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload a PDF file that users can download
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={10485760}
+                      onGetUploadParameters={handleGetResourceUploadParams}
+                      onComplete={handleResourceUploadComplete}
+                      buttonClassName="gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {resourceForm.fileUrl ? "Change File" : "Upload File"}
+                    </ObjectUploader>
+                    {resourceForm.fileUrl && (
+                      <Badge
+                        variant="secondary"
+                        className="gap-1"
+                        data-testid="badge-file-uploaded"
+                      >
+                        <FileText className="w-3 h-3" />
+                        File Uploaded
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={createResourceMutation.isPending}
+                  data-testid="button-add-resource"
+                >
+                  {createResourceMutation.isPending
+                    ? "Adding..."
+                    : "Add Resource"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <h3 className="text-xl font-bold mb-4">Existing Resources</h3>
+
+          {resourcesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading resources...</p>
+            </div>
+          ) : resources.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  No resources yet. Add your first resource above.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {resources.map((resource) => (
+                <Card key={resource.id} data-testid={`resource-${resource.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <CardTitle className="text-xl">
+                            {resource.title}
+                          </CardTitle>
+                          <Badge variant="outline">{resource.category}</Badge>
+                          {(resource as SelectResource & { versionLabel?: string | null }).versionLabel ||
+                          resource.contentArchitecture?.contentVersion ? (
+                            <Badge variant="secondary">
+                              v
+                              {(resource as SelectResource & { versionLabel?: string | null })
+                                .versionLabel ||
+                                resource.contentArchitecture?.contentVersion}
+                            </Badge>
+                          ) : null}
+                          {(resource as SelectResource & { lifecycleStatus?: string | null })
+                            .lifecycleStatus ? (
+                            <Badge variant="outline">
+                              {
+                                (resource as SelectResource & {
+                                  lifecycleStatus?: string | null;
+                                }).lifecycleStatus
+                              }
+                            </Badge>
+                          ) : null}
+                        </div>
+                        {resource.description && (
+                          <CardDescription>
+                            {resource.description}
+                          </CardDescription>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {(
+                            [
+                              ["submit_review", "Submit review"],
+                              ["publish", "Publish"],
+                              ["archive", "Archive"],
+                              ["retire", "Retire"],
+                            ] as const
+                          ).map(([action, label]) => (
+                            <Button
+                              key={action}
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              data-testid={`button-lifecycle-${action}-${resource.id}`}
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch(
+                                    `/api/v1/resources/${resource.id}/lifecycle/transition`,
+                                    {
+                                      method: "POST",
+                                      credentials: "include",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({ action }),
+                                    },
+                                  );
+                                  if (!res.ok) {
+                                    const err = await res.json().catch(() => ({}));
+                                    throw new Error(
+                                      (err as { error?: { message?: string } })
+                                        ?.error?.message || "Lifecycle failed",
+                                    );
+                                  }
+                                  queryClient.invalidateQueries({
+                                    queryKey: ["/api/resources"],
+                                  });
+                                  toast({
+                                    title: "Lifecycle updated",
+                                    description: `${label} applied.`,
+                                  });
+                                } catch (e) {
+                                  toast({
+                                    title: "Lifecycle error",
+                                    description:
+                                      e instanceof Error
+                                        ? e.message
+                                        : "Could not update lifecycle",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                            >
+                              {label}
+                            </Button>
+                          ))}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            data-testid={`button-lifecycle-new-version-${resource.id}`}
+                            onClick={async () => {
+                              const versionLabel = window.prompt(
+                                "New version label (e.g. 2.0)",
+                                "2.0",
+                              );
+                              if (!versionLabel) return;
+                              const fileUrl = window.prompt(
+                                "New file URL (must differ from current — old version is retained)",
+                                resource.fileUrl,
+                              );
+                              if (!fileUrl || fileUrl === resource.fileUrl) {
+                                toast({
+                                  title: "New version cancelled",
+                                  description:
+                                    "A different file URL is required; content is not silently replaced.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              try {
+                                const res = await fetch(
+                                  `/api/v1/resources/${resource.id}/lifecycle/transition`,
+                                  {
+                                    method: "POST",
+                                    credentials: "include",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      action: "publish_new_version",
+                                      newVersion: {
+                                        versionLabel,
+                                        fileUrl,
+                                        title: resource.title,
+                                        description: resource.description,
+                                        category: resource.category,
+                                      },
+                                    }),
+                                  },
+                                );
+                                if (!res.ok) {
+                                  const err = await res.json().catch(() => ({}));
+                                  throw new Error(
+                                    (err as { error?: { message?: string } })
+                                      ?.error?.message || "Publish version failed",
+                                  );
+                                }
+                                queryClient.invalidateQueries({
+                                  queryKey: ["/api/resources"],
+                                });
+                                toast({
+                                  title: "New version published",
+                                  description:
+                                    "Previous version kept as superseded.",
+                                });
+                              } catch (e) {
+                                toast({
+                                  title: "Version error",
+                                  description:
+                                    e instanceof Error
+                                      ? e.message
+                                      : "Could not publish new version",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            Publish new version
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            window.open(resource.fileUrl, "_blank")
+                          }
+                          data-testid={`button-download-resource-${resource.id}`}
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteResource(resource.id)}
+                          disabled={deleteResourceMutation.isPending}
+                          data-testid={`button-delete-resource-${resource.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="podcasts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Podcast Episode</CardTitle>
+              <CardDescription>
+                Upload and publish podcast episodes for your coaching content
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSavePodcast} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="podcast-title">Episode Title *</Label>
+                  <Input
+                    id="podcast-title"
+                    value={podcastForm.title}
+                    onChange={(e) =>
+                      setPodcastForm({ ...podcastForm, title: e.target.value })
+                    }
+                    placeholder="Enter podcast episode title"
+                    required
+                    data-testid="input-podcast-title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="podcast-description">Description</Label>
+                  <Textarea
+                    id="podcast-description"
+                    value={podcastForm.description}
+                    onChange={(e) =>
+                      setPodcastForm({
+                        ...podcastForm,
+                        description: e.target.value,
+                      })
+                    }
+                    placeholder="Brief description of the episode"
+                    rows={3}
+                    data-testid="input-podcast-description"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-episode-number">
+                      Episode Number
+                    </Label>
+                    <Input
+                      id="podcast-episode-number"
+                      type="number"
+                      value={podcastForm.episodeNumber}
+                      onChange={(e) =>
+                        setPodcastForm({
+                          ...podcastForm,
+                          episodeNumber: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., 1"
+                      data-testid="input-podcast-episode-number"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-duration">Duration</Label>
+                    <Input
+                      id="podcast-duration"
+                      value={podcastForm.duration}
+                      onChange={(e) =>
+                        setPodcastForm({
+                          ...podcastForm,
+                          duration: e.target.value,
+                        })
+                      }
+                      placeholder="MM:SS or HH:MM:SS"
+                      data-testid="input-podcast-duration"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-publish-date">Publish Date *</Label>
+                    <Input
+                      id="podcast-publish-date"
+                      type="date"
+                      value={podcastForm.publishDate}
+                      onChange={(e) =>
+                        setPodcastForm({
+                          ...podcastForm,
+                          publishDate: e.target.value,
+                        })
+                      }
+                      required
+                      data-testid="input-podcast-publish-date"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Audio File *</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload the podcast audio file (MP3, M4A, or other audio
+                    formats)
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={104857600}
+                      onGetUploadParameters={handleGetAudioUploadParams}
+                      onComplete={handleAudioUploadComplete}
+                      buttonClassName="gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span data-testid="button-upload-podcast">
+                        {podcastForm.audioUrl ? "Change Audio" : "Upload Audio"}
+                      </span>
+                    </ObjectUploader>
+                    {podcastForm.audioUrl && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="gap-1">
+                          <FileText className="w-3 h-3" />
+                          Audio Uploaded
+                        </Badge>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setPodcastForm({ ...podcastForm, audioUrl: "" })
+                          }
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={createPodcastMutation.isPending}
+                  data-testid="button-add-podcast"
+                >
+                  {createPodcastMutation.isPending
+                    ? "Adding..."
+                    : "Add Podcast"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <h3 className="text-xl font-bold mb-4">Existing Podcasts</h3>
+
+          {podcastsLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading podcasts...</p>
+            </div>
+          ) : podcasts.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  No podcast episodes yet. Add your first episode above.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {podcasts.map((podcast) => (
+                <Card key={podcast.id} data-testid={`podcast-${podcast.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          {podcast.episodeNumber && (
+                            <Badge variant="outline">
+                              Episode {podcast.episodeNumber}
+                            </Badge>
+                          )}
+                          <CardTitle className="text-xl">
+                            {podcast.title}
+                          </CardTitle>
+                        </div>
+                        {podcast.description && (
+                          <CardDescription>
+                            {podcast.description}
+                          </CardDescription>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <span>
+                            {new Date(podcast.publishDate).toLocaleDateString()}
+                          </span>
+                          {podcast.duration && <span>{podcast.duration}</span>}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleDeletePodcast(podcast.id)}
+                        disabled={deletePodcastMutation.isPending}
+                        data-testid={`button-delete-podcast-${podcast.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Testimonials Tab */}
+        <TabsContent value="testimonials" className="space-y-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-xl font-bold">Testimonials</h2>
+              <p className="text-sm text-muted-foreground">
+                {testimonialsList.length} quotes and {caseStudiesList.length}{" "}
+                case studies
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  setEditingTestimonial(null);
+                  setTestimonialForm({
+                    name: "",
+                    title: "",
+                    company: "",
+                    quote: "",
+                    outcome: "",
+                    category: "individual",
+                    featured: false,
+                    displayOrder: 0,
+                  });
+                  setTestimonialDialogOpen(true);
+                }}
+                data-testid="button-add-testimonial"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Add Quote
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditingCaseStudy(null);
+                  setCaseStudyForm({
+                    title: "",
+                    clientLabel: "",
+                    challenge: "",
+                    solution: "",
+                    results: "",
+                    category: "individual",
+                    displayOrder: 0,
+                  });
+                  setCaseStudyDialogOpen(true);
+                }}
+                data-testid="button-add-case-study"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Add Case Study
+              </Button>
+            </div>
+          </div>
+
+          {testimonialsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading testimonials...
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <h3 className="font-semibold text-lg">Quotes</h3>
+              {testimonialsList.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  No testimonials yet.
+                </p>
+              ) : (
+                testimonialsList.map((t) => (
+                  <Card key={t.id} data-testid={`card-testimonial-${t.id}`}>
+                    <CardHeader className="flex flex-row items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">{t.name}</CardTitle>
+                          {t.featured && (
+                            <Badge variant="secondary">Featured</Badge>
+                          )}
+                          <Badge variant="outline" className="text-xs">
+                            {t.category}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {t.title}, {t.company}
+                        </p>
+                        <p className="text-sm mt-2 italic line-clamp-2">
+                          "{t.quote}"
+                        </p>
+                        {t.outcome && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Outcome: {t.outcome}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleEditTestimonial(t)}
+                          data-testid={`button-edit-testimonial-${t.id}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (window.confirm("Delete this testimonial?"))
+                              deleteTestimonialMutation.mutate(t.id);
+                          }}
+                          data-testid={`button-delete-testimonial-${t.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
+
+          {caseStudiesLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading case studies...
+            </div>
+          ) : (
+            <div className="space-y-3 mt-4">
+              <h3 className="font-semibold text-lg">Case Studies</h3>
+              {caseStudiesList.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  No case studies yet.
+                </p>
+              ) : (
+                caseStudiesList.map((s) => (
+                  <Card key={s.id} data-testid={`card-case-study-${s.id}`}>
+                    <CardHeader className="flex flex-row items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">{s.title}</CardTitle>
+                          <Badge variant="outline" className="text-xs">
+                            {s.category}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {s.clientLabel}
+                        </p>
+                        <p className="text-sm mt-2 line-clamp-2">
+                          {s.challenge}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleEditCaseStudy(s)}
+                          data-testid={`button-edit-case-study-${s.id}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (window.confirm("Delete this case study?"))
+                              deleteCaseStudyMutation.mutate(s.id);
+                          }}
+                          data-testid={`button-delete-case-study-${s.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Agreements Tab */}
+        <TabsContent value="agreements" className="space-y-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-xl font-bold">Agreements</h2>
+              <p className="text-sm text-muted-foreground">
+                {agreements.length} signed,{" "}
+                {agreementRequests.filter((r) => r.status === "pending").length}{" "}
+                pending requests
+              </p>
+            </div>
+            <Button
+              onClick={() => setSendRequestDialogOpen(true)}
+              data-testid="button-send-signing-request"
+            >
+              <Send className="w-4 h-4 mr-2" /> Send Signing Request
+            </Button>
+          </div>
+
+          <Dialog
+            open={sendRequestDialogOpen}
+            onOpenChange={setSendRequestDialogOpen}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Send Signing Request</DialogTitle>
+                <DialogDescription>
+                  Send agreement documents to a lead for digital signing.
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (
+                    !requestEmail ||
+                    !requestName ||
+                    requestDocTypes.length === 0
+                  )
+                    return;
+                  sendRequestMutation.mutate({
+                    recipientEmail: requestEmail,
+                    recipientName: requestName,
+                    documentTypes: requestDocTypes,
+                  });
+                }}
+                className="space-y-4"
+              >
+                {inquiries.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Select from Inquiries</Label>
+                    <select
+                      className="w-full rounded-md border border-input bg-background px-3 min-h-9 text-sm"
+                      value=""
+                      onChange={(e) => {
+                        const inq = inquiries.find(
+                          (i) => i.id.toString() === e.target.value,
+                        );
+                        if (inq) {
+                          setRequestName(inq.name);
+                          setRequestEmail(inq.email);
+                        }
+                      }}
+                      data-testid="select-inquiry-lead"
+                    >
+                      <option value="">Choose a lead to autofill...</option>
+                      {inquiries.map((inq) => (
+                        <option key={inq.id} value={inq.id.toString()}>
+                          {inq.name} ({inq.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="req-name">Recipient Name</Label>
+                  <Input
+                    id="req-name"
+                    value={requestName}
+                    onChange={(e) => setRequestName(e.target.value)}
+                    placeholder="Full name"
+                    required
+                    data-testid="input-request-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="req-email">Recipient Email</Label>
+                  <Input
+                    id="req-email"
+                    type="email"
+                    value={requestEmail}
+                    onChange={(e) => setRequestEmail(e.target.value)}
+                    placeholder="email@company.com"
+                    required
+                    data-testid="input-request-email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Documents to Sign</Label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {AVAILABLE_DOC_TYPES.map((dt) => (
+                      <label
+                        key={dt}
+                        className="flex items-center gap-2 cursor-pointer text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={requestDocTypes.includes(dt)}
+                          onChange={(e) => {
+                            if (e.target.checked)
+                              setRequestDocTypes([...requestDocTypes, dt]);
+                            else
+                              setRequestDocTypes(
+                                requestDocTypes.filter((d) => d !== dt),
+                              );
+                          }}
+                          className="rounded"
+                          data-testid={`checkbox-doc-${dt.replace(/[^a-z0-9]/gi, "-").toLowerCase()}`}
+                        />
+                        {dt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    sendRequestMutation.isPending ||
+                    !requestEmail ||
+                    !requestName ||
+                    requestDocTypes.length === 0
+                  }
+                  data-testid="button-submit-request"
+                >
+                  {sendRequestMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Request"
+                  )}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          {agreementRequestsLoading ? (
+            <div className="text-center py-4 text-muted-foreground">
+              Loading requests...
+            </div>
+          ) : (
+            agreementRequests.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Signing Requests</h3>
+                {agreementRequests.map((req) => {
+                  const reqSignedAgs = agreements.filter(
+                    (a) => a.requestId === req.id,
+                  );
+                  const signedTypes = reqSignedAgs.map((a) => a.agreementType);
+                  return (
+                    <Card key={req.id} data-testid={`card-request-${req.id}`}>
+                      <CardHeader className="flex flex-row items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <CardTitle className="text-base">
+                              {req.recipientName}
+                            </CardTitle>
+                            <Badge
+                              variant={
+                                req.status === "completed"
+                                  ? "default"
+                                  : "outline"
+                              }
+                              className="text-xs"
+                            >
+                              {req.status === "completed"
+                                ? "Completed"
+                                : "Pending"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {req.recipientEmail}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Sent{" "}
+                            {req.sentAt
+                              ? new Date(req.sentAt).toLocaleDateString()
+                              : "Unknown"}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            {req.documentTypes.map((dt) => (
+                              <Badge
+                                key={dt}
+                                variant={
+                                  signedTypes.includes(dt)
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className="text-xs gap-1"
+                              >
+                                {signedTypes.includes(dt) ? (
+                                  <CheckCircle className="w-3 h-3" />
+                                ) : (
+                                  <Circle className="w-3 h-3" />
+                                )}
+                                {dt.length > 30
+                                  ? dt.substring(0, 27) + "..."
+                                  : dt}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        {req.status === "pending" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => resendRequestMutation.mutate(req.id)}
+                            disabled={resendRequestMutation.isPending}
+                            data-testid={`button-resend-${req.id}`}
+                          >
+                            <Send className="w-3 h-3 mr-1" /> Resend
+                          </Button>
+                        )}
+                      </CardHeader>
+                    </Card>
+                  );
+                })}
+              </div>
+            )
+          )}
+
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">
+              Signed Agreements ({agreements.length})
+            </h3>
+            {agreementsLoading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading agreements...
+              </div>
+            ) : agreements.length === 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base text-muted-foreground text-center py-4">
+                    No signed agreements yet.
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {agreements.map((ag) => (
+                  <Card key={ag.id} data-testid={`card-agreement-${ag.id}`}>
+                    <CardHeader
+                      className="flex flex-row items-start justify-between gap-4 cursor-pointer"
+                      onClick={() =>
+                        setExpandedAgreement(
+                          expandedAgreement === ag.id ? null : ag.id,
+                        )
+                      }
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">
+                            {ag.signerName}
+                          </CardTitle>
+                          <Badge variant="secondary" className="text-xs">
+                            {ag.agreementType}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {ag.signerTitle} at {ag.signerOrganization}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {ag.signerEmail} &bull; Signed{" "}
+                          {ag.signedAt
+                            ? new Date(ag.signedAt).toLocaleDateString()
+                            : "Unknown"}
+                        </p>
+                      </div>
+                      <Button size="icon" variant="ghost">
+                        {expandedAgreement === ag.id ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </CardHeader>
+                    {expandedAgreement === ag.id && (
+                      <div className="px-6 pb-4 space-y-2 border-t pt-4">
+                        <p className="text-sm">
+                          <span className="font-medium">Agreement Type:</span>{" "}
+                          {ag.agreementType}
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-medium">Organization:</span>{" "}
+                          {ag.signerOrganization}
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-medium">Email:</span>{" "}
+                          {ag.signerEmail}
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-medium">Date Signed:</span>{" "}
+                          {ag.signedAt
+                            ? new Date(ag.signedAt).toLocaleString()
+                            : "Unknown"}
+                        </p>
+                        {ag.signatureImage && (
+                          <div>
+                            <p className="text-sm font-medium mb-1">
+                              Drawn Signature:
+                            </p>
+                            <img
+                              src={ag.signatureImage}
+                              alt="Drawn signature"
+                              className="max-w-[250px] border rounded-md bg-white p-2"
+                            />
+                          </div>
+                        )}
+                        {ag.hasPdf && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadPdf(ag.id, ag.agreementType);
+                            }}
+                            data-testid={`button-download-pdf-${ag.id}`}
+                          >
+                            <Download className="w-3 h-3 mr-1" /> Download
+                            Signed PDF
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Role-Play Tab */}
+        <TabsContent value="roleplay" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">Role-Play Sessions</h2>
+            <p className="text-sm text-muted-foreground">
+              {roleplaySessions.length} sessions recorded
+            </p>
+          </div>
+
+          {roleplaySessionsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading sessions...
+            </div>
+          ) : (
+            <>
+              {roleplaySessions.length > 0 &&
+                (() => {
+                  const scoredSessions = roleplaySessions.filter(
+                    (s) => s.rating !== null && s.rating !== undefined,
+                  );
+                  const avgScore =
+                    scoredSessions.length > 0
+                      ? Math.round(
+                          scoredSessions.reduce(
+                            (sum, s) => sum + (s.rating ?? 0),
+                            0,
+                          ) / scoredSessions.length,
+                        )
+                      : null;
+                  const scenarioCounts: Record<string, number> = {};
+                  roleplaySessions.forEach((s) => {
+                    scenarioCounts[s.scenarioTitle] =
+                      (scenarioCounts[s.scenarioTitle] || 0) + 1;
+                  });
+                  const topScenario = Object.entries(scenarioCounts).sort(
+                    (a, b) => b[1] - a[1],
+                  )[0]?.[0];
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Total Sessions
+                          </p>
+                          <p className="text-3xl font-bold">
+                            {roleplaySessions.length}
+                          </p>
+                        </CardHeader>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Average Score
+                          </p>
+                          <p className="text-3xl font-bold">
+                            {avgScore !== null ? `${avgScore}%` : "N/A"}
+                          </p>
+                        </CardHeader>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Most Practiced
+                          </p>
+                          <p className="text-base font-semibold leading-snug">
+                            {topScenario ?? "N/A"}
+                          </p>
+                        </CardHeader>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
+              {roleplaySessions.length === 0 ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base text-muted-foreground text-center py-4">
+                      No role-play sessions yet.
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {roleplaySessions.map((session) => {
+                    const rating = session.rating;
+                    const scoreBadgeVariant =
+                      rating === null || rating === undefined
+                        ? "outline"
+                        : rating >= 80
+                          ? "default"
+                          : rating >= 60
+                            ? "secondary"
+                            : "destructive";
+                    const scoreLabel =
+                      rating !== null && rating !== undefined
+                        ? `${rating}%`
+                        : "Unscored";
+                    return (
+                      <Card
+                        key={session.id}
+                        data-testid={`card-roleplay-${session.id}`}
+                      >
+                        <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-base">
+                              {session.scenarioTitle}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {new Date(session.createdAt).toLocaleDateString()}{" "}
+                              &bull; {session.status}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={scoreBadgeVariant}
+                            data-testid={`badge-score-${session.id}`}
+                          >
+                            {scoreLabel}
+                          </Badge>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        {/* Drills Tab */}
+        <TabsContent value="drills" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">Drills Activity</h2>
+            <p className="text-sm text-muted-foreground">
+              {drillCompletions.length} total completions recorded
+            </p>
+          </div>
+
+          {drillCompletionsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading drills data...
+            </div>
+          ) : (
+            <>
+              {drillCompletions.length > 0 &&
+                (() => {
+                  const uniqueDrills = new Set(
+                    drillCompletions.map((c) => c.drillIndex),
+                  ).size;
+                  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                  const recentCount = drillCompletions.filter(
+                    (c) => c.completedAt >= sevenDaysAgo,
+                  ).length;
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Total Completions
+                          </p>
+                          <p className="text-3xl font-bold">
+                            {drillCompletions.length}
+                          </p>
+                        </CardHeader>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Unique Drills Practiced
+                          </p>
+                          <p className="text-3xl font-bold">{uniqueDrills}</p>
+                        </CardHeader>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <p className="text-sm text-muted-foreground">
+                            Last 7 Days
+                          </p>
+                          <p className="text-3xl font-bold">{recentCount}</p>
+                        </CardHeader>
+                      </Card>
+                    </div>
+                  );
+                })()}
+
+              {drillCompletions.length === 0 ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base text-muted-foreground text-center py-4">
+                      No drill completions yet.
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {drillCompletions
+                    .slice()
+                    .sort((a, b) => b.completedAt - a.completedAt)
+                    .slice(0, 50)
+                    .map((completion) => (
+                      <Card
+                        key={completion.id}
+                        data-testid={`card-drill-${completion.id}`}
+                      >
+                        <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-base">
+                              {completion.drillTitle}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Drill #{completion.drillIndex} &bull;{" "}
+                              {new Date(
+                                completion.completedAt,
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            Completed
+                          </Badge>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  {drillCompletions.length > 50 && (
+                    <p className="text-sm text-muted-foreground text-center">
+                      Showing 50 most recent of {drillCompletions.length} total
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        {/* Leads Tab */}
+        <TabsContent value="leads" className="space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-xl font-bold">Leads</h2>
+              <p className="text-sm text-muted-foreground">
+                {groupedLeads.length} unique leads captured via tool gate
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [
+                  [
+                    "Name",
+                    "Email",
+                    "First Seen",
+                    "Tools Used",
+                    "Interactions",
+                    "Hot Lead",
+                  ],
+                  ...groupedLeads.map((l) => [
+                    l.name,
+                    l.email,
+                    new Date(l.firstSeen).toLocaleDateString(),
+                    l.tools.join("; "),
+                    String(l.interactions),
+                    l.interactions >= 3 ? "Yes" : "No",
+                  ]),
+                ];
+                downloadCSV(rows, "spartan-leads.csv");
+              }}
+              data-testid="button-leads-export"
+            >
+              <Download className="w-4 h-4 mr-1.5" />
+              Export CSV
+            </Button>
+          </div>
+
+          {resourceLeadsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading leads...
+            </div>
+          ) : groupedLeads.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  No leads captured yet. Leads are recorded when users submit
+                  the tool gate form.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {groupedLeads.map((lead) => (
+                <Card key={lead.email} data-testid={`card-lead-${lead.email}`}>
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <CardTitle className="text-base">{lead.name}</CardTitle>
+                        {lead.interactions >= 3 && (
+                          <Badge
+                            variant="destructive"
+                            className="text-xs"
+                            data-testid={`badge-hot-${lead.email}`}
+                          >
+                            Hot
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {lead.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        First seen{" "}
+                        {new Date(lead.firstSeen).toLocaleDateString()} &bull;{" "}
+                        {lead.interactions} interaction
+                        {lead.interactions !== 1 ? "s" : ""}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {lead.tools.map((tool) => (
+                          <Badge
+                            key={tool}
+                            variant="secondary"
+                            className="text-xs"
+                            data-testid={`badge-tool-${lead.email}`}
+                          >
+                            {tool}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setLeadEmailTarget({
+                          email: lead.email,
+                          name: lead.name,
+                        });
+                        setLeadEmailSubject(`Following up — Spartan Coaching`);
+                        setLeadEmailBody(
+                          `Hi ${lead.name},\n\nI noticed you've been exploring the tools on Spartan Coaching. I wanted to reach out personally to see if there's anything I can help with.\n\nIf you're working on a specific challenge right now, I'd love to hear about it.\n\n— Nick\nSpartan Coaching`,
+                        );
+                        setLeadEmailDialogOpen(true);
+                      }}
+                      data-testid={`button-email-lead-${lead.email}`}
+                    >
+                      <Send className="w-4 h-4 mr-1.5" />
+                      Email
+                    </Button>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="assessments" className="space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-xl font-bold">Candidate Assessments</h2>
+              <p className="text-sm text-muted-foreground">
+                Create assessments with quiz and scenario questions for
+                candidate evaluation
+              </p>
+            </div>
+            <Button
+              onClick={() => setAssessmentDialogOpen(true)}
+              data-testid="button-create-assessment"
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              New Assessment
+            </Button>
+          </div>
+
+          {assessmentsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading assessments...
+            </div>
+          ) : assessmentsList.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <ClipboardList className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">
+                  No assessments created yet. Create your first assessment to
+                  start evaluating candidates.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {assessmentsList.map((a) => (
+                <Card
+                  key={a.id}
+                  className={
+                    selectedAssessmentId === a.id ? "ring-2 ring-primary" : ""
+                  }
+                  data-testid={`card-assessment-${a.id}`}
+                >
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => {
+                        setSelectedAssessmentId(
+                          selectedAssessmentId === a.id ? null : a.id,
+                        );
+                        setSubmissionClientFilter("all");
+                      }}
+                    >
+                      <CardTitle className="text-base">{a.name}</CardTitle>
+                      {a.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {a.description}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Created{" "}
+                        {a.createdAt
+                          ? new Date(a.createdAt).toLocaleDateString()
+                          : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          window.open(`/assessment/${a.id}/print`, "_blank")
+                        }
+                        data-testid={`button-print-assessment-${a.id}`}
+                      >
+                        <Printer className="w-4 h-4 mr-1.5" />
+                        Print
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCopyAssessmentLink(a.id)}
+                        data-testid={`button-copy-link-${a.id}`}
+                      >
+                        <LinkIcon className="w-4 h-4 mr-1.5" />
+                        Copy Link
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Delete this assessment and all its questions and submissions?",
+                            )
+                          ) {
+                            deleteAssessmentMutation.mutate(a.id);
+                          }
+                        }}
+                        data-testid={`button-delete-assessment-${a.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  {selectedAssessmentId === a.id && (
+                    <CardContent className="border-t pt-4 space-y-6">
+                      <div>
+                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                          <h3 className="font-semibold text-sm">
+                            Questions ({assessmentQuestions.length})
+                          </h3>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setQuestionType("quiz");
+                              setQuestionDialogOpen(true);
+                            }}
+                            data-testid="button-add-question"
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Question
+                          </Button>
+                        </div>
+                        {assessmentQuestions.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-4 text-center">
+                            No questions added yet
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {assessmentQuestions.map((q, idx) => (
+                              <div
+                                key={q.id}
+                                className="flex items-start justify-between gap-3 p-3 border rounded-md"
+                                data-testid={`question-${q.id}`}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span className="text-xs font-medium text-muted-foreground">
+                                      Q{idx + 1}
+                                    </span>
+                                    <Badge
+                                      variant={
+                                        q.type === "quiz"
+                                          ? "secondary"
+                                          : "default"
+                                      }
+                                      className="text-xs"
+                                    >
+                                      {q.type === "quiz" ? "Quiz" : "Scenario"}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-foreground">
+                                    {q.text}
+                                  </p>
+                                  {q.type === "quiz" && q.options && (
+                                    <div className="mt-2 space-y-1">
+                                      {q.options.map((opt, oi) => (
+                                        <p
+                                          key={oi}
+                                          className={`text-xs ${opt === q.correctAnswer ? "text-green-600 dark:text-green-400 font-medium" : "text-muted-foreground"}`}
+                                        >
+                                          {opt === q.correctAnswer
+                                            ? "* "
+                                            : "  "}
+                                          {opt}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() =>
+                                    deleteQuestionMutation.mutate(q.id)
+                                  }
+                                  data-testid={`button-delete-question-${q.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        {(() => {
+                          const clientSlugs = [
+                            ...new Set(
+                              assessmentSubmissions
+                                .filter((s) => s.clientSlug)
+                                .map((s) => s.clientSlug!),
+                            ),
+                          ];
+                          const filteredSubmissions =
+                            submissionClientFilter === "all"
+                              ? assessmentSubmissions
+                              : submissionClientFilter === "direct"
+                                ? assessmentSubmissions.filter(
+                                    (s) => !s.clientSlug,
+                                  )
+                                : assessmentSubmissions.filter(
+                                    (s) =>
+                                      s.clientSlug === submissionClientFilter,
+                                  );
+                          return (
+                            <>
+                              <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                                <h3 className="font-semibold text-sm">
+                                  Submissions ({filteredSubmissions.length}
+                                  {submissionClientFilter !== "all"
+                                    ? ` of ${assessmentSubmissions.length}`
+                                    : ""}
+                                  )
+                                </h3>
+                                {clientSlugs.length > 0 && (
+                                  <Select
+                                    value={submissionClientFilter}
+                                    onValueChange={setSubmissionClientFilter}
+                                  >
+                                    <SelectTrigger
+                                      className="w-[180px]"
+                                      data-testid="select-submission-filter"
+                                    >
+                                      <SelectValue placeholder="Filter by source" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">
+                                        All Sources
+                                      </SelectItem>
+                                      <SelectItem value="direct">
+                                        Direct (no client)
+                                      </SelectItem>
+                                      {clientSlugs.map((slug) => (
+                                        <SelectItem key={slug} value={slug}>
+                                          {slug}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              </div>
+                              {filteredSubmissions.length === 0 ? (
+                                <p className="text-sm text-muted-foreground py-4 text-center">
+                                  No submissions yet
+                                </p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {filteredSubmissions.map((sub) => (
+                                    <div
+                                      key={sub.id}
+                                      className="border rounded-md"
+                                      data-testid={`submission-${sub.id}`}
+                                    >
+                                      <div className="flex items-center justify-between gap-3 p-3 flex-wrap">
+                                        <div
+                                          className="flex items-center gap-3 flex-wrap flex-1 cursor-pointer"
+                                          onClick={() =>
+                                            setExpandedSubmissionId(
+                                              expandedSubmissionId === sub.id
+                                                ? null
+                                                : sub.id,
+                                            )
+                                          }
+                                        >
+                                          <div>
+                                            <p className="text-sm font-medium text-foreground">
+                                              {sub.candidateName}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                              {sub.candidateEmail}
+                                            </p>
+                                          </div>
+                                          <Badge
+                                            variant={
+                                              (sub.overallScore ?? 0) >= 80
+                                                ? "default"
+                                                : (sub.overallScore ?? 0) >= 60
+                                                  ? "secondary"
+                                                  : "destructive"
+                                            }
+                                            data-testid={`badge-score-${sub.id}`}
+                                          >
+                                            {sub.overallScore ?? 0}%
+                                          </Badge>
+                                          {sub.aiFeedback &&
+                                            (() => {
+                                              try {
+                                                const d = JSON.parse(
+                                                  sub.aiFeedback!,
+                                                );
+                                                return d.tier ? (
+                                                  <Badge
+                                                    variant="outline"
+                                                    className="text-xs"
+                                                  >
+                                                    {d.tier}
+                                                  </Badge>
+                                                ) : null;
+                                              } catch {
+                                                return null;
+                                              }
+                                            })()}
+                                          {sub.clientSlug && (
+                                            <Badge
+                                              variant="outline"
+                                              className="text-xs"
+                                              data-testid={`badge-client-${sub.id}`}
+                                            >
+                                              {sub.clientSlug}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          {sub.quizScore !== null && (
+                                            <span className="text-xs text-muted-foreground">
+                                              Quiz: {sub.quizScore}%
+                                            </span>
+                                          )}
+                                          {sub.aiScore !== null && (
+                                            <span className="text-xs text-muted-foreground">
+                                              Scenario: {sub.aiScore}%
+                                            </span>
+                                          )}
+                                          <span className="text-xs text-muted-foreground">
+                                            {sub.completedAt
+                                              ? new Date(
+                                                  sub.completedAt,
+                                                ).toLocaleDateString()
+                                              : ""}
+                                          </span>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              window.open(
+                                                `/assessment-results/${sub.id}`,
+                                                "_blank",
+                                              );
+                                            }}
+                                            data-testid={`button-download-pdf-${sub.id}`}
+                                          >
+                                            <Printer className="w-3.5 h-3.5 mr-1" />
+                                            PDF
+                                          </Button>
+                                          <button
+                                            className="p-1 text-muted-foreground hover:text-foreground"
+                                            onClick={() =>
+                                              setExpandedSubmissionId(
+                                                expandedSubmissionId === sub.id
+                                                  ? null
+                                                  : sub.id,
+                                              )
+                                            }
+                                          >
+                                            {expandedSubmissionId === sub.id ? (
+                                              <ChevronUp className="w-4 h-4" />
+                                            ) : (
+                                              <ChevronDown className="w-4 h-4" />
+                                            )}
+                                          </button>
+                                        </div>
+                                      </div>
+                                      {expandedSubmissionId === sub.id &&
+                                        (() => {
+                                          let aiData: any = null;
+                                          try {
+                                            aiData = sub.aiFeedback
+                                              ? JSON.parse(sub.aiFeedback)
+                                              : null;
+                                          } catch {
+                                            aiData = null;
+                                          }
+                                          const isStructured =
+                                            aiData &&
+                                            typeof aiData.overallScore ===
+                                              "number";
+                                          return (
+                                            <div className="border-t p-4 space-y-5">
+                                              {isStructured ? (
+                                                <>
+                                                  <div className="flex items-center gap-3 flex-wrap">
+                                                    <Badge
+                                                      variant={
+                                                        aiData.overallScore >=
+                                                        85
+                                                          ? "default"
+                                                          : aiData.overallScore >=
+                                                              70
+                                                            ? "secondary"
+                                                            : "destructive"
+                                                      }
+                                                      className="text-sm px-3 py-1"
+                                                    >
+                                                      {aiData.tier}
+                                                    </Badge>
+                                                    <span className="text-xs text-muted-foreground">
+                                                      {aiData.overallScore}/100
+                                                      overall &bull; Field
+                                                      Readiness:{" "}
+                                                      {aiData.fieldReadinessScore ??
+                                                        "—"}
+                                                      /100
+                                                    </span>
+                                                  </div>
+
+                                                  {aiData.quizAnalysis && (
+                                                    <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-3">
+                                                      {aiData.quizAnalysis}
+                                                    </p>
+                                                  )}
+
+                                                  <div className="grid grid-cols-2 gap-2">
+                                                    {[
+                                                      {
+                                                        label:
+                                                          "Hospice Knowledge",
+                                                        val: aiData
+                                                          .categoryScores
+                                                          ?.hospiceKnowledge,
+                                                        max: 25,
+                                                      },
+                                                      {
+                                                        label:
+                                                          "Relationship Selling",
+                                                        val: aiData
+                                                          .categoryScores
+                                                          ?.relationshipSelling,
+                                                        max: 25,
+                                                      },
+                                                      {
+                                                        label:
+                                                          "Empathy & Communication",
+                                                        val: aiData
+                                                          .categoryScores
+                                                          ?.empathyCommunication,
+                                                        max: 25,
+                                                      },
+                                                      {
+                                                        label:
+                                                          "Strategic Execution",
+                                                        val: aiData
+                                                          .categoryScores
+                                                          ?.strategicExecution,
+                                                        max: 25,
+                                                      },
+                                                    ].map((cat) => (
+                                                      <div
+                                                        key={cat.label}
+                                                        className="bg-muted/40 rounded-md p-2.5"
+                                                      >
+                                                        <p className="text-xs text-muted-foreground mb-1">
+                                                          {cat.label}
+                                                        </p>
+                                                        <div className="flex items-center gap-2">
+                                                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                            <div
+                                                              className="h-full bg-primary rounded-full"
+                                                              style={{
+                                                                width: `${Math.round(((cat.val ?? 0) / cat.max) * 100)}%`,
+                                                              }}
+                                                            />
+                                                          </div>
+                                                          <span className="text-xs font-semibold shrink-0">
+                                                            {cat.val ?? "—"}/
+                                                            {cat.max}
+                                                          </span>
+                                                        </div>
+                                                      </div>
+                                                    ))}
+                                                  </div>
+
+                                                  {aiData.standoutQualities
+                                                    ?.length > 0 && (
+                                                    <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-green-700 dark:text-green-400 mb-2">
+                                                        Standout Qualities
+                                                      </h4>
+                                                      {aiData.standoutQualities.map(
+                                                        (
+                                                          s: string,
+                                                          i: number,
+                                                        ) => (
+                                                          <p
+                                                            key={i}
+                                                            className="text-sm text-foreground"
+                                                          >
+                                                            {s}
+                                                          </p>
+                                                        ),
+                                                      )}
+                                                    </div>
+                                                  )}
+
+                                                  {aiData.redFlags?.length >
+                                                    0 && (
+                                                    <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-red-600 dark:text-red-400 mb-2">
+                                                        Red Flags
+                                                      </h4>
+                                                      <ul className="space-y-1.5">
+                                                        {aiData.redFlags.map(
+                                                          (
+                                                            f: string,
+                                                            i: number,
+                                                          ) => (
+                                                            <li
+                                                              key={i}
+                                                              className="flex items-start gap-2 text-sm"
+                                                            >
+                                                              <span className="text-red-600 dark:text-red-400 shrink-0 font-bold">
+                                                                !
+                                                              </span>
+                                                              <span>{f}</span>
+                                                            </li>
+                                                          ),
+                                                        )}
+                                                      </ul>
+                                                    </div>
+                                                  )}
+
+                                                  <div className="grid grid-cols-2 gap-4">
+                                                    {aiData.strengths?.length >
+                                                      0 && (
+                                                      <div>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                          Strengths
+                                                        </h4>
+                                                        <ul className="space-y-1.5">
+                                                          {aiData.strengths.map(
+                                                            (
+                                                              s: string,
+                                                              i: number,
+                                                            ) => (
+                                                              <li
+                                                                key={i}
+                                                                className="flex items-start gap-2 text-sm"
+                                                              >
+                                                                <span className="text-green-600 dark:text-green-400 shrink-0 font-bold">
+                                                                  +
+                                                                </span>
+                                                                <span>{s}</span>
+                                                              </li>
+                                                            ),
+                                                          )}
+                                                        </ul>
+                                                      </div>
+                                                    )}
+                                                    {aiData.developmentAreas
+                                                      ?.length > 0 && (
+                                                      <div>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                          Development Areas
+                                                        </h4>
+                                                        <ul className="space-y-1.5">
+                                                          {aiData.developmentAreas.map(
+                                                            (
+                                                              s: string,
+                                                              i: number,
+                                                            ) => (
+                                                              <li
+                                                                key={i}
+                                                                className="flex items-start gap-2 text-sm"
+                                                              >
+                                                                <span className="text-amber-500 shrink-0 font-bold">
+                                                                  -
+                                                                </span>
+                                                                <span>{s}</span>
+                                                              </li>
+                                                            ),
+                                                          )}
+                                                        </ul>
+                                                      </div>
+                                                    )}
+                                                  </div>
+
+                                                  {aiData.coachabilitySignals
+                                                    ?.length > 0 && (
+                                                    <div>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                        Coachability Signals
+                                                      </h4>
+                                                      <div className="flex flex-wrap gap-2">
+                                                        {aiData.coachabilitySignals.map(
+                                                          (
+                                                            s: string,
+                                                            i: number,
+                                                          ) => (
+                                                            <span
+                                                              key={i}
+                                                              className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded px-2 py-1 text-xs"
+                                                            >
+                                                              {s}
+                                                            </span>
+                                                          ),
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  )}
+
+                                                  {aiData.scenarioFeedback
+                                                    ?.length > 0 && (
+                                                    <div>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                        Scenario Evaluation
+                                                      </h4>
+                                                      <div className="space-y-2">
+                                                        {aiData.scenarioFeedback.map(
+                                                          (
+                                                            sf: any,
+                                                            i: number,
+                                                          ) => (
+                                                            <div
+                                                              key={i}
+                                                              className="bg-muted/40 rounded-md p-3"
+                                                            >
+                                                              <p className="text-xs font-semibold mb-1">
+                                                                Scenario{" "}
+                                                                {
+                                                                  sf.scenarioNumber
+                                                                }
+                                                                : {sf.title}
+                                                              </p>
+                                                              <p className="text-sm text-muted-foreground mb-2">
+                                                                {sf.feedback}
+                                                              </p>
+                                                              {sf.strongerAnswer && (
+                                                                <p className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 rounded px-2 py-1.5">
+                                                                  Stronger
+                                                                  answer:{" "}
+                                                                  {
+                                                                    sf.strongerAnswer
+                                                                  }
+                                                                </p>
+                                                              )}
+                                                            </div>
+                                                          ),
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  )}
+
+                                                  {aiData.candidatePotential && (
+                                                    <div>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                        Candidate Potential
+                                                      </h4>
+                                                      <p className="text-sm text-muted-foreground">
+                                                        {
+                                                          aiData.candidatePotential
+                                                        }
+                                                      </p>
+                                                    </div>
+                                                  )}
+
+                                                  {aiData.interviewGuide
+                                                    ?.length > 0 && (
+                                                    <div>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                                                        Interview Questions to
+                                                        Ask
+                                                      </h4>
                                                       <div className="space-y-2">
                                                         {aiData.interviewGuide.map(
                                                           (
