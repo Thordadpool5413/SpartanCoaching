@@ -17,7 +17,8 @@ describe("web and iPhone Coach parity", () => {
   });
 
   it("does not persist an empty model completion as coaching", () => {
-    expect(openaiSource).toContain("OpenAI returned empty Spartan Coach response");
+    expect(openaiSource).toContain("OpenAI returned an empty completion");
+    expect(openaiSource).toContain("returned an empty response after retry");
     expect(openaiSource).not.toContain("I could not finish that response. Try again without names or patient details.");
   });
 
