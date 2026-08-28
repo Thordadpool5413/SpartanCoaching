@@ -114,7 +114,7 @@ export default function Home() {
             <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
             <h1
               id="home-hero-title"
-              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-black tracking-tight text-foreground leading-[0.98]"
+              className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-foreground leading-[1.02]"
               data-testid="text-home-hero-title"
             >
               Make the next hospice conversation count.
@@ -148,7 +148,7 @@ export default function Home() {
             </div>
             <div className="w-full min-w-0">
               <div
-                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20"
+                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20 [container-type:size]"
                 data-testid="hero-video-frame"
                 aria-label="Spartan Coaching hero film"
               >

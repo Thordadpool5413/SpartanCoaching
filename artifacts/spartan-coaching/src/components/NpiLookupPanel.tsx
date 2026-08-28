@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, Loader2, Building2, User } from "lucide-react";
+import { Search, Loader2, Building2, User, CheckCircle2, FileText } from "lucide-react";
 import { ToolResultActions } from "@/components/ToolResultActions";
+import { US_STATES } from "@/lib/usStates";
 
 export type NpiHit = {
   npi: string;
@@ -127,14 +128,21 @@ export function NpiLookupPanel({
       className={`border border-border bg-card p-4 sm:p-5 space-y-4 ${className || ""}`}
       data-testid="npi-lookup-panel"
     >
-      <div className="space-y-1">
-        <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Spartan Intelligence · Verified public data
-        </p>
-        <h3 className="font-bold text-foreground">Referral Intelligence</h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Find a provider, verify the public record, and turn it into a focused meeting brief. Never enter patient information.
-        </p>
+      <div className="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-1">
+          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+            Referral Intelligence · NPPES verified
+          </p>
+          <h2 className="text-xl font-extrabold text-foreground">Build the account brief before the visit.</h2>
+          <p className="max-w-2xl text-sm text-muted-foreground leading-relaxed">
+            Find the public record, choose the right provider, and convert verified facts into a focused meeting plan. Never enter patient information.
+          </p>
+        </div>
+        {enableBrief ? <ol className="grid grid-cols-3 gap-1 text-center text-[10px] font-bold uppercase tracking-wide text-muted-foreground" aria-label="Referral Intelligence workflow">
+          <li className="rounded-lg bg-primary/10 px-3 py-2 text-primary"><Search className="mx-auto mb-1 h-3.5 w-3.5" />Find</li>
+          <li className="rounded-lg bg-muted px-3 py-2"><CheckCircle2 className="mx-auto mb-1 h-3.5 w-3.5" />Verify</li>
+          <li className="rounded-lg bg-muted px-3 py-2"><FileText className="mx-auto mb-1 h-3.5 w-3.5" />Prepare</li>
+        </ol> : null}
       </div>
 
       <div className="flex gap-2">
@@ -191,13 +199,10 @@ export function NpiLookupPanel({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="npi-state" className="text-xs">State</Label>
-          <Input
-            id="npi-state"
-            value={state}
-            onChange={(e) => setState(e.target.value.toUpperCase().slice(0, 2))}
-            placeholder="e.g. FL"
-            maxLength={2}
-          />
+          <select id="npi-state" value={state} onChange={(event) => setState(event.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <option value="">All states</option>
+            {US_STATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
+          </select>
         </div>
       </div>
 
@@ -213,7 +218,7 @@ export function NpiLookupPanel({
           {results.map((r) => (
             <li
               key={r.npi}
-              className="rounded-lg border border-border bg-background/60 p-3 text-sm space-y-1"
+              className={`rounded-xl border p-4 text-sm space-y-1 transition-colors ${selected?.npi === r.npi ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border bg-background/60 hover:border-primary/40"}`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>

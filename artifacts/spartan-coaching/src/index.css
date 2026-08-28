@@ -164,7 +164,8 @@ body {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-serif: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-  --font-display: 'Barlow Condensed', 'Inter', ui-sans-serif, sans-serif;
+  /* Readable display face. The condensed face remains available only inside brand artwork. */
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --radius: 0.75rem;
   --noise-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 
@@ -1007,9 +1008,9 @@ body {
   .text-hero {
     font-family: var(--font-display);
     font-size: clamp(2.9rem, 7vw, 5.75rem);
-    font-weight: 900;
-    line-height: 0.94;
-    letter-spacing: -0.035em;
+    font-weight: 800;
+    line-height: 1.01;
+    letter-spacing: -0.045em;
     text-wrap: balance;
     text-shadow: 0 2px 40px hsl(var(--primary) / 0.12);
   }
@@ -1018,8 +1019,8 @@ body {
     font-family: var(--font-display);
     font-size: clamp(2.15rem, 4.4vw, 3.55rem);
     font-weight: 800;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
@@ -1027,7 +1028,7 @@ body {
     font-family: var(--font-display);
     font-size: clamp(1.55rem, 3vw, 2.5rem);
     font-weight: 700;
-    line-height: 1.08;
+    line-height: 1.15;
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
@@ -1212,11 +1213,11 @@ body {
   }
 
   .spacing-card {
-    @apply p-6 md:p-8;
+    @apply p-5 md:p-6;
   }
 
   .spacing-card-sm {
-    @apply p-4 md:p-6;
+    @apply p-4 md:p-5;
   }
 
   .gap-cards {

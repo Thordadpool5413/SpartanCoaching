@@ -29,8 +29,18 @@ Never use any dash character, including a hyphen, en dash, or em dash. Use a per
 Prefer short paragraphs, concrete language, and one clear next move.
 `.trim();
 
+const SPARTAN_METHOD_OPERATING_CONTEXT = `
+SPARTAN METHOD OPERATING CONTEXT
+Coach through three lenses: Discipline means the next action is scheduled and owned. Empathy means the language respects the person, the family, and the referral partner. Strategy means the action fits the account stage and a measurable territory priority.
+For field communication, help the member prepare an opening, two useful discovery questions, a concise value connection, and a specific follow through. Do not default to a pitch. Do not imply a referral relationship that the member did not describe.
+For objections, first acknowledge what is true in the concern, then clarify the underlying issue, then offer a low pressure next step. Never criticize another provider.
+For planning, distinguish activity from progress. Prioritize accounts, name the purpose of each touch, define evidence of progress, and close the loop with a date.
+For hospice topics, stay educational and operational. Never determine eligibility, prognosis, coverage, legal compliance, or organization policy. Identify what must be confirmed by a qualified clinician, payer, compliance leader, or current authoritative source.
+Write as Spartan Coaching, not as a generic assistant and not as Nick Lynch personally. Do not claim personal experiences, credentials, or results.
+`.trim();
+
 function withTrustedOutputStyle(instruction: string): string {
-  return `${instruction.trim()}\n\nOUTPUT STANDARD\n${TRUSTED_OUTPUT_STYLE}`;
+  return `${instruction.trim()}\n\n${SPARTAN_METHOD_OPERATING_CONTEXT}\n\nOUTPUT STANDARD\n${TRUSTED_OUTPUT_STYLE}`;
 }
 
 export function normalizeAiPresentationText(value: string): string {
@@ -540,7 +550,7 @@ export async function generateSpartanCoachResponse(
   context: SpartanCoachContext = {},
 ): Promise<string> {
   const style = context.responseStyle ?? "balanced";
-  const tokenBudget = style === "concise" ? 500 : style === "detailed" ? 1400 : 900;
+  const tokenBudget = style === "concise" ? 1400 : style === "detailed" ? 3600 : 2400;
   const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
     { role: "system", content: withTrustedOutputStyle(SPARTAN_COACH_SYSTEM_INSTRUCTION) },
     {
@@ -554,10 +564,19 @@ export async function generateSpartanCoachResponse(
     const response = await getOpenAI().chat.completions.create({
       model: MODEL,
       messages,
+      reasoning_effort: "minimal",
       max_completion_tokens: tokenBudget,
     });
-    return normalizeAiPresentationText(response.choices[0]?.message?.content?.trim() ||
-      "I could not finish that response. Try again without names or patient details.");
+    const content = response.choices[0]?.message?.content?.trim();
+    if (!content) {
+      console.error("OpenAI returned empty Spartan Coach response", {
+        model: MODEL,
+        finishReason: response.choices[0]?.finish_reason,
+        usage: response.usage,
+      });
+      throw new Error("Spartan Coach did not complete the response. Please try again.");
+    }
+    return normalizeAiPresentationText(content);
   } catch (error) {
     console.error("OpenAI API error (Spartan Coach):", error instanceof Error ? error.name : "unknown");
     throw new Error("Spartan Coach is temporarily unavailable.");

@@ -10,7 +10,6 @@ import { toWorkflowUuid } from "@workspace/tenant-ids";
 import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
-import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
@@ -77,8 +76,7 @@ export default function SalesWorkflow() {
               step — one continuous account workflow.
             </p>
           </div>
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
               <div className="border-b border-border px-4 py-3 flex flex-wrap gap-2 bg-muted/40">
                 {["Queue", "Pre-call", "Practice", "Visit", "Debrief", "Next step"].map((tab, i) => (
                   <span
@@ -127,15 +125,6 @@ export default function SalesWorkflow() {
                   Live queue, prep, practice, and outcome capture unlock with membership.
                 </p>
               </div>
-            </div>
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5 space-y-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-primary">NPI lookup</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Pull facility context before the visit — available when Command Center is unlocked.
-              </p>
-              <div className="h-9 rounded-md border border-border bg-background/80" />
-              <div className="h-9 rounded-md border border-border bg-background/50 w-2/3" />
-            </div>
           </div>
           {!isAuthenticated && (
             <div className="flex justify-center">
@@ -173,7 +162,7 @@ export default function SalesWorkflow() {
           support the next call—they do not replace it.
         </p>
       </div>
-      <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="space-y-5">
         <SalesWorkflowPanel
           api={api}
           actor={actor}
@@ -183,12 +172,17 @@ export default function SalesWorkflow() {
             "--hsw-muted": "hsl(var(--muted-foreground))",
             "--hsw-surface": "hsl(var(--card))",
             "--hsw-border": "hsl(var(--border))",
+            "--hsw-paper": "hsl(var(--background))",
+            "--hsw-card": "hsl(var(--card))",
+            "--hsw-line": "hsl(var(--border))",
+            "--hsw-moss": "hsl(var(--foreground))",
+            "--hsw-coral": "hsl(var(--primary))",
+            "--hsw-gold": "hsl(var(--primary))",
+            "--hsw-font-display": "var(--font-display)",
+            "--hsw-font-body": "var(--font-sans)",
           }}
         />
-        <div className="lg:sticky lg:top-4 space-y-4">
-          <NpiLookupPanel />
-          <ToolAnatomyRelated items={relatedItems} />
-        </div>
+        <ToolAnatomyRelated items={relatedItems} />
       </div>
     </FieldKitToolLayout>
   );

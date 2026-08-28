@@ -44,13 +44,14 @@ export default function Coach() {
     setError(null);
     const data = await request<{ conversation: Conversation; messages: Message[] }>(`/api/v1/coach/conversations/${id}`);
     setConversationId(data.conversation.id);
-    setMessages(data.messages);
+    setMessages(Array.isArray(data.messages) ? data.messages : []);
   }
 
   async function refresh(selectFirst = false) {
     const data = await request<{ conversations: Conversation[] }>("/api/v1/coach/conversations");
-    setConversations(data.conversations);
-    if (selectFirst && data.conversations[0]) await openConversation(data.conversations[0].id);
+    const nextConversations = Array.isArray(data.conversations) ? data.conversations : [];
+    setConversations(nextConversations);
+    if (selectFirst && nextConversations[0]) await openConversation(nextConversations[0].id);
   }
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export default function Coach() {
         <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
         <Card className="p-8 sm:p-12 border-2 border-primary/40 text-center space-y-5">
           <p className="text-kicker justify-center">Hospice Sales Pro Elite</p>
-          <h1 className="text-h1 font-display font-black">Your private field coach</h1>
+          <h1 className="text-h1 font-display font-extrabold">Your private field coach</h1>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
             Continue one private conversation on the website and iPhone. Elite includes Spartan Coach, shared history, and 90 day conversation retention.
           </p>
@@ -157,7 +158,7 @@ export default function Coach() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
         <div className="space-y-3">
           <p className="text-kicker">Elite private coaching</p>
-          <h1 className="text-h1 font-display font-black">Spartan Coach</h1>
+          <h1 className="text-h1 font-display font-extrabold">Spartan Coach</h1>
           <p className="text-muted-foreground max-w-2xl leading-relaxed">
             Prepare, rehearse, review, and keep the conversation going. Your private history follows your account on the website and iPhone for 90 days.
           </p>
@@ -186,7 +187,7 @@ export default function Coach() {
         <Card className="border border-border overflow-hidden min-h-[620px] flex flex-col">
           <div className="flex items-center justify-between gap-4 px-5 sm:px-7 py-5 border-b border-border bg-muted/30">
             <div>
-              <p className="font-display font-black text-lg">One conversation, continued</p>
+              <p className="font-display font-extrabold text-lg">One conversation, continued</p>
               <p className="text-xs text-muted-foreground mt-1">Ask a follow up. Challenge the answer. Rehearse the next move.</p>
             </div>
             {conversationId && <Button variant="ghost" size="icon" onClick={() => void deleteConversation()} aria-label="Delete conversation"><Trash2 className="w-4 h-4" /></Button>}
@@ -196,7 +197,7 @@ export default function Coach() {
             {messages.length === 0 && (
               <div className="max-w-xl mx-auto text-center py-14 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>
-                <h2 className="text-2xl font-display font-black">What are you walking into?</h2>
+                <h2 className="text-2xl font-display font-extrabold">What are you walking into?</h2>
                 <p className="text-muted-foreground leading-relaxed">Give Coach the situation, the outcome you want, and what feels difficult. Use general professional context only.</p>
               </div>
             )}
