@@ -22,6 +22,12 @@ describe("iOS release associated-domains contract", () => {
     expect(packageJson.scripts["build:ios:testflight"]).toContain(
       "--profile testflight",
     );
+    expect(packageJson.scripts["build:ios:testflight"]).toContain(
+      "--auto-submit-with-profile testflight",
+    );
+    expect(packageJson.scripts["submit:ios:testflight"]).toContain(
+      "submit --platform ios --profile testflight --latest",
+    );
     expect(packageJson.scripts["build:ios"]).toContain("--profile production");
   });
 
