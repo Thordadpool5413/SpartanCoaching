@@ -199,7 +199,7 @@ export default function Tools() {
                 </div>
               </div>
               <Button asChild className="min-h-11 shrink-0 font-bold">
-                <Link href="/spartan-intelligence" data-testid="button-public-spartan-intelligence">
+                <Link href="/tools/intelligence" data-testid="button-public-spartan-intelligence">
                   Open Intelligence
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -321,7 +321,7 @@ export default function Tools() {
                   Templates & guides →
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid sm:grid-cols-2 gap-3">
               {filteredIntents.map((intent: DiscoveryIntent) => (
                 <Card
                   key={intent.id}
@@ -340,13 +340,13 @@ export default function Tools() {
                     </Badge>
                   ) : null}
                   <ul className="space-y-1.5">
-                    {intent.destinations.slice(0, 4).map((d) => (
+                    {intent.destinations.slice(0, 3).map((d, destinationIndex) => (
                       <li key={`${intent.id}-${d.id}-${d.webPath}`}>
                         <Link
                           href={d.webPath}
                           className="text-sm font-semibold text-primary hover:underline"
                         >
-                          {d.label}
+                          <span className="mr-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{destinationIndex === 0 ? "Best" : "Also"}</span>{d.label}
                           {d.surface === "field_resources" ? (
                             <span className="text-muted-foreground font-normal">
                               {" "}

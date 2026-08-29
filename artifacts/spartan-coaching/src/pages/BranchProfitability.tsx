@@ -29,6 +29,8 @@ import {
   ChevronDown,
   ChevronUp,
   BookOpen,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import {
   LineChart,
@@ -42,7 +44,7 @@ import {
   Legend,
 } from "recharts";
 
-import { runEngine, type BranchInputs, type BranchResults } from "@workspace/branch-engine/engine";
+import { runEngine, type BranchInputs, type BranchResults, type StaffingRole } from "@workspace/branch-engine/engine";
 import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@workspace/branch-engine/presets";
 import { TOOLTIP_CONTENT, getGlossaryEntries } from "@shared/branch_content_presenter";
 import { CONTENT_VERSION } from "@workspace/branch-engine/content";
@@ -85,13 +87,14 @@ const HOW_TO_READ = getGlossaryEntries();
 export default function BranchProfitability() {
   const { capture, gateState } = useLeadGate("Branch Profitability Calculator");
   const [inputs, setInputs] = useState<BranchInputs>(DEFAULT_INPUTS);
+  const [staffingRoles, setStaffingRoles] = useState<StaffingRole[]>(() => STAFF_ROLES.map((role) => ({ ...role })));
   const [showHowTo, setShowHowTo] = useState(false);
 
   // Single engine call — all downstream output from one structured result.
   // CONTENT_VERSION passed so the result object carries both formula and content provenance.
   const results: BranchResults = useMemo(
-    () => runEngine(inputs, STAFF_ROLES, CONTENT_VERSION),
-    [inputs]
+    () => runEngine(inputs, staffingRoles, CONTENT_VERSION),
+    [inputs, staffingRoles]
   );
 
   const { derived, display, tables, charts, narrative } = results;
@@ -113,6 +116,26 @@ export default function BranchProfitability() {
   function numSet(field: keyof BranchInputs, raw: string, scale = 1) {
     const n = parseFloat(raw);
     set(field, (isNaN(n) ? 0 : n) / scale as any);
+  }
+
+  function updateStaffing(index: number, field: "minFte" | "salary", raw: string) {
+    const value = Math.max(0, Number(raw) || 0);
+    setStaffingRoles((current) => current.map((role, roleIndex) => roleIndex === index
+      ? { ...role, [field]: value, caseloadTrigger: 9999 }
+      : role));
+  }
+
+  function addStaffingRole() {
+    setStaffingRoles((current) => [...current, {
+      role: `Custom role ${current.filter((item) => item.role.startsWith("Custom role")).length + 1}`,
+      salary: 0,
+      minFte: 1,
+      caseloadTrigger: 9999,
+    }]);
+  }
+
+  function resetStaffing() {
+    setStaffingRoles(STAFF_ROLES.map((role) => ({ ...role })));
   }
 
   // PDF export — all data comes from the engine results, never recalculated here
@@ -234,7 +257,7 @@ export default function BranchProfitability() {
             <Button
               variant="outline"
               size="default"
-              onClick={() => setInputs(DEFAULT_INPUTS)}
+              onClick={() => { setInputs(DEFAULT_INPUTS); resetStaffing(); }}
               data-testid="button-reset"
             >
               <RotateCcw className="w-4 h-4 mr-1.5" />
@@ -998,13 +1021,20 @@ export default function BranchProfitability() {
             </div>
           </Card>
 
-          {/* Staffing Table */}
+          {/* Editable staffing model */}
           <Card className="spacing-card">
-            <div className="flex items-center gap-2 mb-4">
-              <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold">
-                Required Staffing at ADC {inputs.targetADC}
-              </h2>
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  <h2 className="text-base font-bold">Your Staffing Plan at ADC {inputs.targetADC}</h2>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Edit FTE and annual salary. Profit, margin, break-even, runway, charts, and exports recalculate from this plan.</p>
+              </div>
+              <div className="flex flex-wrap gap-2 no-print">
+                <Button type="button" variant="outline" size="sm" onClick={resetStaffing}>Recommended baseline</Button>
+                <Button type="button" variant="outline" size="sm" onClick={addStaffingRole}><Plus className="mr-1.5 h-4 w-4" /> Add role</Button>
+              </div>
             </div>
             <div className="overflow-x-auto -mx-2 px-2">
               <table className="w-full text-sm min-w-[480px]" data-testid="table-staffing">
@@ -1024,18 +1054,20 @@ export default function BranchProfitability() {
                       data-testid={`row-staff-${i}`}
                     >
                       <td className="py-1.5 pr-3">{r.role}</td>
-                      <td className="py-1.5 text-right font-semibold">{r.fte}</td>
-                      <td className="py-1.5 text-right text-muted-foreground">
-                        {fmtK(r.salary)}
+                      <td className="py-1.5 pl-2">
+                        <Input type="number" min={0} step={0.1} value={r.fte} onChange={(event) => updateStaffing(i, "minFte", event.target.value)} className="ml-auto h-9 w-24 text-right" aria-label={`${r.role} FTE`} data-testid={`input-staff-fte-${i}`} />
                       </td>
-                      <td className="py-1.5 text-right font-semibold">
-                        {fmtK(r.annualCost)}
+                      <td className="py-1.5 pl-2">
+                        <div className="flex items-center justify-end gap-1"><span className="text-muted-foreground">$</span><Input type="number" min={0} step={1000} value={r.salary} onChange={(event) => updateStaffing(i, "salary", event.target.value)} className="h-9 w-32 text-right" aria-label={`${r.role} annual salary`} data-testid={`input-staff-salary-${i}`} /></div>
+                      </td>
+                      <td className="py-1.5 text-right font-semibold whitespace-nowrap">
+                        {fmtK(r.annualCost)}{staffingRoles[i]?.role.startsWith("Custom role") ? <Button type="button" variant="ghost" size="icon" className="ml-1 h-8 w-8 no-print" aria-label={`Remove ${r.role}`} onClick={() => setStaffingRoles((current) => current.filter((_, roleIndex) => roleIndex !== i))}><Trash2 className="h-4 w-4" /></Button> : null}
                       </td>
                     </tr>
                   ))}
                   <tr className="border-t border-border font-bold">
-                    <td className="py-2">Total Payroll</td>
-                    <td />
+                    <td className="py-2">Totals</td>
+                    <td className="py-2 text-right" data-testid="text-total-fte">{tables.requiredStaffing.reduce((sum, row) => sum + row.fte, 0).toFixed(1)} FTE</td>
                     <td />
                     <td
                       className="py-2 text-right"
