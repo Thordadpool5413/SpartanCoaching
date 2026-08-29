@@ -539,6 +539,17 @@ export default function BranchProfitability() {
         {/* ── RIGHT: RESULTS ───────────────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-5">
 
+          <Card className="border-primary/30 bg-primary/[0.06] p-4 sm:p-5 no-print">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-primary">Start with the biggest cost</p>
+                <p className="mt-1 font-bold text-foreground">Staffing and salaries are fully editable.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Set the team first, then read profit, margin, break-even, and runway.</p>
+              </div>
+              <Button type="button" variant="outline" onClick={() => document.getElementById("staffing-plan")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Edit staffing plan</Button>
+            </div>
+          </Card>
+
           {/* How to Read */}
           <Card className="border-primary/20 bg-primary/5">
             <button
@@ -1022,7 +1033,7 @@ export default function BranchProfitability() {
           </Card>
 
           {/* Editable staffing model */}
-          <Card className="spacing-card">
+          <Card className="spacing-card scroll-mt-24" id="staffing-plan">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
               <div>
                 <div className="flex items-center gap-2">

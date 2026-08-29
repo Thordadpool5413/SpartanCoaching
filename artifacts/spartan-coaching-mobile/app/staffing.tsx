@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { runEngine, type BranchInputs } from "@workspace/branch-engine/engine";
+import { runEngine, type BranchInputs, type StaffingRole } from "@workspace/branch-engine/engine";
 import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@workspace/branch-engine/presets";
 import { CONTENT_VERSION } from "@workspace/branch-engine/content";
 import { CalculatorField, CalculatorHero, CalculatorReportActions, CalculatorSection, DecisionBrief, MetricGrid, VisualScale } from "@/components/calculators/CalculatorExperience";
@@ -22,14 +22,21 @@ export default function StaffingScreen() {
   const insets = useSafeAreaInsets();
   const [presetKey, setPresetKey] = useState(DEFAULT_INPUTS.scenarioPreset);
   const [values, setValues] = useState<Record<NumericKey, string>>(() => numericValues(DEFAULT_INPUTS));
+  const [staffingRoles, setStaffingRoles] = useState<StaffingRole[]>(() => STAFF_ROLES.map((role) => ({ ...role })));
   const inputs = useMemo<BranchInputs>(() => ({ scenarioPreset: presetKey, ...Object.fromEntries(Object.entries(values).map(([key, value]) => [key, positive(value)])) } as BranchInputs), [presetKey, values]);
-  const results = useMemo(() => runEngine(inputs, STAFF_ROLES, CONTENT_VERSION), [inputs]);
+  const results = useMemo(() => runEngine(inputs, staffingRoles, CONTENT_VERSION), [inputs, staffingRoles]);
   const set = (key: NumericKey) => (value: string) => setValues((current) => ({ ...current, [key]: value }));
   const selectPreset = (key: string) => {
     const next = buildInputs(key, positive(values.targetADC) || DEFAULT_INPUTS.targetADC);
     setPresetKey(key);
     setValues(numericValues(next));
   };
+  const updateStaffing = (index: number, field: "minFte" | "salary", raw: string) => {
+    const value = Math.max(0, Number(raw) || 0);
+    setStaffingRoles((current) => current.map((role, roleIndex) => roleIndex === index ? { ...role, [field]: value, caseloadTrigger: 9999 } : role));
+  };
+  const resetStaffing = () => setStaffingRoles(STAFF_ROLES.map((role) => ({ ...role })));
+  const addStaffingRole = () => setStaffingRoles((current) => [...current, { role: `Custom role ${current.filter((role) => role.role.startsWith("Custom role")).length + 1}`, salary: 0, minFte: 1, caseloadTrigger: 9999 }]);
   const report = ["Spartan Coaching Branch Profitability Scenario", `Scenario: ${PRESET_CONFIGS[presetKey]?.label || presetKey}`, `Target ADC: ${inputs.targetADC}`, `Annual revenue: ${results.display.annualRevenue}`, `Annual profit: ${results.display.annualProfit}`, `Operating margin: ${results.display.operatingMarginPercent}`, `Break even ADC: ${results.display.breakEvenADC}`, `Target margin ADC: ${results.display.targetMarginADC}`, `Monthly admissions required: ${results.display.monthlyAdmissionsNeeded}`, `Marketers required: ${results.display.marketersNeeded}`, `Cash at month 12: ${currency(results.narrative.cashAtMonth12)}`, `Formula version: ${results.metadata.formulaVersion}`, "Planning scenario only. Validate local rates, expenses, staffing requirements, and assumptions with finance, operations, clinical leadership, compliance, and legal."].join("\n");
   const status = results.narrative.status === "at-target" ? "At or above target margin" : results.narrative.status === "profitable-below-target" ? "Profitable but below target margin" : "Below modeled break even";
 
@@ -62,7 +69,7 @@ export default function StaffingScreen() {
         <VisualScale label="Current target ADC" value={inputs.targetADC} max={Math.max(results.derived.targetMarginADC, inputs.targetADC, 1)} caption={String(inputs.targetADC)} />
         <VisualScale label="Target margin ADC" value={results.derived.targetMarginADC} max={Math.max(results.derived.targetMarginADC, inputs.targetADC, 1)} caption={results.display.targetMarginADC} />
       </CalculatorSection>
-      <CalculatorSection eyebrow="05 · STAFFING MODEL" title={`Required staffing at ADC ${inputs.targetADC}`} body="Staffing requirements are model inputs and do not replace state law, Conditions of Participation, accreditor requirements, clinical judgment, or company policy."><StaffingTable results={results} /></CalculatorSection>
+      <CalculatorSection eyebrow="05 · STAFFING MODEL" title={`Your staffing plan at ADC ${inputs.targetADC}`} body="Set the real team and salaries before relying on the financial result. This planning model does not replace state law, Conditions of Participation, accreditor requirements, clinical judgment, or company policy."><StaffingTable results={results} staffingRoles={staffingRoles} onUpdate={updateStaffing} onReset={resetStaffing} onAdd={addStaffingRole} onRemove={(index) => setStaffingRoles((current) => current.filter((_, roleIndex) => roleIndex !== index))} /></CalculatorSection>
       <CalculatorSection eyebrow="06 · CASH RUNWAY" title="First twelve months" body={`Modeled starting capital is ${currency(inputs.startingCapital)}. Cash flow turns positive in ${results.narrative.monthCashFlowTurnsPositive > 0 ? `month ${results.narrative.monthCashFlowTurnsPositive}` : "no month within the modeled runway"}.`}>
         {results.tables.runwayMonths.slice(0, 12).map((month) => <VisualScale key={month.month} label={`Month ${month.month}`} value={Math.max(0, month.cumulativeCash)} max={Math.max(inputs.startingCapital, ...results.tables.runwayMonths.slice(0, 12).map((item) => Math.max(0, item.cumulativeCash)), 1)} caption={currency(month.cumulativeCash)} />)}
       </CalculatorSection>
