@@ -721,7 +721,7 @@ export default function Resources() {
                       {item.title}
                     </h3>
                     {item.description ? (
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                         {item.description}
                       </p>
                     ) : null}
@@ -916,7 +916,7 @@ export default function Resources() {
                       );
                     })()}
                     {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
+                      <p className="text-base text-muted-foreground leading-relaxed mb-3">
                         {resource.description}
                       </p>
                     )}
@@ -927,13 +927,13 @@ export default function Resources() {
                       return (
                         <div className="space-y-2 mb-4 text-sm text-muted-foreground">
                           {arch.whenToUse ? (
-                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
+                            <p data-testid={`resource-when-${resource.id}`}>
                               <span className="font-semibold text-foreground">When: </span>
                               {arch.whenToUse}
                             </p>
                           ) : null}
                           {arch.expectedOutcome ? (
-                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
+                            <p data-testid={`resource-outcome-${resource.id}`}>
                               <span className="font-semibold text-foreground">Outcome: </span>
                               {arch.expectedOutcome}
                             </p>

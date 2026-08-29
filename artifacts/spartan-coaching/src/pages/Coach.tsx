@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, MessageSquarePlus, Send, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Copy, MessageSquarePlus, Printer, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +38,7 @@ export default function Coach() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [eliteRequired, setEliteRequired] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   async function openConversation(id: string) {
@@ -133,6 +134,22 @@ export default function Coach() {
     }
   }
 
+  async function copyResponse(message: Message) {
+    await navigator.clipboard.writeText(message.content);
+    setCopiedMessageId(message.id);
+    window.setTimeout(() => setCopiedMessageId(null), 1800);
+  }
+
+  function printResponse(message: Message) {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) return;
+    const safe = message.content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1>Spartan Coach Brief</h1><pre>${safe}</pre></body></html>`);
+    popup.document.close();
+    popup.focus();
+    popup.print();
+  }
+
   if (loading) return <div className="min-h-[60vh] grid place-items-center" role="status">Loading Spartan Coach</div>;
 
   if (eliteRequired) {
@@ -195,7 +212,7 @@ export default function Coach() {
             {conversationId && <Button variant="ghost" size="icon" onClick={() => void deleteConversation()} aria-label="Delete conversation"><Trash2 className="w-4 h-4" /></Button>}
           </div>
 
-          <div className="flex-1 p-5 sm:p-7 space-y-6 overflow-y-auto max-h-[62vh]">
+          <div className="flex-1 p-5 sm:p-7 space-y-6">
             {messages.length === 0 && (
               <div className="max-w-xl mx-auto text-center py-14 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>
@@ -205,8 +222,8 @@ export default function Coach() {
             )}
             {messages.map((message) => (
               <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "max-w-[94%] rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-6 py-5 shadow-sm"}>
-                  {message.role === "assistant" ? <MarkdownContent content={message.content} /> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
+                <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "w-full max-w-[94%] rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-7 py-6 shadow-sm"}>
+                  {message.role === "assistant" ? <><div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p><p className="mt-1 text-xs text-muted-foreground">Review it, adapt it to your voice, then take one next step.</p></div><div className="flex gap-2 no-print"><Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>{copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}{copiedMessageId === message.id ? "Copied" : "Copy"}</Button><Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}><Printer className="mr-1.5 h-4 w-4" /> Print</Button></div></div><MarkdownContent content={message.content} className="[&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:tracking-tight [&_p]:max-w-3xl" /></> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
                 </div>
               </div>
             ))}

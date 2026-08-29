@@ -28,6 +28,14 @@ describe("web and iPhone Coach parity", () => {
     expect(coach).toContain("Private by default");
   });
 
+  it("makes every coaching brief usable outside the chat window", () => {
+    expect(coach).toContain("Your field coaching brief");
+    expect(coach).toContain("copyResponse(message)");
+    expect(coach).toContain("printResponse(message)");
+    expect(openaiSource).toContain("## Best next move");
+    expect(openaiSource).toContain("Put scripts in blockquotes");
+  });
+
   it("routes workspace Coach navigation to the private product", () => {
     expect(app).toContain('<Route path="/portal/coach" component={Coach} />');
     expect(memberNav).toContain('href: "/portal/coach"');
