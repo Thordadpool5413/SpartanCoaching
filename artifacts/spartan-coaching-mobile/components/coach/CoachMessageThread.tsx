@@ -3,10 +3,12 @@ import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { useColors } from "@/hooks/useColors";
 import { type CoachMessage } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
@@ -45,7 +47,7 @@ function CoachMessageBody({
         const first = lines[0] ?? "";
         const heading =
           first.length < 64 &&
-          /^(what|why|stronger|next|try|focus|commitment|recommendation|response|approach)/i.test(
+          /^(read|best|words|questions|if|your|what|why|stronger|next|try|focus|commitment|recommendation|response|approach)/i.test(
             first,
           );
         return (
@@ -140,6 +142,18 @@ export function CoachMessageThread({
               styles={styles}
               colors={colors}
             />
+            {message.role === "assistant" ? (
+              <View style={styles.messageActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Copy coaching brief" onPress={() => void Clipboard.setStringAsync(message.content)} style={styles.messageAction}>
+                  <Feather name="copy" size={15} color={colors.primary} />
+                  <Text style={styles.messageActionText}>Copy</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Share or print coaching brief" onPress={() => void Share.share({ title: "Spartan Coach Brief", message: message.content })} style={styles.messageAction}>
+                  <Feather name="share" size={15} color={colors.primary} />
+                  <Text style={styles.messageActionText}>Share or Print</Text>
+                </Pressable>
+              </View>
+            ) : null}
           </View>
         ))}
         {coachReplying ? (
@@ -222,6 +236,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       lineHeight: 23,
       ...font("regular"),
     },
+    messageActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingTop: 12, marginTop: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+    messageAction: { minHeight: 40, borderRadius: 12, borderWidth: 1, borderColor: colors.borderStrong, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 7 },
+    messageActionText: { color: colors.foreground, fontSize: 12, ...font("bold") },
     coachMessageBody: { gap: 18 },
     coachMessageSection: { gap: 8 },
     coachMessageHeading: {

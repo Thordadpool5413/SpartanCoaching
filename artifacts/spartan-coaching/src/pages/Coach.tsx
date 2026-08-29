@@ -29,6 +29,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const conversationDate = (value: string) =>
   new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(value));
 
+const presentCoachResponse = (content: string) => content
+  .replace(/^(What to say|Two discovery questions|Value connection|Low pressure next step|If they still say no|If the concern is giving up care|What to do next|One clear commitment)([.:]?)/gim, "## $1\n")
+  .replace(/^(Opening)([.:]?)/gim, "### $1\n");
+
 export default function Coach() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -223,7 +227,7 @@ export default function Coach() {
             {messages.map((message) => (
               <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex justify-start"}>
                 <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "w-full max-w-[94%] rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-7 py-6 shadow-sm"}>
-                  {message.role === "assistant" ? <><div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p><p className="mt-1 text-xs text-muted-foreground">Review it, adapt it to your voice, then take one next step.</p></div><div className="flex gap-2 no-print"><Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>{copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}{copiedMessageId === message.id ? "Copied" : "Copy"}</Button><Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}><Printer className="mr-1.5 h-4 w-4" /> Print</Button></div></div><MarkdownContent content={message.content} className="[&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:tracking-tight [&_p]:max-w-3xl" /></> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
+                  {message.role === "assistant" ? <><div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p><p className="mt-1 text-xs text-muted-foreground">Review it, adapt it to your voice, then take one next step.</p></div><div className="flex gap-2 no-print"><Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>{copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}{copiedMessageId === message.id ? "Copied" : "Copy"}</Button><Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}><Printer className="mr-1.5 h-4 w-4" /> Print</Button></div></div><MarkdownContent content={presentCoachResponse(message.content)} className="[&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:tracking-tight [&_p]:max-w-3xl" /></> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
                 </div>
               </div>
             ))}

@@ -5,6 +5,10 @@ const source = fs.readFileSync(
   path.resolve(__dirname, "../app/(tabs)/coach.tsx"),
   "utf8",
 );
+const thread = fs.readFileSync(
+  path.resolve(__dirname, "../components/coach/CoachMessageThread.tsx"),
+  "utf8",
+);
 
 describe("Spartan Coach conversation experience", () => {
   test("continues coaching after the first response", () => {
@@ -29,5 +33,12 @@ describe("Spartan Coach conversation experience", () => {
     expect(source).toContain("Turn the conversation into action");
     expect(source).toContain("Make this sound more natural");
     expect(source).toContain("What should I ask next?");
+  });
+
+  test("makes every native coaching brief portable and scannable", () => {
+    expect(thread).toContain("Copy coaching brief");
+    expect(thread).toContain("Share or print coaching brief");
+    expect(thread).toContain("Clipboard.setStringAsync(message.content)");
+    expect(thread).toContain('title: "Spartan Coach Brief"');
   });
 });

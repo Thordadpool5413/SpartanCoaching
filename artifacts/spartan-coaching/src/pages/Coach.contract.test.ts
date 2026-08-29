@@ -32,6 +32,8 @@ describe("web and iPhone Coach parity", () => {
     expect(coach).toContain("Your field coaching brief");
     expect(coach).toContain("copyResponse(message)");
     expect(coach).toContain("printResponse(message)");
+    expect(coach).toContain("presentCoachResponse(message.content)");
+    expect(coach).toContain("Two discovery questions");
     expect(openaiSource).toContain("## Best next move");
     expect(openaiSource).toContain("Put scripts in blockquotes");
   });
