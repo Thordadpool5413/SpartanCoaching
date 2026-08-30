@@ -72,6 +72,7 @@ const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showCatalog, setShowCatalog] = useState(false);
+  const [showAllIntents, setShowAllIntents] = useState(false);
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
   const filteredTools = useMemo(() => {
@@ -174,12 +175,12 @@ export default function Tools() {
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
       <SEO />
       <SlideUp>
-        <div className="max-w-4xl mb-8 sm:mb-10">
-          <p className="text-kicker mb-3">Hospice Sales Pro workspace</p>
-          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            What needs to move next?
+        <div className="max-w-3xl mb-7">
+          <p className="text-kicker mb-3">Focused workspaces</p>
+          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-tools-title">
+            Choose the outcome. We will point you to the tool.
           </h1>
-          <p className="text-body-lg text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-base text-muted-foreground leading-7">
             {showCatalogGate
               ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
               : "Start with the job, not the feature. Open one focused workspace, finish the work, and keep the result in My Work."}
@@ -322,7 +323,7 @@ export default function Tools() {
               </Link>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
-              {filteredIntents.map((intent: DiscoveryIntent) => (
+              {filteredIntents.slice(0, showAllIntents || searchQuery.trim() ? undefined : 4).map((intent: DiscoveryIntent) => (
                 <Card
                   key={intent.id}
                   className="p-4 border border-border/80 hover:border-border hover:shadow-sm"
@@ -366,6 +367,13 @@ export default function Tools() {
                 </Card>
               ))}
             </div>
+            {!searchQuery.trim() && filteredIntents.length > 4 ? (
+              <div className="mt-4 flex justify-center">
+                <Button type="button" variant="ghost" onClick={() => setShowAllIntents((value) => !value)} aria-expanded={showAllIntents}>
+                  {showAllIntents ? "Show fewer outcomes" : `See ${filteredIntents.length - 4} more outcomes`}
+                </Button>
+              </div>
+            ) : null}
           </section>
         </SlideUp>
       )}
