@@ -181,7 +181,7 @@ export default function Coach() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
+    <div className="coach-premium w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
       <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
         <div className="space-y-3">
