@@ -31,7 +31,7 @@ const conversationDate = (value: string) =>
 
 export const presentCoachResponse = (content: string) => {
   return content
-    .replace(/(?:^|\n|(?<=[.!?])\s+)(Situation|What is happening|Best next move|What to say|Opening|(?:Two )?Discovery questions|Value connection|Low pressure next step|If they still say no|If the concern is giving up care|What not to say|Compliance boundary|What to do next|One clear commitment)(?:\s*[.:])?\s*/gim, "\n\n## $1\n\n")
+    .replace(/(?:^|\n|(?<=[.!?])\s+)(Situation|What is happening|Best next move|What to say|Opening|Two discovery questions|Discovery questions|Value connection|Low pressure next step|If they still say no|If the concern is giving up care|What not to say|Compliance boundary|What to do next|One clear commitment)(?:\s*[.:])?\s*/gim, "\n\n## $1\n\n")
     .replace(/\s+[•●]\s+/g, "\n- ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
