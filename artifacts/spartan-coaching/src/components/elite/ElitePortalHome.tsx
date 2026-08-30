@@ -1,76 +1,63 @@
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, BrainCircuit, Crosshair, FolderOpen, MessageCircle, Wrench } from "lucide-react";
+import { ArrowRight, BookOpen, BrainCircuit, CheckCircle2, Crosshair, FolderOpen, MessageCircle, Sparkles, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 type NextMove = { title: string; desc: string; href: string };
 
+const workspaces = [
+  { icon: Crosshair, number: "01", eyebrow: "Daily execution", title: "Command", body: "Organize accounts, prepare the conversation, capture the outcome, and protect the next move.", href: "/tools/sales-workflow", action: "Run today" },
+  { icon: BrainCircuit, number: "02", eyebrow: "Verified preparation", title: "Intelligence", body: "Research referral partners, answer policy questions, and understand the market before you walk in.", href: "/tools/intelligence", action: "Build intelligence" },
+  { icon: Wrench, number: "03", eyebrow: "Focused production", title: "Tools", body: "Turn a real field need into a finished plan, talk track, calculation, email, or rehearsal.", href: "/tools", action: "Choose an outcome" },
+  { icon: MessageCircle, number: "04", eyebrow: "Private guidance", title: "Coach", body: "Think through the hard conversation, sharpen the language, and commit to the strongest next action.", href: "/portal/coach", action: "Start coaching" },
+];
+
 export function ElitePortalHome({ firstName, nextMove }: { firstName: string; nextMove: NextMove }) {
-  const workspaces = [
-    { icon: Crosshair, title: "Run the day", body: "Plan calls, prepare, capture outcomes, and lock the next step.", href: "/tools/sales-workflow", action: "Open Command" },
-    { icon: BrainCircuit, title: "Prepare with evidence", body: "Research an account, answer a CMS question, or understand a market.", href: "/tools/intelligence", action: "Open Intelligence" },
-    { icon: Wrench, title: "Finish a specific job", body: "Build a plan, handle an objection, rehearse, calculate, or follow up.", href: "/tools", action: "Choose a tool" },
-    { icon: MessageCircle, title: "Get coached", body: "Work through a difficult situation and leave with a field-ready next move.", href: "/portal/coach", action: "Open Coach" },
-  ];
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8" data-testid="elite-portal-home">
-      <section className="mb-7 grid gap-6 border-b border-border/70 pb-8 lg:grid-cols-[1fr_360px] lg:items-end">
-        <div>
-          <p className="text-kicker">Hospice Sales Pro</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
-            Your field day, organized{firstName ? `, ${firstName}` : ""}.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-            Command runs the day. Intelligence prepares the conversation. Tools finish a specific job. Coach helps when the situation gets complicated. My Work keeps the result.
-          </p>
+    <main className="workspace-home" data-testid="elite-portal-home">
+      <section className="workspace-command-hero">
+        <div className="workspace-command-copy">
+          <div className="workspace-overline"><span>Hospice Sales Pro</span><span className="workspace-live-dot">Live workspace</span></div>
+          <h1>Good {greeting}{firstName ? `, ${firstName}` : ""}.</h1>
+          <p>Your field operating system is ready. Start with the conversation that matters most, finish the work, and leave with a clear next move.</p>
+          <div className="workspace-principles" aria-label="Workspace operating method">
+            <span><CheckCircle2 /> Choose the outcome</span>
+            <span><CheckCircle2 /> Do the work</span>
+            <span><CheckCircle2 /> Keep the result</span>
+          </div>
         </div>
-        <Card className="border-primary/30 bg-primary/[0.05] p-5 shadow-none">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Continue where you left off</p>
-          <h2 className="mt-2 text-xl font-bold text-foreground">{nextMove.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{nextMove.desc}</p>
-          <Button asChild className="mt-4 w-full font-bold">
-            <Link href={nextMove.href}>Continue <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
-        </Card>
+        <aside className="workspace-next-card" aria-label="Continue your work">
+          <div className="workspace-next-top"><span>Priority move</span><Sparkles /></div>
+          <h2>{nextMove.title}</h2>
+          <p>{nextMove.desc}</p>
+          <Button asChild size="lg" className="workspace-primary-action"><Link href={nextMove.href}>Continue the work <ArrowRight /></Link></Button>
+        </aside>
       </section>
 
-      <section aria-labelledby="workspace-map-heading">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Start with the outcome</p>
-            <h2 id="workspace-map-heading" className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">What do you need to accomplish?</h2>
-          </div>
-          <Button asChild variant="outline" size="sm"><Link href="/my-work"><FolderOpen className="mr-2 h-4 w-4" />Open My Work</Link></Button>
+      <section className="workspace-section" aria-labelledby="workspace-map-heading">
+        <div className="workspace-section-heading">
+          <div><p>Choose your mission</p><h2 id="workspace-map-heading">What needs to move forward?</h2></div>
+          <Button asChild variant="outline"><Link href="/my-work"><FolderOpen /> My Work</Link></Button>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          {workspaces.map(({ icon: Icon, title, body, href, action }, index) => (
-            <Card key={title} className="group border-border/80 p-5 shadow-none transition-colors hover:border-primary/40">
-              <div className="flex items-start gap-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-foreground group-hover:bg-primary group-hover:text-primary-foreground"><Icon className="h-5 w-5" /></span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{String(index + 1).padStart(2, "0")}</p>
-                  <h3 className="mt-1 text-lg font-bold text-foreground">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
-                  <Link href={href} className="mt-3 inline-flex min-h-10 items-center text-sm font-bold text-primary hover:underline">{action}<ArrowRight className="ml-1.5 h-4 w-4" /></Link>
-                </div>
-              </div>
-            </Card>
+        <div className="workspace-mission-grid">
+          {workspaces.map(({ icon: Icon, number, eyebrow, title, body, href, action }, index) => (
+            <Link key={title} href={href} className={`workspace-mission-card workspace-mission-${index + 1}`}>
+              <div className="workspace-mission-header"><span>{number}</span><Icon /></div>
+              <p className="workspace-mission-eyebrow">{eyebrow}</p>
+              <h3>{title}</h3>
+              <p className="workspace-mission-copy">{body}</p>
+              <span className="workspace-mission-action">{action}<ArrowRight /></span>
+            </Link>
           ))}
         </div>
       </section>
 
-      <section className="mt-7 grid gap-3 sm:grid-cols-3" aria-label="How the workspace works">
-        {[
-          ["1. Choose", "Start with the outcome, not a feature list."],
-          ["2. Do the work", "Use one focused workspace through completion."],
-          ["3. Keep the result", "Save the output, next action, and context in My Work."],
-        ].map(([title, body]) => <div key={title} className="rounded-xl border border-border/70 bg-card/50 p-4"><p className="font-bold text-foreground">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p></div>)}
-      </section>
-
-      <section className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/70 bg-card/60 p-4">
-        <div className="flex items-center gap-3"><BookOpen className="h-5 w-5 text-primary" /><div><p className="font-bold">New here?</p><p className="text-sm text-muted-foreground">Take the Field Workshop to learn the system in the order it is meant to be used.</p></div></div>
-        <Button asChild variant="ghost" className="font-bold"><Link href="/portal/learn">Open Field Workshop <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+      <section className="workspace-onboarding-strip">
+        <div className="workspace-onboarding-icon"><BookOpen /></div>
+        <div><p>New to Hospice Sales Pro?</p><h2>Learn the system once. Use it every day.</h2><span>The Field Workshop walks you through Command, Intelligence, Tools, Coach, and My Work in the right order.</span></div>
+        <Button asChild variant="outline" className="workspace-secondary-action"><Link href="/portal/learn">Open Field Workshop <ArrowRight /></Link></Button>
       </section>
     </main>
   );
