@@ -109,6 +109,19 @@ function outputText(output: unknown): string {
   return JSON.stringify(output, null, 2);
 }
 
+function resourceBrief(output: unknown): string | null {
+  if (!output || typeof output !== "object" || Array.isArray(output)) return null;
+  const value = output as Record<string, unknown>;
+  if (typeof value.selectedResource !== "string") return null;
+  return [
+    `Use the ${value.selectedResource} resource as the starting point.`,
+    typeof value.fieldJob === "string" ? `Field job: ${value.fieldJob}` : null,
+    typeof value.expectedOutcome === "string" ? `Finished result: ${value.expectedOutcome}` : null,
+    typeof value.description === "string" ? `Resource context: ${value.description}` : null,
+    "Create a practical, deidentified version for the next professional conversation. Do not request or include PHI.",
+  ].filter(Boolean).join("\n\n");
+}
+
 function arrayFromOutput(output: unknown): Record<string, unknown>[] {
   return [{ sourceToolOutput: output }];
 }
@@ -148,7 +161,7 @@ export function buildConnectedToolInput(
       break;
     case "content-recommender:content-generator":
     case "content-gap-analyzer:content-generator":
-      input.brief = `Create the next practical asset from this analysis:\n${text}`;
+      input.brief = resourceBrief(output) || `Create the next practical asset from this analysis:\n${text}`;
       break;
     case "territory-account-discovery:email-optimizer":
       input.situation = `Account discovery context:\n${text}`;

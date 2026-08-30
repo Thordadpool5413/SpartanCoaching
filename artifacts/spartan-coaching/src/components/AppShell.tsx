@@ -232,11 +232,6 @@ function SidebarBody({
             </Button>
           </div>
         )}
-        {!collapsed && (
-          <p className="text-[10px] text-muted-foreground px-1" data-testid="workspace-shell-version">
-            {WORKSPACE_SHELL_VERSION}
-          </p>
-        )}
       </div>
     </div>
   );

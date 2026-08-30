@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Check, Copy, MessageSquarePlus, Printer, Send, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Copy, Loader2, MessageSquarePlus, Printer, RefreshCw, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,9 +29,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const conversationDate = (value: string) =>
   new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(value));
 
-const presentCoachResponse = (content: string) => content
-  .replace(/^(What to say|Two discovery questions|Value connection|Low pressure next step|If they still say no|If the concern is giving up care|What to do next|One clear commitment)([.:]?)/gim, "## $1\n")
-  .replace(/^(Opening)([.:]?)/gim, "### $1\n");
+export const presentCoachResponse = (content: string) => {
+  const headings = [
+    "Situation", "What is happening", "Best next move", "What to say",
+    "Opening", "Discovery questions", "Two discovery questions", "Value connection",
+    "Low pressure next step", "If they still say no", "If the concern is giving up care",
+    "What not to say", "Compliance boundary", "What to do next", "One clear commitment",
+  ];
+  const pattern = new RegExp(`(?:^|\\n|(?<=[.!?])\\s+)(?:${headings.join("|")})(?:\\s*[.:])?\\s*`, "gim");
+  return content
+    .replace(pattern, (match) => {
+      const label = headings.find((heading) => match.toLowerCase().includes(heading.toLowerCase())) || match.trim();
+      return `\n\n## ${label}\n\n`;
+    })
+    .replace(/\s+[•●]\s+/g, "\n- ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
 
 export default function Coach() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -154,7 +168,7 @@ export default function Coach() {
     popup.print();
   }
 
-  if (loading) return <div className="min-h-[60vh] grid place-items-center" role="status">Loading Spartan Coach</div>;
+  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" /><h1 className="mt-4 text-xl font-bold">Opening your coaching workspace</h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
 
   if (eliteRequired) {
     return (
@@ -196,7 +210,7 @@ export default function Coach() {
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">Conversation history</p>
           <div className="space-y-2 max-h-72 lg:max-h-[64vh] overflow-y-auto">
             {conversations.length === 0 ? <p className="text-sm text-muted-foreground p-3">Your first conversation starts here.</p> : conversations.map((item) => (
-              <button key={item.id} onClick={() => void openConversation(item.id)} className={`w-full text-left rounded-xl p-3 transition-colors ${conversationId === item.id ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted"}`}>
+              <button key={item.id} onClick={() => void openConversation(item.id).catch((cause: Error) => setError(cause.message))} className={`w-full text-left rounded-xl p-3 transition-colors ${conversationId === item.id ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted"}`}>
                 <span className="block text-sm font-bold text-foreground line-clamp-2">{item.title}</span>
                 <span className="block text-xs text-muted-foreground mt-1">{conversationDate(item.updatedAt)}</span>
               </button>
@@ -217,6 +231,7 @@ export default function Coach() {
           </div>
 
           <div className="flex-1 p-5 sm:p-7 space-y-6">
+            {error ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm" role="alert"><span>{error}</span><Button type="button" size="sm" variant="outline" onClick={() => void refresh(true).catch((cause: Error) => setError(cause.message))}><RefreshCw className="mr-2 h-4 w-4" />Try again</Button></div> : null}
             {messages.length === 0 && (
               <div className="max-w-xl mx-auto text-center py-14 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>

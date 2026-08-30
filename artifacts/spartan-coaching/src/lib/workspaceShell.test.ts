@@ -25,6 +25,7 @@ describe("workspace shell (HSP-32)", () => {
     expect(isWorkspacePath("/resources/objection-cards")).toBe(true);
     expect(isWorkspacePath("/account")).toBe(true);
     expect(isWorkspacePath("/portal/learn")).toBe(true);
+    expect(isWorkspacePath("/portal/workshop")).toBe(true);
     expect(isWorkspacePath("/admin")).toBe(true);
     expect(isWorkspacePath("/drills")).toBe(true);
   });
@@ -109,5 +110,12 @@ describe("workspace shell (HSP-32)", () => {
     expect(new Set(primaryWorkspaceNav("member").map((item) => item.id)).size).toBe(
       primaryWorkspaceNav("member").length,
     );
+  });
+
+  it("routes saved work to the connected My Work workspace", () => {
+    const saved = workspaceNavForRole("member").find((item) => item.id === "saved");
+    expect(saved?.href).toBe("/my-work");
+    expect(saved?.label).toBe("My Work");
+    expect(saved?.match("/my-work/elite-outputs")).toBe(true);
   });
 });
