@@ -17,14 +17,17 @@ export default function Portal() {
     <>
       <SEO title="Hospice Sales Pro Workspace | Spartan Coaching" noIndex />
       <MembershipActivation />
-      <ElitePortalHome
-        firstName={member?.name?.split(" ")[0] || ""}
-        nextMove={{
-          title: "Open today’s Command Center",
-          desc: "Choose the next account, prepare the conversation, record the outcome, and lock the next commitment.",
-          href: "/tools/sales-workflow",
-        }}
-      />
+      <section id="section-mission-next" aria-labelledby="portal-next-action-heading" aria-live="polite">
+        <h1 id="portal-next-action-heading" className="sr-only">Your Hospice Sales Pro workspace</h1>
+        <ElitePortalHome
+          firstName={member?.name?.split(" ")[0] || ""}
+          nextMove={{
+            title: "Open today’s Command Center",
+            desc: "Choose the next account, prepare the conversation, record the outcome, and lock the next commitment.",
+            href: "/tools/sales-workflow",
+          }}
+        />
+      </section>
     </>
   );
 }
