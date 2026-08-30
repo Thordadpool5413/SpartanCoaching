@@ -543,7 +543,7 @@ export default function Resources() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="resources-premium w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <div className="max-w-3xl mb-7">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
@@ -566,7 +566,7 @@ export default function Resources() {
         </div>
         <Button asChild variant="outline" className="shrink-0"><Link href="/my-work">Open My Work</Link></Button>
       </Card>
-      <section className="mb-8 rounded-2xl border border-border/80 bg-card p-4 sm:p-5" aria-labelledby="core-library-heading">
+      <section className="resources-library-dock mb-8 rounded-2xl border border-border/80 bg-card p-4 sm:p-5" aria-labelledby="core-library-heading">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold tracking-widest text-primary uppercase">Core field library</p>
