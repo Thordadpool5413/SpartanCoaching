@@ -57,6 +57,7 @@ export default function Coach() {
   }
 
   async function refresh(selectFirst = false) {
+    setError(null);
     const data = await request<{ conversations: Conversation[] }>("/api/v1/coach/conversations");
     const nextConversations = Array.isArray(data.conversations) ? data.conversations : [];
     setConversations(nextConversations);
