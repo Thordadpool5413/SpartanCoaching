@@ -138,6 +138,7 @@ const GatedAiToolsHub = withFieldKit(AiToolsHub);
 const GatedAiTool = withFieldKit(AiTool);
 const GatedSavedAiOutputs = withFieldKit(SavedAiOutputs);
 const GatedMyWork = withFieldKit(MyWork);
+const GatedPortalLearn = withFieldKit(PortalLearn);
 
 function AssessmentRoute() {
   return <Assessment />;
@@ -222,7 +223,7 @@ function Router() {
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/portal" component={Portal} />
-          <Route path="/portal/learn" component={PortalLearn} />
+          <Route path="/portal/learn" component={GatedPortalLearn} />
           <Route path="/portal/coach" component={Coach} />
           <Route path="/account" component={Account} />
           <Route path="/org/admin" component={OrgAdmin} />

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BookOpen, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -50,6 +50,22 @@ export function PolicyNavigatorPanel() {
   const [brief, setBrief] = useState<PolicyBrief | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!loading) { setElapsed(0); return; }
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [loading]);
+
+  const progressMessage = elapsed < 6
+    ? "Reviewing your question"
+    : elapsed < 14
+      ? "Checking the official guidance"
+      : elapsed < 24
+        ? "Building your field-ready explanation"
+        : "Finishing the sourced brief. This can take up to a minute.";
 
   const build = async () => {
     setLoading(true); setError("");
@@ -74,7 +90,8 @@ export function PolicyNavigatorPanel() {
         <div className="space-y-2"><Label htmlFor="policy-state">State context</Label><select id="policy-state" value={state} onChange={(event) => setState(event.target.value)} className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"><option value="">Federal guidance</option>{US_STATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}</select></div>
       </div>
       <div className="space-y-2"><Label htmlFor="policy-question">Question or concern</Label><Textarea id="policy-question" value={question} onChange={(event) => setQuestion(event.target.value)} rows={4} placeholder="Example: How do I explain continuous home care without promising round-the-clock care?" /><p className="text-xs text-muted-foreground">Do not enter names, diagnoses, dates of birth, or other patient information.</p></div>
-      <Button type="button" className="w-full h-11 font-bold" disabled={loading} onClick={build}>{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Build AI policy brief</Button>
+      <Button type="button" className="w-full h-11 font-bold" disabled={loading} onClick={build}>{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}{loading ? progressMessage : "Build AI policy brief"}</Button>
+      {loading ? <div className="rounded-xl border border-primary/20 bg-primary/5 p-3" role="status" aria-live="polite"><p className="text-sm font-semibold text-foreground">{progressMessage}</p><p className="mt-1 text-xs text-muted-foreground">Your question is safe. Keep this page open while Spartan Intelligence completes the brief. {elapsed}s</p></div> : null}
       {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
     </Card>
 

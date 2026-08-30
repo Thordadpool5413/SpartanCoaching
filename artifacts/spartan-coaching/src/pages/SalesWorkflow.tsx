@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
 import {
   getToolById,
@@ -158,10 +158,21 @@ export default function SalesWorkflow() {
           Hospice Sales Pro · Daily spine
         </p>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Run every account through this workflow. Satellite tools (objections, role-play, email, weekly plan)
-          support the next call—they do not replace it.
+          Your daily account workflow. Start by scheduling a call, prepare the conversation, then record what happened and the next commitment.
         </p>
       </div>
+      <section className="mb-5 grid gap-3 rounded-xl border border-border/80 bg-card/70 p-4 sm:grid-cols-3" aria-label="How to use Sales Command Center" data-testid="command-getting-started">
+        {[
+          ["1. Schedule", "Add the facility or professional you plan to contact. Never enter patient information."],
+          ["2. Prepare", "Set the purpose, talk track, and one clear outcome before the conversation."],
+          ["3. Close the loop", "Capture the result and schedule the next step while it is still fresh."],
+        ].map(([title, body]) => (
+          <div key={title} className="flex gap-3 rounded-lg bg-background/50 p-3">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div><p className="text-sm font-bold text-foreground">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>
+          </div>
+        ))}
+      </section>
       <div className="space-y-5">
         <SalesWorkflowPanel
           api={api}
@@ -183,6 +194,10 @@ export default function SalesWorkflow() {
           }}
         />
         <ToolAnatomyRelated items={relatedItems} />
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/50 p-4">
+          <p className="text-sm text-muted-foreground">Need a script, objection response, or rehearsal before the call?</p>
+          <Button asChild variant="outline" size="sm"><Link href="/tools">Open supporting tools <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+        </div>
       </div>
     </FieldKitToolLayout>
   );

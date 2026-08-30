@@ -545,14 +545,14 @@ export default function Resources() {
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
-      <div className="max-w-3xl mb-8 sm:mb-10">
+      <div className="max-w-3xl mb-7">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
           {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
-        <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
-          {canUseFieldKit ? "Find it. Adapt it. Use it." : "Training Resources Library"}
+        <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-resources-title">
+          {canUseFieldKit ? "Use the right resource at the right moment." : "Training Resources Library"}
         </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-7">
           {canUseFieldKit
             ? "Start with a trusted template, script, or checklist. Download the original or use Spartan AI to adapt a working copy for the next conversation."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
@@ -835,7 +835,7 @@ export default function Resources() {
         </div>
       )}
 
-      <div className="space-y-12">
+      <div className="space-y-10">
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="secondary">
             {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
@@ -846,23 +846,23 @@ export default function Resources() {
         </div>
         {Object.entries(groupedResources).map(([category, categoryResources]) => (
           <div key={category} data-testid={`category-${category}`}>
-            <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
+            <h2 className="mb-4 flex items-center gap-3 text-2xl font-black tracking-tight flex-wrap">
               {categoryNames[category] || category}
               <Badge variant="secondary" className="text-sm">
                 {categoryResources.length}
               </Badge>
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {categoryResources.map((resource) => (
                 <Card
                   key={resource.id}
-                  className="flex flex-col hover-elevate border-2 group relative spacing-card"
+                  className="group relative flex min-w-0 flex-col overflow-hidden border border-border/80 p-4 shadow-none transition-colors hover:border-primary/40"
                   data-testid={`resource-card-${resource.id}`}
                 >
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="flex-1 relative">
-                    <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
-                      <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
+                    <div className="mb-3 flex min-w-0 items-start justify-between gap-2">
+                      <h3 className="min-w-0 overflow-wrap-anywhere text-base font-bold leading-5 text-foreground">{resource.title}</h3>
                       <div className="flex flex-wrap gap-1.5 shrink-0">
                         <Badge variant="outline">
                           {categoryNames[resource.category] || resource.category}
@@ -916,7 +916,7 @@ export default function Resources() {
                       );
                     })()}
                     {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-3">
+                      <p className="mb-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
                         {resource.description}
                       </p>
                     )}
@@ -925,15 +925,15 @@ export default function Resources() {
                       const arch = resourceArchitecture(resource);
                       if (!arch) return null;
                       return (
-                        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                        <div className="mb-3 space-y-2 text-xs leading-5 text-muted-foreground">
                           {arch.whenToUse ? (
-                            <p data-testid={`resource-when-${resource.id}`}>
+                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
                               <span className="font-semibold text-foreground">When: </span>
                               {arch.whenToUse}
                             </p>
                           ) : null}
                           {arch.expectedOutcome ? (
-                            <p data-testid={`resource-outcome-${resource.id}`}>
+                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
                               <span className="font-semibold text-foreground">Outcome: </span>
                               {arch.expectedOutcome}
                             </p>

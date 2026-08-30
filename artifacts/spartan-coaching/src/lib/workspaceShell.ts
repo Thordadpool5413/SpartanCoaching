@@ -70,6 +70,7 @@ const WORKSPACE_PREFIXES = [
   "/admin",
   "/drills",
   "/quiz",
+  "/my-work",
   "/learn/",
 ] as const;
 
@@ -248,13 +249,13 @@ export function workspaceNavForRole(
     {
       id: "saved",
       destinationId: "my-work",
-      href: "/resources/weekly-plan",
-      label: "Saved work",
-      short: "Saved",
+      href: "/my-work",
+      label: "My Work",
+      short: "My Work",
       icon: FolderOpen,
       primary: true,
       match: (loc) =>
-        normalizePath(loc).startsWith("/resources/weekly-plan") ||
+        normalizePath(loc).startsWith("/my-work") ||
         normalizePath(loc).includes("resource-work"),
     },
     {

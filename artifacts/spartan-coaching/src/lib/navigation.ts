@@ -87,6 +87,8 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
   { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
+  { path: "/portal/learn", label: "Field Workshop", description: "Guided hospice sales learning and practice", icon: GraduationCap },
+  { path: "/my-work", label: "My Work", description: "Saved tool results, briefs, and next actions", icon: FolderOpen },
   { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`, icon: Wrench },
   { path: "/membership", label: "Hospice Sales Pro (legacy URL)", description: "Redirects to Hospice Sales Pro", icon: DollarSign },
   { path: "/field-kit", label: "Legacy product URL", description: "Redirects to Hospice Sales Pro", icon: Flame },
