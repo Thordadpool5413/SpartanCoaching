@@ -24,12 +24,12 @@ export default function MyWork() {
 
   return <FieldKitToolLayout title="My Work" showHowTo={false}>
     <SEO title="My Work | Spartan Coaching" description="Continue saved tools, reports, coaching, and next actions across web and iPhone." />
-    <div className="mx-auto max-w-6xl space-y-6" data-testid="page-my-work">
-      <header className="grid gap-5 border-b border-border/70 pb-7 lg:grid-cols-[1fr_auto] lg:items-end">
+    <div className="my-work-premium mx-auto max-w-6xl space-y-6" data-testid="page-my-work">
+      <header className="my-work-hero grid gap-5 pb-7 lg:grid-cols-[1fr_auto] lg:items-end">
         <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Your connected work</p><h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Pick up where you left off.</h1><p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">Drafts, completed briefs, reports, and next actions from the website and iPhone, organized in one place.</p></div>
         <div className="grid grid-cols-3 gap-2 text-center">{[[items.length,"All"],[drafts,"Drafts"],[completed,"Done"]].map(([value,label]) => <div key={label} className="rounded-xl border border-border bg-card px-4 py-3"><p className="text-2xl font-black">{value}</p><p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p></div>)}</div>
       </header>
-      <section className="flex flex-col gap-3 rounded-xl border border-border/80 bg-card/70 p-3 sm:flex-row" aria-label="Filter My Work">
+      <section className="my-work-filter flex flex-col gap-3 rounded-xl border border-border/80 bg-card/70 p-3 sm:flex-row" aria-label="Filter My Work">
         <div className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={query} onChange={(event) => setQuery(event.target.value)} className="pl-9" placeholder="Search by title or tool" aria-label="Search saved work" /></div>
         <div className="flex gap-2">{FILTERS.map((value) => <Button key={value} type="button" size="sm" variant={filter === value ? "default" : "outline"} className="capitalize" onClick={() => setFilter(value)}>{value}</Button>)}</div>
         <Button variant="ghost" size="sm" onClick={() => void load()}><RefreshCw className="mr-2 h-4 w-4" />Refresh</Button>
