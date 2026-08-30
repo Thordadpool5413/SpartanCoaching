@@ -343,14 +343,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="flex min-h-screen bg-background text-foreground"
+      className="workspace-premium flex min-h-screen bg-background text-foreground"
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-border/80 bg-card/40 shrink-0 transition-[width] duration-200",
+          "workspace-sidebar hidden md:flex flex-col border-r border-border/80 bg-card/40 shrink-0 transition-[width] duration-200",
           collapsed ? "w-[4.25rem]" : "w-60 lg:w-64",
         )}
         data-testid="workspace-sidebar"
@@ -361,7 +361,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
         <header
-          className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md safe-area-top"
+          className="workspace-topbar sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md safe-area-top"
           data-testid="workspace-topbar"
         >
           <div className="flex items-center gap-2 sm:gap-3 h-14 px-3 sm:px-4 lg:px-6">
