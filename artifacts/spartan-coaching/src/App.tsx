@@ -36,7 +36,6 @@ const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Portal = lazy(() => import("@/pages/Portal"));
 const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
-const Workshop = lazy(() => import("@/pages/Workshop"));
 const Coach = lazy(() => import("@/pages/Coach"));
 const Account = lazy(() => import("@/pages/Account"));
 const OrgAdmin = lazy(() => import("@/pages/OrgAdmin"));
@@ -224,7 +223,6 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/portal" component={Portal} />
           <Route path="/portal/learn" component={PortalLearn} />
-          <Route path="/portal/workshop" component={Workshop} />
           <Route path="/portal/coach" component={Coach} />
           <Route path="/account" component={Account} />
           <Route path="/org/admin" component={OrgAdmin} />

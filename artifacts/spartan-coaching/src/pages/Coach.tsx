@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Check, Copy, Loader2, MessageSquarePlus, Printer, RefreshCw, Send, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Copy, MessageSquarePlus, Printer, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,18 +30,8 @@ const conversationDate = (value: string) =>
   new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(value));
 
 export const presentCoachResponse = (content: string) => {
-  const headings = [
-    "Situation", "What is happening", "Best next move", "What to say",
-    "Opening", "Discovery questions", "Two discovery questions", "Value connection",
-    "Low pressure next step", "If they still say no", "If the concern is giving up care",
-    "What not to say", "Compliance boundary", "What to do next", "One clear commitment",
-  ];
-  const pattern = new RegExp(`(?:^|\\n|(?<=[.!?])\\s+)(?:${headings.join("|")})(?:\\s*[.:])?\\s*`, "gim");
   return content
-    .replace(pattern, (match) => {
-      const label = headings.find((heading) => match.toLowerCase().includes(heading.toLowerCase())) || match.trim();
-      return `\n\n## ${label}\n\n`;
-    })
+    .replace(/(?:^|\n|(?<=[.!?])\s+)(Situation|What is happening|Best next move|What to say|Opening|(?:Two )?Discovery questions|Value connection|Low pressure next step|If they still say no|If the concern is giving up care|What not to say|Compliance boundary|What to do next|One clear commitment)(?:\s*[.:])?\s*/gim, "\n\n## $1\n\n")
     .replace(/\s+[•●]\s+/g, "\n- ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -168,7 +158,7 @@ export default function Coach() {
     popup.print();
   }
 
-  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><Loader2 className="mx-auto h-7 w-7 animate-spin text-primary" /><h1 className="mt-4 text-xl font-bold">Opening your coaching workspace</h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
+  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /><h1 className="mt-4 text-xl font-bold">Opening your coaching workspace</h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
 
   if (eliteRequired) {
     return (
@@ -231,7 +221,7 @@ export default function Coach() {
           </div>
 
           <div className="flex-1 p-5 sm:p-7 space-y-6">
-            {error ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm" role="alert"><span>{error}</span><Button type="button" size="sm" variant="outline" onClick={() => void refresh(true).catch((cause: Error) => setError(cause.message))}><RefreshCw className="mr-2 h-4 w-4" />Try again</Button></div> : null}
+            {error ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm" role="alert"><span>{error}</span><Button type="button" size="sm" variant="outline" onClick={() => void refresh(true).catch((cause: Error) => setError(cause.message))}>Try again</Button></div> : null}
             {messages.length === 0 && (
               <div className="max-w-xl mx-auto text-center py-14 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>

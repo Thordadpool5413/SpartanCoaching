@@ -25,7 +25,6 @@ describe("workspace shell (HSP-32)", () => {
     expect(isWorkspacePath("/resources/objection-cards")).toBe(true);
     expect(isWorkspacePath("/account")).toBe(true);
     expect(isWorkspacePath("/portal/learn")).toBe(true);
-    expect(isWorkspacePath("/portal/workshop")).toBe(true);
     expect(isWorkspacePath("/admin")).toBe(true);
     expect(isWorkspacePath("/drills")).toBe(true);
   });

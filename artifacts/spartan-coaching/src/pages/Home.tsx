@@ -74,13 +74,6 @@ export default function Home() {
                   "Leadership Coaching",
                 ],
                 areaServed: "US",
-                knowsAbout: [
-                  "Hospice Sales",
-                  "Healthcare Sales Training",
-                  "Medicare Hospice Benefits",
-                  "Referral Development",
-                  "Territory Management",
-                ],
               },
               {
                 "@type": "WebSite",
@@ -432,54 +425,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 7. CLOSING — two clear CTAs only ── */}
-      <section className="relative surface-band py-20 sm:py-32" data-testid="section-closing">
-        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40 pointer-events-none" />
-        <FadeIn>
-          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center elite-panel p-8 sm:p-12">
-            <p className="text-kicker mb-6 justify-center">Ready to close the gap?</p>
-            <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
-              Stop winging it.
-            </h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Start with the next move that fits your work. We will keep the path clear from there.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
-                <Link
-                  href="/contact"
-                  onClick={() =>
-                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")
-                  }
-                >
-                  Book a strategy call
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-hospice-sales-pro">
-                <Link
-                  href="/hospice-sales-pro"
-                  onClick={() =>
-                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")
-                  }
-                >
-                  Explore Hospice Sales Pro
-                </Link>
-              </Button>
-            </div>
-            <p className="mt-6 text-sm text-muted-foreground">
-              Prefer detail first?{" "}
-              <Link href="/services" className="font-semibold text-primary hover:underline" data-testid="button-closing-services">
-                View consulting services
-              </Link>
-              {" · "}
-              <Link href="/tools" className="font-semibold text-primary hover:underline" data-testid="button-closing-tools">
-                Preview tools
-              </Link>
-            </p>
-          </div>
-        </FadeIn>
-      </section>
       <PublicConversionPanel
         source="home"
         audience="Hospice growth leaders, sales professionals, and provider teams choosing between human consulting and daily field tools."

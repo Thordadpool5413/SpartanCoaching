@@ -232,7 +232,6 @@ export function workspaceNavForRole(
         const p = normalizePath(loc);
         return (
           p === "/portal/learn" ||
-          p === "/portal/workshop" ||
           p === "/drills" ||
           p === "/quiz" ||
           p.startsWith("/learn/")
