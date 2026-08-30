@@ -286,7 +286,7 @@ export default function Tools() {
       )}
 
       <SlideUp delay={0.1}>
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="tools-search-dock mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <Input
@@ -306,7 +306,7 @@ export default function Tools() {
       {/* Intent-first discovery (HSP-29) */}
       {filteredIntents.length > 0 && (
         <SlideUp delay={0.12}>
-          <section className="mb-12" data-testid="tools-intent-map">
+          <section className="tools-intent-map mb-12" data-testid="tools-intent-map">
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
@@ -326,7 +326,7 @@ export default function Tools() {
               {filteredIntents.slice(0, showAllIntents || searchQuery.trim() ? undefined : 4).map((intent: DiscoveryIntent) => (
                 <Card
                   key={intent.id}
-                  className="p-4 border border-border/80 hover:border-border hover:shadow-sm"
+                  className="tools-intent-card p-5 border border-border/80"
                   data-testid={`intent-card-${intent.id}`}
                 >
                   <h3 className="text-base font-bold text-foreground mb-1">
@@ -379,7 +379,7 @@ export default function Tools() {
       )}
 
       {!searchQuery.trim() && !showCatalog ? (
-        <Card className="border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
+        <Card className="tools-catalog-disclosure border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold tracking-widest text-primary uppercase">Full workspace</p>
