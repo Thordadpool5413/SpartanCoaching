@@ -28,6 +28,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 
 type SearchHit = {
   id: string;
@@ -204,6 +205,7 @@ function ToolsCatalogScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
+      <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
         <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>

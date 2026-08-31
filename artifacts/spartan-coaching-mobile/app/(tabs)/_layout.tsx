@@ -22,7 +22,7 @@ export default function TabLayout() {
           fontWeight: "600",
           letterSpacing: 0.1,
         },
-        tabBarItemStyle: { paddingTop: 5 },
+        tabBarItemStyle: { paddingTop: 5, minHeight: 44 },
         tabBarStyle: {
           display: "flex",
           height: 58 + insets.bottom,
@@ -39,6 +39,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
+          tabBarAccessibilityLabel: "Home",
           tabBarIcon: ({ color }) => <TabIcon name="home" color={color} size={24} />,
         }}
       />
@@ -46,6 +47,7 @@ export default function TabLayout() {
         name="coach"
         options={{
           title: "Coach",
+          tabBarAccessibilityLabel: "Coach",
           tabBarIcon: () => <HelmetMark size={27} />,
         }}
       />
@@ -53,6 +55,7 @@ export default function TabLayout() {
         name="tools"
         options={{
           title: "Tools",
+          tabBarAccessibilityLabel: "Tools",
           tabBarIcon: ({ color }) => <TabIcon name="explore" color={color} size={24} />,
         }}
       />
@@ -60,6 +63,7 @@ export default function TabLayout() {
         name="my-work"
         options={{
           title: "My Work",
+          tabBarAccessibilityLabel: "My Work",
           tabBarIcon: ({ color }) => <TabIcon name="my-work" color={color} size={24} />,
         }}
       />
@@ -67,6 +71,7 @@ export default function TabLayout() {
         name="account"
         options={{
           title: "Account",
+          tabBarAccessibilityLabel: "Account",
           tabBarIcon: ({ color }) => <TabIcon name="account" color={color} size={24} />,
         }}
       />

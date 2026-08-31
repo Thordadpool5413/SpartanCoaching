@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { HelmetMark } from "@/components/brand/HelmetMark";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 import { font } from "@/lib/typography";
 
 export type CoachStep = "prepare" | "rehearse" | "review";
@@ -75,6 +76,7 @@ export function CoachShell({
       edges={["top"]}
       testID="screen-elite-coach"
     >
+      <BrandBackdrop />
       <KeyboardAvoidingView
         style={styles.safe}
         behavior={Platform.OS === "ios" ? "padding" : undefined}

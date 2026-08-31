@@ -14,6 +14,7 @@ import { useColors } from "@/hooks/useColors";
 import { layout } from "@/lib/spacing";
 import { font } from "@/lib/typography";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 
 type Props = {
   children: ReactNode;
@@ -51,6 +52,7 @@ export function Screen({
         accessibilityLabel={accessibilityLabel}
         style={[{ flex: 1, backgroundColor: colors.background, paddingTop: topPad }, style]}
       >
+        <BrandBackdrop />
         {children}
       </View>
     );
@@ -71,6 +73,7 @@ export function Screen({
       automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       contentInsetAdjustmentBehavior="automatic"
     >
+      <BrandBackdrop />
       {children}
     </ScrollView>
   );

@@ -196,6 +196,12 @@ export default function Coach() {
         </Button>
       </div>
 
+      <section className="coach-summary-grid" aria-label="Coaching progress and next actions">
+        <article><span>Progress</span><strong>{conversations.length ? "Conversation active" : "Ready to begin"}</strong><p>{messages.length} coaching messages in the current brief</p></article>
+        <article><span>Upcoming</span><strong>Your next field conversation</strong><p>Start a brief now, then return to rehearse before the meeting.</p></article>
+        <article><span>Recommended</span><strong>Prepare with the right evidence</strong><p><Link href="/resources">Open Resources <ArrowRight /></Link></p></article>
+      </section>
+
       <div className="grid lg:grid-cols-[240px_minmax(0,1fr)] gap-4 items-start">
         <Card className="p-3 lg:sticky lg:top-24 border border-border">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">Conversation history</p>
