@@ -221,11 +221,6 @@ export function buildPolicyBrief(
       liveCmsSnapshot: !baseline,
     },
     boundary: baseline
-      ? "Educational guidance with official CMS references. Confirm the current rule and local process before use. Keep patient specific decisions with qualified clinicians."
-      checkedAt: isoDate(snapshot?.fetchedAt) || new Date().toISOString(),
-      liveCmsSnapshot: !baseline,
-    },
-    boundary: baseline
       ? "Educational guidance with official CMS references. A live CMS coverage snapshot is not currently attached. Confirm the current rule and local process before use. Keep patient specific decisions with qualified clinicians."
       : "Coverage guidance only. Confirm the cited document and keep patient specific decisions with qualified clinicians.",
   };
