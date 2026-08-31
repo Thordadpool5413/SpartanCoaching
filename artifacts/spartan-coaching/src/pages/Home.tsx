@@ -244,12 +244,6 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
-                      <Link
-                        href="/contact"
-                        onClick={() =>
-                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
-                        }
-                      >
                     <Link
                       href="/contact"
                       onClick={() =>

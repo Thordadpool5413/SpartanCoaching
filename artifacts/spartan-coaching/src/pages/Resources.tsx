@@ -564,9 +564,6 @@ export default function Resources() {
             {" "}when you need an interactive workspace.
           </p>
         )}
-            ? "Start with a trusted template, script, or checklist. Download the original or use Spartan AI to adapt a working copy for the next conversation."
-            : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
-        </p>
       </div>
       {!canUseFieldKit && <ContentNotice />}
       <Card className="mb-8 flex flex-col gap-3 border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between" data-testid="resources-work-guide">
