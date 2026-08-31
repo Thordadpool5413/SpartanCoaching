@@ -119,7 +119,7 @@ export default function Home() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
                 <Link
-                  href="/contact"
+                  href="/services"
                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
                 >
                   Explore consulting
@@ -313,7 +313,7 @@ export default function Home() {
                 desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
                 features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
                 href: "/services",
-                cta: "Book a strategy call",
+                cta: "View consulting services",
                 primary: true,
                 testId: "card-door-consulting",
               },

@@ -6,9 +6,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
+  Briefcase,
   Clock,
+  GraduationCap,
   LogOut,
   Menu,
+  Phone,
   Search,
   PanelLeftClose,
   PanelLeft,
@@ -50,6 +53,12 @@ import {
 } from "@/lib/universalSearchClient";
 import { recordPersonalizationEvent } from "@/lib/personalizationClient";
 
+const consultingWorkspaceLinks = [
+  { id: "consulting", href: "/services", label: "Consulting services", icon: Briefcase },
+  { id: "programs", href: "/programs", label: "Programs & workshops", icon: GraduationCap },
+  { id: "strategy-call", href: "/contact?service=Consulting", label: "Book a strategy call", icon: Phone },
+] as const;
+
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
     path: t.path,
@@ -67,7 +76,10 @@ function workspaceSearchCorpus() {
       p.path === "/quiz" ||
       p.path.startsWith("/learn"),
   );
-  const merged = [...toolPages, ...fromSite];
+  const consultingPages = allSearchablePages.filter((p) =>
+    ["/services", "/programs", "/method", "/manifesto", "/about", "/contact"].includes(p.path),
+  );
+  const merged = [...toolPages, ...fromSite, ...consultingPages];
   return merged.filter(
     (item, i, arr) => arr.findIndex((x) => x.path === item.path) === i,
   );
@@ -181,6 +193,23 @@ function SidebarBody({
             label={item.short ?? item.label}
             icon={item.icon}
             active={item.match(location)}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+            testId={`workspace-nav-${item.id}`}
+          />
+        ))}
+        {!collapsed && (
+          <p className="px-2 pt-4 pb-1 text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
+            Consulting
+          </p>
+        )}
+        {consultingWorkspaceLinks.map((item) => (
+          <NavLinkRow
+            key={item.id}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={false}
             collapsed={collapsed}
             onNavigate={onNavigate}
             testId={`workspace-nav-${item.id}`}
@@ -538,13 +567,22 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <span className="ml-2 text-primary font-semibold">· {member.role.replace("_", " ")}</span>
                 ) : null}
               </p>
-              <Link
-                href="/"
-                className="text-[11px] font-semibold text-muted-foreground hover:text-primary shrink-0"
-                data-testid="workspace-to-marketing"
-              >
-                Public site
-              </Link>
+              <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/services"
+                  className="text-[11px] font-semibold text-primary hover:underline"
+                  data-testid="workspace-to-consulting"
+                >
+                  Consulting
+                </Link>
+                <Link
+                  href="/"
+                  className="text-[11px] font-semibold text-muted-foreground hover:text-primary"
+                  data-testid="workspace-to-marketing"
+                >
+                  Public site
+                </Link>
+              </div>
             </div>
           )}
         </header>
@@ -554,6 +592,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
         <footer className="workspace-footer" aria-label="Workspace footer">
           <span>Hospice Sales Pro</span>
+          <Link href="/services">Consulting</Link>
+          <Link href="/contact?service=Consulting">Book a strategy call</Link>
           <Link href="/faq">Support</Link>
           <Link href="/legal">Privacy and terms</Link>
         </footer>
