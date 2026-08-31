@@ -74,7 +74,7 @@ function MobileNavSection({ title }: { title: string }) {
   );
 }
 
-function NavDropdown({ label, items, dataTestId }: {
+export function NavDropdown({ label, items, dataTestId }: {
   label: string;
   items: { path: string; label: string; description: string }[];
   dataTestId: string;
@@ -82,13 +82,34 @@ function NavDropdown({ label, items, dataTestId }: {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const pendingMenuFocus = useRef<"first" | "last" | null>(null);
   const menuId = `nav-menu-${dataTestId}`;
   const isGroupActive = items.some(item => location === item.path || location.startsWith(item.path + '/'));
+
+  const focusMenuItem = (position: "first" | "last") => {
+    const menuItems = rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    if (!menuItems?.length) return;
+    menuItems[position === "first" ? 0 : menuItems.length - 1]?.focus();
+  };
+
+  const openAndFocusMenu = (position: "first" | "last") => {
+    pendingMenuFocus.current = position;
+    setOpen(true);
+  };
 
   // Close on route change
   useEffect(() => {
     setOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    if (!open || !pendingMenuFocus.current) return;
+    const position = pendingMenuFocus.current;
+    pendingMenuFocus.current = null;
+    const frame = window.requestAnimationFrame(() => focusMenuItem(position));
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
 
   // Close on outside click / Escape
   useEffect(() => {
@@ -101,8 +122,7 @@ function NavDropdown({ label, items, dataTestId }: {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
-        const btn = rootRef.current?.querySelector("button");
-        btn?.focus();
+        triggerRef.current?.focus();
       }
     };
     document.addEventListener("pointerdown", onPointer);
@@ -119,9 +139,17 @@ function NavDropdown({ label, items, dataTestId }: {
       className="relative"
       data-testid={dataTestId}
       onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseLeave={() => {
+        if (!rootRef.current?.contains(document.activeElement)) setOpen(false);
+      }}
+      onBlur={(event) => {
+        if (!rootRef.current?.contains(event.relatedTarget as Node | null)) {
+          setOpen(false);
+        }
+      }}
     >
       <button
+        ref={triggerRef}
         type="button"
         className={cn(
           "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap cursor-pointer",
@@ -137,7 +165,13 @@ function NavDropdown({ label, items, dataTestId }: {
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            setOpen(true);
+            openAndFocusMenu("first");
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            openAndFocusMenu("last");
+          } else if (event.key === "Escape" && open) {
+            event.preventDefault();
+            setOpen(false);
           }
         }}
       >
@@ -155,6 +189,28 @@ function NavDropdown({ label, items, dataTestId }: {
         role="menu"
         aria-label={label}
         hidden={!open}
+        onKeyDown={(event) => {
+          const menuItems = Array.from(
+            rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [],
+          );
+          const currentIndex = menuItems.indexOf(event.target as HTMLElement);
+          if (!menuItems.length || currentIndex < 0) return;
+
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            const direction = event.key === "ArrowDown" ? 1 : -1;
+            menuItems[(currentIndex + direction + menuItems.length) % menuItems.length]?.focus();
+          } else if (event.key === "Home" || event.key === "End") {
+            event.preventDefault();
+            menuItems[event.key === "Home" ? 0 : menuItems.length - 1]?.focus();
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            setOpen(false);
+            triggerRef.current?.focus();
+          } else if (event.key === "Tab") {
+            setOpen(false);
+          }
+        }}
         className={cn(
           "absolute top-full left-0 pt-2 z-50 min-w-[220px]",
           open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
@@ -269,6 +325,7 @@ export function Header() {
           {isAuthenticated && (
             <NavLink href="/portal">Workspace</NavLink>
           )}
+          <NavLink href="/app">iPhone app</NavLink>
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
@@ -356,14 +413,19 @@ export function Header() {
                 {isAuthenticated ? (
                   <>
                     <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
+                    <MobileNavSection title="Consulting" />
+                    {navSections.find((section) => section.title === "Consulting")?.items.map((item) => (
+                      <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                    ))}
                     <MobileNavSection title="Site" />
-                    <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/app" label="iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
                   </>
                 ) : (
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/app" label="Get the iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
@@ -381,16 +443,15 @@ export function Header() {
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
               <AppearancePanel className="pb-1" />
-              {canUseFieldKit ? (
-                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
+              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+                <Link href="/contact?service=Consulting" onClick={() => setMobileMenuOpen(false)}>
+                  Book a strategy call
+                </Link>
+              </Button>
+              {canUseFieldKit && (
+                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
                   <Link href="/tools/sales-workflow" onClick={() => setMobileMenuOpen(false)}>
                     Open Command Center
-                  </Link>
-                </Button>
-              ) : (
-                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
-                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                    Book a Call
                   </Link>
                 </Button>
               )}
@@ -479,12 +540,14 @@ export function Footer() {
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
     { href: "/portal/coach", label: "Coach" },
+    { href: "/my-work", label: "My Work" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];
 
   const publicLinks = [
     { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
+    { href: "/app", label: "iPhone app" },
     { href: "/tools", label: "Preview tools" },
     { href: "/services", label: "Consulting" },
     { href: "/register", label: "Create account" },

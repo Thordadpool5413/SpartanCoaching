@@ -10,6 +10,9 @@ import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { PersuasionShell } from "@/components/PersuasionShell";
 import { useToast } from "@/hooks/use-toast";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import {
   Select,
   SelectContent,
@@ -47,7 +50,7 @@ const STEPS = [
   {
     n: "4",
     title: "Continue as client",
-    body: "Individuals: subscribe $14.99/wk from Account. Teams: seats under contract.",
+    body: `Individuals: subscribe ${PRICING_FACTS.individualWeeklyShort} from Account. Teams: seats under contract.`,
   },
 ];
 
@@ -94,6 +97,7 @@ export default function RequestAccess() {
       });
       return;
     }
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, `request_access:${type}:submit`);
     setPending(true);
     try {
       const res = await fetch("/api/auth/request-access", {
@@ -130,7 +134,9 @@ export default function RequestAccess() {
       }
       setSubmittedEmail(form.email.trim());
       setSubmitted(true);
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactSubmit, `request_access:${type}`);
     } catch (err: any) {
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactFailure, `request_access:${type}`);
       toast({
         title: "Request not sent",
         description: err?.message || "Please try again.",
@@ -220,6 +226,7 @@ export default function RequestAccess() {
           <Link href="/register" className="text-primary font-semibold hover:underline">
             create an account
           </Link>{" "}
+          and subscribe for {PRICING_FACTS.individualWeeklyLabel} (cancel anytime) — preview tools free first.
           and subscribe for $14.99/week (cancel anytime) — preview tools free first.
         </p>
       </div>
@@ -248,7 +255,7 @@ export default function RequestAccess() {
       <div className="grid lg:grid-cols-5 gap-8 items-start">
         {/* Form */}
         <Card className="lg:col-span-3 border-2 bg-card shadow-sm p-6 sm:p-8">
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form id="request-access-form" onSubmit={onSubmit} className="space-y-6">
             <div className="flex gap-2 p-1 rounded-lg bg-muted/40">
               {(["individual", "company"] as const).map((t) => (
                 <button
@@ -541,6 +548,14 @@ export default function RequestAccess() {
           </p>
         </aside>
       </div>
+      <PublicConversionPanel
+        source="request_access"
+        audience="Hospice companies seeking contracted seats or visitors applying for an arranged evaluation."
+        promise="A personally reviewed access path with clear evaluation timing and an explicit next step."
+        evidence={`${PRICING_FACTS.evaluationNote} ${PRICING_FACTS.teamNote}`}
+        primary={{ label: "Submit an access request above", href: "#request-access-form", token: "complete_request" }}
+        secondary={{ label: "Choose individual Hospice Sales Pro", href: "/hospice-sales-pro", token: "individual_path" }}
+      />
     </PersuasionShell>
   );
 }

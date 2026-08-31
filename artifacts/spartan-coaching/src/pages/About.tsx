@@ -1,11 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
+import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight } from "lucide-react";
 import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight, Wrench } from "lucide-react";
 import { Link } from "wouter";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
-import { TrustStrip } from "@/components/TrustStrip";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { PersuasionShell } from "@/components/PersuasionShell";
 
 export default function About() {
@@ -397,6 +398,30 @@ export default function About() {
           </div>
         </div>
 
+        <div className="mt-16 mb-12 space-y-6" data-testid="section-about-next-steps">
+          <h2 className="text-h2 text-foreground text-center">Explore the work, not another pitch.</h2>
+          <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+            This page is about the person and principles behind Spartan Coaching. See the method for the operating
+            standard, or services for a consulting engagement.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            <Card className="spacing-card border-2">
+              <h3 className="text-h3 font-bold text-foreground mb-2">The Spartan Method</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                The four-part practice standard and patient-first ethics that guide the work.
+              </p>
+              <Link href="/method" className="font-semibold text-primary hover:underline">See the method →</Link>
+            </Card>
+            <Card className="spacing-card border-2">
+              <h3 className="text-h3 font-bold text-foreground mb-2">Consulting services</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Coaching, workshops, and leadership systems scoped to your hospice team.
+              </p>
+              <Link href="/services" className="font-semibold text-primary hover:underline">View services →</Link>
+            </Card>
+          </div>
+        </div>
+
         {/* How consulting + Hospice Sales Pro fit together */}
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
           <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
@@ -430,7 +455,6 @@ export default function About() {
               </Card>
             ))}
           </div>
-          <TrustStrip compact className="mt-4" />
         </div>
 
         {/* CTA — dark authority band; two primary actions only */}
@@ -460,6 +484,14 @@ export default function About() {
             </Link>
           </p>
         </div>
+        <PublicConversionPanel
+          source="about"
+          audience="Hospice professionals evaluating the person, principles, and working style behind the engagement."
+          promise="A direct conversation about what is not working and whether Spartan Coaching is the right fit."
+          evidence="Founder-led, hospice-specific work with role-based proof and transparent privacy and compliance boundaries."
+          primary={{ label: "Book a strategy call", href: "/contact?service=Consulting", token: "strategy_call" }}
+          secondary={{ label: "View coaching services", href: "/services", token: "services" }}
+        />
       </div>
     </PersuasionShell>
   );

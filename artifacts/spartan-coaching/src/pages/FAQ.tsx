@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { PersuasionShell } from "@/components/PersuasionShell";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
   Accordion,
   AccordionContent,
@@ -20,7 +22,7 @@ const faqCategories = [
       {
         id: "what-is-spartan",
         q: "What is Spartan Coaching?",
-        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Hospice Sales Pro for tools and resources (preview free; individuals $14.99/week; teams under contract).",
+        a: `Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Hospice Sales Pro for tools and resources (preview free; individuals ${PRICING_FACTS.individualWeeklyLabel}; teams under contract).`,
       },
       {
         id: "who-is-this-for",
@@ -45,12 +47,12 @@ const faqCategories = [
       {
         id: "what-is-membership",
         q: "What is Hospice Sales Pro?",
-        a: "Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with Hospice Sales Pro ($14.99/week individual) or team/evaluation access.",
+        a: `Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with Hospice Sales Pro (${PRICING_FACTS.individualWeeklyLabel} individual) or team/evaluation access.`,
       },
       {
         id: "how-to-get-access",
         q: "How do I get Hospice Sales Pro access?",
-        a: "Individuals: create an account, then subscribe for $14.99/week from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.",
+        a: `Individuals: create an account, then subscribe for ${PRICING_FACTS.individualWeeklyLabel} from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.`,
       },
       {
         id: "trial-hours",
@@ -60,12 +62,12 @@ const faqCategories = [
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "Yes. Individuals can Start Hospice Sales Pro for $14.99/week without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.",
+        a: `Yes. Individuals can Start Hospice Sales Pro for ${PRICING_FACTS.individualWeeklyLabel} without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.`,
       },
       {
         id: "already-have-account",
         q: "I already have an account. How do I sign in?",
-        a: "Use Client Login with your email. You can also request a magic sign-in link from the login page. If access expired, sign in and use Subscribe ($14.99/week) on Account, request an extension for evaluation orgs, or book a strategy call for team contracts.",
+        a: `Use Client Login with your email. You can also request a magic sign-in link from the login page. If access expired, sign in and use Subscribe (${PRICING_FACTS.individualWeeklyLabel}) on Account, request an extension for evaluation orgs, or book a strategy call for team contracts.`,
       },
       {
         id: "company-seats",
@@ -105,12 +107,12 @@ const faqCategories = [
       {
         id: "how-to-start",
         q: "How do I get started?",
-        a: "Three paths: (1) Preview tools free, create an account, then subscribe for $14.99/week to unlock live tools; (2) Request team/evaluation access for provider seats or arranged trials; (3) Book a strategy call for coaching, team systems, or enterprise scope.",
+        a: `Three paths: (1) Preview tools free, create an account, then subscribe for ${PRICING_FACTS.individualWeeklyLabel} to unlock live tools; (2) Request team/evaluation access for provider seats or arranged trials; (3) Book a strategy call for coaching, team systems, or enterprise scope.`,
       },
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Hospice Sales Pro is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Hospice Sales Pro for details.",
+        a: `Hospice Sales Pro is ${PRICING_FACTS.individualWeeklyLabel} for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Hospice Sales Pro for details.`,
       },
       {
         id: "virtual-or-inperson",
@@ -120,7 +122,7 @@ const faqCategories = [
       {
         id: "what-after-trial",
         q: "What happens when my evaluation ends?",
-        a: "Tool access pauses when the window ends. Individuals can subscribe for $14.99/week from Account (or the lock screen) and cancel anytime. Teams book a debrief or request contract activation for seats. You can also request an extension if you still need evaluation time.",
+        a: `Tool access pauses when the window ends. Individuals can subscribe for ${PRICING_FACTS.individualWeeklyLabel} from Account (or the lock screen) and cancel anytime. Teams book a debrief or request contract activation for seats. You can also request an extension if you still need evaluation time.`,
       },
     ],
   },
@@ -155,7 +157,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Consulting, Hospice Sales Pro, evaluation trials, individual $14.99/week, team contracts, and compliance.
+            Consulting, Hospice Sales Pro, evaluation trials, individual {PRICING_FACTS.individualWeeklyLabel}, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>
@@ -216,7 +218,7 @@ export default function FAQ() {
               Ready for a clear next step?
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
-              Two offers: book consulting, or start Hospice Sales Pro for tools ($14.99/week). Preview free. Honest conversation — no pressure.
+              Two offers: book consulting, or start Hospice Sales Pro for tools ({PRICING_FACTS.individualWeeklyLabel}). Preview free. Honest conversation — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
@@ -242,7 +244,7 @@ export default function FAQ() {
             </div>
             <p className="mt-5 text-sm text-white/80 space-x-3">
               <Link href="/register" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
-                Create account · $14.99/wk
+                Create account · {PRICING_FACTS.individualWeeklyShort}
               </Link>
               <span aria-hidden="true">·</span>
               <Link href="/request-access" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-request">
@@ -252,6 +254,15 @@ export default function FAQ() {
           </div>
         </section>
       </FadeIn>
+      <PublicConversionPanel
+        source="faq"
+        audience="Visitors comparing consulting, individual Hospice Sales Pro, and team access before they commit."
+        promise="A direct route to the offer that fits without confusing a consulting engagement with a product subscription."
+        evidence="Pricing, cancellation, evaluation, no-PHI, and access answers are stated in plain language."
+        primary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+        secondary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
+        showOfferPaths
+      />
     </PersuasionShell>
   );
 }

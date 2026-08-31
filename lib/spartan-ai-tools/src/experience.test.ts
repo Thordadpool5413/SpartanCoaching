@@ -42,6 +42,10 @@ describe("advanced tool experience contracts", () => {
       expect(experience.resultTitle.length).toBeGreaterThan(3);
       expect(experience.progressStages.length).toBeGreaterThanOrEqual(3);
       expect(experience.fields.length).toBeGreaterThan(0);
+      expect(experience.workflow?.audience.length).toBeGreaterThan(3);
+      expect(experience.workflow?.nextAction.length).toBeGreaterThan(20);
+      expect(experience.workflow?.reviewCheckpoint.length).toBeGreaterThan(20);
+      expect(experience.workflow?.persistence.length).toBeGreaterThan(20);
     }
   });
 

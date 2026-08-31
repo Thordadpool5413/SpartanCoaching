@@ -34,7 +34,7 @@ import {
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { useColors } from "@/hooks/useColors";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { apiGet, apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { fetchJurisdictionContext, type JurisdictionContext } from "@/lib/jurisdictionApi";
@@ -214,6 +214,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [jurisdiction, setJurisdiction] = useState<JurisdictionContext | null>(null);
   const [jurisdictionChecking, setJurisdictionChecking] = useState(clinical);
   const connections = getSpartanAiToolConnections(tool.id);
+  const workflow = experience.workflow;
   const networkBlocked = isChecking || !isOnline;
 
   async function loadData() {
@@ -306,10 +307,18 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       let completed: ToolRun;
       if (clinical) {
-        const response = await apiPost<{ result: ToolRun }>(`/api/ai-tools/${tool.id}/ephemeral-runs`, { input, confirmedDeidentified });
+        const response = await apiPost<{ result: ToolRun }>(
+          `/api/ai-tools/${tool.id}/ephemeral-runs`,
+          { input, confirmedDeidentified },
+          { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+        );
         completed = response.result;
       } else {
-        const response = await apiPost<{ run: ToolRun }>(`/api/ai-tools/${tool.id}/runs`, { input }, { idempotencyKey: Crypto.randomUUID() });
+        const response = await apiPost<{ run: ToolRun }>(
+          `/api/ai-tools/${tool.id}/runs`,
+          { input },
+          { idempotencyKey: Crypto.randomUUID(), timeoutMs: AI_REQUEST_TIMEOUT_MS },
+        );
         completed = response.run;
         setHistory((current) => [response.run, ...current.filter((item) => item.id !== response.run.id)]);
       }
@@ -388,6 +397,21 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       {clinical ? <ClinicalVaultToolBanner /> : null}
 
+       {workflow ? (
+         <View style={styles.workflowCard} testID="ai-tool-workflow-guide">
+           <View style={styles.workflowCardHeader}>
+             <Text style={styles.workflowBadge}>{workflow.phase.toUpperCase()}</Text>
+             <Text style={styles.workflowAudience}>FOR {workflow.audience.toUpperCase()}</Text>
+           </View>
+           <Text style={styles.workflowTitle}>Finish the work, not just the run.</Text>
+            <Text style={styles.workflowCopy}><Text style={styles.workflowStrong}>Safe input: </Text>Use authorized, deidentified professional context only. Never include patient identifiers, patient documents, clinical records, or PHI.</Text>
+            <Text style={styles.workflowCopy}><Text style={styles.workflowStrong}>Expected output: </Text>{experience.resultTitle}</Text>
+            <Text style={styles.workflowCopy}><Text style={styles.workflowStrong}>Saved: </Text>{workflow.persistence}</Text>
+           <Text style={styles.workflowCopy}><Text style={styles.workflowStrong}>Review: </Text>{workflow.reviewCheckpoint}</Text>
+           <Text style={styles.workflowCopy}><Text style={styles.workflowStrong}>Next: </Text>{workflow.nextAction}</Text>
+         </View>
+       ) : null}
+
       {clinical ? (
         <View style={[styles.jurisdictionCard, (!jurisdiction?.state || !jurisdiction?.macRegion) && styles.jurisdictionMissing]}>
           <View style={styles.safetyHeading}>
@@ -452,7 +476,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       <View style={styles.workflowHeading}>
         <Text style={styles.sectionKicker}>1 · CONTEXT</Text>
         <Text style={styles.sectionTitle}>Give the tool what it needs.</Text>
-        <Text style={styles.sectionBody}>Required fields are marked. Examples can be edited or replaced with your own non patient specific context.</Text>
+         <Text style={styles.sectionBody}>Required fields are marked. Examples can be edited or replaced with your own authorized, non patient specific context.</Text>
       </View>
 
       <View style={styles.formCard}>
@@ -489,7 +513,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       <View style={styles.workflowHeading}>
         <Text style={styles.sectionKicker}>2 · RESULT</Text>
         <Text style={styles.sectionTitle}>{run?.output != null ? experience.resultTitle : "Your result will appear here."}</Text>
-        <Text style={styles.sectionBody}>{clinical ? "Clinical results are ephemeral, watermarked, and presented with review requirements." : "Results are saved to your account so you can return to them without rebuilding the work."}</Text>
+         <Text style={styles.sectionBody}>{workflow?.persistence ?? (clinical ? "Clinical results are ephemeral, watermarked, and presented with review requirements." : "Results are saved to your account so you can return to them without rebuilding the work.")}</Text>
       </View>
 
       {busy && !run?.output ? <ResultSkeleton styles={styles} /> : run?.output != null ? (
@@ -585,6 +609,13 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     description: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, ...font("regular") },
     promiseRow: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 12 },
     promiseText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
+    workflowCard: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.card, padding: 14, gap: 7 },
+    workflowCardHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 7 },
+    workflowBadge: { color: colors.primary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 8, paddingVertical: 4, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
+    workflowAudience: { color: colors.mutedForeground, fontSize: 8, letterSpacing: 1, ...font("bold") },
+    workflowTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
+    workflowCopy: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
+    workflowStrong: { color: colors.foreground, ...font("bold") },
     safetyCard: { borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.muted, padding: 14, gap: 8 },
     safetyHeading: { flexDirection: "row", alignItems: "center", gap: 8 },
     safetyTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },

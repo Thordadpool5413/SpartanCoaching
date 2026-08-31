@@ -1,9 +1,10 @@
-import { useCallback, useState, type ReactNode, type SyntheticEvent } from "react";
-import { Link } from "wouter";
+import { useCallback, useEffect, useState, type ReactNode, type SyntheticEvent } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useBillingActions } from "@/hooks/useBillingActions";
+import { getCampaignAttribution, trackCampaignFunnelEvent } from "@/lib/campaignAttribution";
 import {
   Lock,
   LogIn,
@@ -49,7 +50,8 @@ function isToolInteractionTarget(target: EventTarget | null): boolean {
  * Navigation (chrome, breadcrumbs, links) still works so users can browse tools.
  */
 export function FieldKitPreviewLock({ children }: Props) {
-  const { isAuthenticated, organization, member, fieldKit } = useAuth();
+  const { isAuthenticated, organization, member, fieldKit, isLoading, canUseFieldKit } = useAuth();
+  const [location] = useLocation();
   const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
   const [nudgeOpen, setNudgeOpen] = useState(false);
 
@@ -58,6 +60,15 @@ export function FieldKitPreviewLock({ children }: Props) {
   const isPersonal = organization?.type === "personal";
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
   const canSelfServe = isAuthenticated && isPersonal && !isPlatform;
+
+  useEffect(() => {
+    if (isLoading || canUseFieldKit) return;
+    const attribution = getCampaignAttribution();
+    if (!attribution) return;
+
+    const toolId = location.match(/^\/tools\/(?:ai\/)?([^/?#]+)/)?.[1];
+    trackCampaignFunnelEvent("tool_preview_start", attribution, toolId ? { toolId } : undefined);
+  }, [canUseFieldKit, isLoading, location]);
 
   let bannerTitle = "Preview only — subscription required to use";
   if (expired) bannerTitle = "Evaluation ended — subscribe to unlock live tools";

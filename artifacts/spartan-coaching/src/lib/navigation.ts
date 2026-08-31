@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
   Home,
   Info,
@@ -61,9 +62,9 @@ export const navSections: SiteNavSection[] = [
   {
     title: "Hospice Sales Pro",
     items: [
-      { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Elite recommended $19.99/wk · Standard $14.99/wk · web + iOS", icon: Wrench },
-      { path: "/tools", label: "Tools", description: "Start from intent — visits, objections, week plans, numbers", icon: Calculator },
-      { path: "/resources", label: "Field resources", description: "Work aids: templates, scripts, checklists — not only Learn", icon: FolderOpen },
+      { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · web + iOS`, icon: Wrench },
+      { path: "/tools", label: "Tools", description: "Interactive help for visits, objections, plans, and numbers", icon: Calculator },
+      { path: "/resources", label: "Field resources", description: "Downloadable templates, scripts, and checklists", icon: FolderOpen },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
     ],
@@ -86,13 +87,20 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
   { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
-  { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Elite recommended $19.99/wk · Standard $14.99/wk", icon: Wrench },
+  { path: "/portal/learn", label: "Learn", description: "Member learning paths, resources, drills, and knowledge", icon: BookOpen },
+  { path: "/portal/learn", label: "Field Workshop", description: "Guided hospice sales learning and practice", icon: GraduationCap },
+  { path: "/my-work", label: "My Work", description: "Saved tool results, briefs, and next actions", icon: FolderOpen },
+  { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`, icon: Wrench },
   { path: "/membership", label: "Hospice Sales Pro (legacy URL)", description: "Redirects to Hospice Sales Pro", icon: DollarSign },
   { path: "/field-kit", label: "Legacy product URL", description: "Redirects to Hospice Sales Pro", icon: Flame },
   { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage Hospice Sales Pro", icon: DollarSign },
   { path: "/login", label: "Client Login", description: "Sign in to Hospice Sales Pro / portal", icon: Lock },
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
+  { path: "/tools/intelligence", label: "Spartan Intelligence", description: "Verified provider, market, and policy intelligence", icon: Search },
   { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
+  { path: "/my-work", label: "My Work", description: "Resume synced drafts, reports, resources, downloads, commitments, and Elite outputs", icon: FolderOpen },
+  { path: "/my-work/elite-outputs", label: "Saved Elite outputs", description: "Review saved advanced nonclinical tool results", icon: FileText },
+  { path: "/portal/coach", label: "Coach", description: "Private coaching conversation and commitments", icon: MessageCircle },
   { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },
   { path: "/tools/objections", label: "Objection Handler", description: "Field-ready objection responses", icon: MessageCircle },
   { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories", icon: Search },

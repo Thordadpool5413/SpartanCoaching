@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
 import { AccountDayZero } from "@/components/AccountDayZero";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -50,7 +51,9 @@ export default function Account() {
   const [pwPending, setPwPending] = useState(false);
   const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
+  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">(() =>
+    queryParam("plan") === "standard_weekly" ? "standard_weekly" : "elite_weekly",
+  );
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -330,6 +333,12 @@ export default function Account() {
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
           One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone.
         </p>
+        <AppHandoffPanel
+          compact
+          destination="account"
+          title="Continue in the iPhone app"
+          description="Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+        />
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
             <dt className="text-muted-foreground">Name</dt>

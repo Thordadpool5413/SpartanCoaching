@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -16,6 +16,8 @@ import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/dow
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { ToolResultActions } from "@/components/ToolResultActions";
+import { useWorkHandoff, workHandoffText } from "@/hooks/useWorkHandoff";
 
 export default function Playbooks() {
   const { toast } = useToast();
@@ -27,6 +29,8 @@ export default function Playbooks() {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const { item: incomingWork } = useWorkHandoff();
+  useEffect(() => { if (incomingWork) setScenario((current) => current || `Use this saved work as context:\n\n${workHandoffText(incomingWork)}`); }, [incomingWork]);
 
   const classicPlaybooks = [
     {
@@ -274,6 +278,19 @@ export default function Playbooks() {
               <div className="mt-6 pt-4 border-t">
                 <ReminderPicker title="Follow up on playbook" />
               </div>
+              <ToolResultActions
+                toolId="playbooks"
+                saveResult={{ toolId: "playbooks", title: "Sales playbook", value: generatedPlaybook, input: { scenario, desiredOutcomes }, nextAction: { title: "Practice the hardest moment", href: "/tools/role-play" } }}
+                description="Choose the hardest moment in this plan and rehearse it before the next visit."
+                actions={[
+                  {
+                    id: "practice-hardest-moment",
+                    label: "Practice in Role-Play",
+                    href: "/tools/role-play",
+                  },
+                ]}
+                persistenceNote="Save the playbook to preserve the scenario, outcome, and next practice step."
+              />
             </Card>
           )}
 

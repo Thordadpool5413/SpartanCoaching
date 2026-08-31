@@ -6,6 +6,8 @@ import { PageShell } from "@/components/PageShell";
 import { ToolHowTo } from "@/components/ToolHowTo";
 import { getToolByPath } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
+import { ArrowRight, BookOpen, MessageCircle } from "lucide-react";
 
 /**
  * Standard shell for every membership tool page:
@@ -21,7 +23,7 @@ export function FieldKitToolLayout({
   /** Learn items (drills) use Learn parent instead of Tools */
   section = "tools",
   showHowTo = true,
-  showChrome = true,
+  showChrome = false,
 }: {
   children: ReactNode;
   className?: string;
@@ -57,9 +59,18 @@ export function FieldKitToolLayout({
     >
       {showChrome && <FieldKitChrome />}
       <Breadcrumbs items={crumbs} />
-      {showHowTo && tool && <ToolHowTo tool={tool} />}
+      {showHowTo && tool && <ToolHowTo tool={tool} defaultOpen={false} />}
       {/* Tool body: single column mobile; content can define lg split internally */}
       <div className="min-w-0">{children}</div>
+      {section === "tools" && tool ? (
+        <footer className="tool-next-step" aria-label="Continue after this tool">
+          <div><p>Continue the work</p><h2>Turn this output into your next field move.</h2><span>Use a resource for structure or ask Coach to pressure-test the approach.</span></div>
+          <div className="tool-next-step-actions">
+            <Link href="/resources"><BookOpen /> Related resources <ArrowRight /></Link>
+            <Link href="/portal/coach"><MessageCircle /> Ask Coach <ArrowRight /></Link>
+          </div>
+        </footer>
+      ) : null}
     </PageShell>
   );
 }

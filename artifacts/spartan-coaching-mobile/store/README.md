@@ -141,7 +141,7 @@ After credentials are set up (step 2 above), run this from the **Replit shell**:
 pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight
 ```
 
-**Default TestFlight omits Universal Links** (`EAS_SKIP_ASSOCIATED_DOMAINS=1`) so a stale App Store profile without Associated Domains cannot fail the Xcode step. The app still works for login, Explore, Coach, My Work, and Library. Only `applinks:` deep links are off.
+**Default TestFlight includes Universal Links** (`EAS_SKIP_ASSOCIATED_DOMAINS=0`) so website-to-iPhone handoff works in the shipped build. If Apple provisioning is temporarily stale, use the explicitly named `build:ios:testflight:no-applinks` emergency profile and do not advertise website-to-app handoff in that build.
 
 A profile that lacks Associated Domains fails with:
 

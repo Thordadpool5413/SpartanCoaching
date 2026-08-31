@@ -1,3 +1,5 @@
+import seoRoutes from "../../public/seo-routes.json";
+
 export interface SEOConfig {
   title: string;
   description: string;
@@ -8,22 +10,12 @@ export interface SEOConfig {
 }
 
 export const SITE_NAME = 'Spartan Coaching';
+/** The one public origin used by crawlers, social previews, and iPhone handoff links. */
+export const SITE_ORIGIN = 'https://spartanhospicecoaching.com';
 export const DEFAULT_OG_IMAGE = '/og-image.png';
 
 /** Paths (prefix match) that should never appear in search results */
-export const NOINDEX_PREFIXES = [
-  '/admin',
-  '/portal',
-  '/account',
-  '/magic-login',
-  '/set-password',
-  '/forgot-password',
-  '/reset-password',
-  '/sign/',
-  '/assessment/',
-  '/assessment-results/',
-  '/assess/',
-];
+export const NOINDEX_PREFIXES = seoRoutes.noindexPrefixes;
 
 export function isNoIndexPath(path: string): boolean {
   const clean = path.split('?')[0].split('#')[0] || '/';
@@ -67,6 +59,12 @@ const seoDefaults: Record<string, SEOConfig> = {
       'Preview Hospice Sales Pro tools free. Elite is recommended at $19.99/week and Standard remains available at $14.99/week. Run field tools on web and iPhone.',
     keywords: 'Hospice Sales Pro tools, sales playbooks, objection handling, territory research, AI coaching tools',
   },
+  '/spartan-intelligence': {
+    title: 'Spartan Intelligence | Spartan Coaching',
+    description: 'A signed-in Hospice Sales Pro workspace for verified referral research, account preparation, CMS policy guidance, and market orientation.',
+    keywords: 'Spartan Intelligence, hospice sales research, account preparation',
+    noIndex: true,
+  },
   '/welcome': {
     title: 'Welcome | Spartan Coaching',
     description: 'Practical consulting and Hospice Sales Pro tools for hospice growth professionals.',
@@ -101,6 +99,12 @@ const seoDefaults: Record<string, SEOConfig> = {
     description:
       'Hospice Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Use the Spartan system daily on web and iPhone.',
     keywords: 'Hospice Sales Pro, $14.99 week, hospice sales tools, team seats, cancel anytime',
+  },
+  '/app': {
+    title: 'Hospice Sales Pro for iPhone | Spartan Coaching',
+    description:
+      'Take Hospice Sales Pro into the field on iPhone. Use the same account for Command Center, practice tools, plans, and resources.',
+    keywords: 'Hospice Sales Pro iPhone app, hospice sales field tools, hospice sales coaching app',
   },
   '/field-kit-membership': {
     title: 'Hospice Sales Pro Elite $19.99/week | Spartan Coaching',
@@ -175,6 +179,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     description:
       'Downloadable scripts, templates, checklists, and guides for hospice sales teams.',
     keywords: 'training resources, sales scripts, hospice sales guides',
+  },
+  '/resources/activity-tracker': {
+    title: 'Activity Tracker | Spartan Coaching',
+    description: 'Plan and review hospice sales activity with a focused weekly tracker.',
+    keywords: 'hospice sales activity tracker, weekly activity planning',
   },
   '/resources/weekly-plan': {
     title: 'Weekly Action Plan | Spartan Coaching',
@@ -262,6 +271,12 @@ const seoDefaults: Record<string, SEOConfig> = {
     description:
       'HIPAA Business Associate Agreement for corporate hospice engagements. Platform does not store PHI; BAA available for procurement.',
     keywords: 'HIPAA BAA, business associate agreement, PHI',
+  },
+  '/trust': {
+    title: 'Trust Center | Spartan Coaching',
+    description:
+      'Review Spartan Coaching’s privacy, security, no-PHI stance, and responsible-use commitments.',
+    keywords: 'Spartan Coaching trust center, privacy, security, no PHI',
   },
   '/legal': {
     title: 'Legal Agreements | Spartan Coaching',
@@ -394,6 +409,12 @@ const defaultConfig: SEOConfig = {
   ogImage: DEFAULT_OG_IMAGE,
 };
 
+/** True only when the route has intentional, route-specific crawl metadata. */
+export function hasExplicitSEOConfig(path: string): boolean {
+  const clean = path.split('?')[0].split('#')[0] || '/';
+  return Boolean(seoDefaults[clean]);
+}
+
 export function getSEOConfig(path: string): SEOConfig {
   const clean = path.split('?')[0].split('#')[0] || '/';
   const exact = seoDefaults[clean];
@@ -411,33 +432,4 @@ export function getSEOConfig(path: string): SEOConfig {
 }
 
 /** Public URLs for sitemap generation (relative paths). */
-export const PUBLIC_SITEMAP_PATHS = [
-  '/',
-  '/welcome',
-  '/about',
-  '/contact',
-  '/services',
-  '/programs',
-  '/method',
-  '/manifesto',
-  '/tools',
-  '/request-access',
-  '/hospice-sales-pro',
-  '/resources',
-  '/resources/weekly-plan',
-  '/resources/quick-start-guide',
-  '/resources/objection-cards',
-  '/resources/territory-template',
-  '/resources/metrics-dashboard',
-  '/resources/activity-tracker',
-  '/articles',
-  '/podcasts',
-  '/testimonials',
-  '/faq',
-  '/compliance',
-  '/privacy',
-  '/terms',
-  '/disclaimer',
-  '/legal',
-  '/login',
-] as const;
+export const PUBLIC_SITEMAP_PATHS = seoRoutes.publicPaths;

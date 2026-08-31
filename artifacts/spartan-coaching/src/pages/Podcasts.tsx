@@ -10,6 +10,7 @@ import { SEO } from "@/components/SEO";
 import { Link } from "wouter";
 import { ContentNotice } from "@/components/ContentNotice";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function Podcasts() {
   const { data, isLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
@@ -175,6 +176,14 @@ export default function Podcasts() {
           </Card>
         ))}
       </div>
+      <PublicConversionPanel
+        source="podcasts"
+        audience="Hospice growth professionals who prefer to learn through coaching conversations and field context."
+        promise="Move from an episode into an applicable method, resource, or human conversation."
+        evidence="Episode dates and availability are shown directly; optional updates are separate from membership."
+        primary={{ label: "Explore the Spartan Method", href: "/method", token: "method" }}
+        secondary={{ label: "Talk through a challenge", href: "/contact", token: "strategy_call" }}
+      />
     </div>
   );
 }

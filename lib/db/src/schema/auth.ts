@@ -10,6 +10,7 @@ import {
   integer,
   jsonb,
   index,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -273,6 +274,57 @@ export const authEvents = pgTable("auth_events", {
 });
 
 export type AuthEvent = typeof authEvents.$inferSelect;
+
+/**
+ * Durable Stripe delivery ledger. It stores only provider event identifiers and
+ * processing state — never webhook payloads, payment data, or customer PII.
+ */
+export const stripeWebhookEvents = pgTable(
+  "stripe_webhook_events",
+  {
+    /** Stripe event id is the stable idempotency key. */
+    id: varchar("id", { length: 255 }).primaryKey(),
+    type: varchar("type", { length: 128 }).notNull(),
+    organizationId: integer("organization_id"),
+    status: varchar("status", { length: 24 }).notNull().default("processing"),
+    attempts: integer("attempts").notNull().default(1),
+    claimedAt: timestamp("claimed_at").defaultNow().notNull(),
+    processedAt: timestamp("processed_at"),
+    failedAt: timestamp("failed_at"),
+    lastErrorCode: varchar("last_error_code", { length: 64 }),
+    receivedAt: timestamp("received_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("stripe_webhook_events_status_claimed_idx").on(table.status, table.claimedAt),
+    index("stripe_webhook_events_processed_idx").on(table.processedAt),
+  ],
+);
+
+export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
+
+/**
+ * At-most-once gate for the notification bundles produced by a Stripe event.
+ * It intentionally stores no recipient address or email body.
+ */
+export const stripeWebhookNotifications = pgTable(
+  "stripe_webhook_notifications",
+  {
+    id: serial("id").primaryKey(),
+    stripeEventId: varchar("stripe_event_id", { length: 255 }).notNull(),
+    notificationType: varchar("notification_type", { length: 64 }).notNull(),
+    organizationId: integer("organization_id"),
+    status: varchar("status", { length: 24 }).notNull().default("claimed"),
+    claimedAt: timestamp("claimed_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+    failureCode: varchar("failure_code", { length: 64 }),
+  },
+  (table) => [
+    uniqueIndex("stripe_webhook_notifications_event_type_unique").on(
+      table.stripeEventId,
+      table.notificationType,
+    ),
+  ],
+);
 
 // ── Request / response Zod (API validation) ──────────────────────────
 

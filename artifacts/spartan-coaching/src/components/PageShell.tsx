@@ -50,7 +50,7 @@ export function PageShell({
         "w-full mx-auto surface-page",
         WIDTH[width],
         !flushX && "px-4 sm:px-6 lg:px-8",
-        !flushY && "py-8 sm:py-12 lg:py-16",
+        !flushY && "py-6 sm:py-8 lg:py-10",
         className,
       )}
       data-testid={testId}
@@ -82,7 +82,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "mb-8 sm:mb-10",
+        "mb-6 sm:mb-8",
         align === "center" && "text-center",
         className,
       )}
@@ -105,7 +105,7 @@ export function PageHeader({
               {kicker}
             </p>
           )}
-          <h1 className="text-h1 font-display font-black text-foreground tracking-tight text-balance">
+          <h1 className="text-h1 font-display font-extrabold text-foreground tracking-tight text-balance">
             {title}
           </h1>
           {description && (

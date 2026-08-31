@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { ProgramDetailDialog, ProgramDetail } from "@/components/ProgramDetailDialog";
 import { Eye } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function Programs() {
   const [detailOpen, setDetailOpen] = useState(false);
@@ -492,14 +493,14 @@ export default function Programs() {
           </Card>
         ))}
       </div>
-      {/* Strategic Services */}
+      {/* Program add-ons */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-foreground mt-16 mb-8 text-h2">
-            Strategic Services
+            Program add-ons
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Standalone one-off services or add-ons to programs. Simple to use, easy to teach, and fast to measure. Every deliverable stays patient-first and compliant.
+            Add these focused engagements to a program when your team needs more depth in a specific area. For standalone coaching options, start with Services.
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-cards">
@@ -545,6 +546,14 @@ export default function Programs() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         program={selectedDetail}
+      />
+      <PublicConversionPanel
+        source="programs"
+        audience="Hospice providers that need a defined project, team workshop, or market operating system."
+        promise="A discrete program with a kickoff, working sessions, deliverables, and a final next-step summary."
+        evidence="Every program publishes its audience, delivery approach, outcomes, and concrete deliverables before a conversation."
+        primary={{ label: "Discuss a program", href: "/contact?service=Provider+Program", token: "program_consult" }}
+        secondary={{ label: "View consulting services", href: "/services", token: "services" }}
       />
     </div>
   );

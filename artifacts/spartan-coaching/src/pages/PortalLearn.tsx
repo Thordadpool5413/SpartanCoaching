@@ -6,7 +6,6 @@ import { BookOpen, Headphones, FolderOpen, Flame, HelpCircle, ArrowRight } from 
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitGate } from "@/components/FieldKitGate";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 
 const LINKS = [
   {
@@ -69,13 +68,10 @@ export default function PortalLearn() {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-portal-learn">
       <SEO />
-      {canUseFieldKit && <FieldKitChrome />}
       <div className="mb-10 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Portal · Learn</p>
-        <h1 className="text-h1 font-display font-black">Build judgment between sessions</h1>
-        <p className="text-muted-foreground max-w-2xl leading-relaxed">
-          Part of membership: articles and resources for everyone; drills, knowledge base, and quiz when access is active.
-        </p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro · Field Workshop</p>
+        <h1 className="text-h1 font-display font-black">Learn it. Practice it. Use it.</h1>
+        <p className="text-muted-foreground max-w-2xl leading-relaxed">Use the learning tracks below to prepare, practice, test your judgment, and carry one better move into the field.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">

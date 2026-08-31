@@ -17,6 +17,7 @@ import { Copy, Download, Loader2, CalendarDays } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import { ToolResultActions } from "@/components/ToolResultActions";
 import {
   getToolById,
   recommendRelated,
@@ -257,6 +258,19 @@ export default function WeeklyPlanBuilder() {
               <div data-testid="text-plan-content">
                 <MarkdownContent content={plan} />
               </div>
+              <ToolResultActions
+                toolId="weekly-plan"
+                saveResult={{ toolId: "weekly-plan", title: "Weekly execution plan", value: plan, input: { accounts, weeklyGoal, customGoal, territoryFocus, challenges }, nextAction: { title: "Run the first account action", href: "/tools/sales-workflow" } }}
+                description="Open your first account, run the Monday visit, and use the Command Center to keep the week moving."
+                actions={[
+                  {
+                    id: "open-command-center",
+                    label: "Open Sales Command Center",
+                    href: "/tools/sales-workflow",
+                  },
+                ]}
+                persistenceNote="Save the plan with its accounts and goal so the Command Center can continue the work."
+              />
             </Card>
           )}
 

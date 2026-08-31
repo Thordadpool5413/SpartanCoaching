@@ -25,6 +25,7 @@ import {
   recommendRelated,
   relatedToAnatomyItems,
 } from "@workspace/field-kit-catalog";
+import { tokens } from "@/src/design/tokens";
 
 function formatCallTime(iso: string): string {
   try {
@@ -104,6 +105,22 @@ export default function CommandHubScreen() {
         title="Field Planner"
         subtitle={`${dateLabel} · your next conversation and commitment`}
       />
+
+      <View style={{ gap: tokens.space[2], marginBottom: tokens.space[6] }} accessibilityLabel="Command Center overview">
+        <SpartanCard elevated testID="command-overview">
+          <SectionKicker>Overview</SectionKicker>
+          <Text selectable style={[{ color: colors.foreground, fontSize: tokens.fontSize[400], marginTop: tokens.space[2] }, font("heavy")]}>One clear next move</Text>
+          <Text selectable style={[{ color: colors.mutedForeground, fontSize: tokens.fontSize[200], lineHeight: 20, marginTop: tokens.space[2] }, font("regular")]}>Plan the conversation, prepare the approach, then close the loop while the context is fresh.</Text>
+        </SpartanCard>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: tokens.space[2] }} accessibilityLabel="Quick actions">
+          <SpartanButton title="Open Tools" onPress={() => router.push("/(tabs)/tools")} style={{ flexGrow: 1, minWidth: 140 }} testID="command-open-tools" />
+          <SpartanButton title="Ask Coach" variant="outline" onPress={() => router.push("/(tabs)/coach")} style={{ flexGrow: 1, minWidth: 140 }} testID="command-open-coach" />
+        </View>
+        <View style={{ flexDirection: "row", gap: tokens.space[2] }}>
+          <SpartanCard variant="quiet" style={{ flex: 1 }}><SectionKicker>Notifications</SectionKicker><Text selectable style={[{ color: colors.mutedForeground, fontSize: tokens.fontSize[200], marginTop: tokens.space[2] }, font("regular")]}>No sync warnings</Text></SpartanCard>
+          <SpartanCard variant="quiet" style={{ flex: 1 }}><SectionKicker>Recent activity</SectionKicker><Text selectable style={[{ color: colors.mutedForeground, fontSize: tokens.fontSize[200], marginTop: tokens.space[2] }, font("regular")]}>Open My Work to continue</Text></SpartanCard>
+        </View>
+      </View>
 
       <SectionKicker>Next conversation</SectionKicker>
 

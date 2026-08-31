@@ -38,8 +38,8 @@ export function FadeIn({ children, className, delay = 0, duration = 0.4 }: FadeI
       ref={ref}
       data-testid="animation-fade-in"
       className={className}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+      initial={false}
+      animate={isInView ? { opacity: 1 } : undefined}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
@@ -72,8 +72,8 @@ export function SlideUp({ children, className, delay = 0, duration = 0.4 }: Slid
       ref={ref}
       data-testid="animation-slide-up"
       className={className}
-      initial={{ opacity: 0, y: 16 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      initial={false}
+      animate={isInView ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
@@ -113,8 +113,8 @@ export function SlideUpFade({
       ref={ref}
       data-testid="animation-slide-up-fade"
       className={className}
-      initial={{ opacity: 0, y: yOffset }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: yOffset }}
+      initial={false}
+      animate={isInView ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
@@ -155,8 +155,8 @@ export function SlideIn({
       ref={ref}
       data-testid="animation-slide-in"
       className={className}
-      initial={{ opacity: 0, x: xOffset }}
-      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: xOffset }}
+      initial={false}
+      animate={isInView ? { opacity: 1, x: 0 } : undefined}
       transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
@@ -189,8 +189,8 @@ export function ScaleIn({ children, className, delay = 0, duration = 0.5 }: Scal
       ref={ref}
       data-testid="animation-scale-in"
       className={className}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+      initial={false}
+      animate={isInView ? { opacity: 1, scale: 1 } : undefined}
       transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
@@ -226,8 +226,8 @@ export function StaggerContainer({
       ref={ref}
       data-testid="animation-stagger-container"
       className={className}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
+      initial={false}
+      animate={isInView ? "visible" : undefined}
       variants={{
         hidden: {},
         visible: {

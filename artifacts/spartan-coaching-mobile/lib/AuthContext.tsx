@@ -8,6 +8,7 @@ import {
 } from "@/lib/api";
 import { hasContractedOrganizationAdminAccess, hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
 import { claimCurrentApplePurchases } from "@/lib/applePurchaseSession";
+import { setActiveSyncMember, syncMemberData } from "@/lib/memberSync";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
@@ -38,6 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const me = await fetchMeMobile();
       setUser(me);
+      setActiveSyncMember(me?.member.id ?? null);
+      if (me?.member.id) void syncMemberData(me.member.id);
     } catch {
       // Keep last known session on network/5xx (fetchMeMobile only nulls on 401).
     } finally {
@@ -56,6 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    setActiveSyncMember(data.member.id);
+    void syncMemberData(data.member.id);
     try {
       if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
@@ -73,6 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    setActiveSyncMember(data.member.id);
+    void syncMemberData(data.member.id);
     try {
       if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
@@ -86,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await logoutMobile();
     setUser(null);
+    setActiveSyncMember(null);
   }, []);
 
   const value = useMemo(

@@ -7,6 +7,14 @@ export * from "./membership-plans";
 export * from "./hhh-mac-jurisdictions";
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
+export type { CatalogDestinationOwner } from "./destination-contract";
+export {
+  SPARTAN_DESTINATION_CONTRACTS,
+  getDestinationContract,
+  validateDestinationContracts,
+  catalogOwnershipErrors,
+} from "./destination-contract";
+export type { SpartanDestinationContract, SpartanDestinationId } from "./destination-contract";
 
 export type ChecklistId =
   | "objection"
@@ -19,6 +27,8 @@ export type MobileDelivery = "native" | "webview" | "missing";
 
 export interface FieldKitTool {
   id: string;
+  /** Destination that owns this tool before it is exposed to search, tours, or navigation. */
+  owner: import("./destination-contract").CatalogDestinationOwner;
   title: string;
   description: string;
   /** Web path (absolute site path) */
@@ -48,6 +58,22 @@ export interface FieldKitTool {
   outcome?: string;
 }
 
+/**
+ * Completion guidance follows the tool across web and iPhone. It deliberately
+ * describes the product boundary instead of promising that client-side drafts
+ * or generated text are stored somewhere they are not.
+ */
+export type FieldKitWorkGuide = {
+  /** The moment in the field workflow this experience is designed for. */
+  phase: "prepare" | "practice" | "execute" | "review";
+  audience: string;
+  inputHint: string;
+  outputPreview: string;
+  persistence: string;
+  reviewCheckpoint: string;
+  nextToolId?: string;
+};
+
 export const FIELD_KIT_WHAT =
   "Hospice Sales Pro tools and resources for hospice growth — prepare, practice, plan, and measure on web and iPhone.";
 
@@ -60,6 +86,7 @@ export const FIELD_KIT_HOW =
 export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   {
     id: "sales-workflow",
+    owner: "command",
     title: "Sales Command Center",
     description: "Plan each account call, practice, capture outcomes, review coaching, and schedule the next step.",
     path: "/tools/sales-workflow",
@@ -80,6 +107,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "spartan-intelligence",
+    owner: "explore",
     title: "Spartan Intelligence",
     description: "Verify referral sources and turn public provider data into focused account preparation.",
     path: "/tools/intelligence",
@@ -99,6 +127,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "playbooks",
+    owner: "explore",
     title: "Playbook Generator",
     description: "Custom strategic playbooks for any sales scenario — talking points and next steps.",
     path: "/tools/playbooks",
@@ -120,6 +149,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "objections",
+    owner: "explore",
     title: "Objection Handler",
     description: "Field-ready responses to hospice objections you hear this week.",
     path: "/tools/objections",
@@ -142,6 +172,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "research",
+    owner: "explore",
     title: "Grounded Research",
     description: "Territory and market questions with credible sources.",
     path: "/tools/research",
@@ -159,6 +190,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "transcribe",
+    owner: "explore",
     title: "Call Transcriber",
     description: "Transcribe and review calls for coaching moments.",
     path: "/tools/transcribe",
@@ -176,6 +208,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "email-templates",
+    owner: "explore",
     title: "Email Templates",
     description: "Follow-ups, thank-yous, and value-adds that stay professional.",
     path: "/tools/email-templates",
@@ -193,6 +226,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "role-play",
+    owner: "explore",
     title: "Role-Play Practice",
     description: "Simulate physician and family conversations with feedback.",
     path: "/tools/role-play",
@@ -211,6 +245,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "activity-calculator",
+    owner: "explore",
     title: "Activity Calculator",
     description: "Turn admission goals into daily conversation targets.",
     path: "/tools/activity-calculator",
@@ -228,6 +263,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "rep-cost",
+    owner: "explore",
     title: "Rep Cost Calculator",
     description: "Fully loaded cost per call, referral, and admission.",
     path: "/tools/rep-cost-calculator",
@@ -244,6 +280,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "roi",
+    owner: "explore",
     title: "ROI Calculator",
     description: "Estimate coaching impact on revenue and conversion.",
     path: "/tools/roi-calculator",
@@ -260,6 +297,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "branch",
+    owner: "explore",
     title: "Branch Profitability Simulator",
     description: "Break-even ADC, staffing, and cash runway for your branch.",
     path: "/tools/branch-profitability",
@@ -276,6 +314,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "cold-call",
+    owner: "explore",
     title: "Cold Call Script Generator",
     description: "Openers, objection handlers, and a clear next-step ask.",
     path: "/tools/cold-call-script",
@@ -293,6 +332,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "weekly-plan",
+    owner: "explore",
     title: "Weekly Plan Builder",
     description: "Monday–Friday territory plan with win conditions.",
     path: "/tools/weekly-plan-builder",
@@ -311,6 +351,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "brand-video",
+    owner: "library",
     title: "Brand Video",
     description: "Share the Spartan brand video with prospects — public link.",
     path: "/brand-video",
@@ -335,6 +376,322 @@ export function getToolById(id: string): FieldKitTool | undefined {
 export function toolsByCategory(category: FieldKitCategory): FieldKitTool[] {
   return FIELD_KIT_TOOLS.filter((t) => t.category === category);
 }
+
+const PRIORITY_WORK_GUIDES: Record<string, FieldKitWorkGuide> = {
+  "sales-workflow": {
+    phase: "execute",
+    audience: "Sales reps and leaders managing active accounts",
+    inputHint:
+      "Add only professional account context and the next action you need to confirm. Never enter patient identifiers or PHI.",
+    outputPreview:
+      "A connected pre-call plan, practice path, outcome capture, and confirmed next step for the account.",
+    persistence:
+      "Account and call work stays in Sales Command Center’s own workspace. Keep PHI out, and do not rely on device or offline storage for continuity.",
+    reviewCheckpoint: "Before leaving the account, confirm the owner, date, and next action—not just a note.",
+    nextToolId: "playbooks",
+  },
+  playbooks: {
+    phase: "prepare",
+    audience: "Reps preparing for a priority visit or account move",
+    inputHint:
+      "Describe the referral-source situation, pressure point, and desired commitment. Use deidentified business context only.",
+    outputPreview:
+      "A visit strategy with talking points, discovery questions, and one precise next-step ask.",
+    persistence:
+      "A generated playbook stays in the current session until you copy or download it. Save the final version only in your permitted work system.",
+    reviewCheckpoint: "Circle one discovery question and one ask you will actually use in the room.",
+    nextToolId: "sales-workflow",
+  },
+  objections: {
+    phase: "practice",
+    audience: "Reps handling a live referral-source objection",
+    inputHint:
+      "Use the exact objection in deidentified form and add only the professional context that changes your response.",
+    outputPreview:
+      "A field-ready response you can practice once, adapt to the conversation, and use on the next call.",
+    persistence:
+      "The response stays on screen until you copy it. It is not automatically added to shared saved work.",
+    reviewCheckpoint: "Say it aloud once and remove any phrase that sounds defensive, clinical, or generic.",
+    nextToolId: "role-play",
+  },
+  "role-play": {
+    phase: "practice",
+    audience: "Reps and managers rehearsing a high-stakes conversation",
+    inputHint:
+      "Choose the real conversation you need to rehearse, but never use patient identifiers, clinical details, or PHI.",
+    outputPreview:
+      "A practice conversation with feedback and one phrase or pivot to carry into the live visit.",
+    persistence:
+      "Role-play feedback stays in the current session only. It is not added to run history, shared saved work, device storage, or cross-device continuity.",
+    reviewCheckpoint: "Write down the one phrase to reuse and the one behavior to change on the next call.",
+    nextToolId: "sales-workflow",
+  },
+  "weekly-plan": {
+    phase: "prepare",
+    audience: "Reps and leaders setting a focused territory week",
+    inputHint:
+      "List priority accounts, territory context, and the week’s win condition. Use professional account context only—never PHI.",
+    outputPreview:
+      "A Monday–Friday territory plan with daily win conditions, visit objectives, and a Friday review.",
+    persistence:
+      "Your plan is available to copy or download in this session. It is not automatically added to My Work, so retain the final plan in your permitted system.",
+    reviewCheckpoint: "End Friday by marking the commitment kept, moved, or lost and carry one lesson into next week.",
+    nextToolId: "sales-workflow",
+  },
+  "cold-call": {
+    phase: "prepare",
+    audience: "Reps opening a focused new-account outreach block",
+    inputHint:
+      "Describe the target organization, your reason for calling, and the commitment you want. Keep all context deidentified.",
+    outputPreview:
+      "An opener, objection response, and a clear ask you can use for one focused outreach block.",
+    persistence:
+      "The script remains on screen until you copy or download it; it is not automatically added to shared saved work.",
+    reviewCheckpoint: "After ten calls, record the opener that earned the most conversation and adjust only one variable.",
+    nextToolId: "sales-workflow",
+  },
+  "email-templates": {
+    phase: "execute",
+    audience: "Reps following up with referral partners",
+    inputHint:
+      "Add the relationship context, purpose, and tone. Never enter patient details, PHI, or sensitive clinical notes.",
+    outputPreview:
+      "A professional draft you can edit, copy, download, or intentionally send with a clear follow-up reminder.",
+    persistence:
+      "Generated drafts remain in the current session. A scheduled reminder is not proof that an email was sent; confirm the send action separately.",
+    reviewCheckpoint: "Read the draft as the recipient: is the ask specific, easy to answer, and tied to the conversation?",
+    nextToolId: "sales-workflow",
+  },
+};
+
+export function getToolWorkGuide(toolOrId: FieldKitTool | string): FieldKitWorkGuide {
+  const tool =
+    typeof toolOrId === "string" ? getToolById(toolOrId) : toolOrId;
+
+  if (!tool) {
+    return {
+      phase: "prepare",
+      audience: "Hospice sales professionals",
+      inputHint: "Use deidentified professional context only. Never enter patient identifiers or PHI.",
+      outputPreview: "A practical result you can review, adapt, and use in your next field action.",
+      persistence:
+        "Results are not automatically shared or stored by this guide. Copy or download only what belongs in your permitted work system.",
+      reviewCheckpoint: "Check the result for accuracy, tone, and one concrete action before using it.",
+    };
+  }
+
+  return (
+    PRIORITY_WORK_GUIDES[tool.id] ?? {
+      phase:
+        tool.category === "Practice"
+          ? "practice"
+          : tool.category === "Measure"
+            ? "review"
+            : tool.category === "Outreach"
+              ? "execute"
+              : "prepare",
+      audience:
+        tool.category === "Measure"
+          ? "Sales leaders and operators"
+          : "Hospice sales professionals",
+      inputHint: `${tool.howSteps[0]}. Use deidentified professional business context only—never PHI.`,
+      outputPreview: tool.outcome ?? `${tool.description} Review the result before using it in the field.`,
+      persistence:
+        "Results remain in the current session unless this tool offers an explicit save, copy, or download action. Keep any retained work in your permitted system.",
+      reviewCheckpoint:
+        tool.category === "Measure"
+          ? "Compare the result with the operating reality and decide what metric or behavior changes next."
+          : "Check the result for accuracy, tone, and one concrete action before using it.",
+      nextToolId: tool.id === "brand-video" ? undefined : "sales-workflow",
+    }
+  );
+}
+
+/** Completion guidance for downloadable and provider-owned field resources. */
+export type FieldKitResourceWorkGuide = {
+  phase: "prepare" | "practice" | "execute" | "review";
+  job: string;
+  outputPreview: string;
+  checklist: [string, string, string];
+  inputHint: string;
+  persistence: string;
+  reviewCheckpoint: string;
+  nextToolId?: string;
+};
+
+/**
+ * Optional organization-owned overrides for a provider resource's field job.
+ * These values are intentionally limited to static workflow guidance. They
+ * never contain member-entered work or generated output.
+ */
+export type FieldKitResourceWorkflowCustomization = {
+  job?: string;
+  expectedOutput?: string;
+  reviewCheckpoint?: string;
+  nextToolId?: string;
+};
+
+function workflowText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+export function getResourceWorkGuide(input: {
+  category?: string | null;
+  relatedToolIds?: string[] | null;
+  workflow?: FieldKitResourceWorkflowCustomization | null;
+}): FieldKitResourceWorkGuide {
+  const category = input.category?.toLowerCase() ?? "";
+  const guides: Record<string, FieldKitResourceWorkGuide> = {
+    template: {
+      phase: "prepare",
+      job: "Build a clear field plan before the next visit or territory block.",
+      outputPreview: "A completed, deidentified plan or worksheet with one commitment ready for the next field block.",
+      checklist: [
+        "Choose one account, meeting, or planning block.",
+        "Fill it with deidentified professional context only.",
+        "Carry one commitment into the next field action.",
+      ],
+      inputHint: "Use professional account and territory context only—never patient information or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Before you leave the resource, identify the one commitment, owner, and date that make it actionable.",
+      nextToolId: "playbooks",
+    },
+    script: {
+      phase: "practice",
+      job: "Rehearse the language before the live conversation.",
+      outputPreview: "A practiced opening or response you can adapt and use in the next live conversation.",
+      checklist: [
+        "Pick the exact moment you expect to face.",
+        "Practice one opening or response aloud.",
+        "Adjust the wording after the real conversation.",
+      ],
+      inputHint: "Use deidentified professional context only—never patient details, clinical notes, or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Say the key line aloud and remove any wording that sounds generic, defensive, or outside your role.",
+      nextToolId: "role-play",
+    },
+    checklist: {
+      phase: "execute",
+      job: "Move a real account or weekly commitment to a clear next step.",
+      outputPreview: "A completed follow-through record with an owner, date, and next action.",
+      checklist: [
+        "Use it immediately before or after the field task.",
+        "Mark the commitment kept, moved, or blocked.",
+        "Capture the owner and date for follow-through.",
+      ],
+      inputHint: "Record professional follow-through only—never patient identifiers, clinical information, or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Confirm an accountable owner and due date instead of treating the checklist as complete on its own.",
+      nextToolId: "sales-workflow",
+    },
+    guide: {
+      phase: "review",
+      job: "Turn a lesson into one change in the next field block.",
+      outputPreview: "One specific behavior, phrase, or planning adjustment ready to test in the field.",
+      checklist: [
+        "Read for one situation you will face this week.",
+        "Choose one behavior or phrase to try.",
+        "Review what changed after the next conversation.",
+      ],
+      inputHint: "Use the guide with deidentified professional context only; never add patient information or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Choose one observable behavior to test, then revisit the guide after the next live conversation.",
+      nextToolId: "weekly-plan",
+    },
+  };
+  const fallback = guides[category] ?? guides.guide;
+  const custom = input.workflow as Record<string, unknown> | null | undefined;
+  const customJob = workflowText(custom?.job);
+  const customExpectedOutput = workflowText(custom?.expectedOutput);
+  const customReviewCheckpoint = workflowText(custom?.reviewCheckpoint);
+  const requestedNextToolId = workflowText(custom?.nextToolId);
+  const customNextToolId =
+    requestedNextToolId && getToolById(requestedNextToolId)
+      ? requestedNextToolId
+      : undefined;
+  const nextToolId =
+    customNextToolId ??
+    input.relatedToolIds?.find((id) => Boolean(getToolById(id))) ??
+    fallback.nextToolId;
+  return {
+    ...fallback,
+    job: customJob || fallback.job,
+    outputPreview: customExpectedOutput || fallback.outputPreview,
+    reviewCheckpoint: customReviewCheckpoint || fallback.reviewCheckpoint,
+    nextToolId,
+  };
+}
+
+/**
+ * Native result handoffs are static routes and safe analytics identifiers.
+ * They deliberately never accept generated output or member-entered context.
+ */
+export const MOBILE_FIELD_RESULT_ACTIONS = {
+  playbooks: {
+    toolId: "playbooks",
+    actionId: "practice-hardest-moment",
+    label: "Practice in Role-Play",
+    description: "Choose the hardest moment in this plan and rehearse it before the next visit.",
+    href: "/tool/roleplay",
+    persistenceNote: "This playbook stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  objections: {
+    toolId: "objections",
+    actionId: "practice-objection",
+    label: "Practice this objection in Role-Play",
+    description: "Say the response aloud once, then pressure-test it before the next live conversation.",
+    href: "/tool/roleplay",
+    persistenceNote: "This talk track stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "role-play": {
+    toolId: "role-play",
+    actionId: "open-command-center",
+    label: "Open Sales Command Center",
+    description: "Turn the phrase you practiced into one accountable follow-through step.",
+    href: "/sales-workflow",
+    persistenceNote: "Role-play feedback stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "cold-call": {
+    toolId: "cold-call",
+    actionId: "practice-opening",
+    label: "Practice opening in Role-Play",
+    description: "Read the opening aloud once, then pressure-test the ask before you dial.",
+    href: "/tool/roleplay",
+    persistenceNote: "This script stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "weekly-plan": {
+    toolId: "weekly-plan",
+    actionId: "open-command-center",
+    label: "Open Sales Command Center",
+    description: "Open your first account, run the Monday visit, and keep the week moving.",
+    href: "/sales-workflow",
+    persistenceNote: "This plan stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "email-templates": {
+    toolId: "email-templates",
+    actionId: "practice-ask",
+    label: "Practice the ask in Role-Play",
+    description: "Review the draft, then rehearse the ask before you send it from your approved mail app.",
+    href: "/tool/roleplay",
+    persistenceNote: "This app does not send email. Copy opens the clipboard and Share opens the iPhone share sheet; a reminder only prompts you to send it.",
+  },
+  research: {
+    toolId: "research",
+    actionId: "build-playbook",
+    label: "Build a Playbook from This Insight",
+    description: "Turn one verified insight into a specific conversation plan before the next visit.",
+    href: "/tool/playbook",
+    persistenceNote: "Research stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  resources: {
+    toolId: "resources",
+    actionId: "open-tools",
+    label: "Open field tools",
+    description: "Choose a tool that prepares the conversation or follow-through for this resource.",
+    href: "/(tabs)/tools",
+    persistenceNote: "Download makes a local iPhone copy. Only resource details sync so you can find it again; the downloaded file does not move to another device.",
+  },
+} as const;
 
 export function mobileParityDebt(): FieldKitTool[] {
   return FIELD_KIT_TOOLS.filter((t) => t.mobile === "missing" || t.mobile === "webview");

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, MessageSquarePlus, Send, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Copy, MessageSquarePlus, Printer, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +29,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 const conversationDate = (value: string) =>
   new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(value));
 
+export const presentCoachResponse = (content: string) => {
+  return content
+    .replace(/(?:^|\n|(?<=[.!?])\s+)(Situation|What is happening|Read the room|Your job|Best next move|What to say|Words to use|Opening|Two discovery questions|Discovery questions|Questions to ask|Value connection|Low pressure next step|If they push back|If they still say no|If the concern is giving up care|What not to say|Compliance boundary|Your commitment|What to do next|Next action|One clear commitment)(?:\s*[.:])?\s*/gim, "\n\n## $1\n\n")
+    .replace(/\s+[•●]\s+/g, "\n- ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
+
 export default function Coach() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -38,19 +46,22 @@ export default function Coach() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [eliteRequired, setEliteRequired] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   async function openConversation(id: string) {
     setError(null);
     const data = await request<{ conversation: Conversation; messages: Message[] }>(`/api/v1/coach/conversations/${id}`);
     setConversationId(data.conversation.id);
-    setMessages(data.messages);
+    setMessages(Array.isArray(data.messages) ? data.messages : []);
   }
 
   async function refresh(selectFirst = false) {
+    setError(null);
     const data = await request<{ conversations: Conversation[] }>("/api/v1/coach/conversations");
-    setConversations(data.conversations);
-    if (selectFirst && data.conversations[0]) await openConversation(data.conversations[0].id);
+    const nextConversations = Array.isArray(data.conversations) ? data.conversations : [];
+    setConversations(nextConversations);
+    if (selectFirst && nextConversations[0]) await openConversation(nextConversations[0].id);
   }
 
   useEffect(() => {
@@ -62,7 +73,9 @@ export default function Coach() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, sending]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
 
   async function createConversation() {
     setError(null);
@@ -130,7 +143,23 @@ export default function Coach() {
     }
   }
 
-  if (loading) return <div className="min-h-[60vh] grid place-items-center" role="status">Loading Spartan Coach</div>;
+  async function copyResponse(message: Message) {
+    await navigator.clipboard.writeText(message.content);
+    setCopiedMessageId(message.id);
+    window.setTimeout(() => setCopiedMessageId(null), 1800);
+  }
+
+  function printResponse(message: Message) {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) return;
+    const safe = message.content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1>Spartan Coach Brief</h1><pre>${safe}</pre></body></html>`);
+    popup.document.close();
+    popup.focus();
+    popup.print();
+  }
+
+  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /><h1 className="mt-4 text-xl font-bold">Opening your coaching workspace</h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
 
   if (eliteRequired) {
     return (
@@ -138,7 +167,7 @@ export default function Coach() {
         <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
         <Card className="p-8 sm:p-12 border-2 border-primary/40 text-center space-y-5">
           <p className="text-kicker justify-center">Hospice Sales Pro Elite</p>
-          <h1 className="text-h1 font-display font-black">Your private field coach</h1>
+          <h1 className="text-h1 font-display font-extrabold">Your private field coach</h1>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
             Continue one private conversation on the website and iPhone. Elite includes Spartan Coach, shared history, and 90 day conversation retention.
           </p>
@@ -152,12 +181,12 @@ export default function Coach() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
+    <div className="coach-premium w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
       <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
         <div className="space-y-3">
           <p className="text-kicker">Elite private coaching</p>
-          <h1 className="text-h1 font-display font-black">Spartan Coach</h1>
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Spartan Coach</h1>
           <p className="text-muted-foreground max-w-2xl leading-relaxed">
             Prepare, rehearse, review, and keep the conversation going. Your private history follows your account on the website and iPhone for 90 days.
           </p>
@@ -167,12 +196,18 @@ export default function Coach() {
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+      <section className="coach-summary-grid" aria-label="Coaching progress and next actions">
+        <article><span>Progress</span><strong>{conversations.length ? "Conversation active" : "Ready to begin"}</strong><p>{messages.length} coaching messages in the current brief</p></article>
+        <article><span>Upcoming</span><strong>Your next field conversation</strong><p>Start a brief now, then return to rehearse before the meeting.</p></article>
+        <article><span>Recommended</span><strong>Prepare with the right evidence</strong><p><Link href="/resources">Open Resources <ArrowRight /></Link></p></article>
+      </section>
+
+      <div className="grid lg:grid-cols-[240px_minmax(0,1fr)] gap-4 items-start">
         <Card className="p-3 lg:sticky lg:top-24 border border-border">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">Conversation history</p>
-          <div className="space-y-2 max-h-72 lg:max-h-[64vh] overflow-y-auto">
+          <div className="space-y-1 max-h-64 lg:max-h-[64vh] overflow-y-auto">
             {conversations.length === 0 ? <p className="text-sm text-muted-foreground p-3">Your first conversation starts here.</p> : conversations.map((item) => (
-              <button key={item.id} onClick={() => void openConversation(item.id)} className={`w-full text-left rounded-xl p-3 transition-colors ${conversationId === item.id ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted"}`}>
+              <button key={item.id} onClick={() => void openConversation(item.id).catch((cause: Error) => setError(cause.message))} className={`w-full text-left rounded-xl p-3 transition-colors ${conversationId === item.id ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted"}`}>
                 <span className="block text-sm font-bold text-foreground line-clamp-2">{item.title}</span>
                 <span className="block text-xs text-muted-foreground mt-1">{conversationDate(item.updatedAt)}</span>
               </button>
@@ -186,24 +221,30 @@ export default function Coach() {
         <Card className="border border-border overflow-hidden min-h-[620px] flex flex-col">
           <div className="flex items-center justify-between gap-4 px-5 sm:px-7 py-5 border-b border-border bg-muted/30">
             <div>
-              <p className="font-display font-black text-lg">One conversation, continued</p>
+              <p className="font-display font-extrabold text-lg">One conversation, continued</p>
               <p className="text-xs text-muted-foreground mt-1">Ask a follow up. Challenge the answer. Rehearse the next move.</p>
             </div>
             {conversationId && <Button variant="ghost" size="icon" onClick={() => void deleteConversation()} aria-label="Delete conversation"><Trash2 className="w-4 h-4" /></Button>}
           </div>
 
-          <div className="flex-1 p-5 sm:p-7 space-y-6 overflow-y-auto max-h-[62vh]">
+          <div className="flex-1 p-5 sm:p-7 space-y-6">
+            {error ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm" role="alert"><span>{error}</span><Button type="button" size="sm" variant="outline" onClick={() => void refresh(true).catch((cause: Error) => setError(cause.message))}>Try again</Button></div> : null}
             {messages.length === 0 && (
-              <div className="max-w-xl mx-auto text-center py-14 space-y-5">
+              <div className="max-w-2xl mx-auto text-center py-10 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>
-                <h2 className="text-2xl font-display font-black">What are you walking into?</h2>
+                <h2 className="text-2xl font-display font-extrabold">What are you walking into?</h2>
                 <p className="text-muted-foreground leading-relaxed">Give Coach the situation, the outcome you want, and what feels difficult. Use general professional context only.</p>
+                <div className="grid gap-2 text-left sm:grid-cols-2" aria-label="Coach conversation starters">
+                  {["Help me prepare for a difficult referral-source conversation", "Coach me through an objection I keep hearing", "Review my follow-up approach", "Help me decide the strongest next move"].map((prompt) => (
+                    <button key={prompt} type="button" onClick={() => setDraft(prompt)} className="rounded-xl border border-border bg-background/60 p-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/5">{prompt}</button>
+                  ))}
+                </div>
               </div>
             )}
             {messages.map((message) => (
               <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "max-w-[94%] rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-6 py-5 shadow-sm"}>
-                  {message.role === "assistant" ? <MarkdownContent content={message.content} /> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
+                <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "w-full rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-7 py-6 shadow-none"}>
+                  {message.role === "assistant" ? <><div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p><p className="mt-1 text-xs text-muted-foreground">Scan the move, adapt the language, then act.</p></div><div className="flex gap-2 no-print"><Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>{copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}{copiedMessageId === message.id ? "Copied" : "Copy brief"}</Button><Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}><Printer className="mr-1.5 h-4 w-4" /> Print</Button></div></div><MarkdownContent content={presentCoachResponse(message.content)} className="text-sm leading-7 [&_h2]:mt-6 [&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:text-lg [&_h2]:tracking-tight [&_p]:max-w-3xl [&_li]:mb-1.5" /></> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
                 </div>
               </div>
             ))}

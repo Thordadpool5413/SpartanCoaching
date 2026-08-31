@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 type SpartanCitation = {
   id: string;
@@ -27,6 +28,7 @@ export default function Research() {
   const [results, setResults] = useState<ResearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const exampleQueries = [
     "What are the latest CMS guidelines for hospice eligibility?",
@@ -45,6 +47,7 @@ export default function Research() {
     setIsLoading(true);
     setResults(null);
     setValidationError(null);
+    setError(null);
 
     try {
       const response = await fetch("/api/research", {
@@ -62,11 +65,7 @@ export default function Research() {
       setResults(data);
     } catch (error) {
       console.error("Research error:", error);
-      setResults({
-        text: "Sorry, I couldn't complete the research. Please try again.",
-        sources: [],
-        spartanCitations: [],
-      });
+      setError("Research could not be completed. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -154,6 +153,25 @@ export default function Research() {
         </Card>
       )}
 
+      {error && !isLoading && (
+        <Card className="border-destructive/30 spacing-card" role="alert" data-testid="card-research-error">
+          <ToolResultActions
+            toolId="research"
+            title="Research unavailable"
+            description={error}
+            actions={[
+              {
+                id: "retry",
+                label: "Retry research",
+                onClick: () => void runSearch(query),
+              },
+            ]}
+            persistenceNote="No result was created or saved. Retry only after confirming the question contains no PHI."
+            testId="research-error-action"
+          />
+        </Card>
+      )}
+
       {results && (
         <div className="space-y-6">
           <Card className="border-2 shadow-lg spacing-card">
@@ -204,6 +222,20 @@ export default function Research() {
                 </ul>
               </div>
             )}
+            <ToolResultActions
+              toolId="research"
+              saveResult={{ toolId: "research", title: query, value: results.text, input: { query }, nextAction: { title: "Build a playbook", href: "/tools/playbooks" } }}
+              description="Turn one verified insight into a specific conversation plan before the next visit."
+              actions={[
+                {
+                  id: "build-playbook",
+                  label: "Build a Playbook from This Insight",
+                  href: "/tools/playbooks",
+                },
+              ]}
+              persistenceNote="Save verified research with its original question before using it in another tool."
+              testId="research-next-action"
+            />
           </Card>
           <CoachingCTA className="mt-2" />
         </div>

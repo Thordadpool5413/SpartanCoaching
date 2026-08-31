@@ -15,11 +15,9 @@ import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { ProductMap } from "@/components/elite/ProductMap";
 import { SectionHeader } from "@/components/elite/SectionHeader";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
-import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
-
-// Gated tools only (exclude brand-video which is public)
-const GATED_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public);
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 const TIER_TEAM_FEATURES = [
   "Multi-seat organization account",
@@ -44,14 +42,18 @@ export default function FieldKitMembership() {
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-hospice-sales-pro">
       <SEO />
 
-      {/* ── Hero — Hospice Sales Pro product ── */}
+      {/* This destination owns choosing and managing access, not tool discovery. */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
         <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          The tools product for hospice growth.
+          Choose access to your field system.
           <br />
-          <span className="text-primary">Command Center · practice · plans · resources.</span>
+          <span className="text-primary">Standard for the system. Elite for private Coach.</span>
         </h1>
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
+          Choose an individual membership, request provider seats, or manage the access you already have.
+          {` ${PRICING_FACTS.heroLine}`}
+        </p>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
           Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
@@ -87,14 +89,30 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
+      <Card className="mb-10 border border-border bg-card p-5 sm:p-6" data-testid="section-membership-context">
+        <p className="text-kicker mb-3">Before you choose</p>
+        <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first.</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          Command Center guides today’s field work. Tools prepare and practice. Resources provide approved work aids.
+          Use the directory to see a specific job; return here when you are ready to choose or manage access.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild variant="outline" className="font-bold">
+            <Link href="/tools">Preview the tool directory</Link>
+          </Button>
+          <Button asChild variant="ghost" className="font-bold">
+            <Link href="/resources">Browse field resources</Link>
+          </Button>
+        </div>
+      </Card>
       {/* ── Product map BEFORE pricing (understandability) ── */}
-      <div className="mb-14" data-testid="section-tool-grid">
+      <div className="mb-10" data-testid="section-tool-grid">
         <SectionHeader
           kicker="What's inside"
           title="One daily spine. Clear tool groups."
           description="Hospice Sales Pro is not thirteen equal features. Open Command Center for the day, then use practice, plan, and resources as satellites — same product on web and iPhone."
         />
-        <ProductMap className="mb-8" />
+        <ProductMap className="mb-6" />
 
         <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
           <summary className="cursor-pointer text-sm font-bold text-foreground">
@@ -131,7 +149,7 @@ export default function FieldKitMembership() {
       </div>
 
       {/* ── Access options (pricing after product understanding) ── */}
-      <div className="mb-14">
+      <div className="mb-10">
         <SectionHeader
           kicker="Access"
           title="How people get Hospice Sales Pro"
@@ -166,7 +184,7 @@ export default function FieldKitMembership() {
               ))}
             </ul>
             <div data-testid="button-tier-individual-subscribe">
-              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
+              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" plan="standard_weekly" />
             </div>
           </Card>
 
@@ -193,12 +211,9 @@ export default function FieldKitMembership() {
                 </li>
               ))}
             </ul>
-            <Button asChild className="w-full font-bold">
-              <Link href="/account?subscribe=1&plan=elite_weekly" data-testid="button-tier-elite">
-                Choose Elite
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+            <div data-testid="button-tier-elite-subscribe">
+              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-elite" plan="elite_weekly" />
+            </div>
           </Card>
 
           <Card className="order-3 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
@@ -261,6 +276,14 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
+      <div className="mb-14">
+        <AppHandoffPanel
+          destination="home"
+          title="One field system. Web and iPhone."
+          description="Create or sign in with the same Hospice Sales Pro account on both surfaces. Web purchases restore after sign in; App Store purchases restore from Account on iPhone."
+        />
+      </div>
+
       {/* ── Why (end-user edge) ── */}
       <div
         className="rounded-xl border border-primary/25 bg-primary/[0.04] p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
@@ -290,22 +313,16 @@ export default function FieldKitMembership() {
 
       {/* ── How it works ── */}
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto mb-10">
-        <h2 className="text-h3 font-bold">How to get access</h2>
+        <h2 className="text-h3 font-bold">Choose or manage access</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
           <li>
-            <strong className="text-foreground">Preview free</strong> — open any tool UI on the Tools page without
-            paying.
+            <strong className="text-foreground">Choose Standard or Elite</strong> — Standard is {PRICING_FACTS.individualWeeklyLabel}; Elite is {PRICING_FACTS.eliteWeeklyLabel}.
           </li>
           <li>
-            <strong className="text-foreground">Create your account</strong> — two minutes, no admin approval for
-            individual seats.
+            <strong className="text-foreground">Create or sign in to your account</strong> — your permitted access restores on web and iPhone.
           </li>
           <li>
-            <strong className="text-foreground">Choose Standard or Elite</strong> from Account. Standard is {PRICING_FACTS.individualWeeklyLabel}. Elite is {PRICING_FACTS.eliteWeeklyLabel}. Cancel anytime.
-          </li>
-          <li>
-            <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
-            per-user rate under contract.
+            <strong className="text-foreground">Manage from Account</strong> — cancel individual access anytime; teams request contracted seats.
           </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">
@@ -361,6 +378,14 @@ export default function FieldKitMembership() {
           </ul>
         </div>
       </Card>
+      <PublicConversionPanel
+        source="hospice_sales_pro"
+        audience="Individual hospice sales professionals who need daily field preparation, practice, and planning tools."
+        promise="Use the same permitted Hospice Sales Pro account on web and iPhone, with live tools after subscription."
+        evidence={`${PRICING_FACTS.previewNote} ${PRICING_FACTS.individualBillingNote}`}
+        primary={{ label: "Create account for Hospice Sales Pro", href: "/register", token: "create_account" }}
+        secondary={{ label: "Request team or evaluation access", href: "/request-access", token: "team_access" }}
+      />
     </div>
   );
 }

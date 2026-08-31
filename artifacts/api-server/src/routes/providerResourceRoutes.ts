@@ -30,6 +30,7 @@ import {
   presentProviderResource,
   sanitizeFileUrl,
   sanitizeMeta,
+  validateWorkflowMetadata,
   PROVIDER_RESOURCE_KINDS,
   PROVIDER_RESOURCE_LIBRARY_VERSION,
   type ProviderResourceStatusId,
@@ -227,6 +228,19 @@ export function registerProviderResourceRoutes(app: Express): void {
           return;
         }
 
+        const workflow = validateWorkflowMetadata(
+          (parsed.data.meta as Record<string, unknown> | null | undefined)?.workflow,
+        );
+        if (!workflow.ok) {
+          res.status(400).json({
+            error: {
+              code: workflow.code,
+              message: workflow.message,
+            },
+          });
+          return;
+        }
+
         const status = normalizeStatus(parsed.data.status || "draft");
         const kind = normalizeKind(parsed.data.kind || "other");
         const now = new Date();
@@ -242,7 +256,11 @@ export function registerProviderResourceRoutes(app: Express): void {
             kind,
             status,
             ownership: "provider",
-            meta: sanitizeMeta(parsed.data.meta),
+            meta: sanitizeMeta(
+              workflow.value
+                ? { ...(parsed.data.meta ?? {}), workflow: workflow.value }
+                : parsed.data.meta,
+            ),
             createdByMemberId: ctx.memberId,
             updatedByMemberId: ctx.memberId,
             createdAt: now,
@@ -334,6 +352,22 @@ export function registerProviderResourceRoutes(app: Express): void {
           return;
         }
 
+        const workflow =
+          parsed.data.meta === undefined
+            ? { ok: true as const, value: undefined }
+            : validateWorkflowMetadata(
+                (parsed.data.meta as Record<string, unknown> | null)?.workflow,
+              );
+        if (!workflow.ok) {
+          res.status(400).json({
+            error: {
+              code: workflow.code,
+              message: workflow.message,
+            },
+          });
+          return;
+        }
+
         const fromStatus = normalizeStatus(existing.status);
         if (fromStatus === "deleted") {
           res.status(409).json({
@@ -392,7 +426,13 @@ export function registerProviderResourceRoutes(app: Express): void {
             status: nextStatus,
             meta:
               parsed.data.meta !== undefined
-                ? sanitizeMeta(parsed.data.meta)
+                ? sanitizeMeta(
+                    workflow.value === undefined
+                      ? parsed.data.meta
+                      : workflow.value
+                        ? { ...(parsed.data.meta ?? {}), workflow: workflow.value }
+                        : { ...(parsed.data.meta ?? {}), workflow: null },
+                  )
                 : existing.meta,
             updatedByMemberId: ctx.memberId,
             updatedAt: now,

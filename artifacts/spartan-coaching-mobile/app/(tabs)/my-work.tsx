@@ -1,32 +1,80 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { loadCachedCommitment } from "@/lib/commitmentCache";
 import { listDownloadedLibraryItems, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { font } from "@/lib/typography";
 import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
+import { apiGet } from "@/lib/api";
+import { loadCachedCommitment } from "@/lib/commitmentCache";
+import { openToolHref } from "@/lib/toolDeepLinks";
+import { getToolById } from "@workspace/field-kit-catalog";
+import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
+
+type MemberWorkItem = {
+  id: string;
+  toolId: string;
+  title: string;
+  kind: string;
+  status: string;
+  nextAction?: { title: string; href?: string } | null;
+  updatedAt: string;
+};
 
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { user, canUseFieldKit, canUseElite } = useAuth();
-  const [commitment, setCommitment] = useState<string | null>(null);
+  const { canUseFieldKit, canUseElite, user } = useAuth();
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
+  const [memberWork, setMemberWork] = useState<MemberWorkItem[]>([]);
+  const [commitment, setCommitment] = useState<string | null>(null);
+  const [loadingWork, setLoadingWork] = useState(false);
+  const [workError, setWorkError] = useState("");
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
   useFocusEffect(useCallback(() => {
-    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
-    void listDownloadedLibraryItems().then(setDownloads);
-    void listCalculatorReports().then(setReports);
-  }, [user?.member?.id]));
+    let cancelled = false;
+    setLoadingWork(true);
+    setWorkError("");
+    void Promise.all([
+      listDownloadedLibraryItems(),
+      listCalculatorReports(),
+      apiGet<{ items: MemberWorkItem[] }>("/api/v1/member-work").catch((error) => {
+        if (!cancelled) setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
+        return { items: [] };
+      }),
+      user?.member.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
+    ]).then(([nextDownloads, nextReports, nextWork, nextCommitment]) => {
+      if (cancelled) return;
+      setDownloads(nextDownloads);
+      setReports(nextReports);
+      setMemberWork(nextWork.items || []);
+      setCommitment(nextCommitment);
+      setLoadingWork(false);
+    });
+    return () => { cancelled = true; };
+  }, [user?.member.id]));
+
+  const openMemberWork = (item: MemberWorkItem) => {
+    const classic = getToolById(item.toolId);
+    if (classic?.mobileToolTab) {
+      router.push(openToolHref(classic.mobileToolTab as any) as never);
+      return;
+    }
+    if (classic?.mobileRoute) {
+      router.push(classic.mobileRoute as never);
+      return;
+    }
+    const advanced = getSpartanAiTool(item.toolId);
+    router.push((advanced?.mobilePath || "/(tabs)/tools") as never);
+  };
 
   const openDownload = (item: DownloadedLibraryItem) => {
     router.push({
@@ -37,6 +85,9 @@ export default function MyWorkScreen() {
         kind: item.kind,
         description: item.description || "",
         downloadKey: item.sourceUrl,
+        articleId: item.sourceUrl.startsWith("spartan://article/")
+          ? item.sourceUrl.replace("spartan://article/", "")
+          : undefined,
       },
     } as never);
   };
@@ -51,9 +102,9 @@ export default function MyWorkScreen() {
     >
       <View style={styles.page}>
         <SpartanHeader title="My Work" />
-        <View style={styles.badge}><Text style={styles.badgeText}>YOUR CONTINUITY</Text></View>
-        <Text style={styles.title}>Pick up where you left off.</Text>
-        <Text style={styles.subtitle}>Commitments, saved plans, downloads, and approved outputs stay organized here.</Text>
+        <View style={styles.badge}><Text style={styles.badgeText}>SAVED CONTINUITY</Text></View>
+        <Text style={styles.title}>Keep the work that is ready to return to.</Text>
+        <Text style={styles.subtitle}>Saved reports, approved outputs, and offline Library downloads stay organized here.</Text>
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
@@ -67,17 +118,47 @@ export default function MyWorkScreen() {
           </View>
         ) : (
           <>
-            <Text style={styles.sectionLabel}>CURRENT COMMITMENT</Text>
-            <Pressable style={styles.commitmentCard} onPress={() => router.push((canUseElite ? "/(tabs)/coach" : "/resource-work") as never)}>
-              <View style={styles.cardTop}><Feather name="check-circle" size={22} color={colors.primary} /><Text style={styles.privateLabel}>PRIVATE</Text></View>
-              <Text style={styles.commitmentTitle}>{commitment || "No active commitment yet"}</Text>
-              <Text style={styles.commitmentBody}>{commitment ? (canUseElite ? "Open Coach to review or change it." : "Open your weekly plan to follow through.") : (canUseElite ? "Use Coach or the weekly planner to choose one clear next move." : "Use the weekly planner to choose one clear next move.")}</Text>
-            </Pressable>
+            {canUseElite ? (
+              <>
+                <Text style={styles.sectionLabel}>ELITE OUTPUTS</Text>
+                <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} />
+              </>
+            ) : null}
 
-            <Text style={styles.sectionLabel}>SAVED WORK</Text>
-            <WorkRow icon="calendar" title="Weekly plan" body="Resume the plan you are building." onPress={() => router.push("/resource-work" as never)} />
-            <WorkRow icon="edit-3" title="Conversation plans" body="Open saved preparation and follow through." onPress={() => router.push("/tool/playbook" as never)} />
-            {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} /> : null}
+            {commitment ? (
+              <>
+                <Text style={styles.sectionLabel}>CURRENT COMMITMENT</Text>
+                <View style={styles.commitmentCard}>
+                  <View style={styles.cardTop}>
+                    <Text style={styles.privateLabel}>PRIVATE COACHING COMMITMENT</Text>
+                    <Feather name="lock" size={16} color={colors.primary} />
+                  </View>
+                  <Text style={styles.commitmentTitle}>{commitment}</Text>
+                  <Text style={styles.commitmentBody}>Return to Coach when you are ready to review the outcome or set the next commitment.</Text>
+                  <Pressable style={styles.commitmentAction} onPress={() => router.push("/(tabs)/coach" as never)} accessibilityRole="button">
+                    <Text style={styles.commitmentActionText}>Open Coach</Text>
+                    <Feather name="arrow-right" size={17} color={colors.primary} />
+                  </Pressable>
+                </View>
+              </>
+            ) : null}
+
+            <Text style={styles.sectionLabel}>CONNECTED WORK</Text>
+            {loadingWork ? (
+              <View style={styles.loadingCard}><ActivityIndicator color={colors.primary} /><Text style={styles.downloadEmptyText}>Loading work from web and iPhone…</Text></View>
+            ) : workError ? (
+              <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>{workError}</Text></View>
+            ) : memberWork.length ? memberWork.slice(0, 12).map((item) => (
+              <WorkRow
+                key={item.id}
+                icon={item.status === "draft" ? "edit-3" : "check-circle"}
+                title={item.title}
+                body={`${item.kind.replaceAll("_", " ")} · ${new Date(item.updatedAt).toLocaleDateString()}${item.nextAction?.title ? ` · ${item.nextAction.title}` : ""}`}
+                onPress={() => openMemberWork(item)}
+              />
+            )) : (
+              <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Completed plans, tool results, and resource work from either device will appear here.</Text></View>
+            )}
 
             {reports.length ? (
               <>
@@ -90,10 +171,10 @@ export default function MyWorkScreen() {
 
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionLabel}>DOWNLOADS</Text>
-              <Pressable onPress={() => router.push("/(tabs)/tools?view=library" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
+              <Pressable onPress={() => router.push("/(tabs)/learn" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
-              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body="Available offline on this iPhone." onPress={() => openDownload(item)} />
+              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Listed in your Library, but not downloaded on this iPhone. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />
             )) : (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Saved Library items will appear here for offline access.</Text></View>
             )}
@@ -146,6 +227,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     privateLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
     commitmentTitle: { color: colors.foreground, fontSize: 19, lineHeight: 24, marginTop: 20, ...font("heavy") },
     commitmentBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 5, ...font("regular") },
+    commitmentAction: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, marginTop: 14 },
+    commitmentActionText: { color: colors.primary, fontSize: 13, ...font("bold") },
     row: { minHeight: 94, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 15, marginBottom: 12 },
     rowIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
     rowTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
@@ -155,6 +238,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     reportDate: { color: colors.primary, fontSize: 9, marginTop: 5, ...font("bold") },
     deleteReport: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
     downloadEmpty: { minHeight: 92, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
+    loadingCard: { minHeight: 92, flexDirection: "row", gap: 10, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
     downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
     emptyCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 20, marginTop: 30 },
     emptyTitle: { color: colors.foreground, fontSize: 20, marginTop: 16, ...font("heavy") },

@@ -23,8 +23,9 @@ describe("native product completeness", () => {
     expect(library).not.toContain('pathname: "/tool-web"');
     expect(library).toContain('pathname: "/library-item"');
     expect(library).toContain('pathname: "/method-guide"');
-    expect(explore).toContain('view === "library"');
-    expect(explore).toContain("<LearnScreen />");
+    expect(explore).not.toContain('view === "library"');
+    expect(explore).not.toContain("<LearnScreen />");
+    expect(read("app/(tabs)/index.tsx")).toContain('route: "/(tabs)/learn" as Href');
     expect(reader).toContain("library-native-reader");
     expect(reader).toContain("NativeArticleReader");
     expect(reader).toContain("NativeResourceReader");
@@ -107,6 +108,16 @@ describe("native product completeness", () => {
     expect(ceremony).toContain("entitlement transition");
   });
 
+  it("keeps every authenticated and AI request connected in store builds", () => {
+    const api = read("lib/api.ts");
+    const home = read("app/(tabs)/index.tsx");
+    expect(api).toContain('const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com"');
+    expect(api).toContain("return PRODUCTION_ORIGIN");
+    expect(api).toContain("REQUEST_TIMEOUT");
+    expect(api).toContain("NETWORK_UNAVAILABLE");
+    expect(home).not.toContain('fetch("/api/');
+  });
+
   it("keeps account recovery and administrator work native", () => {
     const login = read("app/login.tsx");
     const admin = read("app/admin.tsx");
@@ -136,11 +147,13 @@ describe("native product completeness", () => {
   it("does not route current member actions into the retired Command tab", () => {
     const activation = read("components/ActivationCeremony.tsx");
     const result = read("components/FieldResultPanel.tsx");
+    const nextAction = read("components/NextFieldActionCard.tsx");
     const links = read("lib/deepLinks.ts");
 
     expect(activation).toContain('router.push("/(tabs)/tools")');
     expect(activation).not.toContain('router.push("/(tabs)/command")');
-    expect(result).toContain('router.push("/tool/playbook"');
+    expect(result).toContain("<NextFieldActionCard");
+    expect(nextAction).toContain("router.push(action.href");
     expect(result).not.toContain('router.push("/(tabs)/command")');
     expect(links).not.toContain('pathname: "/(tabs)/command"');
   });
@@ -155,21 +168,25 @@ describe("native product completeness", () => {
     expect(home).toContain('actionLabel={signedIn ? undefined : "Sign in"}');
     expect(home).toContain("signedIn ? undefined");
     expect(home).toContain("Compare and subscribe through Apple");
-    expect(membership).toContain("Payment happens through Apple before Spartan account creation");
-    expect(membership).toContain("Private Spartan Coach");
+    expect(membership).toContain("Use the Access map for the full capability comparison");
+    expect(membership).toContain("Restore Purchases is available without signing in to Spartan Coaching");
+    expect(membership).toContain("Complete system plus private Coach");
     expect(access).toContain("THE COMPLETE APP");
   });
 
   it("uses the approved five destination navigation and keeps Library native", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
+    const home = read("app/(tabs)/index.tsx");
     expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Explore"');
+    expect(tabs).toContain('title: "Tools"');
     expect(tabs).toContain('title: "My Work"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('name="learn" options={{ href: null }}');
-    expect(read("app/(tabs)/my-work.tsx")).toContain("Pick up where you left off");
-    expect(read("app/(tabs)/learn.tsx")).toContain('placeholder="Search tools and resources"');
+    expect(read("app/(tabs)/my-work.tsx")).toContain("Keep the work that is ready to return to");
+    expect(home).toContain('route: "/(tabs)/learn" as Href');
+    expect(home).toContain("Open the Library");
+    expect(read("app/(tabs)/learn.tsx")).toContain('placeholder="Search the Library"');
     expect(read("app/(tabs)/learn.tsx")).toContain("Boolean(item.audioUrl)");
     expect(read("app/(tabs)/learn.tsx")).toContain("Only complete, playable episodes appear here");
     expect(read("app/(tabs)/learn.tsx")).toContain("LibraryModeIntro");
@@ -182,8 +199,8 @@ describe("native product completeness", () => {
     expect(explore).toContain("category === \"All\"");
     expect(explore).toContain("FIELD_KIT_CATEGORIES");
     expect(explore).toContain("Every tool is visible here");
-    expect(explore).toContain("Guided tour");
-    expect(explore).toContain("Access map");
+    expect(explore).not.toContain("Guided tour");
+    expect(explore).not.toContain("Access map");
   });
 
   it("defines one app wide source of truth for every major offering", () => {
@@ -214,5 +231,27 @@ describe("native product completeness", () => {
     expect(result).toContain("Field ready language");
     expect(result).toContain("Next actions");
     expect(result).toContain("Evidence & review");
+  });
+
+  it("carries the complete field-work contract into native tools and resources", () => {
+    const shell = read("components/tools/ToolShell.tsx");
+    const library = read("app/(tabs)/learn.tsx");
+    const aiTool = read("components/ai-tool-screen.tsx");
+
+    expect(shell).toContain("getToolWorkGuide");
+    expect(shell).toContain("Safe input:");
+    expect(shell).toContain("Expected output:");
+    expect(shell).toContain("Saved:");
+    expect(shell).toContain("Review:");
+    expect(shell).toContain("tool-workflow-next-");
+    expect(read("app/(tabs)/tools.tsx")).toContain("NativeCatalogWorkflow");
+    expect(read("app/(tabs)/tools.tsx")).toContain("catalog-workflow-");
+    expect(library).toContain("getResourceWorkGuide");
+    expect(library).toContain("ResourceWorkflowNote");
+    expect(library).toContain("Expected output:");
+    expect(library).toContain("provider-resource-workflow-");
+    expect(library).toContain("resource-workflow-");
+    expect(aiTool).toContain("Safe input:");
+    expect(aiTool).toContain("workflow.persistence");
   });
 });

@@ -10,7 +10,7 @@ Capture five real screens at 1320 by 2868 from iPhone 17 Pro Max. Use a demo acc
 | --- | --- | --- | --- | --- |
 | 1 | `01-home-next-move.png` | Home with an active membership and one current commitment | Know what to do next | Three clear starts, current commitment, five destination tab bar |
 | 2 | `02-private-spartan-coach.png` | Coach in Prepare or Review using fictional, deidentified context | Practice the conversation privately | Privacy cue, clear action, no raw history or real transcript |
-| 3 | `03-explore.png` | Explore at its initial state | Everything in one place | Library, My Work, access map, complete native tool catalog |
+| 3 | `03-tools.png` | Tools at its initial state | Everything in one place | Intelligence, Library, My Work, access map, complete native tool catalog |
 | 4 | `04-my-work.png` | My Work with fictional saved work | Pick up where you left off | Commitment, saved work, offline item, no private customer data |
 | 5 | `05-library.png` | Library on Read with a complete native field note | Read less. Use more. | Search, current content, Read selected, no loading or error state |
 
@@ -38,7 +38,7 @@ Use these review images for the corresponding subscriptions in App Store Connect
 4. Confirm the helmet app icon and launch screen before capture.
 5. Set the iPhone appearance to System and capture the marketing set in Light first. Capture a Dark alternate only after the Light set passes.
 6. Wait for all remote content to load. Do not capture skeletons, spinners, empty error cards, alerts, keyboards, or debug banners.
-7. Keep the status bar clean and the tab bar visible on Home, Coach, Explore, My Work, and Account. Library is reached through Explore.
+7. Keep the status bar clean and the tab bar visible on Home, Coach, Tools, My Work, and Account. Library is reached through Tools.
 8. Use real simulator or device captures. Do not generate, redraw, or compose product UI screenshots.
 9. Review every image at full size for clipping, Dynamic Island collisions, incorrect safe area, broken type wrapping, and accidental private data.
 10. Keep the original captures. Do not resize the 6.9 inch set before upload.

@@ -2,11 +2,11 @@ import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   Crosshair,
+  Database,
   FolderOpen,
   Home,
   LayoutDashboard,
   MessageCircle,
-  Sparkles,
   UserCircle,
   Wrench,
 } from "lucide-react";
@@ -39,6 +39,15 @@ export const MEMBER_NAV: MemberNavItem[] = [
     match: (loc) => loc.startsWith("/tools/sales-workflow"),
   },
   {
+    href: "/tools/intelligence",
+    label: "Intelligence",
+    short: "Intel",
+    icon: Database,
+    match: (loc) =>
+      loc.startsWith("/tools/intelligence") ||
+      loc.startsWith("/spartan-intelligence"),
+  },
+  {
     href: "/tools",
     label: "Tools",
     icon: Wrench,
@@ -46,15 +55,6 @@ export const MEMBER_NAV: MemberNavItem[] = [
       (loc === "/tools" || loc.startsWith("/tools/")) &&
       !loc.startsWith("/tools/sales-workflow") &&
       !loc.startsWith("/tools/intelligence"),
-  },
-  {
-    href: "/tools/intelligence",
-    label: "Intelligence",
-    short: "Intel",
-    icon: Sparkles,
-    match: (loc) =>
-      loc.startsWith("/tools/intelligence") ||
-      loc.startsWith("/spartan-intelligence"),
   },
   {
     href: "/resources",
@@ -73,11 +73,13 @@ export const MEMBER_NAV: MemberNavItem[] = [
       loc.startsWith("/learn/"),
   },
   {
-    href: "/resources/weekly-plan",
+    href: "/my-work",
+    label: "My Work",
+    short: "My Work",
     label: "Saved work",
     short: "Saved",
     icon: FolderOpen,
-    match: (loc) => loc.startsWith("/resources/weekly-plan"),
+    match: (loc) => loc.startsWith("/my-work"),
   },
   {
     href: "/account",

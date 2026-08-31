@@ -27,7 +27,7 @@ describe("Elite iOS experience contract", () => {
 
     expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Explore"');
+    expect(tabs).toContain('title: "Tools"');
     expect(tabs).toContain('title: "My Work"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: "flex"');
@@ -57,6 +57,8 @@ describe("Elite iOS experience contract", () => {
     expect(coach).toContain("useAudioRecorder");
     expect(coach).toContain("transcribeAudio");
     expect(coach).toContain("canUseElite");
+    expect(coach).toContain('<SpartanHeader title="Coach" />');
+    expect(coach).not.toContain("<HelmetMark");
     expect(api).toContain('apiPost<{ item: CoachMemoryItem }>("/api/v1/coach/memory"');
     expect(today).toContain("Your current commitment");
     expect(today).toContain("listCoachMemory");

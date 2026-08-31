@@ -14,7 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { apiGet, apiPost, getBaseUrl } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost, getBaseUrl } from "@/lib/api";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
@@ -484,7 +484,7 @@ export default function SalesWorkflowScreen() {
       }>("/api/v1/sales-workflow/debrief/draft", {
         notes,
         purpose: call.purpose,
-      }, { idempotencyKey: requestKey() });
+      }, { idempotencyKey: requestKey(), timeoutMs: AI_REQUEST_TIMEOUT_MS });
       const d = res.draft;
       setCallOutcomes((current) => ({ ...current, [call.id]: d.suggestedOutcome }));
       setCompletionNotes((current) => ({ ...current, [call.id]: d.summary }));

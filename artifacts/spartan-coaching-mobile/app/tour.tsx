@@ -23,7 +23,7 @@ const STEPS: TourStep[] = [
   {
     kicker: "1 · START HERE",
     title: "Know how the whole system fits together.",
-    body: "Home recommends the next useful move. Explore contains every tool and resource. Coach gives private Elite practice. My Work keeps commitments, plans, downloads, and approved outputs organized.",
+    body: "Home recommends the next useful move. Tools is the field-tool directory. Library holds reading, listening, and approved resources. Coach gives private Elite practice. My Work keeps commitments, plans, downloads, and approved outputs organized.",
     icon: "compass",
   },
   {
@@ -58,7 +58,7 @@ const STEPS: TourStep[] = [
   },
   {
     kicker: "7 · FIND EVERY TOOL",
-    title: "Explore is the complete tool directory.",
+    title: "Tools is the complete field directory.",
     body: `All ${FIELD_KIT_TOOLS.length} tools are organized by the job you need to accomplish. Every tool explains when to use it, how it works, what you enter, and what you leave with.`,
     icon: "grid",
   },
@@ -77,7 +77,7 @@ const STEPS: TourStep[] = [
   {
     kicker: "10 · CHOOSE YOUR ACCESS",
     title: "Standard is the field system. Elite adds private Coach.",
-    body: "Standard includes planning, practice, measurement, Library, saved work, downloads, and offline access. Elite includes everything in Standard plus Coach, voice rehearsal, transcription, advanced feedback, personalized recommendations, and Elite tools.",
+    body: "Use the Access map to compare capabilities, offline behavior, and privacy boundaries before choosing Standard or Elite. Membership is where you select or manage that choice.",
     icon: "layers",
   },
 ];
@@ -205,7 +205,8 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
         <Text style={styles.cardKicker}>YOUR FIELD GUIDE</Text>
         <Text style={styles.cardTitle}>Five destinations. One connected system.</Text>
         <InfoLine icon="home" title="Home" body="See one recommended next move and reopen unfinished work." />
-        <InfoLine icon="grid" title="Explore" body={`Find all ${FIELD_KIT_TOOLS.length} tools and every Library resource.`} />
+        <InfoLine icon="grid" title="Tools" body={`Find all ${FIELD_KIT_TOOLS.length} field tools by the job you need to do.`} />
+        <InfoLine icon="book-open" title="Library" body="Read, listen, and use approved field resources." />
         <InfoLine icon="message-circle" title="Coach" body="Practice privately with text or voice when Elite is active." />
         <InfoLine icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approved outputs." />
       </View>
@@ -321,13 +322,19 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
   }
 
   return (
-    <View style={styles.accessCard}>
-      <AccessLine title="Standard" price="$14.99 weekly" body="Home, planning, role play, field tools, playbooks, research, outreach, calculators, Library, and saved work." />
-      <View style={styles.accessDivider} />
-      <AccessLine title="Elite" price="$19.99 weekly" body="Everything in Standard plus private Coach, voice rehearsal, optional memory, advanced AI, and deidentified clinical education tools." elite />
-      <View style={styles.accessDivider} />
-      <Text style={styles.accessNote}>Company memberships use contracted seats. Human consulting is separately scoped. Neither is an individual Apple subscription.</Text>
-    </View>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => router.push("/access" as Href)}
+      style={styles.accessCard}
+    >
+      <Text style={styles.cardKicker}>CAPABILITY MAP</Text>
+      <Text style={styles.cardTitle}>Compare access before you choose.</Text>
+      <Text style={styles.cardBody}>
+        Access is the single place for Standard and Elite capabilities, offline behavior, privacy boundaries,
+        company seats, and consulting separation.
+      </Text>
+      <Text style={styles.accessLink}>Open Access map →</Text>
+    </Pressable>
   );
 }
 
@@ -341,12 +348,6 @@ function ResultBlock({ number, title, body }: { number: string; title: string; b
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return <View style={styles.resultBlock}><Text style={styles.resultNumber}>{number}</Text><View style={{ flex: 1 }}><Text style={styles.planInfoTitle}>{title}</Text><Text style={styles.planInfoBody}>{body}</Text></View></View>;
-}
-
-function AccessLine({ title, price, body, elite = false }: { title: string; price: string; body: string; elite?: boolean }) {
-  const colors = useColors();
-  const styles = useMemo(() => makeStyles(colors), [colors]);
-  return <View style={styles.accessLine}><View style={{ flex: 1 }}><View style={styles.accessTitleRow}><Text style={styles.accessTitle}>{title}</Text>{elite ? <Text style={styles.eliteBadge}>COMPLETE</Text> : null}</View><Text style={styles.accessBody}>{body}</Text></View><Text style={styles.accessPrice}>{price}</Text></View>;
 }
 
 function makeStyles(colors: ReturnType<typeof useColors>) {
@@ -367,6 +368,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     scenarioCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, borderCurve: "continuous", padding: 17, marginTop: 24, gap: 12 },
     cardKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
     cardTitle: { color: colors.foreground, fontSize: 20, lineHeight: 25, ...font("heavy") },
+    cardBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 8, ...font("regular") },
     infoLine: { flexDirection: "row", alignItems: "flex-start", gap: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 11 },
     infoIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
@@ -406,14 +408,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     savedStatus: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.primaryMuted, borderRadius: 12, padding: 10 },
     savedText: { flex: 1, color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("medium") },
     accessCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 21, borderCurve: "continuous", padding: 17, marginTop: 24 },
-    accessLine: { flexDirection: "row", alignItems: "flex-start", gap: 12, paddingVertical: 13 },
-    accessTitleRow: { flexDirection: "row", alignItems: "center", gap: 7 },
-    accessTitle: { color: colors.foreground, fontSize: 17, ...font("heavy") },
-    eliteBadge: { color: colors.primary, backgroundColor: colors.primaryMuted, borderRadius: 999, overflow: "hidden", paddingHorizontal: 7, paddingVertical: 3, fontSize: 7, letterSpacing: 0.8, ...font("bold") },
-    accessBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 16, marginTop: 4, ...font("regular") },
-    accessPrice: { color: colors.primary, fontSize: 12, fontVariant: ["tabular-nums"], ...font("bold") },
-    accessDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderStrong },
-    accessNote: { color: colors.mutedForeground, fontSize: 10, lineHeight: 16, paddingTop: 12, ...font("regular") },
+    accessLink: { color: colors.primary, fontSize: 12, marginTop: 14, ...font("bold") },
     boundaryRow: { flexDirection: "row", alignItems: "flex-start", gap: 9, backgroundColor: colors.primaryMuted, borderRadius: 15, padding: 13, marginTop: 15 },
     boundaryText: { color: colors.mutedForeground, flex: 1, fontSize: 10, lineHeight: 16, ...font("medium") },
     footer: { minHeight: 84, paddingHorizontal: 20, paddingTop: 12, backgroundColor: colors.card, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, flexDirection: "row", alignItems: "center", gap: 12 },

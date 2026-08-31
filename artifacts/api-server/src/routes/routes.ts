@@ -34,6 +34,12 @@ import { db } from "../db";
 import { objectUploadTokens } from "@workspace/db";
 import { storage } from "../storage";
 import {
+  appendEphemeralRoleplayMessage,
+  createEphemeralRoleplaySession,
+  finishEphemeralRoleplaySession,
+  getEphemeralRoleplaySession,
+} from "../ephemeralRoleplay";
+import {
   generateComplexResponse,
   generateQuickResponse,
   generateGroundedSearch,
@@ -67,6 +73,7 @@ import {
   visitorAnalyticsSchema,
 } from "@workspace/db";
 import { sanitizeAnalyticsMetadata } from "@workspace/field-kit-catalog";
+import { isAcceptedClientAnalyticsEvent, isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "../analytics/validation";
 
 import {
   ObjectStorageService,
@@ -82,10 +89,14 @@ import {
   formatCitationsForPrompt,
 } from "../knowledge/spartanCorpus";
 import { searchNpiProviders } from "../knowledge/npiLookup";
-import { buildAccountBrief } from "../knowledge/providerIntelligence";
-import { POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
+import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntelligence";
+import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
-import { searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import {
+  aiProviderReadinessSnapshot,
+  runLiveAiProviderProbe,
+} from "../ai/providerReadiness";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -100,7 +111,31 @@ function paramInt(req: Request, key: string): number {
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
+  if (process.env.AI_STARTUP_PROBE_ENABLED !== "false") {
+    void runLiveAiProviderProbe().then((result) => {
+      if (!result.ok) console.error("AI startup readiness probe failed", result);
+    }).catch((error) => {
+      console.error("AI startup readiness probe crashed", error instanceof Error ? error.message : "unknown");
+    });
+  }
   console.log("Deferred initialization complete");
+}
+
+function parseIntelligenceJson(raw: string): Record<string, unknown> | null {
+  try {
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+    const candidate = fenced || raw.match(/\{[\s\S]*\}/)?.[0] || raw;
+    const parsed = JSON.parse(candidate);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function stringList(value: unknown, fallback: string[], limit = 8): string[] {
+  if (!Array.isArray(value)) return fallback;
+  const cleaned = value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean);
+  return cleaned.length ? cleaned.slice(0, limit) : fallback;
 }
 
 export function registerRoutes(app: Express): void {
@@ -112,6 +147,7 @@ export function registerRoutes(app: Express): void {
           { "/": "/login*" }, { "/": "/portal*" }, { "/": "/account*" },
           { "/": "/command*" }, { "/": "/workflow*" }, { "/": "/coach*" },
           { "/": "/tools*" }, { "/": "/tool/*" }, { "/": "/learn*" },
+          { "/": "/app*" },
         ],
       }],
     },
@@ -452,7 +488,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     }
   });
 
-  app.post("/api/intelligence/account-brief", requireElite, lightAiLimit, async (req, res) => {
+  app.post("/api/intelligence/account-brief", requireElite, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const provider = req.body?.provider;
       if (
@@ -473,12 +509,56 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       )
         ? req.body.relationshipStage
         : "new";
-      const brief = buildAccountBrief({
+      const requestedAccountType = String(req.body?.accountType || "");
+      const accountType = ACCOUNT_TYPES.includes(requestedAccountType as (typeof ACCOUNT_TYPES)[number])
+        ? requestedAccountType as (typeof ACCOUNT_TYPES)[number]
+        : undefined;
+      const briefInput = {
         provider,
         meetingPurpose: typeof req.body?.meetingPurpose === "string" ? req.body.meetingPurpose : undefined,
         knownContext: typeof req.body?.knownContext === "string" ? req.body.knownContext : undefined,
+        accountType,
+        knownBarrier: typeof req.body?.knownBarrier === "string" ? req.body.knownBarrier : undefined,
+        stakeholderRole: typeof req.body?.stakeholderRole === "string" ? req.body.stakeholderRole : undefined,
+        desiredCommitment: typeof req.body?.desiredCommitment === "string" ? req.body.desiredCommitment : undefined,
         relationshipStage,
-      });
+      };
+      const baseline = buildAccountBrief(briefInput);
+      const prompt = `Create a field-ready hospice referral account brief. Return only JSON.
+VERIFIED PUBLIC NPPES RECORD:
+${JSON.stringify({
+  name: provider.name, npi: provider.npi, taxonomy: provider.taxonomy, taxonomies: provider.taxonomies,
+  city: provider.city, state: provider.state, status: provider.status, lastUpdated: provider.lastUpdated,
+})}
+USER-PROVIDED CONTEXT (treat as unverified until confirmed):
+${JSON.stringify({
+  relationshipStage, accountType, meetingPurpose: briefInput.meetingPurpose, knownContext: briefInput.knownContext,
+  knownBarrier: briefInput.knownBarrier, stakeholderRole: briefInput.stakeholderRole,
+  desiredCommitment: briefInput.desiredCommitment,
+})}
+Return these keys: headline, accountLens, meetingObjective, opening, discoveryQuestions (4-6), valueHypotheses (3), watchouts (2-4), preparation (3-5), followUpMessage, thirtyDayPlan (3 objects with timing/action/outcome), nextMove.
+Never invent referral volume, decision authority, patient facts, affiliations, performance, or relationship history. Clearly phrase unverified ideas as questions or hypotheses.`;
+      const system = "You are Spartan Intelligence, a senior hospice growth strategist. Use verified facts precisely, reason conservatively, and produce specific language a field leader can use today. Never provide clinical eligibility determinations or accept patient information.";
+      const raw = await generateComplexResponse(prompt, system);
+      const ai = parseIntelligenceJson(raw);
+      const brief = ai ? {
+        ...baseline,
+        headline: typeof ai.headline === "string" ? ai.headline : baseline.headline,
+        accountLens: typeof ai.accountLens === "string" ? ai.accountLens : baseline.accountLens,
+        meetingObjective: typeof ai.meetingObjective === "string" ? ai.meetingObjective : baseline.meetingObjective,
+        opening: typeof ai.opening === "string" ? ai.opening : baseline.opening,
+        discoveryQuestions: stringList(ai.discoveryQuestions, baseline.discoveryQuestions, 6),
+        valueHypotheses: stringList(ai.valueHypotheses, baseline.valueHypotheses, 4),
+        watchouts: stringList(ai.watchouts, baseline.watchouts, 4),
+        preparation: stringList(ai.preparation, baseline.preparation, 6),
+        followUpMessage: typeof ai.followUpMessage === "string" ? ai.followUpMessage : baseline.followUpMessage,
+        thirtyDayPlan: Array.isArray(ai.thirtyDayPlan) ? ai.thirtyDayPlan.slice(0, 3) : baseline.thirtyDayPlan,
+        nextMove: typeof ai.nextMove === "string" ? ai.nextMove : baseline.nextMove,
+        verifiedFacts: baseline.verifiedFacts,
+        limitations: baseline.limitations,
+        source: baseline.source,
+        generatedBy: "Spartan Intelligence AI",
+      } : { ...baseline, generatedBy: "Spartan Intelligence baseline" };
       res.json({ brief });
     } catch (error: any) {
       console.error("Account brief error:", error);
@@ -486,16 +566,43 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     }
   });
 
-  app.post("/api/intelligence/policy-brief", requireElite, lightAiLimit, async (req, res) => {
+  app.post("/api/intelligence/policy-brief", requireElite, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const topic = String(req.body?.topic || "");
       if (!POLICY_TOPICS.includes(topic as (typeof POLICY_TOPICS)[number])) {
         return res.status(400).json({ error: "Choose a policy topic before building the guide." });
       }
       const snapshot = await loadLatestCoverageSnapshot();
-      res.json({
-        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot),
-      });
+      const requestedAudience = String(req.body?.audience || "referral-source");
+      const audience = POLICY_AUDIENCES.includes(requestedAudience as (typeof POLICY_AUDIENCES)[number])
+        ? requestedAudience as (typeof POLICY_AUDIENCES)[number]
+        : "referral-source";
+      const concern = typeof req.body?.concern === "string" ? req.body.concern.trim().slice(0, 500) : undefined;
+      const state = typeof req.body?.state === "string" ? req.body.state.trim().toUpperCase().slice(0, 2) : "";
+      const baseline = buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot, { audience, concern });
+      const prompt = `Tailor this hospice policy field guide to the user's question. Return only JSON.
+OFFICIAL-GUIDANCE BASELINE:
+${JSON.stringify(baseline)}
+USER QUESTION OR CONCERN: ${concern || "Explain the selected topic clearly."}
+AUDIENCE: ${audience}
+STATE CONTEXT: ${state || "Federal only"}
+Return: answer, keyFacts (3-6), talkTrack, reviewChecklist (3-6), whatNotToSay (2-5), escalation.
+Do not make patient-specific eligibility decisions. Do not invent state rules or citations. If state-specific guidance is not supplied, say it must be verified locally. Preserve the meaning of the supplied official baseline.`;
+      const raw = await generateComplexResponse(prompt, "You are Spartan Intelligence, a careful hospice policy educator. Distinguish federal guidance, local process, and patient-specific clinical judgment. Be clear, usable, and conservative.");
+      const ai = parseIntelligenceJson(raw);
+      const brief = ai ? {
+        ...baseline,
+        answer: typeof ai.answer === "string" ? ai.answer : baseline.answer,
+        keyFacts: stringList(ai.keyFacts, baseline.keyFacts, 6),
+        talkTrack: typeof ai.talkTrack === "string" ? ai.talkTrack : baseline.talkTrack,
+        reviewChecklist: stringList(ai.reviewChecklist, baseline.reviewChecklist, 6),
+        whatNotToSay: stringList(ai.whatNotToSay, baseline.whatNotToSay, 5),
+        escalation: typeof ai.escalation === "string" ? ai.escalation : baseline.escalation,
+        question: concern || null,
+        state: state || null,
+        generatedBy: "Spartan Intelligence AI",
+      } : { ...baseline, question: concern || null, state: state || null, generatedBy: "Spartan Intelligence baseline" };
+      res.json({ brief });
     } catch (error: any) {
       console.error("Policy brief error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Policy guide could not be built") });
@@ -504,15 +611,29 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
 
   app.get("/api/intelligence/hospice-market", requireElite, lightAiLimit, async (req, res) => {
     try {
-      const results = await searchCmsHospices({
+      const result = await searchCmsHospices({
         state: String(req.query.state || ""),
         city: req.query.city ? String(req.query.city) : undefined,
+        county: req.query.county ? String(req.query.county) : undefined,
+        zipCode: req.query.zipCode ? String(req.query.zipCode) : undefined,
+        name: req.query.name ? String(req.query.name) : undefined,
+        ownership: req.query.ownership ? String(req.query.ownership) : undefined,
         limit: req.query.limit ? Number(req.query.limit) : 25,
       });
-      res.json({ results, count: results.length });
+      res.json({ ...result, count: result.summary.totalMatched });
     } catch (error: any) {
       console.error("Hospice market lookup error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Hospice market lookup failed") });
+    }
+  });
+
+  app.get("/api/intelligence/hospice-profile", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const profile = await getCmsHospiceProfile(String(req.query.ccn || ""));
+      res.json({ profile });
+    } catch (error: any) {
+      console.error("Hospice profile lookup error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Hospice profile could not be built") });
     }
   });
 
@@ -686,11 +807,13 @@ CONTENT RULES
 1. Use only the facts provided.
 2. Do not claim an existing referral, trust, partnership, patient need, service capability, resource, next meeting, or personal preference unless it appears above.
 3. Keep the body between 90 and 140 words.
-4. Sound warm, observant, and confident.
-5. Include one natural next step only when the context supports it.
-6. Do not use bullets, Markdown, or any dash character.
-7. Do not use generic praise or inflated language.
-8. If the context is too thin, write a restrained note instead of inventing detail.
+4. Sound like a seasoned Spartan Coaching field professional: direct, warm, observant, specific, and easy to read aloud.
+5. Open by connecting to the concrete interaction or detail in the context. Do not begin with a generic thank you sentence when a more specific opening is available.
+6. Include one natural next step only when the context supports it. Make the ask easy to answer.
+7. Preserve the sender's authority without sounding promotional, overly polished, or eager for a referral.
+8. Do not use bullets, Markdown, or any dash character.
+9. Do not use generic praise, corporate filler, or inflated language.
+10. If the context is too thin, write a restrained note and name the one detail the sender should confirm before sending instead of inventing it.
 
 Use this exact format:
 SUBJECT
@@ -700,7 +823,7 @@ MESSAGE
 The complete email with greeting, short paragraphs, and this signature placeholder:
 [Your name]`;
 
-      const systemInstruction = `You are a senior communications advisor for hospice growth professionals. Write credible relationship centered emails that respect the recipient's time. Every sentence must be grounded in the supplied context or be a neutral courtesy. The result should feel personally written, not generated.`;
+      const systemInstruction = `You are the Spartan Coaching field communication editor for hospice growth professionals. Turn the member's real context into a credible note they could naturally say out loud. Protect their voice, respect the recipient's time, and make the next move clear. Every sentence must be grounded in supplied context or be a neutral courtesy.`;
 
       const template = await generateComplexResponse(prompt, systemInstruction);
       
@@ -1544,6 +1667,11 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.post("/api/analytics/track", analyticsLimit, async (req, res) => {
     try {
       const visitorData = insertVisitorSchema.parse(req.body);
+      if (
+        !isSafeAnalyticsPagePath(visitorData.pagePath)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics page path" });
+      }
       
       await storage.trackVisitor(visitorData);
       
@@ -1577,11 +1705,22 @@ Build a specific Monday–Friday territory plan for this week.`;
       const safeMetadata = sanitizeAnalyticsMetadata(
         (bodyWithoutMemberId as { metadata?: unknown }).metadata,
       );
-      const eventData = insertEventTrackingSchema.parse({
+      const parsedEvent = insertEventTrackingSchema.safeParse({
         ...bodyWithoutMemberId,
         metadata: safeMetadata,
         memberId: sessionMemberId,
       });
+      if (!parsedEvent.success) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
+      const eventData = parsedEvent.data;
+      if (
+        !isSafeAnalyticsLabel(eventData.eventType) ||
+        !isSafeAnalyticsLabel(eventData.eventName) ||
+        !isAcceptedClientAnalyticsEvent(eventData.eventType, eventData.eventName)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
       await storage.trackEvent(eventData);
       res.json({ success: true });
     } catch (error: any) {
@@ -1611,6 +1750,16 @@ Build a specific Monday–Friday territory plan for this week.`;
       console.error("AI usage lookup failed:", error);
       res.status(503).json({ error: "AI usage is temporarily unavailable." });
     }
+  });
+
+  app.get("/api/admin/ai-readiness", requireAdmin, (_req, res) => {
+    const status = aiProviderReadinessSnapshot();
+    res.status(status.ok ? 200 : 503).json(status);
+  });
+
+  app.post("/api/admin/ai-readiness/probe", requireAdmin, heavyAiLimit, async (_req, res) => {
+    const result = await runLiveAiProviderProbe();
+    res.status(result.ok ? 200 : 503).json(result);
   });
 
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
@@ -1680,9 +1829,9 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  // ===== TENANT-SAFE ROLE-PLAY PRACTICE =====
-  // New sessions always store memberId + organizationId. Pre-tenant legacy rows
-  // (null ownership) are never listed, read, continued, or mutated here.
+  // ===== SESSION-ONLY ROLE-PLAY PRACTICE =====
+  // Current sessions live only in this process and are discarded after feedback
+  // or a short idle TTL. Legacy database rows are never restored here.
 
   app.post(
     "/api/roleplay/sessions",
@@ -1698,7 +1847,7 @@ Build a specific Monday–Friday territory plan for this week.`;
         }
 
         const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
-        const session = await storage.createRoleplaySession({
+        const session = createEphemeralRoleplaySession({
           memberId: member.id,
           organizationId: org.id,
           scenarioId,
@@ -1714,8 +1863,7 @@ Build a specific Monday–Friday territory plan for this week.`;
           [],
           scenarioDescription,
         );
-        await storage.createRoleplayMessage({
-          sessionId: session.id,
+        appendEphemeralRoleplayMessage(session, {
           role: "character",
           content: initialResponse,
         });
@@ -1739,7 +1887,7 @@ Build a specific Monday–Friday territory plan for this week.`;
    */
   app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      res.json(await storage.getRoleplaySessionsForMember(req.clientMemberId!));
+      res.json([]);
     } catch (error: any) {
       console.error("Get roleplay sessions error:", error);
       res.json([]);
@@ -1748,9 +1896,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.get("/api/roleplay/stats", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      const memberId = req.clientMemberId!;
-      const stats = await storage.getRoleplayStatsForMember(memberId);
-      res.json(stats);
+      res.json([]);
     } catch (error: any) {
       console.error("Get roleplay stats error:", error);
       res.json([]);
@@ -1762,19 +1908,14 @@ Build a specific Monday–Friday territory plan for this week.`;
       const id = paramInt(req, "id");
       if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid session id" });
 
-      const session = await storage.getRoleplaySession(id);
+      const session = getEphemeralRoleplaySession(
+        id,
+        req.clientMemberId!,
+        req.fieldKit?.member?.organizationId ?? -1,
+      );
       if (!session) return res.status(404).json({ error: "Session not found" });
 
-      const memberId = req.clientMemberId!;
-      const orgId = req.fieldKit?.member?.organizationId;
-      const isOwner = session.memberId === memberId;
-      const sameOrg = orgId != null && session.organizationId === orgId;
-      if (!isOwner || !sameOrg) {
-        return res.status(404).json({ error: "Session not found" });
-      }
-
-      const messages = await storage.getRoleplayMessages(id);
-      res.json({ session, messages });
+      res.json({ session, messages: session.messages });
     } catch (error: any) {
       console.error("Get roleplay session error:", error);
       res.status(500).json({ error: clientErrorMessage(error, "Failed to get session") });
@@ -1792,32 +1933,29 @@ Build a specific Monday–Friday territory plan for this week.`;
         if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
 
         const { content } = roleplayMessageSchema.parse(req.body);
-        const session = await storage.getRoleplaySession(sessionId);
-        const orgId = req.fieldKit?.member?.organizationId;
-        if (
-          !session ||
-          session.memberId !== req.clientMemberId ||
-          (orgId != null && session.organizationId !== orgId)
-        ) {
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
           return res.status(404).json({ error: "Session not found" });
         }
         if (session.status !== "active") {
           return res.status(400).json({ error: "Session is no longer active" });
         }
 
-        await storage.createRoleplayMessage({ sessionId, role: "user", content });
-
-        const messages = await storage.getRoleplayMessages(sessionId);
-        const history = messages.map((m) => ({ role: m.role, content: m.content }));
+        const history = [...session.messages];
+        appendEphemeralRoleplayMessage(session, { role: "user", content });
 
         const response = await generateRoleplayResponse(
           session.scenarioId,
           session.scenarioTitle,
           content,
-          history.slice(0, -1),
+          history,
           session.scenarioDescription ?? undefined,
         );
-        await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
+        appendEphemeralRoleplayMessage(session, { role: "character", content: response });
 
         storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
         res.json({ response });
@@ -1841,25 +1979,19 @@ Build a specific Monday–Friday territory plan for this week.`;
         const sessionId = paramInt(req, "id");
         if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
 
-        const session = await storage.getRoleplaySession(sessionId);
-        const orgId = req.fieldKit?.member?.organizationId;
-        if (
-          !session ||
-          session.memberId !== req.clientMemberId ||
-          (orgId != null && session.organizationId !== orgId)
-        ) {
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
           return res.status(404).json({ error: "Session not found" });
         }
 
-        const messages = await storage.getRoleplayMessages(sessionId);
-        const transcript = messages.map((m) => ({ role: m.role, content: m.content }));
+        const transcript = session.messages;
 
         const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
-        const updated = await storage.updateRoleplaySession(sessionId, {
-          status: "completed",
-          feedback,
-          rating,
-        });
+        const updated = finishEphemeralRoleplaySession(session, feedback, rating);
 
         storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_feedback" }).catch(() => {});
         res.json({ session: updated, feedback, rating });

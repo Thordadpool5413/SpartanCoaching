@@ -18,11 +18,10 @@ function getRouterOrigin() {
  * 1. Associated Domains enabled on App ID com.spartancoaching.fieldkit
  * 2. A provisioning profile that includes com.apple.developer.associated-domains
  *
- * Default store scripts set EAS_SKIP_ASSOCIATED_DOMAINS=1 so TestFlight ships
- * against the existing App Store profile (no invalid eas-cli flags; 21.x has no
- * --clear-provisioning-profile). After enabling the capability on Apple and
- * regenerating the profile with interactive `eas credentials`, build with:
- *   pnpm run build:ios:testflight:with-applinks
+ * Store profiles omit this entitlement by default so a stale or unconfigured
+ * Apple capability cannot break an otherwise valid TestFlight build. Use an
+ * explicit `*-applinks` profile only after Associated Domains is enabled on
+ * the Apple App ID and the distribution provisioning profile is regenerated.
  */
 function getAssociatedDomains() {
   const skip =
@@ -177,7 +176,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Open Explore",
+            UIApplicationShortcutItemTitle: "Open Tools",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {

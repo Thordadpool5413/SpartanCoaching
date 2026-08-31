@@ -34,4 +34,15 @@ describe("AI tool connections", () => {
       getSpartanAiToolConnections("medical-record-lcd-verifier"),
     ).not.toHaveLength(0);
   });
+
+  it("turns resource handoffs into a human-readable creative brief", () => {
+    const input = buildConnectedToolInput("content-recommender", "content-generator", {
+      selectedResource: "Cold Call Opening Script",
+      fieldJob: "Prepare a credible opening",
+      expectedOutcome: "A copy-ready talk track",
+    });
+    expect(input.brief).toContain("Use the Cold Call Opening Script resource");
+    expect(input.brief).toContain("Field job: Prepare a credible opening");
+    expect(input.brief).not.toContain('"selectedResource"');
+  });
 });

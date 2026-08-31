@@ -17,12 +17,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
+import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { font } from "@/lib/typography";
+import {
+  getResourceWorkGuide,
+  getToolById,
+  type FieldKitResourceWorkflowCustomization,
+} from "@workspace/field-kit-catalog";
 
 type LearnTab = "articles" | "podcasts" | "resources";
 
@@ -97,6 +104,27 @@ function openLibraryItem(input: {
   } as any);
 }
 
+function applyResourceWithSpartan(input: {
+  title: string;
+  description?: string | null;
+  whenToUse?: string;
+  expectedOutcome?: string;
+}) {
+  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  stageAiToolHandoff({
+    sourceToolId: "content-recommender",
+    targetToolId: "content-generator",
+    output: {
+      selectedResource: input.title,
+      description: input.description || "",
+      whenToUse: input.whenToUse || "",
+      expectedOutcome: input.expectedOutcome || "",
+      instruction: "Help the member apply this approved resource to the field job in front of them. Do not invent claims or patient context.",
+    },
+  });
+  router.push("/ai-tools/content-generator" as any);
+}
+
 export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -123,7 +151,14 @@ export default function LearnScreen() {
     enabled: activeTab === "resources",
   });
   const providerQuery = useQuery<{
-    items: Array<{ id: number; title: string; description?: string | null; fileUrl: string; kind: string }>;
+    items: Array<{
+      id: number;
+      title: string;
+      description?: string | null;
+      fileUrl: string;
+      kind: string;
+      meta?: { workflow?: FieldKitResourceWorkflowCustomization | null } | null;
+    }>;
   }>({
     queryKey: ["provider-resources"],
     queryFn: () => apiGet("/api/v1/provider-resources"),
@@ -142,6 +177,7 @@ export default function LearnScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-learn">
+      <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <SpartanHeader title="Library" />
         <View style={[styles.search, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
@@ -149,7 +185,7 @@ export default function LearnScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Search tools and resources"
+            placeholder="Search the Library"
             placeholderTextColor={colors.mutedForeground}
             style={[styles.searchInput, { color: colors.foreground }, font("regular")]}
             returnKeyType="search"
@@ -275,7 +311,7 @@ export default function LearnScreen() {
 
       {activeTab === "resources" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
-          <LibraryModeIntro icon="folder" title="Use" body="Open working tools, approved field resources, and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
+          <LibraryModeIntro icon="folder" title="Use" body="Open approved field resources and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
             <Feather name="shield" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>
@@ -283,10 +319,6 @@ export default function LearnScreen() {
               <Text style={[styles.safetyBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient names, dates of birth, medical record numbers, or other patient identifiers.</Text>
             </View>
           </View>
-
-          <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 22 }, font("bold")]}>WORKING TOOLS</Text>
-          <LibraryRow title="Grounded Research" subtitle="Ask a territory or market question with source aware support." meta="Interactive tool" icon="search" onPress={() => router.push(openToolHref("research") as any)} testID="learn-link-research-tool" />
-          <LibraryRow title="Weekly Plan" subtitle="Build, save, and resume the week across devices." meta="Interactive worksheet" icon="edit-3" onPress={() => router.push("/resource-work" as any)} testID="learn-link-resource-work" />
 
           {!canUseFieldKit ? (
             <View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -302,7 +334,16 @@ export default function LearnScreen() {
               {providerQuery.isLoading ? <Loading compact /> : null}
               {!providerQuery.isLoading && providerItems.length === 0 ? <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>No private organization resources have been published.</Text> : null}
               {providerItems.map((item) => (
-                <LibraryRow key={item.id} title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
+                <View key={item.id}>
+                  <LibraryRow title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
+                  <ResourceWorkflowNote
+                    category={item.kind}
+                    workflow={item.meta?.workflow}
+                    resourceTitle={item.title}
+                    resourceDescription={item.description}
+                    testID={`provider-resource-workflow-${item.id}`}
+                  />
+                </View>
               ))}
             </View>
           ) : null}
@@ -320,24 +361,34 @@ export default function LearnScreen() {
                   const architecture = item.architecture || item.contentArchitecture;
                   const version = item.lifecycle?.versionLabel || item.versionLabel;
                   return (
-                    <LibraryRow
-                      key={item.id}
-                      title={item.title}
-                      subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
-                      meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
-                      icon="file-text"
-                      onPress={() => openLibraryItem({
-                        title: item.title,
-                        description: item.description,
-                        url: item.fileUrl,
-                        kind: "resource",
-                        whenToUse: architecture?.whenToUse,
-                        whyItMatters: architecture?.whyItMatters,
-                        expectedOutcome: architecture?.expectedOutcome,
-                        version: version || undefined,
-                      })}
-                      testID={`resource-${item.id}`}
-                    />
+                    <View key={item.id}>
+                      <LibraryRow
+                        title={item.title}
+                        subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
+                        meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
+                        icon="file-text"
+                        onPress={() => openLibraryItem({
+                          title: item.title,
+                          description: item.description,
+                          url: item.fileUrl,
+                          kind: "resource",
+                          whenToUse: architecture?.whenToUse,
+                          whyItMatters: architecture?.whyItMatters,
+                          expectedOutcome: architecture?.expectedOutcome,
+                          version: version || undefined,
+                        })}
+                        testID={`resource-${item.id}`}
+                      />
+                      <ResourceWorkflowNote
+                        category={item.category}
+                        relatedToolIds={architecture?.relatedToolIds}
+                        resourceTitle={item.title}
+                        resourceDescription={item.description}
+                        whenToUse={architecture?.whenToUse}
+                        expectedOutcome={architecture?.expectedOutcome}
+                        testID={`resource-workflow-${item.id}`}
+                      />
+                    </View>
                   );
                 })}
               </View>
@@ -385,6 +436,68 @@ function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: s
   );
 }
 
+function ResourceWorkflowNote({
+  category,
+  relatedToolIds,
+  workflow: customWorkflow,
+  resourceTitle,
+  resourceDescription,
+  whenToUse,
+  expectedOutcome,
+  testID,
+}: {
+  category?: string | null;
+  relatedToolIds?: string[];
+  workflow?: FieldKitResourceWorkflowCustomization | null;
+  resourceTitle: string;
+  resourceDescription?: string | null;
+  whenToUse?: string;
+  expectedOutcome?: string;
+  testID: string;
+}) {
+  const colors = useColors();
+  const workflow = getResourceWorkGuide({
+    category,
+    relatedToolIds,
+    workflow: customWorkflow,
+  });
+  const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
+  const openNextTool = () => {
+    if (!nextTool) return;
+    if (nextTool.mobileToolTab) {
+      router.push(openToolHref(nextTool.mobileToolTab as any) as any);
+      return;
+    }
+    router.push((nextTool.mobileRoute || "/(tabs)/tools") as any);
+  };
+  return (
+    <View style={[styles.resourceWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
+      <Text style={[styles.resourceWorkflowMeta, { color: colors.primary }, font("bold")]}>{workflow.phase.toUpperCase()} · FIELD WORKFLOW</Text>
+      <Text style={[styles.resourceWorkflowTitle, { color: colors.foreground }, font("bold")]}>Job: {workflow.job}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Safe use: {workflow.inputHint}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Expected output: {workflow.outputPreview}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Saved: {workflow.persistence}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Review: {workflow.reviewCheckpoint}</Text>
+      {nextTool ? (
+        <Pressable onPress={openNextTool} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.resourceWorkflowNext}>
+          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
+          <Feather name="arrow-right" size={15} color={colors.primary} />
+        </Pressable>
+      ) : null}
+      <Pressable
+        onPress={() => applyResourceWithSpartan({ title: resourceTitle, description: resourceDescription, whenToUse, expectedOutcome })}
+        accessibilityRole="button"
+        accessibilityLabel={`Apply ${resourceTitle} with Spartan`}
+        style={styles.resourceAiAction}
+      >
+        <Feather name="zap" size={15} color="#FFFFFF" />
+        <Text style={[styles.resourceAiActionText, font("bold")]}>Apply with Spartan</Text>
+        <Feather name="arrow-right" size={15} color="#FFFFFF" />
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 14, borderBottomWidth: StyleSheet.hairlineWidth },
@@ -405,11 +518,11 @@ const styles = StyleSheet.create({
   methodIcon: { width: 31, height: 31, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   methodLabel: { fontSize: 13 },
   featureCard: { minHeight: 212, borderWidth: 1, borderRadius: 22, padding: 20, justifyContent: "space-between" },
-  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, minWidth: 0 },
   featureIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   featureMeta: { fontSize: 10, letterSpacing: 1.5 },
-  featureTitle: { fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
-  featureBody: { fontSize: 13, lineHeight: 19, marginTop: 8 },
+  featureTitle: { flexShrink: 1, fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
+  featureBody: { flexShrink: 1, fontSize: 13, lineHeight: 19, marginTop: 8 },
   featureAction: { minHeight: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 18 },
   availableBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
   availableText: { fontSize: 9, letterSpacing: 0.8 },
@@ -417,8 +530,15 @@ const styles = StyleSheet.create({
   row: { minHeight: 132, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 20, padding: 18, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 12 },
   rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
-  rowTitle: { fontSize: 15, lineHeight: 20 },
-  rowBody: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  rowTitle: { flexShrink: 1, fontSize: 15, lineHeight: 20 },
+  rowBody: { flexShrink: 1, fontSize: 12, lineHeight: 17, marginTop: 4 },
+  resourceWorkflow: { marginTop: -4, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
+  resourceWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
+  resourceWorkflowTitle: { fontSize: 12, lineHeight: 17, marginTop: 5 },
+  resourceWorkflowBody: { fontSize: 10, lineHeight: 15, marginTop: 5 },
+  resourceWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
+  resourceAiAction: { minHeight: 44, marginTop: 10, borderRadius: 13, backgroundColor: "#C8102E", paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  resourceAiActionText: { color: "#FFFFFF", fontSize: 12 },
   modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
   modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },

@@ -45,6 +45,14 @@
         "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
       }
     },
+    "testflight-no-applinks": {
+      "extends": "testflight",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "environment": "production",
@@ -64,6 +72,14 @@
         "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
         "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
         "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
+      }
+    },
+    "production-no-applinks": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       }
     }
   },

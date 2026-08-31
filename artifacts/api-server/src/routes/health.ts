@@ -12,6 +12,7 @@ import {
 } from "../observability/reliabilityTargets";
 import { buildClientConfig } from "../delivery/clientConfig";
 import { buildOpsReadinessSnapshot } from "@workspace/db/ops-readiness";
+import { aiProviderReadinessSnapshot } from "../ai/providerReadiness";
 
 const router: IRouter = Router();
 
@@ -43,6 +44,11 @@ function sendHealthz(_req: import("express").Request, res: import("express").Res
 router.get("/healthz", sendHealthz);
 /** Alias used by some deploy smokes and external monitors */
 router.get("/health", sendHealthz);
+
+router.get("/healthz/ai", (_req, res) => {
+  const status = aiProviderReadinessSnapshot();
+  res.status(status.ok ? 200 : 503).json(status);
+});
 
 /**
  * GET /healthz/clinical

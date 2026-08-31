@@ -1,4 +1,11 @@
 import { test, expect } from "vitest";
+import {
+  appendEphemeralRoleplayMessage,
+  clearEphemeralRoleplaySessionsForTest,
+  createEphemeralRoleplaySession,
+  finishEphemeralRoleplaySession,
+  getEphemeralRoleplaySession,
+} from "../ephemeralRoleplay";
 
 /**
  * Pure ownership helpers mirrored by the tenant-safe roleplay route layer.
@@ -81,4 +88,29 @@ test("platform admin can read owned sessions but mutate only as owner", () => {
 test("missing session is denied", () => {
   expect(canMemberAccess(undefined, 1, true)).toBe(false);
   expect(canMemberMutate(null, 1)).toBe(false);
+});
+
+test("session-only role-play content is inaccessible after feedback", () => {
+  clearEphemeralRoleplaySessionsForTest();
+  const session = createEphemeralRoleplaySession({
+    memberId: 10,
+    organizationId: 5,
+    scenarioId: "intake",
+    scenarioTitle: "Intake conversation",
+    scenarioDescription: "Private scenario detail",
+    status: "active",
+  });
+  appendEphemeralRoleplayMessage(session, {
+    role: "user",
+    content: "Private member message",
+  });
+
+  expect(getEphemeralRoleplaySession(session.id, 10, 5)?.messages).toEqual([
+    { role: "user", content: "Private member message" },
+  ]);
+  expect(getEphemeralRoleplaySession(session.id, 99, 5)).toBeUndefined();
+
+  const completed = finishEphemeralRoleplaySession(session, "Private generated feedback", 4);
+  expect(completed.feedback).toBe("Private generated feedback");
+  expect(getEphemeralRoleplaySession(session.id, 10, 5)).toBeUndefined();
 });

@@ -15,6 +15,7 @@ import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/dow
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Copy, Download, Loader2, Phone } from "lucide-react";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 const PROSPECT_TYPES = [
   "SNF Director of Nursing",
@@ -215,6 +216,19 @@ export default function ColdCallScript() {
               <div data-testid="text-script-content">
                 <MarkdownContent content={script} />
               </div>
+              <ToolResultActions
+                toolId="cold-call-script"
+                saveResult={{ toolId: "cold-call-script", title: `${prospectName || prospectType} call script`, value: script, input: { prospectType, prospectName, situation, repName }, nextAction: { title: "Practice the opening", href: "/tools/role-play" } }}
+                description="Read the opening aloud once, then use Role-Play to pressure-test the ask before you dial."
+                actions={[
+                  {
+                    id: "practice-opening",
+                    label: "Practice Opening in Role-Play",
+                    href: "/tools/role-play",
+                  },
+                ]}
+                persistenceNote="Save the script with its prospect context before rehearsing it."
+              />
             </Card>
           )}
 

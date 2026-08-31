@@ -54,6 +54,28 @@ describe("a11y contracts (source-level)", () => {
     expect(layout).toMatch(/role="menu"/);
     expect(layout).toMatch(/role="menuitem"/);
     expect(layout).toMatch(/Escape/);
+    expect(layout).toMatch(/ArrowDown/);
+    expect(layout).toMatch(/ArrowUp/);
+    expect(layout).toMatch(/triggerRef\.current\?\.focus/);
+  });
+
+  it("appearance picker is labeled, focus-contained, and restores the trigger", () => {
+    const appearance = read("components/AppearanceControls.tsx");
+    expect(appearance).toMatch(/aria-modal="true"/);
+    expect(appearance).toMatch(/aria-labelledby="appearance-dialog-title"/);
+    expect(appearance).toMatch(/aria-describedby="appearance-dialog-description"/);
+    expect(appearance).toMatch(/data-appearance-close/);
+    expect(appearance).toMatch(/closePicker\(true\)/);
+    expect(appearance).toMatch(/aria-pressed/);
+  });
+
+  it("contact submission errors preserve context and offer an inline retry", () => {
+    const contact = read("pages/Contact.tsx");
+    expect(contact).toMatch(/contact-submit-error/);
+    expect(contact).toMatch(/button-contact-retry/);
+    expect(contact).toMatch(/Email Nick directly/);
+    expect(contact).toMatch(/aria-current=\{isActive \? "step"/);
+    expect(contact).toMatch(/shouldFocus: true/);
   });
 
   it("Home founder photo reserves layout space (CLS)", () => {
@@ -74,7 +96,7 @@ describe("a11y contracts (source-level)", () => {
 
   it("AI tool clinical pages hide marketing chrome when PHI", () => {
     const tool = read("pages/AiTool.tsx");
-    expect(tool).toMatch(/showChrome=\{!tool\.containsPhi\}/);
+    expect(tool).toMatch(/showChrome=\{false\}/);
   });
 
   // —— HSP-35 extensions ——

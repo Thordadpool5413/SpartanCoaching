@@ -164,8 +164,8 @@ function expectStaffingTableMatchesEngine(
     const cells = within(tr).getAllByRole("cell");
     expect(cells).toHaveLength(4);
     expect(cells[0].textContent).toBe(row.role);
-    expect(cells[1].textContent).toBe(String(row.fte));
-    expect(cells[2].textContent).toBe(fmtK(row.salary));
+    expect((within(cells[1]).getByRole("spinbutton") as HTMLInputElement).value).toBe(String(row.fte));
+    expect((within(cells[2]).getByRole("spinbutton") as HTMLInputElement).value).toBe(String(row.salary));
     expect(cells[3].textContent).toBe(fmtK(row.annualCost));
   });
 
@@ -175,6 +175,19 @@ function expectStaffingTableMatchesEngine(
 }
 
 describe("staffing table matches engine output", () => {
+  it("recalculates payroll and profit from edited FTE and salary", () => {
+    const view = renderPage();
+    const payrollBefore = view.getByTestId("text-total-payroll").textContent;
+    const profitBefore = view.getByTestId("text-annual-profit").textContent;
+
+    fireEvent.change(view.getByTestId("input-staff-fte-2"), { target: { value: "6.5" } });
+    fireEvent.change(view.getByTestId("input-staff-salary-2"), { target: { value: "125000" } });
+
+    expect(view.getByTestId("text-total-fte").textContent).toContain("FTE");
+    expect(view.getByTestId("text-total-payroll").textContent).not.toBe(payrollBefore);
+    expect(view.getByTestId("text-annual-profit").textContent).not.toBe(profitBefore);
+  });
+
   for (const adc of [20, 50, 80]) {
     it(`renders engine staffing rows at ADC ${adc} (base preset)`, () => {
       const view = renderPage();

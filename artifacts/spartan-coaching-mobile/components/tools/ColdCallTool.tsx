@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { Share, Text, TextInput, Pressable, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
-import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
-import { saveToolLastResult } from "@/lib/toolDraftCache";
+import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 export function ColdCallTool() {
   const colors = useColors();
@@ -38,25 +38,15 @@ export function ColdCallTool() {
           prospectName: prospectName || undefined,
           situation,
         },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       const text = data.script || data.text || data.result || "";
       if (!text) throw new Error("Empty script response");
       setResult(text);
-      await saveToolLastResult("cold", text);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
-        await enqueueGenerate({
-          toolId: "cold",
-          path: "/api/cold-call-script",
-          body: {
-            prospectType,
-            prospectName: prospectName || undefined,
-            situation,
-          },
-          label: "Cold Call Script",
-        });
-        setError("Offline or network error — queued to retry.");
+        setError("No call script was created while you were offline. Reconnect and submit again; your input was not saved.");
       } else {
         setError(userFacingApiError(e));
       }
@@ -70,6 +60,7 @@ export function ColdCallTool() {
       title="Cold Call Script"
       subtitle="Openers, objection handlers, and a clear next-step ask."
       category="Prepare"
+      catalogToolId="cold-call"
       ctaTitle="Generate script"
       onCta={generate}
       ctaLoading={loading}
@@ -118,34 +109,13 @@ export function ColdCallTool() {
         multiline
         textAlignVertical="top"
       />
-      {!!error && (
-        <Text style={[styles.errorText, { color: colors.primary }, font("regular")]}>{error}</Text>
-      )}
-      {!!result && (
-        <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.resultText, { color: colors.foreground }, font("regular")]}>{result}</Text>
-        </View>
-      )}
-      {!!result && (
-        <Pressable
-          onPress={() => void Share.share({ message: result })}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            borderWidth: 1.5,
-            borderColor: colors.border,
-            borderRadius: 10,
-            paddingVertical: 11,
-            marginTop: 12,
-            minHeight: 44,
-          }}
-        >
-          <Feather name="share" size={15} color={colors.mutedForeground} />
-          <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("semibold")]}>Share</Text>
-        </Pressable>
-      )}
+      <FieldResultPanel
+        title="Cold call script"
+        content={result || undefined}
+        loading={loading && !result}
+        error={error}
+        nextAction={MOBILE_FIELD_RESULT_ACTIONS["cold-call"]}
+      />
     </ToolShell>
   );
 }

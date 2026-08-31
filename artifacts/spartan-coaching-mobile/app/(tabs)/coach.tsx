@@ -44,9 +44,9 @@ import {
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
+import { userFacingApiError } from "@/lib/offlineQueue";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
-import { HelmetMark } from "@/components/brand/HelmetMark";
 import { cleanFieldCopy } from "@/components/FieldResultPanel";
 import { CoachEliteGate } from "@/components/coach/CoachEliteGate";
 import { CoachSettingsPanel } from "@/components/coach/CoachSettingsPanel";
@@ -159,7 +159,10 @@ export default function CoachScreen() {
       const message =
         error instanceof ApiError && error.status === 403
           ? "Hospice Sales Pro Elite is required for private voice rehearsal."
-          : "The recording could not be transcribed. You can still type your rehearsal.";
+          : userFacingApiError(
+              error,
+              "The recording could not be transcribed. You can still type your rehearsal.",
+            );
       Alert.alert("Transcription unavailable", message);
     } finally {
       setBusy(false);
@@ -203,7 +206,10 @@ export default function CoachScreen() {
             ? "Your account needs Hospice Sales Pro Elite to use Spartan Coach."
             : error instanceof ApiError && error.status === 401
               ? "Sign in again. Your rehearsal remains on this iPhone."
-              : "Coach could not review this rehearsal. Your wording remains here.";
+              : userFacingApiError(
+                  error,
+                  "Coach could not review this rehearsal. Your wording remains here.",
+                );
       Alert.alert("Review unavailable", message);
     } finally {
       setBusy(false);
@@ -243,7 +249,10 @@ export default function CoachScreen() {
             ? "Your account needs Hospice Sales Pro Elite to continue with Coach."
             : error instanceof ApiError && error.status === 401
               ? "Sign in again to continue this private conversation."
-              : "Coach could not respond. Your message is still here so you can try again.";
+              : userFacingApiError(
+                  error,
+                  "Coach could not respond. Your message is still here so you can try again.",
+                );
       Alert.alert("Coach unavailable", message);
     } finally {
       setCoachReplying(false);
@@ -280,7 +289,10 @@ export default function CoachScreen() {
       const message =
         error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
           ? "Remove names, dates, contact details, and other patient identifiers."
-          : "Coach could not start the conversation. Your message is still here so you can try again.";
+          : userFacingApiError(
+              error,
+              "Coach could not start the conversation. Your message is still here so you can try again.",
+            );
       Alert.alert("Coach unavailable", message);
     } finally {
       setCoachReplying(false);
@@ -291,9 +303,12 @@ export default function CoachScreen() {
   async function saveCommitment() {
     if (!feedback || !commitment.trim() || busy) return;
     setBusy(true);
+    const savedCommitment = commitment.trim();
     try {
-      await saveCoachMemory("commitment", commitment.trim());
-      if (user?.member?.id) await cacheCommitment(user.member.id, commitment.trim());
+      // Cache + account sync first: the local mutation remains queued on a
+      // weak connection, while the existing Coach memory stays in step online.
+      if (user?.member?.id) await cacheCommitment(user.member.id, savedCommitment);
+      await saveCoachMemory("commitment", savedCommitment);
       void trackProductOutcome("next_action_confirmation", { toolId: "spartan_coach", platform: "ios" });
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
@@ -303,8 +318,10 @@ export default function CoachScreen() {
       );
     } catch {
       Alert.alert(
-        "Commitment not saved",
-        "Try again when your connection is available.",
+        user?.member?.id ? "Commitment saved locally" : "Commitment not saved",
+        user?.member?.id
+          ? "It will sync to your account when you reconnect."
+          : "Sign in to keep this commitment across devices.",
       );
     } finally {
       setBusy(false);
@@ -415,7 +432,6 @@ export default function CoachScreen() {
           showsVerticalScrollIndicator={false}
         >
           <SpartanHeader title="Coach" />
-          <HelmetMark size={52} />
           <View style={styles.coachHomeBadge}>
             <Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text>
           </View>

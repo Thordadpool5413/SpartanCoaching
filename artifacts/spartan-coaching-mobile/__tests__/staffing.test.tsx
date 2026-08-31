@@ -35,12 +35,8 @@ function expectStaffingMatchesEngine(
     expect(within(tr).getByTestId(`text-staff-role-${i}`).props.children).toBe(
       row.role,
     );
-    expect(within(tr).getByTestId(`text-staff-fte-${i}`).props.children).toBe(
-      String(row.fte),
-    );
-    expect(within(tr).getByTestId(`text-staff-salary-${i}`).props.children).toBe(
-      fmtK(row.salary),
-    );
+    expect(within(tr).getByTestId(`input-staff-fte-${i}`).props.value).toBe(String(row.fte));
+    expect(within(tr).getByTestId(`input-staff-salary-${i}`).props.value).toBe(String(row.salary));
     expect(within(tr).getByTestId(`text-staff-cost-${i}`).props.children).toBe(
       fmtK(row.annualCost),
     );
@@ -52,6 +48,13 @@ function expectStaffingMatchesEngine(
 }
 
 describe("mobile staffing screen matches engine output", () => {
+  it("recalculates payroll after an FTE and salary edit", () => {
+    const view = render(<StaffingScreen />);
+    const before = view.getByTestId("text-total-payroll").props.children;
+    fireEvent.changeText(view.getByTestId("input-staff-fte-2"), "6.5");
+    fireEvent.changeText(view.getByTestId("input-staff-salary-2"), "125000");
+    expect(view.getByTestId("text-total-payroll").props.children).not.toBe(before);
+  });
   for (const adc of [20, 50, 80]) {
     it(`renders engine staffing rows at ADC ${adc} (base preset)`, () => {
       const view = render(<StaffingScreen />);

@@ -83,7 +83,7 @@ function RootLayoutNav() {
         name="sales-workflow"
         options={{ title: "Field Planner", headerBackTitle: "Back" }}
       />
-      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Explore" }} />
+      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Tools" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>

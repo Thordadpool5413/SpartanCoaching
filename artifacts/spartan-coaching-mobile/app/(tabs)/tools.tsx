@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_TOOLS,
+  getToolWorkGuide,
   type FieldKitCategory,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
@@ -27,7 +28,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
-import LearnScreen from "./learn";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 
 type SearchHit = {
   id: string;
@@ -46,8 +47,8 @@ const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
   "/portal": "/(tabs)",
   "/": "/(tabs)",
   "/tools": "/(tabs)/tools",
-  "/learn": "/(tabs)/tools?view=library",
-  "/library": "/(tabs)/tools?view=library",
+  "/learn": "/(tabs)/learn",
+  "/library": "/(tabs)/learn",
   "/coach": "/(tabs)/coach",
   "/contact": "/(tabs)/contact",
   "/account": "/(tabs)/account",
@@ -55,7 +56,10 @@ const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
 
 function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["name"] {
   const icons: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
+    "sales-workflow": "target",
     playbooks: "book-open",
+    objections: "message-circle",
+    "role-play": "users",
     research: "search",
     transcribe: "mic",
     "email-templates": "mail",
@@ -65,19 +69,16 @@ function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["nam
     branch: "git-branch",
     "cold-call": "phone",
     "weekly-plan": "calendar",
+    "brand-video": "video",
   };
   return icons[tool.id] || "arrow-up-right";
 }
 
 function mobileToolTitle(tool: FieldKitTool) {
-  return tool.id === "sales-workflow" ? "Field Visit Planner" : tool.title;
+  return tool.title;
 }
 
 export default function ExploreScreen() {
-  const params = useLocalSearchParams<{ view?: string | string[] }>();
-  const rawView = params.view;
-  const view = Array.isArray(rawView) ? rawView[0] : rawView;
-  if (view === "library") return <LearnScreen />;
   return <ToolsCatalogScreen />;
 }
 
@@ -119,7 +120,18 @@ function ToolsCatalogScreen() {
     const timer = setTimeout(() => {
       void apiGet<SearchResponse>(`/api/v1/search?q=${encodeURIComponent(q)}&limit=12`)
         .then((data) => {
-          if (!cancelled) setRemoteGroups(data.groups || []);
+          if (!cancelled) {
+            // Explore owns interactive tools; Library owns resources. Do not
+            // let a broad search quietly turn this screen into both.
+            setRemoteGroups(
+              (data.groups || [])
+                .map((group) => ({
+                  ...group,
+                  hits: group.hits.filter((hit) => hit.type !== "resource"),
+                }))
+                .filter((group) => group.hits.length > 0),
+            );
+          }
         })
         .catch(() => {
           if (!cancelled) setRemoteGroups([]);
@@ -142,7 +154,7 @@ function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Tool could not open", "Return to Explore and try again. If this continues, send a support request from Account.");
+    Alert.alert("Tool could not open", "Return to Tools and try again. If this continues, send a support request from Account.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -163,7 +175,7 @@ function ToolsCatalogScreen() {
       }
     }
     if (hit.type === "resource") {
-      router.push("/(tabs)/tools?view=library" as any);
+      router.push("/(tabs)/learn" as any);
       return;
     }
     const native = NATIVE_SEARCH_DESTINATIONS[hit.href];
@@ -171,7 +183,7 @@ function ToolsCatalogScreen() {
       router.push(native as any);
       return;
     }
-    Alert.alert("Result could not open", "Use Explore to find the native version. If it is missing, send a support request from Account.");
+    Alert.alert("Result could not open", "Use Tools to find the native version. If it is missing, send a support request from Account.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -180,7 +192,9 @@ function ToolsCatalogScreen() {
       !q ||
       tool.title.toLowerCase().includes(q) ||
       tool.description.toLowerCase().includes(q) ||
-      (tool.whenToUse || "").toLowerCase().includes(q)
+       (tool.whenToUse || "").toLowerCase().includes(q) ||
+       (tool.scenario || "").toLowerCase().includes(q) ||
+       (tool.outcome || "").toLowerCase().includes(q)
     );
 
   const visibleTools = FIELD_KIT_TOOLS.filter(matches);
@@ -191,10 +205,11 @@ function ToolsCatalogScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
+      <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>EVERYTHING IN ONE PLACE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>All {FIELD_KIT_TOOLS.length} field tools, the complete Library, private Coach, and saved work. Nothing important is buried.</Text>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the job in front of you, then open the right workspace. Library and My Work stay separate so nothing feels buried.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -224,10 +239,8 @@ function ToolsCatalogScreen() {
         {!q ? (
           <View style={styles.destinationGrid} testID="explore-destinations">
             <ExploreDestination icon="crosshair" title="Spartan Intelligence" body={canUseElite ? "Verify referral sources, explore markets, and prepare with CMS data." : "Elite guided provider, market, and CMS policy intelligence."} onPress={() => router.push((canUseElite ? "/spartan-intelligence" : "/access") as any)} />
-            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
+            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/learn" as any)} />
             <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
-            <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />
-            <ExploreDestination icon="compass" title="Guided tour" body="Walk through preparation, practice, Coach feedback, and follow through." onPress={() => router.push("/tour" as any)} />
           </View>
         ) : null}
 
@@ -240,7 +253,7 @@ function ToolsCatalogScreen() {
           </View>
         ) : null}
 
-        <View style={{ marginTop: q ? 0 : 20 }} testID="complete-tool-directory">
+        <View style={{ marginTop: q ? 0 : 4 }} testID="complete-tool-directory">
           <View style={styles.directoryHeading}>
             <View style={{ flex: 1 }}>
               <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
@@ -258,7 +271,16 @@ function ToolsCatalogScreen() {
           {toolGroups.map((group) => (
             <View key={group.category} style={styles.toolGroup} testID={`tool-category-${group.category.toLowerCase()}`}>
               <View style={styles.groupTitleRow}><Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.category}</Text><Text style={[styles.groupCount, { color: colors.mutedForeground }, font("semibold")]}>{group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}</Text></View>
-              {group.tools.map((tool) => <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />)}
+               {group.tools.map((tool) => {
+                 const guide = getToolWorkGuide(tool);
+                  const nextTool = guide.nextToolId ? FIELD_KIT_TOOLS.find((item) => item.id === guide.nextToolId) : undefined;
+                  return (
+                    <View key={tool.id}>
+                      <ActionRow title={mobileToolTitle(tool)} subtitle={`${guide.phase} · ${guide.outputPreview}`} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
+                      <NativeCatalogWorkflow guide={guide} nextTool={nextTool} onOpenTool={openCatalogTool} testID={`catalog-workflow-${tool.id}`} />
+                    </View>
+                  );
+               })}
             </View>
           ))}
         </View>
@@ -329,6 +351,35 @@ function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: s
   );
 }
 
+function NativeCatalogWorkflow({
+  guide,
+  nextTool,
+  onOpenTool,
+  testID,
+}: {
+  guide: ReturnType<typeof getToolWorkGuide>;
+  nextTool?: FieldKitTool;
+  onOpenTool: (tool: FieldKitTool) => void;
+  testID: string;
+}) {
+  const colors = useColors();
+  return (
+    <View style={[styles.catalogWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
+      <Text style={[styles.catalogWorkflowMeta, { color: colors.primary }, font("bold")]}>{guide.phase.toUpperCase()} · FOR {guide.audience.toUpperCase()}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Safe input: {guide.inputHint}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Expected output: {guide.outputPreview}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Saved: {guide.persistence}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Review: {guide.reviewCheckpoint}</Text>
+      {nextTool ? (
+        <Pressable onPress={() => onOpenTool(nextTool)} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.catalogWorkflowNext}>
+          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
+          <Feather name="arrow-right" size={15} color={colors.primary} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   header: { paddingHorizontal: 22, paddingBottom: 20, borderBottomWidth: StyleSheet.hairlineWidth },
@@ -376,6 +427,10 @@ const styles = StyleSheet.create({
   actionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   rowBadge: { fontSize: 8, letterSpacing: 0.8, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, overflow: "hidden" },
   actionBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
+  catalogWorkflow: { marginTop: -5, marginBottom: 15, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
+  catalogWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
+  catalogWorkflowLine: { fontSize: 10, lineHeight: 15, marginTop: 5 },
+  catalogWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
   empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
   emptyTitle: { fontSize: 18, marginTop: 10 },
   emptyBody: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },
