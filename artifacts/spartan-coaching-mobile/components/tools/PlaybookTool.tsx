@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
@@ -33,10 +33,11 @@ export function PlaybookTool() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiPost<{ playbook: string }>("/api/playbooks", {
-        scenario,
-        desiredOutcomes: desiredOutcomes || undefined,
-      });
+      const data = await apiPost<{ playbook: string }>(
+        "/api/playbooks",
+        { scenario, desiredOutcomes: desiredOutcomes || undefined },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setResult(data.playbook);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
@@ -38,11 +38,15 @@ export function EmailTool() {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiPost<{ template: string }>("/api/email-templates", {
-        templateType: emailType,
-        recipientName: recipientName || undefined,
-        context: emailContext,
-      });
+      const data = await apiPost<{ template: string }>(
+        "/api/email-templates",
+        {
+          templateType: emailType,
+          recipientName: recipientName || undefined,
+          context: emailContext,
+        },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       setResult(data.template);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {

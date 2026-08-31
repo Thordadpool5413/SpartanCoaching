@@ -34,10 +34,10 @@ describe("craft Phase 5 operator pack", () => {
     const shots = fs.readFileSync(path.join(storeDir, "screenshot-shot-list.md"), "utf8");
     expect(shots).toMatch(/01-home-next-move\.png/);
     expect(shots).toMatch(/02-private-spartan-coach\.png/);
-    expect(shots).toMatch(/03-explore\.png/);
+    expect(shots).toMatch(/03-tools\.png/);
     expect(shots).toMatch(/04-my-work\.png/);
     expect(shots).toMatch(/05-library\.png/);
-    expect(shots).toMatch(/Home, Coach, Explore, My Work, and Account/i);
+    expect(shots).toMatch(/Home, Coach, Tools, My Work, and Account/i);
     expect(shots).toMatch(/Never upload legacy generated mockups/i);
     expect(shots).toMatch(/Do not generate, redraw, or compose product UI screenshots/i);
   });

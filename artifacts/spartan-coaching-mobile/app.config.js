@@ -18,10 +18,10 @@ function getRouterOrigin() {
  * 1. Associated Domains enabled on App ID com.spartancoaching.fieldkit
  * 2. A provisioning profile that includes com.apple.developer.associated-domains
  *
- * Store profiles include the entitlement by default. The explicit
- * `*-no-applinks` emergency profiles omit it only if Apple provisioning is
- * temporarily stale; do not use those profiles for releases that advertise
- * website-to-app handoff.
+ * Store profiles omit this entitlement by default so a stale or unconfigured
+ * Apple capability cannot break an otherwise valid TestFlight build. Use an
+ * explicit `*-applinks` profile only after Associated Domains is enabled on
+ * the Apple App ID and the distribution provisioning profile is regenerated.
  */
 function getAssociatedDomains() {
   const skip =
@@ -176,7 +176,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Open Explore",
+            UIApplicationShortcutItemTitle: "Open Tools",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {

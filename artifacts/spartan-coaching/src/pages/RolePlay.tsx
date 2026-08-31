@@ -50,6 +50,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { ToolResultActions } from "@/components/ToolResultActions";
+import { useWorkHandoff, workHandoffText } from "@/hooks/useWorkHandoff";
 
 const SCENARIOS = [
   { id: "skeptical_oncologist", title: "Skeptical Oncologist", description: "Push through hesitation about hospice timing with a doubting specialist.", icon: Stethoscope, difficulty: "Advanced" as const },
@@ -118,6 +119,14 @@ export default function RolePlay() {
   const [customExpanded, setCustomExpanded] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [customDescription, setCustomDescription] = useState("");
+  const { item: incomingWork } = useWorkHandoff();
+
+  useEffect(() => {
+    if (!incomingWork) return;
+    setCustomExpanded(true);
+    setCustomTitle((current) => current || incomingWork.title);
+    setCustomDescription((current) => current || workHandoffText(incomingWork));
+  }, [incomingWork]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -536,6 +545,7 @@ export default function RolePlay() {
 
             <ToolResultActions
               toolId="role-play"
+              saveResult={{ toolId: "role-play", kind: "roleplay", title: `${activeScenarioTitle} practice`, value: JSON.stringify({ messages, feedback }), input: { scenarioId: activeScenarioId, scenarioTitle: activeScenarioTitle }, nextAction: { title: "Use one improvement in the next conversation", href: "/tools/sales-workflow" } }}
               description="Carry the coaching into the field: draft the follow-up you will send, or run the scenario again with one improvement."
               actions={[
                 {
@@ -550,7 +560,7 @@ export default function RolePlay() {
                   onClick: handlePracticeAgain,
                 },
               ]}
-              persistenceNote="This role-play session and feedback are retained in your member workspace. Do not add patient identifiers or other sensitive details."
+              persistenceNote="Save the completed practice so its feedback remains available across devices."
               testId="roleplay-next-action"
             />
 

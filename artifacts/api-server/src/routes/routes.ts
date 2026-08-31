@@ -93,6 +93,10 @@ import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntellige
 import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
 import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import {
+  aiProviderReadinessSnapshot,
+  runLiveAiProviderProbe,
+} from "../ai/providerReadiness";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -107,7 +111,31 @@ function paramInt(req: Request, key: string): number {
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
+  if (process.env.AI_STARTUP_PROBE_ENABLED !== "false") {
+    void runLiveAiProviderProbe().then((result) => {
+      if (!result.ok) console.error("AI startup readiness probe failed", result);
+    }).catch((error) => {
+      console.error("AI startup readiness probe crashed", error instanceof Error ? error.message : "unknown");
+    });
+  }
   console.log("Deferred initialization complete");
+}
+
+function parseIntelligenceJson(raw: string): Record<string, unknown> | null {
+  try {
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
+    const candidate = fenced || raw.match(/\{[\s\S]*\}/)?.[0] || raw;
+    const parsed = JSON.parse(candidate);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function stringList(value: unknown, fallback: string[], limit = 8): string[] {
+  if (!Array.isArray(value)) return fallback;
+  const cleaned = value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean);
+  return cleaned.length ? cleaned.slice(0, limit) : fallback;
 }
 
 export function registerRoutes(app: Express): void {
@@ -460,7 +488,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     }
   });
 
-  app.post("/api/intelligence/account-brief", requireElite, lightAiLimit, async (req, res) => {
+  app.post("/api/intelligence/account-brief", requireElite, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const provider = req.body?.provider;
       if (
@@ -485,7 +513,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       const accountType = ACCOUNT_TYPES.includes(requestedAccountType as (typeof ACCOUNT_TYPES)[number])
         ? requestedAccountType as (typeof ACCOUNT_TYPES)[number]
         : undefined;
-      const brief = buildAccountBrief({
+      const briefInput = {
         provider,
         meetingPurpose: typeof req.body?.meetingPurpose === "string" ? req.body.meetingPurpose : undefined,
         knownContext: typeof req.body?.knownContext === "string" ? req.body.knownContext : undefined,
@@ -494,7 +522,43 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
         stakeholderRole: typeof req.body?.stakeholderRole === "string" ? req.body.stakeholderRole : undefined,
         desiredCommitment: typeof req.body?.desiredCommitment === "string" ? req.body.desiredCommitment : undefined,
         relationshipStage,
-      });
+      };
+      const baseline = buildAccountBrief(briefInput);
+      const prompt = `Create a field-ready hospice referral account brief. Return only JSON.
+VERIFIED PUBLIC NPPES RECORD:
+${JSON.stringify({
+  name: provider.name, npi: provider.npi, taxonomy: provider.taxonomy, taxonomies: provider.taxonomies,
+  city: provider.city, state: provider.state, status: provider.status, lastUpdated: provider.lastUpdated,
+})}
+USER-PROVIDED CONTEXT (treat as unverified until confirmed):
+${JSON.stringify({
+  relationshipStage, accountType, meetingPurpose: briefInput.meetingPurpose, knownContext: briefInput.knownContext,
+  knownBarrier: briefInput.knownBarrier, stakeholderRole: briefInput.stakeholderRole,
+  desiredCommitment: briefInput.desiredCommitment,
+})}
+Return these keys: headline, accountLens, meetingObjective, opening, discoveryQuestions (4-6), valueHypotheses (3), watchouts (2-4), preparation (3-5), followUpMessage, thirtyDayPlan (3 objects with timing/action/outcome), nextMove.
+Never invent referral volume, decision authority, patient facts, affiliations, performance, or relationship history. Clearly phrase unverified ideas as questions or hypotheses.`;
+      const system = "You are Spartan Intelligence, a senior hospice growth strategist. Use verified facts precisely, reason conservatively, and produce specific language a field leader can use today. Never provide clinical eligibility determinations or accept patient information.";
+      const raw = await generateComplexResponse(prompt, system);
+      const ai = parseIntelligenceJson(raw);
+      const brief = ai ? {
+        ...baseline,
+        headline: typeof ai.headline === "string" ? ai.headline : baseline.headline,
+        accountLens: typeof ai.accountLens === "string" ? ai.accountLens : baseline.accountLens,
+        meetingObjective: typeof ai.meetingObjective === "string" ? ai.meetingObjective : baseline.meetingObjective,
+        opening: typeof ai.opening === "string" ? ai.opening : baseline.opening,
+        discoveryQuestions: stringList(ai.discoveryQuestions, baseline.discoveryQuestions, 6),
+        valueHypotheses: stringList(ai.valueHypotheses, baseline.valueHypotheses, 4),
+        watchouts: stringList(ai.watchouts, baseline.watchouts, 4),
+        preparation: stringList(ai.preparation, baseline.preparation, 6),
+        followUpMessage: typeof ai.followUpMessage === "string" ? ai.followUpMessage : baseline.followUpMessage,
+        thirtyDayPlan: Array.isArray(ai.thirtyDayPlan) ? ai.thirtyDayPlan.slice(0, 3) : baseline.thirtyDayPlan,
+        nextMove: typeof ai.nextMove === "string" ? ai.nextMove : baseline.nextMove,
+        verifiedFacts: baseline.verifiedFacts,
+        limitations: baseline.limitations,
+        source: baseline.source,
+        generatedBy: "Spartan Intelligence AI",
+      } : { ...baseline, generatedBy: "Spartan Intelligence baseline" };
       res.json({ brief });
     } catch (error: any) {
       console.error("Account brief error:", error);
@@ -502,7 +566,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     }
   });
 
-  app.post("/api/intelligence/policy-brief", requireElite, lightAiLimit, async (req, res) => {
+  app.post("/api/intelligence/policy-brief", requireElite, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const topic = String(req.body?.topic || "");
       if (!POLICY_TOPICS.includes(topic as (typeof POLICY_TOPICS)[number])) {
@@ -513,12 +577,32 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       const audience = POLICY_AUDIENCES.includes(requestedAudience as (typeof POLICY_AUDIENCES)[number])
         ? requestedAudience as (typeof POLICY_AUDIENCES)[number]
         : "referral-source";
-      res.json({
-        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot, {
-          audience,
-          concern: typeof req.body?.concern === "string" ? req.body.concern : undefined,
-        }),
-      });
+      const concern = typeof req.body?.concern === "string" ? req.body.concern.trim().slice(0, 500) : undefined;
+      const state = typeof req.body?.state === "string" ? req.body.state.trim().toUpperCase().slice(0, 2) : "";
+      const baseline = buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot, { audience, concern });
+      const prompt = `Tailor this hospice policy field guide to the user's question. Return only JSON.
+OFFICIAL-GUIDANCE BASELINE:
+${JSON.stringify(baseline)}
+USER QUESTION OR CONCERN: ${concern || "Explain the selected topic clearly."}
+AUDIENCE: ${audience}
+STATE CONTEXT: ${state || "Federal only"}
+Return: answer, keyFacts (3-6), talkTrack, reviewChecklist (3-6), whatNotToSay (2-5), escalation.
+Do not make patient-specific eligibility decisions. Do not invent state rules or citations. If state-specific guidance is not supplied, say it must be verified locally. Preserve the meaning of the supplied official baseline.`;
+      const raw = await generateComplexResponse(prompt, "You are Spartan Intelligence, a careful hospice policy educator. Distinguish federal guidance, local process, and patient-specific clinical judgment. Be clear, usable, and conservative.");
+      const ai = parseIntelligenceJson(raw);
+      const brief = ai ? {
+        ...baseline,
+        answer: typeof ai.answer === "string" ? ai.answer : baseline.answer,
+        keyFacts: stringList(ai.keyFacts, baseline.keyFacts, 6),
+        talkTrack: typeof ai.talkTrack === "string" ? ai.talkTrack : baseline.talkTrack,
+        reviewChecklist: stringList(ai.reviewChecklist, baseline.reviewChecklist, 6),
+        whatNotToSay: stringList(ai.whatNotToSay, baseline.whatNotToSay, 5),
+        escalation: typeof ai.escalation === "string" ? ai.escalation : baseline.escalation,
+        question: concern || null,
+        state: state || null,
+        generatedBy: "Spartan Intelligence AI",
+      } : { ...baseline, question: concern || null, state: state || null, generatedBy: "Spartan Intelligence baseline" };
+      res.json({ brief });
     } catch (error: any) {
       console.error("Policy brief error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Policy guide could not be built") });
@@ -723,11 +807,13 @@ CONTENT RULES
 1. Use only the facts provided.
 2. Do not claim an existing referral, trust, partnership, patient need, service capability, resource, next meeting, or personal preference unless it appears above.
 3. Keep the body between 90 and 140 words.
-4. Sound warm, observant, and confident.
-5. Include one natural next step only when the context supports it.
-6. Do not use bullets, Markdown, or any dash character.
-7. Do not use generic praise or inflated language.
-8. If the context is too thin, write a restrained note instead of inventing detail.
+4. Sound like a seasoned Spartan Coaching field professional: direct, warm, observant, specific, and easy to read aloud.
+5. Open by connecting to the concrete interaction or detail in the context. Do not begin with a generic thank you sentence when a more specific opening is available.
+6. Include one natural next step only when the context supports it. Make the ask easy to answer.
+7. Preserve the sender's authority without sounding promotional, overly polished, or eager for a referral.
+8. Do not use bullets, Markdown, or any dash character.
+9. Do not use generic praise, corporate filler, or inflated language.
+10. If the context is too thin, write a restrained note and name the one detail the sender should confirm before sending instead of inventing it.
 
 Use this exact format:
 SUBJECT
@@ -737,7 +823,7 @@ MESSAGE
 The complete email with greeting, short paragraphs, and this signature placeholder:
 [Your name]`;
 
-      const systemInstruction = `You are a senior communications advisor for hospice growth professionals. Write credible relationship centered emails that respect the recipient's time. Every sentence must be grounded in the supplied context or be a neutral courtesy. The result should feel personally written, not generated.`;
+      const systemInstruction = `You are the Spartan Coaching field communication editor for hospice growth professionals. Turn the member's real context into a credible note they could naturally say out loud. Protect their voice, respect the recipient's time, and make the next move clear. Every sentence must be grounded in supplied context or be a neutral courtesy.`;
 
       const template = await generateComplexResponse(prompt, systemInstruction);
       
@@ -1664,6 +1750,16 @@ Build a specific Monday–Friday territory plan for this week.`;
       console.error("AI usage lookup failed:", error);
       res.status(503).json({ error: "AI usage is temporarily unavailable." });
     }
+  });
+
+  app.get("/api/admin/ai-readiness", requireAdmin, (_req, res) => {
+    const status = aiProviderReadinessSnapshot();
+    res.status(status.ok ? 200 : 503).json(status);
+  });
+
+  app.post("/api/admin/ai-readiness/probe", requireAdmin, heavyAiLimit, async (_req, res) => {
+    const result = await runLiveAiProviderProbe();
+    res.status(result.ok ? 200 : 503).json(result);
   });
 
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)

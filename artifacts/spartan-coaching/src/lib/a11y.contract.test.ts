@@ -96,7 +96,7 @@ describe("a11y contracts (source-level)", () => {
 
   it("AI tool clinical pages hide marketing chrome when PHI", () => {
     const tool = read("pages/AiTool.tsx");
-    expect(tool).toMatch(/showChrome=\{!tool\.containsPhi\}/);
+    expect(tool).toMatch(/showChrome=\{false\}/);
   });
 
   // —— HSP-35 extensions ——

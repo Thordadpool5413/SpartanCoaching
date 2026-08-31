@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
@@ -36,7 +36,11 @@ export function ResearchTool() {
         text: string;
         sources?: Array<{ title: string; uri: string }>;
         spartanCitations?: CitationItem[];
-      }>("/api/research", { query, useGrounding: true });
+      }>(
+        "/api/research",
+        { query, useGrounding: true },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
       const text = data.text || "";
       setResult(text);
       setSources(data.sources || []);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -19,6 +19,7 @@ import { useReminderHistory } from "@/hooks/use-reminder-history";
 import type { PendingReminder } from "@/hooks/use-reminder-history";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { ToolResultActions } from "@/components/ToolResultActions";
+import { useWorkHandoff, workHandoffText } from "@/hooks/useWorkHandoff";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -94,6 +95,8 @@ export default function EmailTemplates() {
   const [emailSubject, setEmailSubject] = useState("");
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
+  const { item: incomingWork } = useWorkHandoff();
+  useEffect(() => { if (incomingWork) { setContext((current) => current || `Follow up on ${incomingWork.title}`); setCustomization((current) => current || workHandoffText(incomingWork)); } }, [incomingWork]);
 
   const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
 
@@ -217,7 +220,7 @@ export default function EmailTemplates() {
   };
 
   return (
-    <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-4xl">
+    <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-6xl">
       <SEO />
         <div className="mb-8">
           <h1 className="text-h1 font-black mb-6">Email Templates</h1>
@@ -228,9 +231,9 @@ export default function EmailTemplates() {
 
         <PendingReminders reminders={reminders} onRemove={handleRemoveReminder} />
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid min-w-0 gap-5 xl:grid-cols-2 xl:items-start">
           {/* Input Form */}
-          <Card className="border-2 shadow-lg spacing-card">
+          <Card className="min-w-0 border shadow-sm spacing-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
@@ -313,12 +316,12 @@ export default function EmailTemplates() {
           </Card>
 
           {/* Generated Template */}
-          <Card className="border-2 shadow-lg spacing-card">
+          <Card className="min-w-0 border shadow-sm spacing-card">
             <CardHeader>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle>Generated Template</CardTitle>
                 {generatedTemplate && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
                       size="default"
@@ -354,7 +357,7 @@ export default function EmailTemplates() {
             <CardContent>
               {generatedTemplate ? (
                 <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-lg" data-testid="text-generated-template">
+                  <div className="min-w-0 overflow-hidden break-words bg-muted p-4 rounded-lg [&_*]:max-w-full" data-testid="text-generated-template">
                     <MarkdownContent content={generatedTemplate} />
                   </div>
 
@@ -412,6 +415,7 @@ export default function EmailTemplates() {
                   </div>
                   <ToolResultActions
                     toolId="email-templates"
+                    saveResult={{ toolId: "email-templates", title: `${templateType} email`, value: generatedTemplate, input: { templateType, recipientName, context, customization }, nextAction: { title: "Complete the account follow-through", href: "/tools/sales-workflow" } }}
                     title="Choose the follow-through"
                     description="Review the draft, then send it to the intended recipient or set a reminder to follow up later."
                     actions={[
@@ -430,7 +434,7 @@ export default function EmailTemplates() {
                         href: "/tools/role-play",
                       },
                     ]}
-                    persistenceNote="Generating a draft does not send or save it. The send action delivers it to the address you enter; download creates a local PDF copy."
+                    persistenceNote="Save the draft and its context before sending or continuing the account workflow."
                     testId="email-next-action"
                   />
                 </div>

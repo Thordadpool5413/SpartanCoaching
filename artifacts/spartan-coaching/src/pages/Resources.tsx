@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,19 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Mail, User, Printer } from "lucide-react";
-import { BackButton } from "@/components/BackButton";
+import { Download, Mail, User, Printer, Sparkles, Search } from "lucide-react";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { ToolResultActions } from "@/components/ToolResultActions";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { trackProductOutcome } from "@/lib/analytics";
+import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import {
   FIELD_KIT_TOOLS,
   getResourceWorkGuide,
@@ -244,6 +243,7 @@ function resourceWorkflow(resource: SelectResource): ResourceWorkflow {
 }
 
 export default function Resources() {
+  const [, navigate] = useLocation();
   const { canUseFieldKit, member } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -274,6 +274,8 @@ export default function Resources() {
   });
 
   const [providerSearch, setProviderSearch] = useState("");
+  const [resourceSearch, setResourceSearch] = useState("");
+  const [resourceCategory, setResourceCategory] = useState("all");
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newKind, setNewKind] = useState("script");
@@ -413,6 +415,32 @@ export default function Resources() {
     setGateOpen(true);
   };
 
+  const applyResourceWithSpartan = ({
+    title,
+    description,
+    job,
+    expectedOutcome,
+  }: {
+    title: string;
+    description?: string | null;
+    job?: string;
+    expectedOutcome?: string;
+  }) => {
+    stageAiToolHandoff({
+      sourceToolId: "content-recommender",
+      targetToolId: "content-generator",
+      output: {
+        selectedResource: title,
+        description: description || undefined,
+        fieldJob: job,
+        expectedOutcome,
+        instruction: "Use this resource as the starting point. Create a deidentified field-ready version for the user's next professional conversation. Never request or include PHI.",
+      },
+    });
+    trackEvent("resource_ai_apply", title);
+    navigate("/tools/ai/content-generator");
+  };
+
   const leadMutation = useMutation({
     mutationFn: async (data: { name: string; email: string; resourceId: number; resourceTitle: string }) => {
       const res = await apiRequest("POST", "/api/resource-leads", data);
@@ -435,7 +463,21 @@ export default function Resources() {
     },
   });
 
-  const groupedResources = resources.reduce((acc, resource) => {
+  const visibleResources = resources.filter((resource) => {
+    const architecture = resourceArchitecture(resource);
+    const query = resourceSearch.trim().toLowerCase();
+    const matchesCategory = resourceCategory === "all" || resource.category === resourceCategory;
+    const matchesQuery = !query || [
+      resource.title,
+      resource.description || "",
+      resource.category,
+      architecture.whenToUse || "",
+      architecture.expectedOutcome || "",
+    ].some((value) => value.toLowerCase().includes(query));
+    return matchesCategory && matchesQuery;
+  });
+
+  const groupedResources = visibleResources.reduce((acc, resource) => {
     if (!acc[resource.category]) {
       acc[resource.category] = [];
     }
@@ -476,7 +518,6 @@ export default function Resources() {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
-        <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <p className="text-destructive">Failed to load resources. Please try again later.</p>
           <Button type="button" variant="outline" className="mt-4" onClick={() => void refetchResources()}>
@@ -491,7 +532,6 @@ export default function Resources() {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
-        <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
           <p className="text-body-lg text-muted-foreground">
@@ -503,18 +543,16 @@ export default function Resources() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="resources-premium w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
-      <BackButton />
-      {canUseFieldKit && <FieldKitChrome />}
-      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <div className="max-w-3xl mb-7">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
           {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
-        <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
-          {canUseFieldKit ? "Field resources" : "Training Resources Library"}
+        <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-resources-title">
+          {canUseFieldKit ? "Use the right resource at the right moment." : "Training Resources Library"}
         </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-7">
           {canUseFieldKit
             ? "Current templates, scripts, and checklists for work you want to take into the field."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
@@ -526,24 +564,56 @@ export default function Resources() {
             {" "}when you need an interactive workspace.
           </p>
         )}
+            ? "Start with a trusted template, script, or checklist. Download the original or use Spartan AI to adapt a working copy for the next conversation."
+            : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
+        </p>
       </div>
       {!canUseFieldKit && <ContentNotice />}
-      <Card className="mb-8 border border-border bg-muted/30 p-4 sm:p-5" data-testid="resources-work-guide">
-        <div className="grid gap-4 sm:grid-cols-3 text-sm">
+      <Card className="mb-8 flex flex-col gap-3 border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between" data-testid="resources-work-guide">
+        <div>
+          <p className="font-bold text-foreground">Keep professional context deidentified</p>
+          <p className="mt-1 text-sm text-muted-foreground">Do not enter patient identifiers, PHI, or clinical records. AI-adapted work can be saved to My Work.</p>
+        </div>
+        <Button asChild variant="outline" className="shrink-0"><Link href="/my-work">Open My Work</Link></Button>
+      </Card>
+      <section className="resources-library-dock mb-8 rounded-2xl border border-border/80 bg-card p-4 sm:p-5" aria-labelledby="core-library-heading">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="font-bold text-foreground">Choose for the next job</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Open a script, checklist, template, or guide that supports the next visit, conversation, or planning block.</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Core field library</p>
+            <h2 id="core-library-heading" className="mt-1 text-h2">Find the right working asset</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Search by the conversation, outcome, or resource you need.</p>
           </div>
-          <div>
-            <p className="font-bold text-foreground">Keep the boundary clear</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Field resources are work aids. Do not add patient identifiers, PHI, or clinical records to downloaded copies.</p>
-          </div>
-          <div>
-            <p className="font-bold text-foreground">Download is not saved work</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Downloads are not automatically added to My Work or synced to iPhone. Return here to re-download the current version.</p>
+          <div className="relative w-full lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Label htmlFor="resource-library-search" className="sr-only">Search core resources</Label>
+            <Input
+              id="resource-library-search"
+              type="search"
+              className="pl-9"
+              placeholder="Search scripts, checklists, guides…"
+              value={resourceSearch}
+              onChange={(event) => setResourceSearch(event.target.value)}
+              data-testid="input-core-resource-search"
+            />
           </div>
         </div>
-      </Card>
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Filter resources by type">
+          {["all", "template", "script", "checklist", "guide"].map((category) => (
+            <Button
+              key={category}
+              type="button"
+              size="sm"
+              variant={resourceCategory === category ? "default" : "outline"}
+              className="min-h-10 shrink-0"
+              aria-pressed={resourceCategory === category}
+              onClick={() => setResourceCategory(category)}
+              data-testid={`resource-filter-${category}`}
+            >
+              {category === "all" ? `All ${resources.length}` : categoryNames[category]}
+            </Button>
+          ))}
+        </div>
+      </section>
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -561,17 +631,22 @@ export default function Resources() {
                 .
               </p>
             </div>
+            <div className="w-full sm:max-w-xs">
+            <Label htmlFor="provider-resource-search" className="sr-only">Search provider library</Label>
             <Input
-              className="max-w-xs"
+              id="provider-resource-search"
               placeholder="Search provider library"
               value={providerSearch}
               onChange={(e) => setProviderSearch(e.target.value)}
               data-testid="input-provider-resource-search"
             />
+            </div>
           </div>
 
           {isOrgAdmin && (
-            <Card className="border-2 p-4 space-y-3">
+            <details className="rounded-xl border border-border bg-card p-4">
+              <summary className="cursor-pointer text-sm font-bold text-foreground">Manage provider resources</summary>
+            <div className="mt-4 space-y-3">
               <p className="text-sm font-semibold">Add provider resource (org admin)</p>
               <div className="grid md:grid-cols-3 gap-3">
                 <div>
@@ -622,7 +697,8 @@ export default function Resources() {
               >
                 {createProviderMutation.isPending ? "Saving…" : "Publish to library"}
               </Button>
-            </Card>
+            </div>
+            </details>
           )}
 
           {providerLoading ? (
@@ -655,17 +731,16 @@ export default function Resources() {
                       {item.title}
                     </h3>
                     {item.description ? (
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                         {item.description}
                       </p>
                     ) : null}
-                    <div
+                    <details
                       className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-xs leading-relaxed text-muted-foreground"
                       data-testid={`provider-resource-workflow-${item.id}`}
                     >
-                      <Badge variant="outline" className="mb-2 text-[10px] uppercase tracking-wide text-primary">
-                        {workflow.phase}
-                      </Badge>
+                      <summary className="cursor-pointer font-semibold text-foreground">How to use this resource</summary>
+                      <Badge variant="outline" className="mb-2 mt-3 text-[10px] uppercase tracking-wide text-primary">{workflow.phase}</Badge>
                       <p><span className="font-semibold text-foreground">Job: </span>{workflow.job}</p>
                       <p className="mt-1"><span className="font-semibold text-foreground">Safe use: </span>{workflow.inputHint}</p>
                       <p className="mt-1"><span className="font-semibold text-foreground">Expected output: </span>{workflow.outputPreview}</p>
@@ -676,7 +751,7 @@ export default function Resources() {
                           Next: {nextTool.title}
                         </Link>
                       ) : null}
-                    </div>
+                    </details>
                     {isOrgAdmin && editingProviderId === item.id ? (
                       <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
                         <p className="mb-3 text-sm font-semibold text-foreground">
@@ -713,8 +788,9 @@ export default function Resources() {
                         </div>
                       </div>
                     ) : null}
+                    <div className="mt-auto grid gap-2 sm:grid-cols-2">
                     <Button
-                      className="mt-auto w-full gap-2"
+                      className="w-full gap-2"
                       onClick={() => {
                         trackEvent("provider_resource_open", item.title);
                         window.open(item.fileUrl, "_blank");
@@ -724,6 +800,16 @@ export default function Resources() {
                       <Download className="w-4 h-4" />
                       Open
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2"
+                      onClick={() => applyResourceWithSpartan({ title: item.title, description: item.description, job: workflow.job, expectedOutcome: workflow.outputPreview })}
+                      data-testid={`button-ai-provider-${item.id}`}
+                    >
+                      <Sparkles className="w-4 h-4" /> Apply with Spartan
+                    </Button>
+                    </div>
                     {isOrgAdmin && editingProviderId !== item.id ? (
                       <Button
                         type="button"
@@ -759,7 +845,7 @@ export default function Resources() {
         </div>
       )}
 
-      <div className="space-y-12">
+      <div className="space-y-10">
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="secondary">
             {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
@@ -770,23 +856,23 @@ export default function Resources() {
         </div>
         {Object.entries(groupedResources).map(([category, categoryResources]) => (
           <div key={category} data-testid={`category-${category}`}>
-            <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
+            <h2 className="mb-4 flex items-center gap-3 text-2xl font-black tracking-tight flex-wrap">
               {categoryNames[category] || category}
               <Badge variant="secondary" className="text-sm">
                 {categoryResources.length}
               </Badge>
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {categoryResources.map((resource) => (
                 <Card
                   key={resource.id}
-                  className="flex flex-col hover-elevate border-2 group relative spacing-card"
+                  className="resource-copy-safe group relative flex min-w-0 flex-col overflow-hidden border border-border/80 p-4 shadow-none transition-colors hover:border-primary/40"
                   data-testid={`resource-card-${resource.id}`}
                 >
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="flex-1 relative">
-                    <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
-                      <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
+                    <div className="mb-3 flex min-w-0 items-start justify-between gap-2">
+                      <h3 className="min-w-0 overflow-wrap-anywhere text-base font-bold leading-5 text-foreground">{resource.title}</h3>
                       <div className="flex flex-wrap gap-1.5 shrink-0">
                         <Badge variant="outline">
                           {categoryNames[resource.category] || resource.category}
@@ -841,7 +927,7 @@ export default function Resources() {
                     })()}
 
                     {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
+                      <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">
                         {resource.description}
                       </p>
                     )}
@@ -850,7 +936,7 @@ export default function Resources() {
                       const arch = resourceArchitecture(resource);
                       if (!arch) return null;
                       return (
-                        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                        <div className="mb-3 space-y-2 text-xs leading-5 text-muted-foreground">
                           {arch.whenToUse ? (
                             <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
                               <span className="font-semibold text-foreground">When: </span>
@@ -890,12 +976,13 @@ export default function Resources() {
                         ? getToolWorkGuide(workflow.tool)
                         : null;
                       return (
-                        <div
+                        <details
                           className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3"
                           data-testid={`resource-workflow-${resource.id}`}
                         >
+                          <summary className="cursor-pointer text-xs font-semibold text-foreground">How to use this resource</summary>
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide text-primary">
+                            <Badge variant="outline" className="mt-3 text-[10px] uppercase tracking-wide text-primary">
                               {workflow.phase}
                             </Badge>
                             <p className="text-xs font-semibold text-foreground">Completion checklist</p>
@@ -937,24 +1024,49 @@ export default function Resources() {
                               Next: {workflow.tool.title} · {relatedGuide?.phase}
                             </Link>
                           ) : null}
-                        </div>
+                        </details>
                       );
                     })()}
 
-                    <Button
-                      className="w-full gap-2"
-                      onClick={() => openDownload(resource)}
-                      data-testid={`button-download-${resource.id}`}
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button className="w-full gap-2" onClick={() => openDownload(resource)} data-testid={`button-download-${resource.id}`}>
+                        <Download className="w-4 h-4" /> Download
+                      </Button>
+                      {canUseFieldKit ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={() => {
+                            const arch = resourceArchitecture(resource);
+                            applyResourceWithSpartan({
+                              title: resource.title,
+                              description: resource.description,
+                              job: arch.jobToAccomplish || arch.useCase,
+                              expectedOutcome: arch.expectedOutcome,
+                            });
+                          }}
+                          data-testid={`button-ai-resource-${resource.id}`}
+                        >
+                          <Sparkles className="w-4 h-4" /> Apply with Spartan
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </Card>
               ))}
             </div>
           </div>
         ))}
+        {visibleResources.length === 0 ? (
+          <Card className="p-8 text-center" data-testid="resources-empty-search">
+            <h2 className="text-lg font-bold text-foreground">No resources match that search</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
+            <Button type="button" variant="outline" className="mt-4" onClick={() => { setResourceSearch(""); setResourceCategory("all"); }}>
+              Clear filters
+            </Button>
+          </Card>
+        ) : null}
       </div>
 
       <div className="mt-16">

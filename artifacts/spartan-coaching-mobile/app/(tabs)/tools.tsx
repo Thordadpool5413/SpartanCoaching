@@ -28,6 +28,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 
 type SearchHit = {
   id: string;
@@ -153,7 +154,7 @@ function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Tool could not open", "Return to Explore and try again. If this continues, send a support request from Account.");
+    Alert.alert("Tool could not open", "Return to Tools and try again. If this continues, send a support request from Account.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -182,7 +183,7 @@ function ToolsCatalogScreen() {
       router.push(native as any);
       return;
     }
-    Alert.alert("Result could not open", "Use Explore to find the native version. If it is missing, send a support request from Account.");
+    Alert.alert("Result could not open", "Use Tools to find the native version. If it is missing, send a support request from Account.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -204,10 +205,11 @@ function ToolsCatalogScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
+      <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find the field tool that fits the job in front of you. Library, My Work, and access each have their own destination.</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the job in front of you, then open the right workspace. Library and My Work stay separate so nothing feels buried.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -234,6 +236,14 @@ function ToolsCatalogScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
+        {!q ? (
+          <View style={styles.destinationGrid} testID="explore-destinations">
+            <ExploreDestination icon="crosshair" title="Spartan Intelligence" body={canUseElite ? "Verify referral sources, explore markets, and prepare with CMS data." : "Elite guided provider, market, and CMS policy intelligence."} onPress={() => router.push((canUseElite ? "/spartan-intelligence" : "/access") as any)} />
+            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/learn" as any)} />
+            <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
+          </View>
+        ) : null}
+
         {remoteGroups.length > 0 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
@@ -304,6 +314,20 @@ function ToolsCatalogScreen() {
   );
 }
 
+function ExploreDestination({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
+  const colors = useColors();
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.destinationCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.7 : 1 }]}>
+      <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.primary} /></View>
+      <View style={styles.destinationCopy}>
+        <Text style={[styles.destinationTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        <Text style={[styles.destinationBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
+      </View>
+      <Feather name="chevron-right" size={19} color={colors.primary} />
+    </Pressable>
+  );
+}
+
 function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; badge?: string; onPress: () => void; testID?: string }) {
   const colors = useColors();
   return (
@@ -364,6 +388,12 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
+  destinationGrid: { gap: 14, marginBottom: 36 },
+  destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
+  destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  destinationCopy: { flex: 1 },
+  destinationTitle: { fontSize: 15 },
+  destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   directoryHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   countBadge: { width: 60, height: 60, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },

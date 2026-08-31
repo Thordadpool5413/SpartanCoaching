@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiDelete, apiGet, apiPost, apiPut } from "@/lib/api";
 
 export type CoachConversation = {
   id: string;
@@ -37,7 +37,11 @@ export const loadCoachConversation = (id: string) =>
   apiGet<{ conversation: CoachConversation; messages: CoachMessage[] }>(`/api/v1/coach/conversations/${id}`);
 
 export const sendCoachMessage = async (id: string, message: string, requestId: string) =>
-  (await apiPost<{ message: CoachMessage }>(`/api/v1/coach/conversations/${id}/messages`, { message, requestId }, { idempotencyKey: requestId })).message;
+  (await apiPost<{ message: CoachMessage }>(
+    `/api/v1/coach/conversations/${id}/messages`,
+    { message, requestId },
+    { idempotencyKey: requestId, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+  )).message;
 
 export const deleteCoachConversation = (id: string) =>
   apiDelete<{ ok: true }>(`/api/v1/coach/conversations/${id}`);

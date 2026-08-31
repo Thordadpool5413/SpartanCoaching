@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { primaryWorkspaceNav } from "@/lib/workspaceShell";
 import { MEMBER_NAV } from "@/lib/memberNav";
+import { US_STATES } from "@/lib/usStates";
 import SpartanIntelligence from "./SpartanIntelligence";
 
 vi.mock("@/components/FieldKitToolLayout", () => ({
@@ -44,5 +45,11 @@ describe("Spartan Intelligence workspace contract", () => {
     fireEvent.click(screen.getByTestId("intelligence-mission-market"));
     expect(screen.getByTestId("market-panel")).toBeTruthy();
     expect(screen.queryByTestId("policy-panel")).toBeNull();
+  });
+
+  it("offers the complete United States state selector", () => {
+    expect(US_STATES).toHaveLength(51);
+    expect(US_STATES).toContainEqual(["DC", "District of Columbia"]);
+    expect(new Set(US_STATES.map(([code]) => code)).size).toBe(51);
   });
 });

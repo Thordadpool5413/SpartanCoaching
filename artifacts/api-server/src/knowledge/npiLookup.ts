@@ -122,15 +122,28 @@ export async function searchNpiProviders(input: {
   // Ask registry for a wider page, then filter client-side — NPPES fuzzy match is noisy.
   params.set("limit", String(Math.min(limit * 5, 50)));
 
-  const url = `https://npiregistry.cms.hhs.gov/api/?${params.toString()}`;
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    signal: AbortSignal.timeout(12_000),
-  });
-  if (!res.ok) {
-    throw new Error(`NPI registry returned ${res.status}`);
+  const fetchRegistry = async (query: URLSearchParams): Promise<NppesResponse> => {
+    const url = `https://npiregistry.cms.hhs.gov/api/?${query.toString()}`;
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(12_000),
+    });
+    if (!res.ok) throw new Error(`NPI registry returned ${res.status}`);
+    return (await res.json()) as NppesResponse;
+  };
+
+  let data = await fetchRegistry(params);
+
+  // NPPES occasionally returns an empty exact-name page even when a broad record
+  // exists. Retry a name-only wildcard query, then apply state/city locally.
+  if (!(data.results || []).length && !input.number?.trim()) {
+    const broad = new URLSearchParams({ version: "2.1", limit: String(Math.min(limit * 10, 100)) });
+    if (input.lastName?.trim()) broad.set("last_name", `${input.lastName.trim()}*`);
+    if (input.firstName?.trim()) broad.set("first_name", `${input.firstName.trim()}*`);
+    if (input.organizationName?.trim()) broad.set("organization_name", `${input.organizationName.trim()}*`);
+    data = await fetchRegistry(broad);
   }
-  const data = (await res.json()) as NppesResponse;
+
   let results = (data.results || [])
     .map(mapResult)
     .filter((x): x is NpiResult => Boolean(x));
@@ -138,6 +151,10 @@ export async function searchNpiProviders(input: {
   const last = input.lastName?.trim().toLowerCase();
   const first = input.firstName?.trim().toLowerCase();
   const org = input.organizationName?.trim().toLowerCase();
+  const requestedState = input.state?.trim().toUpperCase().slice(0, 2);
+  const requestedCity = input.city?.trim().toLowerCase();
+  if (requestedState) results = results.filter((r) => r.state?.toUpperCase() === requestedState);
+  if (requestedCity) results = results.filter((r) => r.city?.toLowerCase().includes(requestedCity));
   if (last || first || org) {
     results = results.filter((r) => {
       const name = r.name.toLowerCase();

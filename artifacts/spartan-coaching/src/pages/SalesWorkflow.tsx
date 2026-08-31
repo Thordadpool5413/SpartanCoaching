@@ -10,9 +10,8 @@ import { toWorkflowUuid } from "@workspace/tenant-ids";
 import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
-import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Bell, CheckCircle2, Clock3, Gauge, Loader2, Wrench } from "lucide-react";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
 import {
   getToolById,
@@ -77,8 +76,7 @@ export default function SalesWorkflow() {
               step — one continuous account workflow.
             </p>
           </div>
-          <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
               <div className="border-b border-border px-4 py-3 flex flex-wrap gap-2 bg-muted/40">
                 {["Queue", "Pre-call", "Practice", "Visit", "Debrief", "Next step"].map((tab, i) => (
                   <span
@@ -127,15 +125,6 @@ export default function SalesWorkflow() {
                   Live queue, prep, practice, and outcome capture unlock with membership.
                 </p>
               </div>
-            </div>
-            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5 space-y-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-primary">NPI lookup</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Pull facility context before the visit — available when Command Center is unlocked.
-              </p>
-              <div className="h-9 rounded-md border border-border bg-background/80" />
-              <div className="h-9 rounded-md border border-border bg-background/50 w-2/3" />
-            </div>
           </div>
           {!isAuthenticated && (
             <div className="flex justify-center">
@@ -164,16 +153,45 @@ export default function SalesWorkflow() {
         title="Sales Command Center | Spartan Coaching"
         description="Plan calls, practice objections, complete visits, review coaching, and schedule the next step."
       />
-      <div className="mb-4 space-y-1">
+      <div className="command-intro mb-5">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
           Hospice Sales Pro · Daily spine
         </p>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Run every account through this workflow. Satellite tools (objections, role-play, email, weekly plan)
-          support the next call—they do not replace it.
+          Your daily account workflow. Start by scheduling a call, prepare the conversation, then record what happened and the next commitment.
         </p>
       </div>
-      <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
+        <article className="command-dashboard-card command-dashboard-overview">
+          <div className="command-dashboard-icon"><Gauge /></div>
+          <div><p className="command-dashboard-label">Overview</p><h2>Run today with one clear next move.</h2><p>Schedule the conversation, prepare deliberately, then capture the outcome before the context disappears.</p></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Wrench /></div>
+          <div><p className="command-dashboard-label">Quick actions</p><h2>Prepare before you walk in</h2><div className="command-dashboard-actions"><Button asChild size="sm"><Link href="/tools">Open Tools</Link></Button><Button asChild size="sm" variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Bell /></div>
+          <div><p className="command-dashboard-label">Notifications</p><h2>You are caught up</h2><p>New reminders and sync warnings will appear here.</p></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Clock3 /></div>
+          <div><p className="command-dashboard-label">Recent activity</p><h2>Continue your latest work</h2><Button asChild variant="ghost" className="mt-2 h-auto p-0"><Link href="/my-work">Open My Work <ArrowRight /></Link></Button></div>
+        </article>
+      </section>
+      <section className="command-flight-plan mb-6 grid gap-3 sm:grid-cols-3" aria-label="How to use Sales Command Center" data-testid="command-getting-started">
+        {[
+          ["1. Schedule", "Add the facility or professional you plan to contact. Never enter patient information."],
+          ["2. Prepare", "Set the purpose, talk track, and one clear outcome before the conversation."],
+          ["3. Close the loop", "Capture the result and schedule the next step while it is still fresh."],
+        ].map(([title, body]) => (
+          <div key={title} className="command-flight-step flex gap-3">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div><p className="text-sm font-bold text-foreground">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>
+          </div>
+        ))}
+      </section>
+      <div className="command-surface space-y-5">
         <SalesWorkflowPanel
           api={api}
           actor={actor}
@@ -183,11 +201,20 @@ export default function SalesWorkflow() {
             "--hsw-muted": "hsl(var(--muted-foreground))",
             "--hsw-surface": "hsl(var(--card))",
             "--hsw-border": "hsl(var(--border))",
+            "--hsw-paper": "hsl(var(--background))",
+            "--hsw-card": "hsl(var(--card))",
+            "--hsw-line": "hsl(var(--border))",
+            "--hsw-moss": "hsl(var(--foreground))",
+            "--hsw-coral": "hsl(var(--primary))",
+            "--hsw-gold": "hsl(var(--primary))",
+            "--hsw-font-display": "var(--font-display)",
+            "--hsw-font-body": "var(--font-sans)",
           }}
         />
-        <div className="lg:sticky lg:top-4 space-y-4">
-          <NpiLookupPanel />
-          <ToolAnatomyRelated items={relatedItems} />
+        <ToolAnatomyRelated items={relatedItems} />
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/50 p-4">
+          <p className="text-sm text-muted-foreground">Need a script, objection response, or rehearsal before the call?</p>
+          <Button asChild variant="outline" size="sm"><Link href="/tools">Open supporting tools <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
         </div>
       </div>
     </FieldKitToolLayout>

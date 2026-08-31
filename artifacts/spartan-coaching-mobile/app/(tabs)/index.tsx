@@ -15,13 +15,21 @@ import { WelcomeExperience } from "@/components/WelcomeExperience";
 import { StreakStrip } from "@/components/ui/StreakStrip";
 import { useColors } from "@/hooks/useColors";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { fetchOnboardingMobile } from "@/lib/api";
+import { apiGet, fetchOnboardingMobile } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { listCoachMemory } from "@/lib/coachApi";
 import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 import { haptics } from "@/lib/haptics";
 import { font } from "@/lib/typography";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
+
+const HOME_JOBS = [
+  { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
+  { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" as Href },
+  { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" as Href },
+  { icon: "book-open" as const, label: "Library", description: "Learn and use", route: "/(tabs)/learn" as Href },
+];
 
 const HOME_JOBS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
@@ -132,8 +140,7 @@ export default function HomeScreen() {
       })
       .catch(() => undefined);
 
-    void fetch("/api/v1/sales-workflow/today")
-      .then((r) => r.json() as Promise<{ streakDays?: number; toolsThisWeek?: number; nextVisitTime?: string }>)
+    void apiGet<{ streakDays?: number; toolsThisWeek?: number; nextVisitTime?: string }>("/api/v1/sales-workflow/today")
       .then((data) => {
         if (!cancelled) {
           setStreakData({
@@ -219,6 +226,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       testID="screen-home"
     >
+      <BrandBackdrop />
       <View style={styles.page}>
         <SpartanHeader />
         <View style={styles.badge}>

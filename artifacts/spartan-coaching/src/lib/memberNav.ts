@@ -43,7 +43,9 @@ export const MEMBER_NAV: MemberNavItem[] = [
     label: "Intelligence",
     short: "Intel",
     icon: Database,
-    match: (loc) => loc.startsWith("/tools/intelligence"),
+    match: (loc) =>
+      loc.startsWith("/tools/intelligence") ||
+      loc.startsWith("/spartan-intelligence"),
   },
   {
     href: "/tools",
@@ -74,6 +76,8 @@ export const MEMBER_NAV: MemberNavItem[] = [
     href: "/my-work",
     label: "My Work",
     short: "My Work",
+    label: "Saved work",
+    short: "Saved",
     icon: FolderOpen,
     match: (loc) => loc.startsWith("/my-work"),
   },

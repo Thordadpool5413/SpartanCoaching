@@ -59,6 +59,12 @@ const seoDefaults: Record<string, SEOConfig> = {
       'Preview Hospice Sales Pro tools free. Elite is recommended at $19.99/week and Standard remains available at $14.99/week. Run field tools on web and iPhone.',
     keywords: 'Hospice Sales Pro tools, sales playbooks, objection handling, territory research, AI coaching tools',
   },
+  '/spartan-intelligence': {
+    title: 'Spartan Intelligence | Spartan Coaching',
+    description: 'A signed-in Hospice Sales Pro workspace for verified referral research, account preparation, CMS policy guidance, and market orientation.',
+    keywords: 'Spartan Intelligence, hospice sales research, account preparation',
+    noIndex: true,
+  },
   '/welcome': {
     title: 'Welcome | Spartan Coaching',
     description: 'Practical consulting and Hospice Sales Pro tools for hospice growth professionals.',

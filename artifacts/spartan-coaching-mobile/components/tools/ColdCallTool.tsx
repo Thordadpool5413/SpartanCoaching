@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
@@ -38,6 +38,7 @@ export function ColdCallTool() {
           prospectName: prospectName || undefined,
           situation,
         },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       const text = data.script || data.text || data.result || "";
       if (!text) throw new Error("Empty script response");

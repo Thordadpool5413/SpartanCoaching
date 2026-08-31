@@ -40,7 +40,11 @@ jest.mock("../hooks/useColors", () => ({
 jest.mock("../hooks/useNetworkStatus", () => ({
   useNetworkStatus: () => ({ isOnline: true, isChecking: false, refresh: jest.fn() }),
 }));
-jest.mock("../lib/api", () => ({ apiGet: jest.fn(), apiPost: jest.fn() }));
+jest.mock("../lib/api", () => ({
+  AI_REQUEST_TIMEOUT_MS: 90_000,
+  apiGet: jest.fn(),
+  apiPost: jest.fn(),
+}));
 jest.mock("../lib/jurisdictionApi", () => ({
   fetchJurisdictionContext: jest.fn(async () => ({
     state: "Florida",
@@ -146,10 +150,14 @@ describe("native advanced tool acceptance", () => {
           : `/api/ai-tools/${tool.id}/runs`;
         const expectedBody = expect.objectContaining({ input: expect.any(Object) });
         if (tool.containsPhi) {
-          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody);
+          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody, {
+            retry: true,
+            timeoutMs: 90_000,
+          });
         } else {
           expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody, {
             idempotencyKey: "40000000-0000-4000-8000-000000000001",
+            timeoutMs: 90_000,
           });
         }
       });

@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
+import { ArrowRight, Briefcase, Wrench, CheckCircle, Sparkles, ShieldCheck, MapPinned } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
@@ -75,13 +75,6 @@ export default function Home() {
                   "Leadership Coaching",
                 ],
                 areaServed: "US",
-                knowsAbout: [
-                  "Hospice Sales",
-                  "Healthcare Sales Training",
-                  "Medicare Hospice Benefits",
-                  "Referral Development",
-                  "Territory Management",
-                ],
               },
               {
                 "@type": "WebSite",
@@ -110,12 +103,12 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/70" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="flex flex-col gap-10 xl:gap-14 items-center">
-            <div className="order-2 max-w-3xl mx-auto text-center">
-            <p className="text-kicker mb-5 justify-center">Hospice sales consulting + Hospice Sales Pro</p>
+          <div className="grid items-center gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 xl:gap-16">
+            <div className="max-w-2xl text-left">
+            <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
             <h1
               id="home-hero-title"
-              className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight text-foreground leading-[0.95]"
+              className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-foreground leading-[1.02]"
               data-testid="text-home-hero-title"
             >
               Make the next hospice conversation count.
@@ -124,10 +117,10 @@ export default function Home() {
               Practical consulting for growth leaders. A focused field system for the people who
               carry the work forward every day.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
                 <Link
-                  href="/contact"
+                  href="/services"
                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
                 >
                   Explore consulting
@@ -147,9 +140,9 @@ export default function Home() {
               Consulting for teams. Hospice Sales Pro for daily execution.
             </p>
             </div>
-            <div className="order-1 w-full max-w-5xl mx-auto">
+            <div className="w-full min-w-0">
               <div
-                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20"
+                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20 [container-type:size]"
                 data-testid="hero-video-frame"
                 aria-label="Spartan Coaching hero film"
               >
@@ -174,6 +167,45 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="relative border-y border-amber-500/25 bg-card py-14 sm:py-18" data-testid="section-spartan-intelligence-public">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <div>
+                <p className="text-kicker mb-3">New in Elite</p>
+                <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-foreground">
+                  Spartan Intelligence
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+                  Verified public data turned into practical preparation for the next provider conversation.
+                  Know the account, understand the policy, and enter with a clear objective.
+                </p>
+                <Button asChild size="lg" className="mt-7 min-h-11 w-full font-bold sm:w-auto">
+                  <Link href="/spartan-intelligence" data-testid="button-home-spartan-intelligence">
+                    Explore Spartan Intelligence
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: ShieldCheck, title: "Referral Intelligence", body: "Verify providers and prepare focused account conversations." },
+                  { icon: Sparkles, title: "CMS Policy Navigator", body: "Translate complex Medicare topics into clear field language." },
+                  { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by location." },
+                ].map(({ icon: Icon, title, body }) => (
+                  <Card key={title} className="border border-border/80 bg-background/70 p-5">
+                    <Icon className="h-5 w-5 text-amber-500" />
+                    <h3 className="mt-4 text-base font-bold text-foreground">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -218,6 +250,12 @@ export default function Home() {
                           trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
                         }
                       >
+                    <Link
+                      href="/contact"
+                      onClick={() =>
+                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
+                      }
+                    >
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
@@ -231,6 +269,14 @@ export default function Home() {
                       >
                         About Nick Lynch
                       </Link>
+                    <Link
+                      href="/about"
+                      onClick={() =>
+                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
+                      }
+                    >
+                      About Nick Lynch
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -282,7 +328,7 @@ export default function Home() {
                 desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
                 features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
                 href: "/services",
-                cta: "Book a strategy call",
+                cta: "View consulting services",
                 primary: true,
                 testId: "card-door-consulting",
               },

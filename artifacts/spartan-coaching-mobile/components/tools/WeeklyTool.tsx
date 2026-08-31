@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { ToolShell } from "./ToolShell";
@@ -58,6 +58,7 @@ export function WeeklyTool() {
           territoryFocus: focus || undefined,
           challenges: challenges || undefined,
         },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
       const text = data.plan || data.text || data.result || JSON.stringify(data);
       setResult(text);

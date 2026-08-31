@@ -33,6 +33,18 @@ export type AccountBrief = {
 
 function clean(value: string | undefined, max: number): string {
   return (value || "").replace(/[\u2013\u2014]/g, ",").replace(/[{}<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
+  return (value || "").replace(/[\u2013\u2014]/g, ",").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function audience(provider: NpiResult): string {
+  const taxonomy = provider.taxonomies.join(" ").toLowerCase();
+  if (taxonomy.includes("internal medicine") || taxonomy.includes("family medicine")) return "primary care practice";
+  if (taxonomy.includes("nursing facility") || taxonomy.includes("skilled nursing")) return "post acute care team";
+  if (taxonomy.includes("oncology")) return "oncology practice";
+  if (taxonomy.includes("cardiology")) return "cardiology practice";
+  if (taxonomy.includes("nephrology")) return "nephrology practice";
+  if (taxonomy.includes("hospital")) return "hospital team";
+  return provider.enumerationType === "NPI-2" ? "organization" : "practice";
 }
 
 function inferAccountType(provider: NpiResult): AccountType {
@@ -99,6 +111,7 @@ export function buildAccountBrief(input: AccountBriefInput): AccountBrief {
   const provider = input.provider;
   const accountType = input.accountType && ACCOUNT_TYPES.includes(input.accountType) ? input.accountType : inferAccountType(provider);
   const playbook = ACCOUNT_PLAYBOOKS[accountType];
+  const group = audience(provider);
   const purpose = clean(input.meetingPurpose, 240) || "Understand the account’s current process and earn agreement on one useful next step.";
   const context = clean(input.knownContext, 500);
   const barrier = clean(input.knownBarrier, 240);
@@ -119,6 +132,9 @@ export function buildAccountBrief(input: AccountBriefInput): AccountBrief {
     new: `I wanted to learn how your team handles serious illness conversations today and where a hospice partner could make the work easier.`,
     developing: "I appreciate the conversations we have started. I want to make the next step useful to your team and specific to what you are trying to improve.",
     active: "I want to make sure our partnership is delivering what your team needs and address anything that could work better.",
+    new: `I wanted to learn how your ${group} handles serious illness conversations today and where a hospice partner can make the work easier for your team.`,
+    developing: "I appreciate the conversations we have already started. I want to make sure the next step is useful to your team, not another generic follow up.",
+    active: "I want to check that our partnership is delivering what your team actually needs and address anything that could work better.",
     reengage: "It has been a while since we connected. I would rather understand what changed than make assumptions, and I want to earn a useful next conversation.",
   };
 

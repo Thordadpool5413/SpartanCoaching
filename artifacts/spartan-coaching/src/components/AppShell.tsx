@@ -6,9 +6,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
+  Briefcase,
   Clock,
+  GraduationCap,
   LogOut,
   Menu,
+  Phone,
   Search,
   PanelLeftClose,
   PanelLeft,
@@ -32,6 +35,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { AppearanceControls } from "@/components/AppearanceControls";
+import { BrandBackdrop } from "@/components/BrandBackdrop";
 import {
   primaryWorkspaceNav,
   utilityWorkspaceNav,
@@ -48,6 +52,12 @@ import {
   type UniversalSearchHit,
 } from "@/lib/universalSearchClient";
 import { recordPersonalizationEvent } from "@/lib/personalizationClient";
+
+const consultingWorkspaceLinks = [
+  { id: "consulting", href: "/services", label: "Consulting services", icon: Briefcase },
+  { id: "programs", href: "/programs", label: "Programs & workshops", icon: GraduationCap },
+  { id: "strategy-call", href: "/contact?service=Consulting", label: "Book a strategy call", icon: Phone },
+] as const;
 
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
@@ -66,7 +76,10 @@ function workspaceSearchCorpus() {
       p.path === "/quiz" ||
       p.path.startsWith("/learn"),
   );
-  const merged = [...toolPages, ...fromSite];
+  const consultingPages = allSearchablePages.filter((p) =>
+    ["/services", "/programs", "/method", "/manifesto", "/about", "/contact"].includes(p.path),
+  );
+  const merged = [...toolPages, ...fromSite, ...consultingPages];
   return merged.filter(
     (item, i, arr) => arr.findIndex((x) => x.path === item.path) === i,
   );
@@ -121,7 +134,7 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   const [location] = useLocation();
-  const { member, canUseFieldKit, organization } = useAuth();
+  const { member, canUseFieldKit, organization, logout } = useAuth();
   const primary = primaryWorkspaceNav(member?.role);
   const utility = utilityWorkspaceNav(member?.role).filter(
     (i) => i.id !== "settings" && i.id !== "recent" && i.id !== "notifications",
@@ -185,6 +198,23 @@ function SidebarBody({
             testId={`workspace-nav-${item.id}`}
           />
         ))}
+        {!collapsed && (
+          <p className="px-2 pt-4 pb-1 text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
+            Consulting
+          </p>
+        )}
+        {consultingWorkspaceLinks.map((item) => (
+          <NavLinkRow
+            key={item.id}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={false}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+            testId={`workspace-nav-${item.id}`}
+          />
+        ))}
         {utility.length > 0 && (
           <>
             {!collapsed && (
@@ -219,9 +249,18 @@ function SidebarBody({
           testId="workspace-nav-settings"
         />
         {!collapsed && (
-          <p className="text-[10px] text-muted-foreground px-1" data-testid="workspace-shell-version">
-            {WORKSPACE_SHELL_VERSION}
-          </p>
+          <div className="grid grid-cols-2 gap-2 pt-1 md:hidden">
+            <AppearanceControls compact testId="workspace-mobile-appearance" />
+            <Button
+              type="button"
+              variant="outline"
+              className="justify-start"
+              onClick={() => void logout()}
+              data-testid="workspace-mobile-logout"
+            >
+              <LogOut className="mr-2 h-4 w-4" /> Sign out
+            </Button>
+          </div>
         )}
       </div>
     </div>
@@ -334,14 +373,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="flex min-h-screen bg-background text-foreground"
+      className="workspace-premium flex min-h-screen bg-background text-foreground"
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <BrandBackdrop />
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-border/80 bg-card/40 shrink-0 transition-[width] duration-200",
+          "workspace-sidebar hidden md:flex flex-col border-r border-border/80 bg-card/40 shrink-0 transition-[width] duration-200",
           collapsed ? "w-[4.25rem]" : "w-60 lg:w-64",
         )}
         data-testid="workspace-sidebar"
@@ -352,7 +393,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
         <header
-          className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md safe-area-top"
+          className="workspace-topbar sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md safe-area-top"
           data-testid="workspace-topbar"
         >
           <div className="flex items-center gap-2 sm:gap-3 h-14 px-3 sm:px-4 lg:px-6">
@@ -408,7 +449,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   // allow click on results
                   window.setTimeout(() => setSearchOpen(false), 150);
                 }}
-                placeholder="Search tools, resources, workspace…"
+                placeholder="Search workspace…"
                 className="pl-9 h-10 bg-muted/40 border-border/80"
                 aria-label="Universal workspace search"
                 data-testid="workspace-search"
@@ -466,6 +507,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Button
                     variant="ghost"
                     size="icon"
+                    className="hidden sm:inline-flex"
                     aria-label="Recent activity"
                     data-testid="workspace-recent"
                   >
@@ -500,11 +542,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <NotificationCenter />
 
-              <AppearanceControls compact testId="workspace-appearance" />
+              <div className="hidden sm:block">
+                <AppearanceControls compact testId="workspace-appearance" />
+              </div>
 
               <Button
                 variant="ghost"
                 size="icon"
+                className="hidden sm:inline-flex"
                 aria-label="Sign out"
                 data-testid="workspace-logout"
                 onClick={() => void logout()}
@@ -522,13 +567,22 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <span className="ml-2 text-primary font-semibold">· {member.role.replace("_", " ")}</span>
                 ) : null}
               </p>
-              <Link
-                href="/"
-                className="text-[11px] font-semibold text-muted-foreground hover:text-primary shrink-0"
-                data-testid="workspace-to-marketing"
-              >
-                Public site
-              </Link>
+              <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/services"
+                  className="text-[11px] font-semibold text-primary hover:underline"
+                  data-testid="workspace-to-consulting"
+                >
+                  Consulting
+                </Link>
+                <Link
+                  href="/"
+                  className="text-[11px] font-semibold text-muted-foreground hover:text-primary"
+                  data-testid="workspace-to-marketing"
+                >
+                  Public site
+                </Link>
+              </div>
             </div>
           )}
         </header>
@@ -536,6 +590,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main id="main-content" className="flex-1 min-w-0" tabIndex={-1}>
           {children}
         </main>
+        <footer className="workspace-footer" aria-label="Workspace footer">
+          <span>Hospice Sales Pro</span>
+          <Link href="/services">Consulting</Link>
+          <Link href="/contact?service=Consulting">Book a strategy call</Link>
+          <Link href="/faq">Support</Link>
+          <Link href="/legal">Privacy and terms</Link>
+        </footer>
       </div>
     </div>
   );

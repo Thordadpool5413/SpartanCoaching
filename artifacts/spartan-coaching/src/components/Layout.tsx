@@ -413,9 +413,13 @@ export function Header() {
                 {isAuthenticated ? (
                   <>
                     <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
+                    <MobileNavSection title="Consulting" />
+                    {navSections.find((section) => section.title === "Consulting")?.items.map((item) => (
+                      <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                    ))}
                     <MobileNavSection title="Site" />
-                    <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/app" label="iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
                   </>
                 ) : (
                   <>
@@ -439,16 +443,15 @@ export function Header() {
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
               <AppearancePanel className="pb-1" />
-              {canUseFieldKit ? (
-                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
+              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+                <Link href="/contact?service=Consulting" onClick={() => setMobileMenuOpen(false)}>
+                  Book a strategy call
+                </Link>
+              </Button>
+              {canUseFieldKit && (
+                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
                   <Link href="/tools/sales-workflow" onClick={() => setMobileMenuOpen(false)}>
                     Open Command Center
-                  </Link>
-                </Button>
-              ) : (
-                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
-                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                    Book a Call
                   </Link>
                 </Button>
               )}
@@ -537,6 +540,7 @@ export function Footer() {
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
     { href: "/portal/coach", label: "Coach" },
+    { href: "/my-work", label: "My Work" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];

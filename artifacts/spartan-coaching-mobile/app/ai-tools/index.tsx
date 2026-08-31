@@ -141,7 +141,7 @@ export default function AiToolsIndex() {
     >
       <Pressable onPress={() => goBackOrReplace("/(tabs)/tools")} style={styles.back} testID="advanced-back">
         <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={[{ color: colors.primary }, font("semibold")]}>Explore</Text>
+        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library

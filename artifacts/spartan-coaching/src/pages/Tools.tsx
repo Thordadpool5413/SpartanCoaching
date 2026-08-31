@@ -17,10 +17,10 @@ import {
   KeyRound,
   BrainCircuit,
   Crosshair,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Input } from "@/components/ui/input";
@@ -28,11 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
-  FIELD_KIT_WHAT,
-  FIELD_KIT_HOW,
   FIELD_KIT_TOOLS,
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_DAILY_TOOL_IDS,
@@ -74,6 +71,8 @@ const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [showAllIntents, setShowAllIntents] = useState(false);
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
   const filteredTools = useMemo(() => {
@@ -175,46 +174,40 @@ export default function Tools() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
       <SEO />
-      <BackButton />
-      <FieldKitChrome />
       <SlideUp>
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <p className="text-kicker mb-4 justify-center">Hospice Sales Pro</p>
-          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            What do you need to do?
+        <div className="max-w-3xl mb-7">
+          <p className="text-kicker mb-3">Focused workspaces</p>
+          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-tools-title">
+            Choose the outcome. We will point you to the tool.
           </h1>
-          <p className="text-body-lg text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-base text-muted-foreground leading-7">
             {showCatalogGate
               ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
-              : FIELD_KIT_WHAT}
+              : "Start with the job, not the feature. Open one focused workspace, finish the work, and keep the result in My Work."}
           </p>
-          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-            <Link href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath} className="font-semibold text-primary hover:underline">
-              {PRODUCT_SURFACE_PLACEMENT.field_resources.label}
-            </Link>
-            {" "}
-            are work aids (templates & scripts), not only Learn content.{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
-              {PRODUCT_SURFACE_PLACEMENT.learn.label}
-            </Link>
-            {" "}
-            is for articles, podcasts, and fundamentals.
-          </p>
-          {!showCatalogGate && (
-            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-              {FIELD_KIT_HOW}{" "}
-              <Link href="/portal" className="font-semibold text-primary hover:underline">
-                Back to Portal
-              </Link>
-            </p>
-          )}
-          {showCatalogGate && (
-            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-              Open any tool to preview the full UI. Tap or click inside a locked tool for subscribe / trial
-              options.
-            </p>
-          )}
         </div>
+      </SlideUp>
+
+      <SlideUp delay={0.05}>
+        <section className="mb-8" data-testid="public-spartan-intelligence">
+          <Card className="border border-primary/25 bg-primary/[0.05] p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground"><Sparkles className="h-5 w-5" /></div>
+                <div>
+                  <p className="font-black text-foreground">Spartan Intelligence</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Verify an account, answer a CMS policy question, or explore a market.</p>
+                </div>
+              </div>
+              <Button asChild className="min-h-11 shrink-0 font-bold">
+                <Link href="/tools/intelligence" data-testid="button-public-spartan-intelligence">
+                  Open Intelligence
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        </section>
       </SlideUp>
 
       {showCatalogGate && (
@@ -234,6 +227,20 @@ export default function Tools() {
                     Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
                     the same email to restore access.
                   </p>
+                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Live generation on field tools
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
+                    </li>
+                  </ul>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
@@ -279,7 +286,7 @@ export default function Tools() {
       )}
 
       <SlideUp delay={0.1}>
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="tools-search-dock mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <Input
@@ -299,7 +306,7 @@ export default function Tools() {
       {/* Intent-first discovery (HSP-29) */}
       {filteredIntents.length > 0 && (
         <SlideUp delay={0.12}>
-          <section className="mb-12" data-testid="tools-intent-map">
+          <section className="tools-intent-map mb-12" data-testid="tools-intent-map">
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
@@ -315,11 +322,11 @@ export default function Tools() {
                   Templates & guides →
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredIntents.map((intent: DiscoveryIntent) => (
+            <div className="grid sm:grid-cols-2 gap-3">
+              {filteredIntents.slice(0, showAllIntents || searchQuery.trim() ? undefined : 4).map((intent: DiscoveryIntent) => (
                 <Card
                   key={intent.id}
-                  className="p-4 border border-border/80 hover:border-border hover:shadow-sm"
+                  className="tools-intent-card p-5 border border-border/80"
                   data-testid={`intent-card-${intent.id}`}
                 >
                   <h3 className="text-base font-bold text-foreground mb-1">
@@ -334,13 +341,13 @@ export default function Tools() {
                     </Badge>
                   ) : null}
                   <ul className="space-y-1.5">
-                    {intent.destinations.slice(0, 4).map((d) => (
+                    {intent.destinations.slice(0, 3).map((d, destinationIndex) => (
                       <li key={`${intent.id}-${d.id}-${d.webPath}`}>
                         <Link
                           href={d.webPath}
                           className="text-sm font-semibold text-primary hover:underline"
                         >
-                          {d.label}
+                          <span className="mr-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{destinationIndex === 0 ? "Best" : "Also"}</span>{d.label}
                           {d.surface === "field_resources" ? (
                             <span className="text-muted-foreground font-normal">
                               {" "}
@@ -360,15 +367,48 @@ export default function Tools() {
                 </Card>
               ))}
             </div>
+            {!searchQuery.trim() && filteredIntents.length > 4 ? (
+              <div className="mt-4 flex justify-center">
+                <Button type="button" variant="ghost" onClick={() => setShowAllIntents((value) => !value)} aria-expanded={showAllIntents}>
+                  {showAllIntents ? "Show fewer outcomes" : `See ${filteredIntents.length - 4} more outcomes`}
+                </Button>
+              </div>
+            ) : null}
           </section>
         </SlideUp>
       )}
 
-      {!searchQuery.trim() ? (
-        <div className="space-y-12">
+      {!searchQuery.trim() && !showCatalog ? (
+        <Card className="tools-catalog-disclosure border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">Full workspace</p>
+              <h2 className="mt-1 text-xl font-display font-bold text-foreground">Know the tool you want?</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 shrink-0 font-bold"
+              aria-expanded={showCatalog}
+              aria-controls="tools-full-catalog"
+              onClick={() => setShowCatalog(true)}
+              data-testid="button-show-tools-catalog"
+            >
+              Browse all tools <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </Card>
+      ) : !searchQuery.trim() ? (
+        <div id="tools-full-catalog" className="space-y-12">
+          <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
-            Or browse by tool category
+            All tools by job
           </p>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setShowCatalog(false)}>
+            Show less
+          </Button>
+          </div>
           {/* Hero: Command Center */}
           {(() => {
             const command = filteredTools.find((t) => t.id === "sales-workflow");

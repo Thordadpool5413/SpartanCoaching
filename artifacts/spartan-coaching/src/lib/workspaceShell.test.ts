@@ -110,4 +110,11 @@ describe("workspace shell (HSP-32)", () => {
       primaryWorkspaceNav("member").length,
     );
   });
+
+  it("routes saved work to the connected My Work workspace", () => {
+    const saved = workspaceNavForRole("member").find((item) => item.id === "saved");
+    expect(saved?.href).toBe("/my-work");
+    expect(saved?.label).toBe("My Work");
+    expect(saved?.match("/my-work/elite-outputs")).toBe(true);
+  });
 });

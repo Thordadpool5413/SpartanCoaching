@@ -23,7 +23,7 @@ const STEPS: TourStep[] = [
   {
     kicker: "1 · START HERE",
     title: "Know how the whole system fits together.",
-    body: "Home recommends the next useful move. Explore is the field-tool directory. Library holds reading, listening, and approved resources. Coach gives private Elite practice. My Work keeps commitments, plans, downloads, and approved outputs organized.",
+    body: "Home recommends the next useful move. Tools is the field-tool directory. Library holds reading, listening, and approved resources. Coach gives private Elite practice. My Work keeps commitments, plans, downloads, and approved outputs organized.",
     icon: "compass",
   },
   {
@@ -58,7 +58,7 @@ const STEPS: TourStep[] = [
   },
   {
     kicker: "7 · FIND EVERY TOOL",
-    title: "Explore is the complete tool directory.",
+    title: "Tools is the complete field directory.",
     body: `All ${FIELD_KIT_TOOLS.length} tools are organized by the job you need to accomplish. Every tool explains when to use it, how it works, what you enter, and what you leave with.`,
     icon: "grid",
   },
@@ -205,7 +205,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
         <Text style={styles.cardKicker}>YOUR FIELD GUIDE</Text>
         <Text style={styles.cardTitle}>Five destinations. One connected system.</Text>
         <InfoLine icon="home" title="Home" body="See one recommended next move and reopen unfinished work." />
-        <InfoLine icon="grid" title="Explore" body={`Find all ${FIELD_KIT_TOOLS.length} field tools by the job you need to do.`} />
+        <InfoLine icon="grid" title="Tools" body={`Find all ${FIELD_KIT_TOOLS.length} field tools by the job you need to do.`} />
         <InfoLine icon="book-open" title="Library" body="Read, listen, and use approved field resources." />
         <InfoLine icon="message-circle" title="Coach" body="Practice privately with text or voice when Elite is active." />
         <InfoLine icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approved outputs." />
