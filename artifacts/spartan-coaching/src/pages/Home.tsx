@@ -255,14 +255,6 @@ export default function Home() {
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
-                      <Link
-                        href="/about"
-                        onClick={() =>
-                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
-                        }
-                      >
-                        About Nick Lynch
-                      </Link>
                     <Link
                       href="/about"
                       onClick={() =>
