@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
@@ -176,6 +177,7 @@ export default function LearnScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-learn">
+      <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <SpartanHeader title="Library" />
         <View style={[styles.search, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
@@ -516,11 +518,11 @@ const styles = StyleSheet.create({
   methodIcon: { width: 31, height: 31, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   methodLabel: { fontSize: 13 },
   featureCard: { minHeight: 212, borderWidth: 1, borderRadius: 22, padding: 20, justifyContent: "space-between" },
-  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12, minWidth: 0 },
   featureIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   featureMeta: { fontSize: 10, letterSpacing: 1.5 },
-  featureTitle: { fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
-  featureBody: { fontSize: 13, lineHeight: 19, marginTop: 8 },
+  featureTitle: { flexShrink: 1, fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
+  featureBody: { flexShrink: 1, fontSize: 13, lineHeight: 19, marginTop: 8 },
   featureAction: { minHeight: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 18 },
   availableBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
   availableText: { fontSize: 9, letterSpacing: 0.8 },
@@ -528,8 +530,8 @@ const styles = StyleSheet.create({
   row: { minHeight: 132, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 20, padding: 18, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 12 },
   rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
-  rowTitle: { fontSize: 15, lineHeight: 20 },
-  rowBody: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  rowTitle: { flexShrink: 1, fontSize: 15, lineHeight: 20 },
+  rowBody: { flexShrink: 1, fontSize: 12, lineHeight: 17, marginTop: 4 },
   resourceWorkflow: { marginTop: -4, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
   resourceWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
   resourceWorkflowTitle: { fontSize: 12, lineHeight: 17, marginTop: 5 },

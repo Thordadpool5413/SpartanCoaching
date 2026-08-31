@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, Bell, CheckCircle2, Clock3, Gauge, Loader2, Wrench } from "lucide-react";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
 import {
   getToolById,
@@ -161,6 +161,24 @@ export default function SalesWorkflow() {
           Your daily account workflow. Start by scheduling a call, prepare the conversation, then record what happened and the next commitment.
         </p>
       </div>
+      <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
+        <article className="command-dashboard-card command-dashboard-overview">
+          <div className="command-dashboard-icon"><Gauge /></div>
+          <div><p className="command-dashboard-label">Overview</p><h2>Run today with one clear next move.</h2><p>Schedule the conversation, prepare deliberately, then capture the outcome before the context disappears.</p></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Wrench /></div>
+          <div><p className="command-dashboard-label">Quick actions</p><h2>Prepare before you walk in</h2><div className="command-dashboard-actions"><Button asChild size="sm"><Link href="/tools">Open Tools</Link></Button><Button asChild size="sm" variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Bell /></div>
+          <div><p className="command-dashboard-label">Notifications</p><h2>You are caught up</h2><p>New reminders and sync warnings will appear here.</p></div>
+        </article>
+        <article className="command-dashboard-card">
+          <div className="command-dashboard-icon"><Clock3 /></div>
+          <div><p className="command-dashboard-label">Recent activity</p><h2>Continue your latest work</h2><Button asChild variant="ghost" className="mt-2 h-auto p-0"><Link href="/my-work">Open My Work <ArrowRight /></Link></Button></div>
+        </article>
+      </section>
       <section className="command-flight-plan mb-6 grid gap-3 sm:grid-cols-3" aria-label="How to use Sales Command Center" data-testid="command-getting-started">
         {[
           ["1. Schedule", "Add the facility or professional you plan to contact. Never enter patient information."],

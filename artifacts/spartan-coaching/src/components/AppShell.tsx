@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { AppearanceControls } from "@/components/AppearanceControls";
+import { BrandBackdrop } from "@/components/BrandBackdrop";
 import {
   primaryWorkspaceNav,
   utilityWorkspaceNav,
@@ -347,6 +348,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <BrandBackdrop />
       {/* Desktop sidebar */}
       <aside
         className={cn(
@@ -549,6 +552,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main id="main-content" className="flex-1 min-w-0" tabIndex={-1}>
           {children}
         </main>
+        <footer className="workspace-footer" aria-label="Workspace footer">
+          <span>Hospice Sales Pro</span>
+          <Link href="/faq">Support</Link>
+          <Link href="/legal">Privacy and terms</Link>
+        </footer>
       </div>
     </div>
   );

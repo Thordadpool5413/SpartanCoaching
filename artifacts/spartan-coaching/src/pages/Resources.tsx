@@ -856,7 +856,7 @@ export default function Resources() {
               {categoryResources.map((resource) => (
                 <Card
                   key={resource.id}
-                  className="group relative flex min-w-0 flex-col overflow-hidden border border-border/80 p-4 shadow-none transition-colors hover:border-primary/40"
+                  className="resource-copy-safe group relative flex min-w-0 flex-col overflow-hidden border border-border/80 p-4 shadow-none transition-colors hover:border-primary/40"
                   data-testid={`resource-card-${resource.id}`}
                 >
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -916,7 +916,7 @@ export default function Resources() {
                       );
                     })()}
                     {resource.description && (
-                      <p className="mb-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                      <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">
                         {resource.description}
                       </p>
                     )}

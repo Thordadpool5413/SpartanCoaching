@@ -22,6 +22,7 @@ import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 import { haptics } from "@/lib/haptics";
 import { font } from "@/lib/typography";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
+import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
 
 const HOME_JOBS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
@@ -218,6 +219,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       testID="screen-home"
     >
+      <BrandBackdrop />
       <View style={styles.page}>
         <SpartanHeader />
         <View style={styles.badge}>
