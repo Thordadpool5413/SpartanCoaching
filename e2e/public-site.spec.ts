@@ -120,6 +120,8 @@ test.describe("public website release gate", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.getByRole("link", { name: /explore hospice sales pro/i }).first().click();
     await expect(page).toHaveURL(/\/hospice-sales-pro$/);
+    await expect(page.locator("h1").first()).toContainText("Choose access to your field system");
+    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
     await expect(page.locator("h1").first()).toContainText("access to your field system");
     await expect(page.locator("main")).toContainText("Elite");
     await expect(page.locator("main")).toContainText("Standard");

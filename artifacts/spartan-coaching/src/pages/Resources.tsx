@@ -554,6 +554,16 @@ export default function Resources() {
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-7">
           {canUseFieldKit
+            ? "Current templates, scripts, and checklists for work you want to take into the field."
+            : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
+        </p>
+        {canUseFieldKit && (
+          <p className="text-sm text-muted-foreground mt-3">
+            This library is for downloadable work aids. Use{" "}
+            <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
+            {" "}when you need an interactive workspace.
+          </p>
+        )}
             ? "Start with a trusted template, script, or checklist. Download the original or use Spartan AI to adapt a working copy for the next conversation."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
@@ -915,6 +925,7 @@ export default function Resources() {
                         </div>
                       );
                     })()}
+
                     {resource.description && (
                       <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">
                         {resource.description}

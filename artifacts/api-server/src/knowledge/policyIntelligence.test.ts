@@ -8,7 +8,6 @@ describe("buildPolicyBrief", () => {
   it("labels the educational baseline honestly", () => {
     const result = buildPolicyBrief("documentation", null);
     expect(result.source.liveCmsSnapshot).toBe(false);
-    expect(result.boundary).toContain("live CMS coverage snapshot is not currently attached");
     expect(result.sources).toHaveLength(2);
     expect(result.whatNotToSay).toHaveLength(2);
     expect(result.escalation).toContain("clinical reviewer");

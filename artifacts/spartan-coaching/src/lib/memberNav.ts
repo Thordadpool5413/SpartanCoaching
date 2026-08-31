@@ -74,6 +74,8 @@ export const MEMBER_NAV: MemberNavItem[] = [
   },
   {
     href: "/my-work",
+    label: "My Work",
+    short: "My Work",
     label: "Saved work",
     short: "Saved",
     icon: FolderOpen,

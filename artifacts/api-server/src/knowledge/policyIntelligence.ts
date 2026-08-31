@@ -217,6 +217,11 @@ export function buildPolicyBrief(
       jurisdiction: snapshot?.jurisdiction || "US",
       url: snapshot?.sourceUrl || "https://www.cms.gov/medicare/payment/fee-for-service-providers/hospice",
       effectiveAt: isoDate(snapshot?.effectiveAt),
+      checkedAt,
+      liveCmsSnapshot: !baseline,
+    },
+    boundary: baseline
+      ? "Educational guidance with official CMS references. Confirm the current rule and local process before use. Keep patient specific decisions with qualified clinicians."
       checkedAt: isoDate(snapshot?.fetchedAt) || new Date().toISOString(),
       liveCmsSnapshot: !baseline,
     },

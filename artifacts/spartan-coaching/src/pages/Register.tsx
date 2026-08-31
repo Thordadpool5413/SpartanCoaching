@@ -118,9 +118,6 @@ export default function Register() {
           <p className="text-sm text-muted-foreground leading-relaxed">
             You selected <strong className="text-foreground">{requestedPlanLabel}</strong>. You can review
             the other plan before checkout, and you can cancel anytime.{" "}
-            Then subscribe for{" "}
-            <strong className="text-foreground">Elite at $19.99/week</strong>, recommended for the complete product, or Standard at $14.99/week. Cancel
-            anytime.{" "}
             <Link href="/request-access" className="font-semibold text-primary hover:underline">
               Need team access instead?
             </Link>

@@ -32,6 +32,7 @@ export type AccountBrief = {
 };
 
 function clean(value: string | undefined, max: number): string {
+  return (value || "").replace(/[\u2013\u2014]/g, ",").replace(/[{}<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
   return (value || "").replace(/[\u2013\u2014]/g, ",").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
@@ -128,6 +129,9 @@ export function buildAccountBrief(input: AccountBriefInput): AccountBrief {
   ].filter((item): item is { label: string; value: string } => Boolean(item));
 
   const stageOpenings: Record<NonNullable<AccountBriefInput["relationshipStage"]>, string> = {
+    new: `I wanted to learn how your team handles serious illness conversations today and where a hospice partner could make the work easier.`,
+    developing: "I appreciate the conversations we have started. I want to make the next step useful to your team and specific to what you are trying to improve.",
+    active: "I want to make sure our partnership is delivering what your team needs and address anything that could work better.",
     new: `I wanted to learn how your ${group} handles serious illness conversations today and where a hospice partner can make the work easier for your team.`,
     developing: "I appreciate the conversations we have already started. I want to make sure the next step is useful to your team, not another generic follow up.",
     active: "I want to check that our partnership is delivering what your team actually needs and address anything that could work better.",
