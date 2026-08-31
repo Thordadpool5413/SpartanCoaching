@@ -196,7 +196,6 @@ export function workspaceNavForRole(
         const p = normalizePath(loc);
         return p.startsWith("/tools/intelligence") || p.startsWith("/spartan-intelligence");
       },
-      match: (loc) => normalizePath(loc).startsWith("/tools/intelligence"),
     },
     {
       id: "tools",
@@ -259,7 +258,6 @@ export function workspaceNavForRole(
       short: "My Work",
       icon: FolderOpen,
       primary: true,
-      match: (loc) => normalizePath(loc).startsWith("/my-work"),
       match: (loc) =>
         normalizePath(loc).startsWith("/my-work") ||
         normalizePath(loc).includes("resource-work"),
