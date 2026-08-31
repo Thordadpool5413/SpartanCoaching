@@ -1,5 +1,5 @@
 import { useState, type ComponentType } from "react";
-import { BookOpen, CheckCircle2, Crosshair, Map, ShieldCheck } from "lucide-react";
+import { BookOpen, CheckCircle2, Crosshair, Database, Map, ShieldCheck } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { SEO } from "@/components/SEO";
