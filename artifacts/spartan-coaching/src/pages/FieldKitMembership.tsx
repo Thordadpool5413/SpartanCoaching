@@ -18,6 +18,10 @@ import { SectionHeader } from "@/components/elite/SectionHeader";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
+
+// Gated tools only (exclude brand-video which is public)
+const GATED_TOOLS = FIELD_KIT_TOOLS.filter((tool) => !tool.public);
 
 const TIER_TEAM_FEATURES = [
   "Multi-seat organization account",
