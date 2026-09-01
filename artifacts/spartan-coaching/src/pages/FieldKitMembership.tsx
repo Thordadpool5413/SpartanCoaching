@@ -50,18 +50,14 @@ export default function FieldKitMembership() {
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
         <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          Choose access to your field system.
+          Walk in ready.
           <br />
-          <span className="text-primary">Standard for the system. Elite for private Coach.</span>
+          <span className="text-primary">Leave with the next move.</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Choose an individual membership, request provider seats, or manage the access you already have.
+          Stop winging the conversations that decide whether someone understands hospice. Prepare the account,
+          practice the language, run the numbers, and keep the next commitment connected on web and iPhone.
           {` ${PRICING_FACTS.heroLine}`}
-        </p>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
-          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
-          {PRICING_FACTS.heroLine}
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -80,7 +76,7 @@ export default function FieldKitMembership() {
       <div className="border border-border/80 rounded-xl bg-card/80 px-5 py-4 mb-12 max-w-3xl mx-auto">
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 text-sm">
           {[
-            { icon: Award, t: "Built by territory reps" },
+            { icon: Award, t: "Built by a hospice sales coach" },
             { icon: CheckCircle, t: PUBLIC_CLAIM_SAFE.yearsHospice },
             { icon: TrendingUp, t: PUBLIC_CLAIM_SAFE.fieldCraft },
             { icon: Users, t: PUBLIC_CLAIM_SAFE.ethics },
@@ -205,10 +201,10 @@ export default function FieldKitMembership() {
               <span className="text-sm font-semibold text-muted-foreground"> / week</span>
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-              Standard plus private Spartan Coach and deidentified clinical guidance. Cancel anytime.
+              Standard plus private Spartan Coach and deidentified hospice policy education. Cancel anytime.
             </p>
             <ul className="space-y-2 mb-6 flex-1">
-              {["Everything in Standard", "Private voice coaching", "Deidentified clinical guidance"].map((f) => (
+              {["Everything in Standard", "Private voice coaching", "Deidentified hospice policy education"].map((f) => (
                 <li key={f} className="flex gap-2 text-sm text-foreground">
                   <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <span>{f}</span>
@@ -298,7 +294,7 @@ export default function FieldKitMembership() {
           Walk in prepared — not hoping the conversation goes your way.
           <br />
           <span className="text-primary">
-            Standard builds prepared field work. Elite adds private coaching and clinical guidance.
+            Standard builds prepared field work. Elite adds private coaching and hospice policy education.
           </span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">

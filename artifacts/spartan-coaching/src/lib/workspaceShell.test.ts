@@ -61,15 +61,20 @@ describe("workspace shell (HSP-32)", () => {
     expect(plat.some((i) => i.id === "org_admin")).toBe(true);
   });
 
-  it("primary rail always includes Command Center and tools", () => {
+  it("keeps the primary rail focused on five member jobs", () => {
     const primary = primaryWorkspaceNav("member");
     const ids = primary.map((i) => i.id);
-    expect(ids).toContain("command");
-    expect(ids).toContain("tools");
-    expect(ids).toContain("resources");
-    expect(ids).toContain("home");
+    expect(ids).toEqual(["home", "command", "explore", "coach", "saved"]);
     // no duplicate accounts in primary
     expect(ids.filter((id) => id === "accounts").length).toBe(0);
+  });
+
+  it("treats tools, intelligence, resources, and learning as Explore", () => {
+    const explore = workspaceNavForRole("member").find((item) => item.id === "explore")!;
+    expect(explore.match("/tools/intelligence")).toBe(true);
+    expect(explore.match("/resources/objection-cards")).toBe(true);
+    expect(explore.match("/portal/learn")).toBe(true);
+    expect(explore.match("/tools/sales-workflow")).toBe(false);
   });
 
   it("canAccessNavItem respects roles", () => {

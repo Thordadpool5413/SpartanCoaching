@@ -184,20 +184,20 @@ describe("FieldKitMembership hero copy — 'Hospice Sales Pro'", () => {
   });
 });
 
-describe("FieldKitMembership hero headline — access-first positioning", () => {
-  it("shows the access-first headline in the hero when unauthenticated", async () => {
+describe("FieldKitMembership hero headline — outcome-first positioning", () => {
+  it("shows the outcome-first headline in the hero when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toMatch(/Walk in ready\..*Leave with the next move\./i);
   });
 
-  it("shows the access-first headline in the hero when can-subscribe", async () => {
+  it("shows the outcome-first headline in the hero when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toMatch(/Walk in ready\..*Leave with the next move\./i);
   });
 
-  it("shows the access-first headline in the hero when already subscribed", async () => {
+  it("shows the outcome-first headline in the hero when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Choose access to your field system/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toMatch(/Walk in ready\..*Leave with the next move\./i);
   });
 
   it("shows individual pricing and cross-surface access framing", async () => {

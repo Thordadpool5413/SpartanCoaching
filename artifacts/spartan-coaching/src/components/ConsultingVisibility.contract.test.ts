@@ -12,18 +12,17 @@ describe("consulting and workspace coexistence", () => {
     }
   });
 
-  it("keeps consulting visible inside the authenticated workspace", () => {
+  it("keeps one restrained consulting exit in the authenticated workspace footer", () => {
     const shell = read("./AppShell.tsx");
-    expect(shell).toContain("Consulting services");
-    expect(shell).toContain("Programs & workshops");
-    expect(shell).toContain("Book a strategy call");
-    expect(shell).toContain("workspace-to-consulting");
+    expect(shell).not.toContain("consultingWorkspaceLinks");
+    expect(shell).not.toContain('data-testid="workspace-to-consulting"');
+    expect(shell).toContain('<Link href="/services">Consulting</Link>');
   });
 
   it("preserves the current workspace navigation and product routes", () => {
     const shell = read("./AppShell.tsx");
     const workspace = read("../lib/workspaceShell.ts");
-    for (const label of ["Command Center", "Intelligence", "Tools", "Resources", "Learn", "Coach", "My Work"]) {
+    for (const label of ["Command Center", "Explore", "Coach", "My Work"]) {
       expect(workspace).toContain(label);
     }
     expect(shell).toContain("primaryWorkspaceNav");

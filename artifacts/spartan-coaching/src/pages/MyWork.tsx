@@ -44,6 +44,15 @@ type ContinuityResponse = {
   };
   commitment: { value: string; updatedAt: string } | null;
 };
+type MemberSyncRecord = {
+  recordType: "commitment" | "tool_draft" | "tool_result" | "calculator_report" | "library_download";
+  recordId: string;
+  payload: Record<string, unknown>;
+  clientUpdatedAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+};
+type MemberSyncResponse = { records?: MemberSyncRecord[]; serverTime?: string };
 type ResourceWork = {
   id: number;
   resourceKey: string;
@@ -81,6 +90,80 @@ function dateLabel(value: string) {
   return Number.isNaN(date.getTime()) ? "Recently updated" : date.toLocaleString();
 }
 
+function asText(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+/** Convert the record-based, PHI-resistant sync contract into the sections rendered by My Work. */
+export function normalizeMemberSync(response: MemberSyncResponse): ContinuityResponse {
+  const continuity: ContinuityResponse = {
+    payload: {
+      schemaVersion: 1,
+      toolDrafts: {},
+      toolResults: {},
+      calculatorReports: {},
+      downloads: {},
+    },
+    commitment: null,
+  };
+
+  for (const record of response.records ?? []) {
+    if (!record || record.isDeleted || !record.payload) continue;
+    const updatedAt = record.clientUpdatedAt || record.updatedAt;
+
+    if (record.recordType === "commitment" && record.recordId === "current") {
+      const value = asText(record.payload.value);
+      if (value) continuity.commitment = { value, updatedAt };
+      continue;
+    }
+    if (record.recordType === "tool_draft") {
+      const draft = record.payload.draft;
+      if (draft && typeof draft === "object" && !Array.isArray(draft)) {
+        continuity.payload.toolDrafts[record.recordId] = {
+          value: Object.fromEntries(
+            Object.entries(draft).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+          ),
+          updatedAt,
+        };
+      }
+      continue;
+    }
+    if (record.recordType === "tool_result") {
+      const value = asText(record.payload.result);
+      if (value) continuity.payload.toolResults[record.recordId] = { value, updatedAt };
+      continue;
+    }
+    if (record.recordType === "calculator_report") {
+      const kind = record.payload.kind;
+      if (kind !== "activity" && kind !== "roi" && kind !== "rep-cost" && kind !== "branch") continue;
+      const id = asText(record.payload.id) || record.recordId.replace(/^calc:/, "");
+      continuity.payload.calculatorReports[record.recordId] = {
+        id,
+        kind,
+        title: asText(record.payload.title) || "Saved calculator report",
+        summary: asText(record.payload.summary),
+        report: asText(record.payload.report),
+        createdAt: asText(record.payload.createdAt) || updatedAt,
+        updatedAt,
+      };
+      continue;
+    }
+    if (record.recordType === "library_download") {
+      const sourceUrl = asText(record.payload.sourceUrl);
+      const kind = record.payload.kind;
+      if (!sourceUrl || (kind !== "article" && kind !== "audio" && kind !== "resource")) continue;
+      continuity.payload.downloads[record.recordId] = {
+        sourceUrl,
+        title: asText(record.payload.title) || "Saved library item",
+        kind,
+        description: asText(record.payload.description),
+        updatedAt,
+      };
+    }
+  }
+  return continuity;
+}
+
 export default function MyWork() {
   const [continuity, setContinuity] = useState<ContinuityResponse | null>(null);
   const [resourceWork, setResourceWork] = useState<ResourceWork[]>([]);
@@ -94,9 +177,9 @@ export default function MyWork() {
     setWarning("");
 
     const [continuityResult, resourceResult] = await Promise.allSettled([
-      fetch("/api/v1/member-continuity", { credentials: "include" }).then(async (response) => {
+      fetch("/api/v1/member-sync", { credentials: "include" }).then(async (response) => {
         if (!response.ok) throw new Error("Saved tool continuity is unavailable.");
-        return response.json() as Promise<ContinuityResponse>;
+        return normalizeMemberSync(await response.json() as MemberSyncResponse);
       }),
       fetch("/api/v1/resource-work", { credentials: "include" }).then(async (response) => {
         if (!response.ok) throw new Error("Interactive resource work is unavailable.");
@@ -214,7 +297,7 @@ export default function MyWork() {
             ))}
           </WorkSection>
 
-          <WorkSection title="Tool drafts and results" empty="Start a supported tool on iPhone and its synced draft or result will appear here.">
+          <WorkSection title="Tool drafts and results" empty="Approved nonclinical tool work will appear here when it is safe to sync.">
             {[...drafts.map((item) => ({ ...item, kind: "Draft" })), ...results.map((item) => ({ ...item, kind: "Result" }))]
               .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
               .map((item) => {

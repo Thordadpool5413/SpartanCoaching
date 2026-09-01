@@ -1,14 +1,13 @@
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, BrainCircuit, CheckCircle2, Crosshair, FolderOpen, MessageCircle, Sparkles, Wrench } from "lucide-react";
+import { ArrowRight, BrainCircuit, CheckCircle2, Crosshair, FolderOpen, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type NextMove = { title: string; desc: string; href: string };
 
 const workspaces = [
   { icon: Crosshair, number: "01", eyebrow: "Daily execution", title: "Command", body: "Organize accounts, prepare the conversation, capture the outcome, and protect the next move.", href: "/tools/sales-workflow", action: "Run today" },
-  { icon: BrainCircuit, number: "02", eyebrow: "Verified preparation", title: "Intelligence", body: "Research referral partners, answer policy questions, and understand the market before you walk in.", href: "/tools/intelligence", action: "Build intelligence" },
-  { icon: Wrench, number: "03", eyebrow: "Focused production", title: "Tools", body: "Turn a real field need into a finished plan, talk track, calculation, email, or rehearsal.", href: "/tools", action: "Choose an outcome" },
-  { icon: MessageCircle, number: "04", eyebrow: "Private guidance", title: "Coach", body: "Think through the hard conversation, sharpen the language, and commit to the strongest next action.", href: "/portal/coach", action: "Start coaching" },
+  { icon: MessageCircle, number: "02", eyebrow: "Private guidance", title: "Coach", body: "Think through the hard conversation, sharpen the language, and commit to the strongest next action.", href: "/portal/coach", action: "Start coaching" },
+  { icon: BrainCircuit, number: "03", eyebrow: "Tools, intelligence, and learning", title: "Explore", body: "Research an account, build the talk track, run the numbers, or open a field-ready resource.", href: "/tools", action: "Find what you need" },
 ];
 
 export function ElitePortalHome({ firstName, nextMove }: { firstName: string; nextMove: NextMove }) {
@@ -21,7 +20,7 @@ export function ElitePortalHome({ firstName, nextMove }: { firstName: string; ne
         <div className="workspace-command-copy">
           <div className="workspace-overline"><span>Hospice Sales Pro</span><span className="workspace-live-dot">Live workspace</span></div>
           <h1>Good {greeting}{firstName ? `, ${firstName}` : ""}.</h1>
-          <p>Your field operating system is ready. Start with the conversation that matters most, finish the work, and leave with a clear next move.</p>
+          <p>Start with the conversation that matters most. Prepare it, handle it, and leave with the next move already locked.</p>
           <div className="workspace-principles" aria-label="Workspace operating method">
             <span><CheckCircle2 /> Choose the outcome</span>
             <span><CheckCircle2 /> Do the work</span>
@@ -38,7 +37,7 @@ export function ElitePortalHome({ firstName, nextMove }: { firstName: string; ne
 
       <section className="workspace-section" aria-labelledby="workspace-map-heading">
         <div className="workspace-section-heading">
-          <div><p>Run the day</p><h2 id="workspace-map-heading">Start with one move.</h2></div>
+          <div><p>Pick the job</p><h2 id="workspace-map-heading">One move. Finish it.</h2></div>
         </div>
         <div className="workspace-mission-grid">
           {workspaces.map(({ icon: Icon, number, eyebrow, title, body, href, action }, index) => (
@@ -55,8 +54,8 @@ export function ElitePortalHome({ firstName, nextMove }: { firstName: string; ne
 
       <nav className="workspace-utility-rail" aria-label="Workspace shortcuts">
         <Link href="/my-work"><FolderOpen /><span><strong>My Work</strong><small>Resume saved work</small></span><ArrowRight /></Link>
-        <Link href="/resources"><BookOpen /><span><strong>Resources</strong><small>Open field assets</small></span><ArrowRight /></Link>
-        <Link href="/portal/learn"><Sparkles /><span><strong>Field Workshop</strong><small>Learn the system</small></span><ArrowRight /></Link>
+        <Link href="/tools/intelligence"><BrainCircuit /><span><strong>Intelligence</strong><small>Verify before the conversation</small></span><ArrowRight /></Link>
+        <Link href="/portal/learn"><Sparkles /><span><strong>Learn</strong><small>Build the next skill</small></span><ArrowRight /></Link>
       </nav>
     </main>
   );

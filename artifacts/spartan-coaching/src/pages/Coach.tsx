@@ -196,12 +196,6 @@ export default function Coach() {
         </Button>
       </div>
 
-      <section className="coach-summary-grid" aria-label="Coaching progress and next actions">
-        <article><span>Progress</span><strong>{conversations.length ? "Conversation active" : "Ready to begin"}</strong><p>{messages.length} coaching messages in the current brief</p></article>
-        <article><span>Upcoming</span><strong>Your next field conversation</strong><p>Start a brief now, then return to rehearse before the meeting.</p></article>
-        <article><span>Recommended</span><strong>Prepare with the right evidence</strong><p><Link href="/resources">Open Resources <ArrowRight /></Link></p></article>
-      </section>
-
       <div className="grid lg:grid-cols-[240px_minmax(0,1fr)] gap-4 items-start">
         <Card className="p-3 lg:sticky lg:top-24 border border-border">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">Conversation history</p>
@@ -260,7 +254,7 @@ export default function Coach() {
               }} placeholder="Describe the situation or ask a follow up" maxLength={4000} className="min-h-24 resize-none" aria-label="Message Spartan Coach" />
               <Button onClick={() => void sendMessage()} disabled={!draft.trim() || sending} size="lg" className="font-bold w-full sm:w-auto min-h-12">Send <Send className="ml-2 w-4 h-4" /></Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">Enter sends. Shift and Enter adds a new line.</p>
+            <p className="text-xs text-muted-foreground mt-3">Enter sends. Shift and Enter adds a new line. Coach supports sales preparation only. Confirm patient or family outreach with admissions, clinical leadership, and your organization’s policy.</p>
           </div>
         </Card>
       </div>

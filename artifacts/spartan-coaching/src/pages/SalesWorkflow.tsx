@@ -11,14 +11,13 @@ import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Bell, CheckCircle2, Clock3, Gauge, Loader2, Wrench } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
 import {
   getToolById,
   recommendRelated,
   relatedToAnatomyItems,
 } from "@/lib/fieldKitCatalog";
-import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 export default function SalesWorkflow() {
   const { member, isLoading, isAuthenticated } = useAuth();
@@ -154,63 +153,17 @@ export default function SalesWorkflow() {
         title="Sales Command Center | Spartan Coaching"
         description="Plan calls, practice objections, complete visits, review coaching, and schedule the next step."
       />
-      <div className="command-intro mb-5">
-        <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Hospice Sales Pro · Daily spine
-        </p>
-        <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
-          Your daily account workflow. Start by scheduling a call, prepare the conversation, then record what happened and the next commitment.
-        </p>
-      </div>
-      {UX_WORKSPACE_IMPROVEMENTS ? (
-        <section className="mb-6 rounded-xl border border-primary/20 bg-primary/[0.04] p-4" aria-labelledby="command-how-it-works" data-testid="command-how-it-works">
-          <p className="text-xs font-black uppercase tracking-widest text-primary">How it works</p>
-          <h2 id="command-how-it-works" className="mt-1 text-lg font-black text-foreground">Schedule → prepare → close the loop</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">Example: prepare for tomorrow’s referral-source visit, choose the intended outcome, then record one clear next commitment.</p>
-        </section>
-      ) : null}
-      {!UX_WORKSPACE_IMPROVEMENTS ? <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
-        <article className="command-dashboard-card command-dashboard-overview">
-          <div className="command-dashboard-icon"><Gauge /></div>
-          <div><p className="command-dashboard-label">Overview</p><h2>Run today with one clear next move.</h2><p>Schedule the conversation, prepare deliberately, then capture the outcome before the context disappears.</p></div>
-        </article>
-        <article className="command-dashboard-card">
-          <div className="command-dashboard-icon"><Wrench /></div>
-          <div><p className="command-dashboard-label">Quick actions</p><h2>Prepare before you walk in</h2><div className="command-dashboard-actions"><Button asChild size="sm"><Link href="/tools">Open Tools</Link></Button><Button asChild size="sm" variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div></div>
-        </article>
-        <article className="command-dashboard-card">
-          <div className="command-dashboard-icon"><Bell /></div>
-          <div><p className="command-dashboard-label">Notifications</p><h2>You are caught up</h2><p>New reminders and sync warnings will appear here.</p></div>
-        </article>
-        <article className="command-dashboard-card">
-          <div className="command-dashboard-icon"><Clock3 /></div>
-          <div><p className="command-dashboard-label">Recent activity</p><h2>Continue your latest work</h2><Button asChild variant="ghost" className="mt-2 h-auto p-0"><Link href="/my-work">Open My Work <ArrowRight /></Link></Button></div>
-        </article>
-      </section> : (
-        <section className="command-focus-bar mb-6" aria-label="Command Center next action">
+        <section className="command-focus-bar mb-6" aria-labelledby="command-next-action">
           <div>
-            <p className="command-dashboard-label">Start here</p>
-            <h2>Schedule the next conversation.</h2>
-            <p>Everything below supports one loop: schedule, prepare, record the outcome, and protect the next commitment.</p>
+            <p className="command-dashboard-label">Today’s command</p>
+            <h1 id="command-next-action">Schedule → prepare → close the loop.</h1>
+            <p>Choose the next account, prepare the outcome, then record what happened. Never enter patient information.</p>
           </div>
           <div className="command-focus-actions">
             <Button asChild><a href="#hsw-main">Open today</a></Button>
             <Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button>
           </div>
         </section>
-      )}
-      <section className="command-flight-plan mb-6 grid gap-3 sm:grid-cols-3" aria-label="How to use Sales Command Center" data-testid="command-getting-started">
-        {[
-          ["1. Schedule", "Add the facility or professional you plan to contact. Never enter patient information."],
-          ["2. Prepare", "Set the purpose, talk track, and one clear outcome before the conversation."],
-          ["3. Close the loop", "Capture the result and schedule the next step while it is still fresh."],
-        ].map(([title, body]) => (
-          <div key={title} className="command-flight-step flex gap-3">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <div><p className="text-sm font-bold text-foreground">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>
-          </div>
-        ))}
-      </section>
       <div className="command-surface space-y-5">
         <SalesWorkflowPanel
           api={api}

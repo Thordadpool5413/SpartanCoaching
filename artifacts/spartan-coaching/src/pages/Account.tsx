@@ -214,7 +214,9 @@ export default function Account() {
 
   // Mirror iOS EntitlementBanner language (craft Phase 3)
   const statusLabel =
-    org?.status === "trial"
+    isPlatform
+      ? "Platform administrator · no charge"
+      : org?.status === "trial"
       ? "Hospice Sales Pro · evaluation"
       : org?.status === "active"
         ? cancelAtPeriodEnd
@@ -231,7 +233,9 @@ export default function Account() {
             : org?.status || "—";
 
   const membershipBlurb =
-    org?.status === "trial"
+    isPlatform
+      ? "Platform administrator access is active. This account is not a customer subscription and is not billed."
+      : org?.status === "trial"
       ? "You are on a timed evaluation. Choose Standard or Elite before the window ends. Both individual memberships can be canceled anytime."
       : org?.status === "active" && hasPaidSub
         ? cancelAtPeriodEnd
@@ -325,7 +329,7 @@ export default function Account() {
           )}
           {isCompany && <Badge variant="outline">Team / company</Badge>}
           {isPersonal && <Badge variant="outline">Individual</Badge>}
-          {hasPaidSub && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
+          {hasPaidSub && !isPlatform && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
@@ -350,7 +354,7 @@ export default function Account() {
           </div>
           <div>
             <dt className="text-muted-foreground">Organization</dt>
-            <dd className="font-semibold">{org?.name || "—"}</dd>
+            <dd className="font-semibold">{isPlatform ? "Spartan Coaching" : org?.name || "—"}</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">Role</dt>
@@ -371,11 +375,13 @@ export default function Account() {
               </dd>
             </div>
           )}
-          {(periodEnd || billingOrg?.billingStatus || org?.billingStatus) && (
+          {(isPlatform || periodEnd || billingOrg?.billingStatus || org?.billingStatus) && (
             <div className="sm:col-span-2">
               <dt className="text-muted-foreground">Billing</dt>
               <dd className="font-semibold">
-                {isComp
+                {isPlatform
+                  ? "Platform administrator · no charge"
+                  : isComp
                   ? "Complimentary (no card on file)"
                   : hasPaidSub
                     ? cancelAtPeriodEnd
@@ -434,7 +440,7 @@ export default function Account() {
                   >
                     <span className="block text-xs font-bold uppercase tracking-widest text-primary">Elite · recommended</span>
                     <span className="mt-2 block text-2xl font-black text-foreground">$19.99 <span className="text-xs font-semibold text-muted-foreground">per week</span></span>
-                    <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">Everything in Standard plus private Spartan Coach and deidentified clinical guidance.</span>
+                    <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">Everything in Standard plus private Spartan Coach and deidentified hospice policy education.</span>
                   </button>
                 </div>
               ) : (

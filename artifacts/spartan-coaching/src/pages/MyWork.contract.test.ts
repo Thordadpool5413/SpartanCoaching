@@ -18,7 +18,8 @@ describe("authenticated web My Work parity", () => {
 
   it("exposes every approved iPhone continuity collection on web", () => {
     const page = source("src/pages/MyWork.tsx");
-    expect(page).toContain("/api/v1/member-continuity");
+    expect(page).toContain("/api/v1/member-sync");
+    expect(page).not.toContain('fetch("/api/v1/member-continuity"');
     expect(page).toContain("/api/v1/resource-work");
     expect(page).toContain("calculatorReports");
     expect(page).toContain("toolDrafts");
@@ -26,6 +27,15 @@ describe("authenticated web My Work parity", () => {
     expect(page).toContain("downloads");
     expect(page).toContain("continuity?.commitment?.value");
     expect(page).toContain("/my-work/elite-outputs");
+  });
+
+  it("normalizes the record sync contract without reopening the retired broad endpoint", () => {
+    const page = source("src/pages/MyWork.tsx");
+    expect(page).toContain("normalizeMemberSync");
+    expect(page).toContain('record.recordType === "commitment"');
+    expect(page).toContain('record.recordType === "calculator_report"');
+    expect(page).toContain('record.recordType === "library_download"');
+    expect(page).toContain("record.isDeleted");
   });
 
   it("keeps available saved work visible when one continuity service fails", () => {

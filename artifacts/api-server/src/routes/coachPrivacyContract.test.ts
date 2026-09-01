@@ -47,6 +47,8 @@ describe("Spartan Coach privacy contract", () => {
     expect(prompt).toContain("private AI sales coaching assistant");
     expect(prompt).toContain("Managers receive only summaries and commitments");
     expect(prompt).toContain("Do not make patient eligibility");
+    expect(prompt).toContain("Never assume a sales user is authorized to contact a patient");
+    expect(prompt).toContain("coordinate with admissions, clinical leadership, or the care team");
     expect(prompt).not.toMatch(/world's leading|20\+ years/i);
   });
 });
