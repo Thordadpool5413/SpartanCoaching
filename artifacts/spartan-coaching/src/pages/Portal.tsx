@@ -42,9 +42,6 @@ export default function Portal() {
       <MembershipActivation />
       <section id="section-mission-next" aria-labelledby="portal-next-action-heading" aria-live="polite">
         <h1 id="portal-next-action-heading" className="sr-only">Your Hospice Sales Pro workspace</h1>
-        {UX_WORKSPACE_IMPROVEMENTS ? (
-          <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6 lg:px-8"><WorkspaceGuide /></div>
-        ) : null}
         <ElitePortalHome
           firstName={member?.name?.split(" ")[0] || ""}
           nextMove={{
@@ -53,6 +50,9 @@ export default function Portal() {
             href: "/tools/sales-workflow",
           }}
         />
+        {UX_WORKSPACE_IMPROVEMENTS ? (
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8"><WorkspaceGuide /></div>
+        ) : null}
         <div className="mx-auto -mt-3 w-full max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
           <details className="rounded-xl border border-border/70 bg-card/40 p-4">
             <summary className="cursor-pointer text-sm font-bold text-foreground">Personalize recommendations</summary>

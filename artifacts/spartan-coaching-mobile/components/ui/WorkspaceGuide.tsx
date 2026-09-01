@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { router, type Href } from "expo-router";
@@ -18,17 +18,19 @@ const steps: Array<{ title: string; body: string; href: Href }> = [
     href: "/(tabs)/command",
   },
   {
-    title: "View Resources",
-    body: "Use an approved field asset.",
+    title: "Use Resources",
+    body: "Open a field-ready script, checklist, template, or guide.",
     href: "/(tabs)/learn?tab=resources" as Href,
+  },
+  {
+    title: "Keep the Result",
+    body: "Return to My Work and continue on iPhone or web.",
+    href: "/my-work" as Href,
   },
 ];
 
 export function WorkspaceGuide() {
   const colors = useColors();
-  const [dismissed, setDismissed] = useState(false);
-  if (dismissed) return null;
-
   return (
     <View
       style={[
@@ -42,23 +44,14 @@ export function WorkspaceGuide() {
           <Text
             style={[styles.kicker, { color: colors.primary }, font("bold")]}
           >
-            START HERE
+            HOW THE WORKSPACE WORKS
           </Text>
           <Text
             style={[styles.title, { color: colors.foreground }, font("heavy")]}
           >
-            Three steps to useful work
+            One system. Four clear moves.
           </Text>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Dismiss workspace guide"
-          hitSlop={8}
-          onPress={() => setDismissed(true)}
-          style={styles.dismiss}
-        >
-          <Feather name="x" size={20} color={colors.mutedForeground} />
-        </Pressable>
       </View>
       {steps.map((step, index) => (
         <Pressable
@@ -113,12 +106,6 @@ const styles = StyleSheet.create({
   },
   kicker: { fontSize: tokens.fontSize[100], letterSpacing: 1.2 },
   title: { fontSize: tokens.fontSize[400], lineHeight: 26, marginTop: 4 },
-  dismiss: {
-    width: tokens.minimumTapTarget,
-    height: tokens.minimumTapTarget,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   step: {
     minHeight: 64,
     borderTopWidth: StyleSheet.hairlineWidth,

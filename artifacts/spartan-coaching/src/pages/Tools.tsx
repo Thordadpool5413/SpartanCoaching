@@ -72,7 +72,7 @@ const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCatalog, setShowCatalog] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(UX_WORKSPACE_IMPROVEMENTS);
   const [showAllIntents, setShowAllIntents] = useState(false);
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
@@ -626,7 +626,7 @@ export default function Tools() {
         </div>
       )}
 
-      <SlideUp delay={0.2}>
+      {!UX_WORKSPACE_IMPROVEMENTS ? <SlideUp delay={0.2}>
         <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border/80 bg-card shadow-elite surface-noise">
           <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
@@ -640,7 +640,7 @@ export default function Tools() {
             </Link>
           </Button>
         </div>
-      </SlideUp>
+      </SlideUp> : null}
     </div>
   );
 }

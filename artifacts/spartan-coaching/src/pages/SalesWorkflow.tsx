@@ -169,7 +169,7 @@ export default function SalesWorkflow() {
           <p className="mt-2 text-sm leading-6 text-muted-foreground">Example: prepare for tomorrow’s referral-source visit, choose the intended outcome, then record one clear next commitment.</p>
         </section>
       ) : null}
-      <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
+      {!UX_WORKSPACE_IMPROVEMENTS ? <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
         <article className="command-dashboard-card command-dashboard-overview">
           <div className="command-dashboard-icon"><Gauge /></div>
           <div><p className="command-dashboard-label">Overview</p><h2>Run today with one clear next move.</h2><p>Schedule the conversation, prepare deliberately, then capture the outcome before the context disappears.</p></div>
@@ -186,7 +186,19 @@ export default function SalesWorkflow() {
           <div className="command-dashboard-icon"><Clock3 /></div>
           <div><p className="command-dashboard-label">Recent activity</p><h2>Continue your latest work</h2><Button asChild variant="ghost" className="mt-2 h-auto p-0"><Link href="/my-work">Open My Work <ArrowRight /></Link></Button></div>
         </article>
-      </section>
+      </section> : (
+        <section className="command-focus-bar mb-6" aria-label="Command Center next action">
+          <div>
+            <p className="command-dashboard-label">Start here</p>
+            <h2>Schedule the next conversation.</h2>
+            <p>Everything below supports one loop: schedule, prepare, record the outcome, and protect the next commitment.</p>
+          </div>
+          <div className="command-focus-actions">
+            <Button asChild><a href="#hsw-main">Open today</a></Button>
+            <Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button>
+          </div>
+        </section>
+      )}
       <section className="command-flight-plan mb-6 grid gap-3 sm:grid-cols-3" aria-label="How to use Sales Command Center" data-testid="command-getting-started">
         {[
           ["1. Schedule", "Add the facility or professional you plan to contact. Never enter patient information."],
