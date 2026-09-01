@@ -34,3 +34,16 @@ describe("credential changes revoke sessions", () => {
     expect(bootstrap).toContain("await invalidateMemberSessions(byEmail.id);");
   });
 });
+
+describe("login privacy and customer-safe failures", () => {
+  it("does not copy an email address into failed-login telemetry", () => {
+    expect(authRoutes).toContain('logEvent("login_failed", member.id, { reason: "invalid_credentials" })');
+    expect(authRoutes).not.toContain('logEvent("login_failed", member.id, { email })');
+  });
+
+  it("keeps migration instructions out of the customer response", () => {
+    expect(authRoutes).toContain('code: "SCHEMA_OUT_OF_DATE"');
+    expect(authRoutes).toContain("Sign in is temporarily unavailable");
+    expect(authRoutes).not.toContain("Run pnpm db:migrate on the host");
+  });
+});

@@ -26,12 +26,13 @@ describe("Elite iOS experience contract", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
 
     expect(tabs).toContain('title: "Home"');
-    expect(tabs).toContain('title: "Coach"');
+    expect(tabs).toContain('title: "Command"');
     expect(tabs).toContain('title: "Tools"');
+    expect(tabs).toContain('title: "Resources"');
     expect(tabs).toContain('title: "My Work"');
-    expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: "flex"');
-    expect(tabs).toContain('name="command" options={{ href: null }}');
+    expect(tabs).toContain('name="coach" options={{ href: null }}');
+    expect(tabs).toContain('name="account" options={{ href: null }}');
   });
 
   it("provides a launch experience and native administrator hub", () => {

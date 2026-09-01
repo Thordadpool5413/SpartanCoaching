@@ -178,11 +178,12 @@ describe("native product completeness", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
     const home = read("app/(tabs)/index.tsx");
     expect(tabs).toContain('title: "Home"');
-    expect(tabs).toContain('title: "Coach"');
+    expect(tabs).toContain('title: "Command"');
     expect(tabs).toContain('title: "Tools"');
+    expect(tabs).toContain('title: "Resources"');
     expect(tabs).toContain('title: "My Work"');
-    expect(tabs).toContain('title: "Account"');
-    expect(tabs).toContain('name="learn" options={{ href: null }}');
+    expect(tabs).toContain('name="coach" options={{ href: null }}');
+    expect(tabs).toContain('name="account" options={{ href: null }}');
     expect(read("app/(tabs)/my-work.tsx")).toContain("Keep the work that is ready to return to");
     expect(home).toContain('route: "/(tabs)/learn" as Href');
     expect(home).toContain("Open the Library");

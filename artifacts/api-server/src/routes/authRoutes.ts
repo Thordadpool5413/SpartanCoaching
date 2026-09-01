@@ -523,7 +523,7 @@ export function registerAuthRoutes(app: Express): void {
 
       const valid = await verifyPassword(parsed.data.password, member.passwordHash);
       if (!valid) {
-        await logEvent("login_failed", member.id, { email });
+        await logEvent("login_failed", member.id, { reason: "invalid_credentials" });
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
@@ -563,7 +563,7 @@ export function registerAuthRoutes(app: Express): void {
         /relation .* does not exist/i.test(msg)
       ) {
         return res.status(503).json({
-          error: "Login unavailable — database schema is behind the app. Run pnpm db:migrate on the host.",
+          error: "Sign in is temporarily unavailable. Please try again shortly or contact support.",
           code: "SCHEMA_OUT_OF_DATE",
         });
       }
