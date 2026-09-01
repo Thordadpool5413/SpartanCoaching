@@ -26,13 +26,13 @@ describe("Elite iOS experience contract", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
 
     expect(tabs).toContain('title: "Home"');
-    expect(tabs).toContain('title: "Command"');
-    expect(tabs).toContain('title: "Tools"');
-    expect(tabs).toContain('title: "Resources"');
+    expect(tabs).toContain('title: "Coach"');
+    expect(tabs).toContain('title: "Explore"');
     expect(tabs).toContain('title: "My Work"');
+    expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: "flex"');
-    expect(tabs).toContain('name="coach" options={{ href: null }}');
-    expect(tabs).toContain('name="account" options={{ href: null }}');
+    expect(tabs).toContain('name="command" options={{ href: null }}');
+    expect(tabs).toContain('name="learn" options={{ href: null }}');
   });
 
   it("provides a launch experience and native administrator hub", () => {
@@ -58,7 +58,9 @@ describe("Elite iOS experience contract", () => {
     expect(coach).toContain("useAudioRecorder");
     expect(coach).toContain("transcribeAudio");
     expect(coach).toContain("canUseElite");
-    expect(coach).toContain('<SpartanHeader title="Coach" />');
+    expect(coach).toContain('<SpartanHeader title="Spartan Coach" />');
+    expect(coach).toContain("Your private AI coach.");
+    expect(coach).toContain('testID="coach-starter-prompts"');
     expect(coach).not.toContain("<HelmetMark");
     expect(api).toContain('apiPost<{ item: CoachMemoryItem }>("/api/v1/coach/memory"');
     expect(today).toContain("Your current commitment");

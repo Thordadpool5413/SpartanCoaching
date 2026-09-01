@@ -1,11 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 
-type TabIconName = "home" | "command" | "explore" | "resources" | "my-work" | "account";
+type TabIconName = "home" | "command" | "coach" | "explore" | "resources" | "my-work" | "account";
 
 const iconNames: Record<TabIconName, React.ComponentProps<typeof Feather>["name"]> = {
   home: "home",
   command: "target",
+  coach: "message-circle",
   explore: "grid",
   resources: "book-open",
   "my-work": "check-circle",

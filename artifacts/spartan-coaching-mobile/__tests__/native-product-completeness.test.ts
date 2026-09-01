@@ -38,9 +38,9 @@ describe("native product completeness", () => {
   it("matches the approved Coach landing hierarchy before the workflow begins", () => {
     const coach = read("app/(tabs)/coach.tsx");
     expect(coach).toContain('testID="screen-elite-coach-home"');
-    expect(coach).toContain("Practice the conversation before it matters.");
-    expect(coach).toContain("What are you preparing for?");
-    expect(coach).toContain("What is on your mind?");
+    expect(coach).toContain("Your private AI coach.");
+    expect(coach).toContain("What do you need to work through?");
+    expect(coach).toContain('testID="coach-starter-prompts"');
     expect(coach).toContain('testID="coach-direct-conversation"');
     expect(coach).toContain("Talk with Coach");
     expect(coach).toContain("Use guided voice rehearsal");
@@ -178,12 +178,12 @@ describe("native product completeness", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
     const home = read("app/(tabs)/index.tsx");
     expect(tabs).toContain('title: "Home"');
-    expect(tabs).toContain('title: "Command"');
-    expect(tabs).toContain('title: "Tools"');
-    expect(tabs).toContain('title: "Resources"');
+    expect(tabs).toContain('title: "Coach"');
+    expect(tabs).toContain('title: "Explore"');
     expect(tabs).toContain('title: "My Work"');
-    expect(tabs).toContain('name="coach" options={{ href: null }}');
-    expect(tabs).toContain('name="account" options={{ href: null }}');
+    expect(tabs).toContain('title: "Account"');
+    expect(tabs).toContain('name="command" options={{ href: null }}');
+    expect(tabs).toContain('name="learn" options={{ href: null }}');
     expect(read("app/(tabs)/my-work.tsx")).toContain("Keep the work that is ready to return to");
     expect(home).toContain('route: "/(tabs)/learn" as Href');
     expect(home).toContain("Open the Library");

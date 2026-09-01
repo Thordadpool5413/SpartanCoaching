@@ -17,11 +17,11 @@ describe("REQ-UX-001 native core areas", () => {
 
   test("primary navigation matches the taught workspace sequence", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
-    for (const label of ["Home", "Command", "Tools", "Resources", "My Work"]) {
+    for (const label of ["Home", "Coach", "Explore", "My Work", "Account"]) {
       expect(tabs).toContain(`tabBarAccessibilityLabel: "${label}"`);
     }
-    expect(tabs).toContain('name="coach" options={{ href: null }}');
-    expect(tabs).toContain('name="account" options={{ href: null }}');
+    expect(tabs).toContain('name="command" options={{ href: null }}');
+    expect(tabs).toContain('name="learn" options={{ href: null }}');
     expect(read("app/(tabs)/index.tsx")).toContain('route: "/(tabs)/learn" as Href');
     expect(tabs).toContain("minHeight: 44");
   });

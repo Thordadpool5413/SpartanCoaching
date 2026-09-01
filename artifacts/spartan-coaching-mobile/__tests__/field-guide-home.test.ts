@@ -11,8 +11,9 @@ describe("Field Guide experience contract", () => {
 
     expect(welcome).toContain("Take the complete app tour");
     expect(welcome).toContain("No Spartan account is required before Apple purchase.");
-    expect(home).toContain("What do you need to prepare for?");
-    expect(home).toContain("Plan the conversation");
+    expect(home).toContain("What conversation needs your best thinking?");
+    expect(home).toContain("Prepare the next conversation.");
+    expect(home).toContain("Talk it through before it matters.");
     expect(home).not.toContain("Command Center");
   });
 
@@ -81,13 +82,13 @@ describe("Field Guide experience contract", () => {
     expect(publicHome).toContain('route: "/(tabs)/learn"');
     expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} field tools");
     expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
-    expect(home).toContain('route: "/tool/playbook"');
-    expect(home).toContain('"/tool/objection"');
+    expect(home).toContain('open("/tool/playbook" as Href)');
+    expect(home).toContain('"/(tabs)/coach"');
     expect(home).toContain("<SpartanHeader");
     expect(read("components/ui/SpartanHeader.tsx")).toContain('title = "Hospice Sales Pro"');
     expect(read("components/ui/SpartanHeader.tsx")).toContain('subtitle = "by Spartan Coaching"');
     expect(home).not.toContain("Pick up where you left off");
-    expect(home).toContain("Find a field tool");
+    expect(home).toContain("Explore every tool");
     expect(acceptance).toContain("binding visual target is Figma");
   });
 });
