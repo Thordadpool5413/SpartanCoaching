@@ -857,15 +857,16 @@ export default function Resources() {
             Shared product library (not organization-private)
           </p>
         </div>
-        {Object.entries(groupedResources).map(([category, categoryResources]) => (
-          <div key={category} data-testid={`category-${category}`}>
-            <h2 className="mb-4 flex items-center gap-3 text-2xl font-black tracking-tight flex-wrap">
-              {categoryNames[category] || category}
-              <Badge variant="secondary" className="text-sm">
-                {categoryResources.length}
-              </Badge>
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Object.entries(groupedResources).map(([category, categoryResources], index) => (
+          <details key={category} className="resource-category-group rounded-2xl border border-border/70 bg-card/30 p-4" open={resourceCategory !== "all" || index === 0 ? true : undefined} data-testid={`category-${category}`}>
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-xl font-black tracking-tight">
+              <span className="flex items-center gap-3">
+                {categoryNames[category] || category}
+                <Badge variant="secondary" className="text-sm">{categoryResources.length}</Badge>
+              </span>
+              <span className="resource-category-toggle text-xs font-bold uppercase tracking-widest text-primary">View</span>
+            </summary>
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {categoryResources.map((resource) => (
                 <Card
                   key={resource.id}
@@ -1061,7 +1062,7 @@ export default function Resources() {
                 </Card>
               ))}
             </div>
-          </div>
+          </details>
         ))}
         {visibleResources.length === 0 ? (
           <Card className="p-8 text-center" data-testid="resources-empty-search">

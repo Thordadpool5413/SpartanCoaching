@@ -332,48 +332,24 @@ export default function Tools() {
                   Templates & guides →
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {filteredIntents.slice(0, showAllIntents || searchQuery.trim() ? undefined : 4).map((intent: DiscoveryIntent) => (
                 <Card
                   key={intent.id}
-                  className="tools-intent-card p-5 border border-border/80"
+                  className="tools-intent-card border border-border/80 p-4"
                   data-testid={`intent-card-${intent.id}`}
                 >
-                  <h3 className="text-base font-bold text-foreground mb-1">
+                  <h3 className="text-base font-bold text-foreground">
                     {intent.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                     {intent.description}
                   </p>
-                  {intent.secondaryCategory ? (
-                    <Badge variant="outline" className="mb-3 text-[10px]">
-                      Also under {intent.secondaryCategory}
-                    </Badge>
+                  {intent.destinations[0] ? (
+                    <Link href={intent.destinations[0].webPath} className="mt-4 inline-flex min-h-10 items-center text-sm font-bold text-primary hover:underline">
+                      {intent.destinations[0].label}<ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
                   ) : null}
-                  <ul className="space-y-1.5">
-                    {intent.destinations.slice(0, 3).map((d, destinationIndex) => (
-                      <li key={`${intent.id}-${d.id}-${d.webPath}`}>
-                        <Link
-                          href={d.webPath}
-                          className="text-sm font-semibold text-primary hover:underline"
-                        >
-                          <span className="mr-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{destinationIndex === 0 ? "Best" : "Also"}</span>{d.label}
-                          {d.surface === "field_resources" ? (
-                            <span className="text-muted-foreground font-normal">
-                              {" "}
-                              · resource
-                            </span>
-                          ) : null}
-                          {d.surface === "learn" ? (
-                            <span className="text-muted-foreground font-normal">
-                              {" "}
-                              · learn
-                            </span>
-                          ) : null}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
                 </Card>
               ))}
             </div>

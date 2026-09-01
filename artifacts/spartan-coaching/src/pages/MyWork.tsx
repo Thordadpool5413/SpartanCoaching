@@ -86,29 +86,37 @@ export default function MyWork() {
   const [resourceWork, setResourceWork] = useState<ResourceWork[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
-    try {
-      const [continuityResponse, resourceResponse] = await Promise.all([
-        fetch("/api/v1/member-continuity", { credentials: "include" }),
-        fetch("/api/v1/resource-work", { credentials: "include" }),
-      ]);
-      if (!continuityResponse.ok || !resourceResponse.ok) {
-        throw new Error("Your saved work could not be loaded.");
-      }
-      const [nextContinuity, nextResources] = await Promise.all([
-        continuityResponse.json() as Promise<ContinuityResponse>,
-        resourceResponse.json() as Promise<{ items?: ResourceWork[] }>,
-      ]);
-      setContinuity(nextContinuity);
-      setResourceWork(nextResources.items ?? []);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Your saved work could not be loaded.");
-    } finally {
-      setLoading(false);
+    setWarning("");
+
+    const [continuityResult, resourceResult] = await Promise.allSettled([
+      fetch("/api/v1/member-continuity", { credentials: "include" }).then(async (response) => {
+        if (!response.ok) throw new Error("Saved tool continuity is unavailable.");
+        return response.json() as Promise<ContinuityResponse>;
+      }),
+      fetch("/api/v1/resource-work", { credentials: "include" }).then(async (response) => {
+        if (!response.ok) throw new Error("Interactive resource work is unavailable.");
+        return response.json() as Promise<{ items?: ResourceWork[] }>;
+      }),
+    ]);
+
+    if (continuityResult.status === "fulfilled") setContinuity(continuityResult.value);
+    else setContinuity(null);
+    if (resourceResult.status === "fulfilled") setResourceWork(resourceResult.value.items ?? []);
+    else setResourceWork([]);
+
+    if (continuityResult.status === "rejected" && resourceResult.status === "rejected") {
+      setError("Your saved work could not be loaded.");
+    } else if (continuityResult.status === "rejected") {
+      setWarning("Saved tool results are temporarily unavailable. Your resource work is still ready below.");
+    } else if (resourceResult.status === "rejected") {
+      setWarning("Interactive resource work is temporarily unavailable. Your other saved work is still ready below.");
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -167,6 +175,12 @@ export default function MyWork() {
         </Card>
       ) : (
         <>
+          {warning ? (
+            <Card className="flex flex-col gap-4 border-amber-500/30 bg-amber-500/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between" role="status" data-testid="my-work-partial-warning">
+              <div><p className="font-bold">Some saved work is still syncing</p><p className="mt-1 text-sm text-muted-foreground">{warning}</p></div>
+              <Button type="button" variant="outline" onClick={() => void load()} className="shrink-0">Try again</Button>
+            </Card>
+          ) : null}
           <section className="grid gap-4 md:grid-cols-2">
             <Link href="/my-work/elite-outputs" className="block">
               <Card className="h-full border-primary/25 p-6 transition hover:border-primary hover:shadow-md">
