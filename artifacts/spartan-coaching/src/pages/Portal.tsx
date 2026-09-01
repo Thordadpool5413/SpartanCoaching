@@ -5,8 +5,6 @@ import { ElitePortalHome } from "@/components/elite/ElitePortalHome";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { WorkspaceGuide } from "@/components/WorkspaceGuide";
-import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 export default function Portal() {
   const { member, canUseFieldKit, isLoading } = useAuth();
@@ -50,9 +48,6 @@ export default function Portal() {
             href: "/tools/sales-workflow",
           }}
         />
-        {UX_WORKSPACE_IMPROVEMENTS ? (
-          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8"><WorkspaceGuide /></div>
-        ) : null}
         <div className="mx-auto -mt-3 w-full max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
           <details className="rounded-xl border border-border/70 bg-card/40 p-4">
             <summary className="cursor-pointer text-sm font-bold text-foreground">Personalize recommendations</summary>

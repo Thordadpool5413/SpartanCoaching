@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { BookOpen, Headphones, FolderOpen, Flame, HelpCircle, ArrowRight } from "lucide-react";
-import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitGate } from "@/components/FieldKitGate";
 
@@ -118,8 +117,6 @@ export default function PortalLearn() {
           <Link href="/portal">Back to Portal</Link>
         </Button>
       </div>
-
-      <ToolDisclaimer className="mt-10 rounded-md border border-border/60 bg-muted/40 py-3 px-4 text-center" />
     </div>
   );
 }

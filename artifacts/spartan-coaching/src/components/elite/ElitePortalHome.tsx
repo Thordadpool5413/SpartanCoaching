@@ -38,8 +38,7 @@ export function ElitePortalHome({ firstName, nextMove }: { firstName: string; ne
 
       <section className="workspace-section" aria-labelledby="workspace-map-heading">
         <div className="workspace-section-heading">
-          <div><p>Choose your mission</p><h2 id="workspace-map-heading">What needs to move forward?</h2></div>
-          <Button asChild variant="outline"><Link href="/my-work"><FolderOpen /> My Work</Link></Button>
+          <div><p>Run the day</p><h2 id="workspace-map-heading">Start with one move.</h2></div>
         </div>
         <div className="workspace-mission-grid">
           {workspaces.map(({ icon: Icon, number, eyebrow, title, body, href, action }, index) => (
@@ -54,11 +53,11 @@ export function ElitePortalHome({ firstName, nextMove }: { firstName: string; ne
         </div>
       </section>
 
-      <section className="workspace-onboarding-strip">
-        <div className="workspace-onboarding-icon"><BookOpen /></div>
-        <div><p>New to Hospice Sales Pro?</p><h2>Learn the system once. Use it every day.</h2><span>The Field Workshop walks you through Command, Intelligence, Tools, Coach, and My Work in the right order.</span></div>
-        <Button asChild variant="outline" className="workspace-secondary-action"><Link href="/portal/learn">Open Field Workshop <ArrowRight /></Link></Button>
-      </section>
+      <nav className="workspace-utility-rail" aria-label="Workspace shortcuts">
+        <Link href="/my-work"><FolderOpen /><span><strong>My Work</strong><small>Resume saved work</small></span><ArrowRight /></Link>
+        <Link href="/resources"><BookOpen /><span><strong>Resources</strong><small>Open field assets</small></span><ArrowRight /></Link>
+        <Link href="/portal/learn"><Sparkles /><span><strong>Field Workshop</strong><small>Learn the system</small></span><ArrowRight /></Link>
+      </nav>
     </main>
   );
 }

@@ -28,6 +28,14 @@ describe("authenticated web My Work parity", () => {
     expect(page).toContain("/my-work/elite-outputs");
   });
 
+  it("keeps available saved work visible when one continuity service fails", () => {
+    const page = source("src/pages/MyWork.tsx");
+    expect(page).toContain("Promise.allSettled");
+    expect(page).toContain('data-testid="my-work-partial-warning"');
+    expect(page).toContain("Your resource work is still ready below");
+    expect(page).toContain("Your other saved work is still ready below");
+  });
+
   it("registers working My Work and Intelligence routes without merge debris", () => {
     const app = source("src/App.tsx");
     expect(app).toContain('<Route path="/my-work" component={GatedMyWork} />');
