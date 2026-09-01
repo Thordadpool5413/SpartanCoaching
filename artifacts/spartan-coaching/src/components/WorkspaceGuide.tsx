@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, Crosshair, Wrench, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, BookOpen, Crosshair, FolderCheck, Wrench } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const steps = [
@@ -19,46 +17,39 @@ const steps = [
   },
   {
     icon: BookOpen,
-    title: "View Resources",
-    body: "Use a current script, checklist, template, or guide.",
+    title: "Use Resources",
+    body: "Open a field-ready script, checklist, template, or guide.",
     href: "/resources",
+  },
+  {
+    icon: FolderCheck,
+    title: "Keep the Result",
+    body: "Return to saved work and continue on web or iPhone.",
+    href: "/my-work",
   },
 ];
 
 export function WorkspaceGuide() {
-  const [dismissed, setDismissed] = useState(false);
-  if (dismissed) return null;
-
   return (
     <Card
-      className="mb-8 border border-primary/25 bg-card p-5 sm:p-6"
+      className="workspace-guide mb-7 border border-primary/25 bg-card p-5 sm:p-6"
       data-testid="workspace-guide"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div>
         <div>
           <p className="text-xs font-black uppercase tracking-widest text-primary">
-            Start here
+            How the workspace works
           </p>
           <h2 className="mt-1 text-xl font-black text-foreground">
-            Three steps to finish useful work
+            One system. Four clear moves.
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Choose a job, complete it in one workspace, then keep the result in
-            My Work.
+            Command runs the day. Tools finish a specific job. Resources provide
+            field-ready structure. My Work keeps the result connected.
           </p>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="min-h-11 min-w-11"
-          aria-label="Dismiss workspace guide"
-          onClick={() => setDismissed(true)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
       </div>
-      <ol className="mt-5 grid gap-3 md:grid-cols-3">
+      <ol className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {steps.map(({ icon: Icon, title, body, href }, index) => (
           <li
             key={title}

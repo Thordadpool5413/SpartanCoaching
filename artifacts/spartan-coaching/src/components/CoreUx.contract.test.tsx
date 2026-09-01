@@ -33,10 +33,10 @@ describe("REQ-UX-001 core workspace actions", () => {
     expect(css).toContain("text-overflow: ellipsis");
   });
 
-  it("gives first-time users three forward actions and a dismiss control", () => {
+  it("keeps four workspace actions visible for first-time and returning users", () => {
     render(<WorkspaceGuide />);
-    expect(screen.getAllByRole("link")).toHaveLength(3);
-    expect(screen.getByRole("button", { name: /dismiss workspace guide/i })).toBeTruthy();
+    expect(screen.getAllByRole("link")).toHaveLength(4);
+    expect(screen.getByText(/one system\. four clear moves/i)).toBeTruthy();
   });
 
   it("makes long resource copy explicitly expandable", () => {
@@ -45,8 +45,8 @@ describe("REQ-UX-001 core workspace actions", () => {
     expect(control.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("keeps workspace improvements off unless the environment opts in", () => {
-    expect(source("../lib/workspaceUxFlag.ts")).toContain('?? ""');
-    expect(source("../lib/workspaceUxFlag.ts")).toMatch(/===\s*"true"/);
+  it("ships workspace improvements by default with an immediate opt-out", () => {
+    expect(source("../lib/workspaceUxFlag.ts")).toContain('?? "true"');
+    expect(source("../lib/workspaceUxFlag.ts")).toContain('!== "false"');
   });
 });

@@ -865,7 +865,7 @@ export default function Resources() {
                 {categoryResources.length}
               </Badge>
             </h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {categoryResources.map((resource) => (
                 <Card
                   key={resource.id}
@@ -931,7 +931,7 @@ export default function Resources() {
 
                     {resource.description && (
                       UX_WORKSPACE_IMPROVEMENTS ? (
-                        <ExpandableText className="mb-3" lines={4}>{resource.description}</ExpandableText>
+                        <ExpandableText className="mb-3" lines={3}>{resource.description}</ExpandableText>
                       ) : (
                         <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">{resource.description}</p>
                       )
