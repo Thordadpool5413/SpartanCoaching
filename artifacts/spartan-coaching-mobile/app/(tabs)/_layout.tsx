@@ -43,27 +43,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="command"
+        name="coach"
         options={{
-          title: "Command",
-          tabBarAccessibilityLabel: "Command",
-          tabBarIcon: ({ color }) => <TabIcon name="command" color={color} size={24} />,
+          title: "Coach",
+          tabBarAccessibilityLabel: "Coach",
+          tabBarIcon: ({ color }) => <TabIcon name="coach" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="tools"
         options={{
-          title: "Tools",
-          tabBarAccessibilityLabel: "Tools",
+          title: "Explore",
+          tabBarAccessibilityLabel: "Explore",
           tabBarIcon: ({ color }) => <TabIcon name="explore" color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="learn"
-        options={{
-          title: "Resources",
-          tabBarAccessibilityLabel: "Resources",
-          tabBarIcon: ({ color }) => <TabIcon name="resources" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
@@ -74,8 +66,16 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="my-work" color={color} size={24} />,
         }}
       />
-      <Tabs.Screen name="coach" options={{ href: null }} />
-      <Tabs.Screen name="account" options={{ href: null }} />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          tabBarAccessibilityLabel: "Account",
+          tabBarIcon: ({ color }) => <TabIcon name="account" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen name="command" options={{ href: null }} />
+      <Tabs.Screen name="learn" options={{ href: null }} />
       <Tabs.Screen name="contact" options={{ href: null }} />
     </Tabs>
   );

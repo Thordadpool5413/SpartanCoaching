@@ -9,6 +9,8 @@ import {
 describe("deep links", () => {
   it("opens Coach from the custom scheme", () => {
     expect(parseDeepLink("spartan-coaching-mobile://coach")).toEqual({ pathname: "/(tabs)/coach" });
+    expect(parseDeepLink("spartan-coaching-mobile://library")).toEqual({ pathname: "/(tabs)/learn" });
+    expect(mapSecureDeepLinkKey("resources")).toEqual({ pathname: "/(tabs)/learn" });
   });
 
   it("uses the path for production universal links", () => {

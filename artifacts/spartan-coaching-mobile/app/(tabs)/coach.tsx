@@ -59,6 +59,12 @@ const defaultPreference: CoachPreference = {
   responseStyle: "balanced",
 };
 
+const COACH_STARTERS = [
+  "Handle a difficult objection",
+  "Prepare for a leadership conversation",
+  "Sharpen a referral follow up",
+] as const;
+
 export default function CoachScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -431,16 +437,16 @@ export default function CoachScreen() {
           contentContainerStyle={styles.coachHomeContent}
           showsVerticalScrollIndicator={false}
         >
-          <SpartanHeader title="Coach" />
+          <SpartanHeader title="Spartan Coach" />
           <View style={styles.coachHomeBadge}>
             <Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text>
           </View>
           <Text style={styles.coachHomeTitle}>
-            Practice the conversation before it matters.
+            Your private AI coach.
           </Text>
           <Text style={styles.coachHomeBody}>
-            Spartan Coach listens for the concern beneath the words, asks when
-            context is missing, and helps you leave with one commitment.
+            Think through the situation, rehearse the hard part, and leave with
+            language you can use and one clear commitment.
           </Text>
 
           <View
@@ -448,8 +454,24 @@ export default function CoachScreen() {
             testID="coach-direct-conversation"
           >
             <Text style={styles.coachComposerKicker}>START HERE</Text>
-            <Text style={styles.coachComposerTitle}>What are you preparing for?</Text>
-            <Text style={styles.coachHomeBody}>What is on your mind?</Text>
+            <Text style={styles.coachComposerTitle}>What do you need to work through?</Text>
+            <View style={styles.coachStarters} testID="coach-starter-prompts">
+              {COACH_STARTERS.map((starter, index) => (
+                <Pressable
+                  key={starter}
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setLandingPrompt(starter);
+                    void Haptics.selectionAsync();
+                  }}
+                  style={({ pressed }) => [styles.coachStarter, pressed && styles.rowPressed]}
+                  testID={`coach-starter-${index + 1}`}
+                >
+                  <Text style={styles.coachStarterText}>{starter}</Text>
+                  <Feather name="arrow-up-right" size={16} color={colors.primary} />
+                </Pressable>
+              ))}
+            </View>
             <TextInput
               value={landingPrompt}
               onChangeText={setLandingPrompt}
@@ -1281,6 +1303,22 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 6,
       ...font("heavy"),
     },
+    coachStarters: { gap: 8, marginTop: 16 },
+    coachStarter: {
+      minHeight: 45,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+      borderRadius: 14,
+      borderCurve: "continuous",
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      backgroundColor: colors.secondary,
+      paddingHorizontal: 13,
+      paddingVertical: 10,
+    },
+    coachStarterText: { flex: 1, color: colors.foreground, fontSize: 13, lineHeight: 18, ...font("semibold") },
     coachLandingInput: {
       minHeight: 112,
       maxHeight: 180,

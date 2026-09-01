@@ -15,6 +15,7 @@ const LOGIN_RETURN_TARGETS = new Set([
   "/sales-workflow",
   "/tool/[tab]",
   "/(tabs)/tools",
+  "/(tabs)/learn",
   "/(tabs)/my-work",
   "/(tabs)/account",
   "/(tabs)/coach",
@@ -69,7 +70,7 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
       }
       return { pathname: "/sales-workflow" };
     }
-    if (first === "learn" || first === "library") return { pathname: "/(tabs)/tools", params: { view: "library" } };
+    if (first === "learn" || first === "library") return { pathname: "/(tabs)/learn" };
     if (first === "my-work" || first === "work") return { pathname: "/(tabs)/my-work" };
     if (first === "account") return { pathname: "/(tabs)/account" };
     if (first === "coach") return { pathname: "/(tabs)/coach" };
@@ -129,7 +130,7 @@ export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
     case "account":
       return { pathname: "/(tabs)/account" };
     case "resources":
-      return { pathname: "/(tabs)/tools", params: { view: "library" } };
+      return { pathname: "/(tabs)/learn" };
     case "my_work":
       return { pathname: "/(tabs)/my-work" };
     case "tools":
