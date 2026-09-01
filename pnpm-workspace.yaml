@@ -180,3 +180,8 @@ overrides:
   rollup>@rollup/rollup-win32-arm64-msvc: '-'
   rollup>@rollup/rollup-win32-ia32-msvc: '-'
   rollup>@rollup/rollup-win32-x64-gnu: '-'
+
+# pnpm 11 requires an explicit build approval even when the package is listed
+# in onlyBuiltDependencies. Keep local, Replit, and CI installs deterministic.
+allowBuilds:
+  esbuild: true

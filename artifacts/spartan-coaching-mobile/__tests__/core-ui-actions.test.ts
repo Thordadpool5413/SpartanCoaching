@@ -15,13 +15,22 @@ describe("REQ-UX-001 native core areas", () => {
     expect(read(file)).toMatch(actionPattern as RegExp);
   });
 
-  test("primary navigation exposes Home, Tools, Resources, and Coach", () => {
+  test("primary navigation matches the taught workspace sequence", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
-    for (const label of ["Home", "Tools", "Coach"]) {
+    for (const label of ["Home", "Command", "Tools", "Resources", "My Work"]) {
       expect(tabs).toContain(`tabBarAccessibilityLabel: "${label}"`);
     }
+    expect(tabs).toContain('name="coach" options={{ href: null }}');
+    expect(tabs).toContain('name="account" options={{ href: null }}');
     expect(read("app/(tabs)/index.tsx")).toContain('route: "/(tabs)/learn" as Href');
     expect(tabs).toContain("minHeight: 44");
+  });
+
+  test("resource deep links open the requested Library mode", () => {
+    const resources = read("app/(tabs)/learn.tsx");
+    expect(resources).toContain("useLocalSearchParams");
+    expect(resources).toContain('tab === "resources"');
+    expect(resources).toContain('setActiveTab(requestedLearnTab(params.tab))');
   });
 
   test("resource text supports wrapping and bounded previews", () => {

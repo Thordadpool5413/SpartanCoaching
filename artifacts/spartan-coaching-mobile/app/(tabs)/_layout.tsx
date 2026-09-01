@@ -3,7 +3,6 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import { HelmetMark } from "@/components/brand/HelmetMark";
 import { TabIcon } from "@/components/ui/TabIcon";
 
 export default function TabLayout() {
@@ -44,11 +43,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="coach"
+        name="command"
         options={{
-          title: "Coach",
-          tabBarAccessibilityLabel: "Coach",
-          tabBarIcon: () => <HelmetMark size={27} />,
+          title: "Command",
+          tabBarAccessibilityLabel: "Command",
+          tabBarIcon: ({ color }) => <TabIcon name="command" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
@@ -60,6 +59,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="learn"
+        options={{
+          title: "Resources",
+          tabBarAccessibilityLabel: "Resources",
+          tabBarIcon: ({ color }) => <TabIcon name="resources" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
         name="my-work"
         options={{
           title: "My Work",
@@ -67,17 +74,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon name="my-work" color={color} size={24} />,
         }}
       />
-      <Tabs.Screen
-        name="account"
-        options={{
-          title: "Account",
-          tabBarAccessibilityLabel: "Account",
-          tabBarIcon: ({ color }) => <TabIcon name="account" color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen name="command" options={{ href: null }} />
+      <Tabs.Screen name="coach" options={{ href: null }} />
+      <Tabs.Screen name="account" options={{ href: null }} />
       <Tabs.Screen name="contact" options={{ href: null }} />
-      <Tabs.Screen name="learn" options={{ href: null }} />
     </Tabs>
   );
 }

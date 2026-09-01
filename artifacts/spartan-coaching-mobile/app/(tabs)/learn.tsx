@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -33,6 +33,13 @@ import {
 import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 type LearnTab = "articles" | "podcasts" | "resources";
+
+function requestedLearnTab(value?: string | string[]): LearnTab {
+  const tab = Array.isArray(value) ? value[0] : value;
+  return tab === "articles" || tab === "podcasts" || tab === "resources"
+    ? tab
+    : "resources";
+}
 
 type Article = {
   id: number;
@@ -130,8 +137,13 @@ export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit } = useAuth();
-  const [activeTab, setActiveTab] = useState<LearnTab>("articles");
+  const params = useLocalSearchParams<{ tab?: string | string[] }>();
+  const [activeTab, setActiveTab] = useState<LearnTab>(() => requestedLearnTab(params.tab));
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setActiveTab(requestedLearnTab(params.tab));
+  }, [params.tab]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
