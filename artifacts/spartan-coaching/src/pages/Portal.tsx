@@ -5,6 +5,8 @@ import { ElitePortalHome } from "@/components/elite/ElitePortalHome";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
+import { WorkspaceGuide } from "@/components/WorkspaceGuide";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 export default function Portal() {
   const { member, canUseFieldKit, isLoading } = useAuth();
@@ -40,6 +42,9 @@ export default function Portal() {
       <MembershipActivation />
       <section id="section-mission-next" aria-labelledby="portal-next-action-heading" aria-live="polite">
         <h1 id="portal-next-action-heading" className="sr-only">Your Hospice Sales Pro workspace</h1>
+        {UX_WORKSPACE_IMPROVEMENTS ? (
+          <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6 lg:px-8"><WorkspaceGuide /></div>
+        ) : null}
         <ElitePortalHome
           firstName={member?.name?.split(" ")[0] || ""}
           nextMove={{

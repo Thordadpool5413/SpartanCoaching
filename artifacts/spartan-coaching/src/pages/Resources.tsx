@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { trackProductOutcome } from "@/lib/analytics";
 import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
+import { ExpandableText } from "@/components/ui/ExpandableText";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 import {
   FIELD_KIT_TOOLS,
   getResourceWorkGuide,
@@ -535,8 +537,12 @@ export default function Resources() {
         <div className="text-center max-w-2xl mx-auto py-20">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
           <p className="text-body-lg text-muted-foreground">
-            No resources available yet. Check back soon!
+            No resources are available yet. You can continue with a focused tool or contact support.
           </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <Button asChild><Link href="/tools">Open Tools</Link></Button>
+            <Button asChild variant="outline"><Link href="/contact">Contact support</Link></Button>
+          </div>
         </div>
       </div>
     );
@@ -924,9 +930,11 @@ export default function Resources() {
                     })()}
 
                     {resource.description && (
-                      <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">
-                        {resource.description}
-                      </p>
+                      UX_WORKSPACE_IMPROVEMENTS ? (
+                        <ExpandableText className="mb-3" lines={4}>{resource.description}</ExpandableText>
+                      ) : (
+                        <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">{resource.description}</p>
+                      )
                     )}
 
                     {(() => {

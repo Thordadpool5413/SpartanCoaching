@@ -18,6 +18,7 @@ import {
   recommendRelated,
   relatedToAnatomyItems,
 } from "@/lib/fieldKitCatalog";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 export default function SalesWorkflow() {
   const { member, isLoading, isAuthenticated } = useAuth();
@@ -161,6 +162,13 @@ export default function SalesWorkflow() {
           Your daily account workflow. Start by scheduling a call, prepare the conversation, then record what happened and the next commitment.
         </p>
       </div>
+      {UX_WORKSPACE_IMPROVEMENTS ? (
+        <section className="mb-6 rounded-xl border border-primary/20 bg-primary/[0.04] p-4" aria-labelledby="command-how-it-works" data-testid="command-how-it-works">
+          <p className="text-xs font-black uppercase tracking-widest text-primary">How it works</p>
+          <h2 id="command-how-it-works" className="mt-1 text-lg font-black text-foreground">Schedule → prepare → close the loop</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Example: prepare for tomorrow’s referral-source visit, choose the intended outcome, then record one clear next commitment.</p>
+        </section>
+      ) : null}
       <section className="command-dashboard-grid mb-6" aria-label="Command Center overview">
         <article className="command-dashboard-card command-dashboard-overview">
           <div className="command-dashboard-icon"><Gauge /></div>

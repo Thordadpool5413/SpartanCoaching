@@ -41,6 +41,7 @@ import {
   type DiscoveryIntent,
   getToolWorkGuide,
 } from "@/lib/fieldKitCatalog";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 const TOOL_ICONS: Record<string, ReactNode> = {
   "sales-workflow": <Crosshair className="w-8 h-8" />,
@@ -187,6 +188,15 @@ export default function Tools() {
           </p>
         </div>
       </SlideUp>
+
+      {UX_WORKSPACE_IMPROVEMENTS ? (
+        <Card className="mb-8 border border-border/80 bg-card p-5" data-testid="tools-how-to-choose">
+          <p className="text-xs font-black uppercase tracking-widest text-primary">How to choose</p>
+          <h2 className="mt-1 text-xl font-black text-foreground">Start with the result you need</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Search the situation, choose the best-matched workspace, complete its primary action, then save or continue the result in My Work. If you are unsure, start with Command or ask Coach.</p>
+          <div className="mt-4 flex flex-wrap gap-2"><Button asChild><Link href="/tools/sales-workflow">Open Command</Link></Button><Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div>
+        </Card>
+      ) : null}
 
       <SlideUp delay={0.05}>
         <section className="mb-8" data-testid="public-spartan-intelligence">

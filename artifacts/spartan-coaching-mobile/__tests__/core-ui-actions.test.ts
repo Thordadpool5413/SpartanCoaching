@@ -29,4 +29,11 @@ describe("REQ-UX-001 native core areas", () => {
     expect(resources).toContain("flexShrink: 1");
     expect(resources).toContain("numberOfLines={4}");
   });
+
+  test("guarded improvements add orientation and dead-end recovery", () => {
+    expect(read("lib/workspaceUxFlag.ts")).toMatch(/===\s*"true"/);
+    expect(read("components/ui/WorkspaceGuide.tsx")).toContain("Three steps to useful work");
+    expect(read("app/(tabs)/learn.tsx")).toContain('ctaTitle={UX_WORKSPACE_IMPROVEMENTS ? "Open Tools"');
+    expect(read("app/(tabs)/command.tsx")).toContain('testID="command-how-it-works"');
+  });
 });

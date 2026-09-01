@@ -23,6 +23,8 @@ import { haptics } from "@/lib/haptics";
 import { font } from "@/lib/typography";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { BrandBackdrop } from "@/components/brand/BrandBackdrop";
+import { WorkspaceGuide } from "@/components/ui/WorkspaceGuide";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 const HOME_JOBS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
@@ -222,6 +224,7 @@ export default function HomeScreen() {
       <BrandBackdrop />
       <View style={styles.page}>
         <SpartanHeader />
+        {UX_WORKSPACE_IMPROVEMENTS ? <WorkspaceGuide /> : null}
         <View style={styles.badge}>
           <Text
             maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}

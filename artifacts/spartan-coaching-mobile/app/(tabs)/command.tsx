@@ -26,6 +26,7 @@ import {
   relatedToAnatomyItems,
 } from "@workspace/field-kit-catalog";
 import { tokens } from "@/src/design/tokens";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 function formatCallTime(iso: string): string {
   try {
@@ -105,6 +106,14 @@ export default function CommandHubScreen() {
         title="Field Planner"
         subtitle={`${dateLabel} · your next conversation and commitment`}
       />
+
+      {UX_WORKSPACE_IMPROVEMENTS ? (
+        <SpartanCard variant="quiet" style={{ marginBottom: tokens.space[4] }} testID="command-how-it-works">
+          <SectionKicker>How it works</SectionKicker>
+          <Text selectable style={[{ color: colors.foreground, fontSize: tokens.fontSize[300], lineHeight: 22, marginTop: tokens.space[2] }, font("bold")]}>Schedule → prepare → close the loop</Text>
+          <Text selectable style={[{ color: colors.mutedForeground, fontSize: tokens.fontSize[200], lineHeight: 20, marginTop: tokens.space[2] }, font("regular")]}>Example: “Prepare for tomorrow’s referral-source visit,” then record one clear next commitment.</Text>
+        </SpartanCard>
+      ) : null}
 
       <View style={{ gap: tokens.space[2], marginBottom: tokens.space[6] }} accessibilityLabel="Command Center overview">
         <SpartanCard elevated testID="command-overview">

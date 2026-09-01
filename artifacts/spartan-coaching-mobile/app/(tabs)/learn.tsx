@@ -30,6 +30,7 @@ import {
   getToolById,
   type FieldKitResourceWorkflowCustomization,
 } from "@workspace/field-kit-catalog";
+import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 
 type LearnTab = "articles" | "podcasts" | "resources";
 
@@ -266,7 +267,7 @@ export default function LearnScreen() {
           ) : null}
 
           {!articlesQuery.isLoading && !articlesQuery.error && articles.length === 0 ? (
-            <EmptyState icon="file-text" title={search ? "No matching field notes" : "No field notes yet"} body={search ? "Try a different Library search." : "New reading will appear here when it is published."} />
+            <EmptyState icon="file-text" title={search ? "No matching field notes" : "No field notes yet"} body={search ? "Try a different Library search." : "New reading will appear here when it is published."} ctaTitle={UX_WORKSPACE_IMPROVEMENTS ? "Open Tools" : undefined} onCta={UX_WORKSPACE_IMPROVEMENTS ? () => router.push("/(tabs)/tools") : undefined} />
           ) : null}
 
           {!search ? (
@@ -352,7 +353,7 @@ export default function LearnScreen() {
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>{(resourcesQuery.data?.ownershipLabel || "HOSPICE SALES PRO CORE").toUpperCase()}</Text>
             {resourcesQuery.isLoading ? <Loading /> : null}
             {resourcesQuery.error ? <EmptyState icon="alert-circle" title="Could not load resources" ctaTitle="Retry" onCta={() => void resourcesQuery.refetch()} /> : null}
-            {!resourcesQuery.isLoading && !resourcesQuery.error && resources.length === 0 ? <EmptyState icon="folder" title="No resources yet" body="Published resources will appear here." /> : null}
+            {!resourcesQuery.isLoading && !resourcesQuery.error && resources.length === 0 ? <EmptyState icon="folder" title="No resources yet" body="Published resources will appear here." ctaTitle={UX_WORKSPACE_IMPROVEMENTS ? "Open Tools" : undefined} onCta={UX_WORKSPACE_IMPROVEMENTS ? () => router.push("/(tabs)/tools") : undefined} /> : null}
             {resourceGroups.map((group) => (
               <View key={group.id} style={{ marginBottom: 22 }} testID={`resource-group-${group.id}`}>
                 <Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.title}</Text>
