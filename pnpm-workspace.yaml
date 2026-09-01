@@ -52,6 +52,7 @@ minimumReleaseAgeExclude:
   - nanoid
   - image-size
   - tar
+  - browserslist
 
 onlyBuiltDependencies:
   - '@swc/core'
@@ -98,6 +99,8 @@ overrides:
   'nanoid@>=3.0.0 <3.3.17': 3.3.18
   'minimatch@>=5.0.0 <5.1.8': 5.1.8
   'postcss@<=8.5.17': 8.5.18
+  # High: GHSA-c83g-rgw3-j3cx / GHSA-73wf-gq98-2v4g
+  'browserslist@<=4.28.6': 4.28.7
   # High: GHSA-fx2h-pf6j-xcff — vite server.fs.deny bypass (Windows ADS)
   # Keep every workspace package off vite 5.x / unpatched 6.x for CI audit.
   'vite@>=5.0.0 <6.0.0': 7.3.6
