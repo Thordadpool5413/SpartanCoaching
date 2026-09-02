@@ -22,6 +22,7 @@ import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
 import { AccountDayZero } from "@/components/AccountDayZero";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
+import { PLATFORM_ACCOUNT_COPY } from "@/lib/accountAccessCopy";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -337,13 +338,19 @@ export default function Account() {
           {membershipBlurb}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
-          One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone.
+          {isPlatform
+            ? PLATFORM_ACCOUNT_COPY.crossSurface
+            : "One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone."}
         </p>
         <AppHandoffPanel
           compact
           destination="account"
           title="Continue in the iPhone app"
-          description="Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+          description={
+            isPlatform
+              ? PLATFORM_ACCOUNT_COPY.appHandoff
+              : "Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+          }
         />
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
@@ -396,7 +403,7 @@ export default function Account() {
                       : billing?.configured === false
                         ? "Billing not configured on server yet"
                         : "No active subscription"}
-                {(billingOrg?.billingStatus || org?.billingStatus) && !isComp && (
+                {(billingOrg?.billingStatus || org?.billingStatus) && !isComp && !isPlatform && (
                   <span className="text-muted-foreground font-normal">
                     {" "}
                     · status: {billingOrg?.billingStatus || org?.billingStatus}
@@ -414,8 +421,16 @@ export default function Account() {
           id="subscribe"
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <CreditCard className="w-4 h-4 text-primary" />
-            {canCheckout ? "Start Hospice Sales Pro" : "Hospice Sales Pro & billing"}
+            {isPlatform ? (
+              <CheckCircle className="w-4 h-4 text-primary" />
+            ) : (
+              <CreditCard className="w-4 h-4 text-primary" />
+            )}
+            {isPlatform
+              ? PLATFORM_ACCOUNT_COPY.billingHeading
+              : canCheckout
+                ? "Start Hospice Sales Pro"
+                : "Hospice Sales Pro & billing"}
           </div>
           {isPersonal && !isPlatform && (
             <div className="space-y-3">
@@ -575,14 +590,16 @@ export default function Account() {
               </Button>
             </>
           )}
-          {org?.status === "trial" && (
+          {org?.status === "trial" && !isPlatform && (
             <Button asChild variant="outline" className="font-bold">
               <Link href="/contact?service=Hospice+Sales+Pro+Debrief">Book a debrief</Link>
             </Button>
           )}
-          <Button asChild variant="outline" className="font-bold">
-            <Link href="/hospice-sales-pro">View plans</Link>
-          </Button>
+          {!isPlatform && (
+            <Button asChild variant="outline" className="font-bold">
+              <Link href="/hospice-sales-pro">View plans</Link>
+            </Button>
+          )}
           <Button asChild variant="ghost" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>
           </Button>
@@ -591,16 +608,22 @@ export default function Account() {
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
-          Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
-          terms follow your contract. See{" "}
-          <Link href="/terms" className="text-primary hover:underline">
-            Terms
-          </Link>
-          {" · "}
-          <Link href="/hospice-sales-pro" className="text-primary hover:underline">
-            Hospice Sales Pro
-          </Link>
-          .
+          {isPlatform ? (
+            <>{PLATFORM_ACCOUNT_COPY.legalNote}</>
+          ) : (
+            <>
+              Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
+              terms follow your contract. See{" "}
+              <Link href="/terms" className="text-primary hover:underline">
+                Terms
+              </Link>
+              {" · "}
+              <Link href="/hospice-sales-pro" className="text-primary hover:underline">
+                Hospice Sales Pro
+              </Link>
+              .
+            </>
+          )}
         </p>
       </Card>
 
