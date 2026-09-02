@@ -1,34 +1,10 @@
-import { Image } from "expo-image";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { tokens } from "@/src/design/tokens";
-
+/**
+ * The previous decorative PNG had no transparent alpha channel. Rendering it
+ * at low opacity exposed its square canvas as a grey block across app screens.
+ *
+ * Keep this shared boundary as a no-op so existing screens remain stable while
+ * guaranteeing that no decorative overlay obscures their content.
+ */
 export function BrandBackdrop() {
-  return (
-    <View
-      pointerEvents="none"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      style={styles.shell}
-      testID="brand-backdrop"
-    >
-      <Image
-        source={require("@/assets/images/spartan-stamp.png")}
-        contentFit="contain"
-        accessibilityLabel=""
-        style={styles.image}
-      />
-    </View>
-  );
+  return null;
 }
-
-const styles = StyleSheet.create({
-  shell: { ...StyleSheet.absoluteFillObject, alignItems: "flex-end", overflow: "hidden" },
-  image: {
-    width: tokens.brandBackdrop.size,
-    height: tokens.brandBackdrop.size,
-    right: tokens.brandBackdrop.right,
-    top: tokens.brandBackdrop.top,
-    opacity: tokens.brandBackdrop.opacity,
-  },
-});
