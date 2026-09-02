@@ -300,7 +300,7 @@ export default function Account() {
         input={{
           isAuthenticated: true,
           orgStatus: org?.status,
-          orgType: org?.type,
+          orgType: isPlatform ? "platform" : org?.type,
           billingPlan: billingOrg?.billingPlan || org?.billingPlan,
           fieldKitAllowed: canUseFieldKit,
           fieldKitReason: fieldKit?.reason,
