@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import type { NextFunction, Request, Response } from "express";
-import { configuredOrigins, isAllowedOrigin, requireTrustedMutationOrigin } from "./requestSecurity.ts";
+import { applySecurityHeaders, configuredOrigins, isAllowedOrigin, requireTrustedMutationOrigin } from "./requestSecurity.ts";
 
 function responseRecorder() {
   const state: { status?: number; body?: unknown } = {};
@@ -68,4 +68,22 @@ test("bearer-authenticated provider mutation is not treated as cookie CSRF", () 
     called = true;
   }) as NextFunction);
   expect(called).toBe(true);
+});
+
+test("applies browser hardening headers to public pages and API responses", () => {
+  const headers = new Map<string, string>();
+  const response = {
+    setHeader(name: string, value: string) {
+      headers.set(name, value);
+      return this;
+    },
+  } as unknown as Response;
+  let called = false;
+  applySecurityHeaders({} as Request, response, (() => { called = true; }) as NextFunction);
+  expect(called).toBe(true);
+  expect(headers.get("Content-Security-Policy")).toContain("frame-ancestors 'none'");
+  expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
+  expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
+  expect(headers.get("Permissions-Policy")).toContain("camera=()");
+  expect(headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
 });

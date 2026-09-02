@@ -9,10 +9,8 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bell,
-  BookOpen,
   Clock,
   Crosshair,
-  Database,
   FolderOpen,
   Home,
   MessageCircle,
@@ -20,7 +18,7 @@ import {
   Settings,
   Shield,
   UserCircle,
-  Wrench,
+  Compass,
 } from "lucide-react";
 import type { SpartanDestinationId } from "@workspace/field-kit-catalog";
 import { getDestinationContract } from "@workspace/field-kit-catalog";
@@ -30,10 +28,7 @@ export const WORKSPACE_SHELL_VERSION = "workspace-shell-v1";
 export type WorkspaceNavId =
   | "home"
   | "command"
-  | "intelligence"
-  | "tools"
-  | "resources"
-  | "learn"
+  | "explore"
   | "coach"
   | "saved"
   | "recent"
@@ -186,55 +181,19 @@ export function workspaceNavForRole(
       match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
     },
     {
-      id: "intelligence",
-      destinationId: "explore",
-      href: "/tools/intelligence",
-      label: "Intelligence",
-      icon: Database,
-      primary: true,
-      match: (loc) => {
-        const p = normalizePath(loc);
-        return p.startsWith("/tools/intelligence") || p.startsWith("/spartan-intelligence");
-      },
-    },
-    {
-      id: "tools",
+      id: "explore",
       destinationId: "explore",
       href: "/tools",
-      label: "Tools",
-      icon: Wrench,
+      label: "Explore",
+      icon: Compass,
       primary: true,
       match: (loc) => {
         const p = normalizePath(loc);
         return (
-          (p === "/tools" || p.startsWith("/tools/")) &&
-          !p.startsWith("/tools/sales-workflow") &&
-          !p.startsWith("/tools/intelligence")
-        );
-      },
-    },
-    {
-      id: "resources",
-      destinationId: "library",
-      href: "/resources",
-      label: "Resources",
-      icon: FolderOpen,
-      primary: true,
-      match: (loc) => {
-        const p = normalizePath(loc);
-        return p === "/resources" || p.startsWith("/resources/");
-      },
-    },
-    {
-      id: "learn",
-      destinationId: "library",
-      href: "/portal/learn",
-      label: "Learn",
-      icon: BookOpen,
-      primary: true,
-      match: (loc) => {
-        const p = normalizePath(loc);
-        return (
+          ((p === "/tools" || p.startsWith("/tools/")) && !p.startsWith("/tools/sales-workflow")) ||
+          p.startsWith("/spartan-intelligence") ||
+          p === "/resources" ||
+          p.startsWith("/resources/") ||
           p === "/portal/learn" ||
           p === "/drills" ||
           p === "/quiz" ||

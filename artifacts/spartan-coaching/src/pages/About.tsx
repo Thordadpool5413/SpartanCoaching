@@ -83,7 +83,7 @@ export default function About() {
                 </div>
                 <h3 className="text-h3 font-bold text-foreground mb-3">For Teams</h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
-                  When teams communicate clearly with referral partners and remove friction from the pathway, length of stay stabilizes, hospital readmissions drop, and families feel seen.
+                  When teams communicate clearly with referral partners and remove friction from the pathway, conversations happen sooner, handoffs are cleaner, and fewer next steps get lost.
                 </p>
               </div>
             </Card>
@@ -220,7 +220,7 @@ export default function About() {
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
-                  Designed and implemented systems for admissions speed, start-of-care readiness, and IDT communication that reduce delays and improve patient outcomes.
+                  Designed and implemented systems for admissions speed, start-of-care readiness, and IDT communication so teams can identify delays, assign ownership, and close gaps faster.
                 </p>
               </div>
             </Card>

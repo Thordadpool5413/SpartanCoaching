@@ -22,9 +22,11 @@ vi.mock("@/components/HospiceMarketPanel", () => ({
 afterEach(cleanup);
 
 describe("Spartan Intelligence workspace contract", () => {
-  it("is a first class destination in the paid workspace", () => {
+  it("is discoverable through the consolidated Explore destination", () => {
     const nav = primaryWorkspaceNav("member");
-    expect(nav.some((item) => item.href === "/tools/intelligence" && item.label === "Intelligence")).toBe(true);
+    const explore = nav.find((item) => item.href === "/tools" && item.label === "Explore");
+    expect(explore?.match("/tools/intelligence")).toBe(true);
+    expect(nav.some((item) => item.href === "/tools/intelligence")).toBe(false);
   });
 
   it("is a dedicated member destination instead of being hidden under Tools", () => {

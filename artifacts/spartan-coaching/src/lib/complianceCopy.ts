@@ -16,7 +16,7 @@ export const FIELD_KIT_PHI = {
     "Educational coaching aid only. No PHI. Adapt to your voice and the relationship.",
 } as const;
 
-/** Elite clinical guidance accepts deidentified information only. */
+/** Elite policy education accepts deidentified information only. */
 export const CLINICAL_VAULT = {
   short: "Educational decision support only",
   banner:
@@ -70,7 +70,7 @@ export const PRICING_FACTS = {
     "Preview free. Standard is $14.99 per week. Elite is $19.99 per week. Cancel anytime. Teams use contracted seats. Consulting is separate.",
   paywallTitle: "Elite $19.99/week · recommended",
   paywallBody:
-    "Standard unlocks live generation, saved work, and Command Center. Elite adds private Spartan Coach and deidentified clinical guidance. Preview still works without a subscription.",
+    "Standard unlocks live generation, saved work, and Command Center. Elite adds private Spartan Coach and deidentified hospice policy education. Preview still works without a subscription.",
 } as const;
 
 /**
@@ -121,7 +121,7 @@ export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
     id: "professional-boundaries",
     title: "Professional boundaries",
     body:
-      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Elite clinical guidance accepts deidentified information only and requires medical director, compliance, or both to approve every output.",
+      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Elite policy education accepts deidentified information only and requires medical director, compliance, or both to approve every output.",
   },
   {
     id: "provider-isolation",

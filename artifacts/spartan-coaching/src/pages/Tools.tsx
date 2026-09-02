@@ -18,6 +18,8 @@ import {
   BrainCircuit,
   Crosshair,
   Sparkles,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -72,7 +74,7 @@ const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCatalog, setShowCatalog] = useState(UX_WORKSPACE_IMPROVEMENTS);
+  const [showCatalog, setShowCatalog] = useState(false);
   const [showAllIntents, setShowAllIntents] = useState(false);
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
@@ -177,7 +179,7 @@ export default function Tools() {
       <SEO />
       <SlideUp>
         <div className="max-w-3xl mb-7">
-          <p className="text-kicker mb-3">Focused workspaces</p>
+          <p className="text-kicker mb-3">Explore</p>
           <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-tools-title">
             Choose the outcome. We will point you to the tool.
           </h1>
@@ -199,24 +201,22 @@ export default function Tools() {
       ) : null}
 
       <SlideUp delay={0.05}>
-        <section className="mb-8" data-testid="public-spartan-intelligence">
-          <Card className="border border-primary/25 bg-primary/[0.05] p-4 sm:p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mb-8 grid gap-3 lg:grid-cols-3" aria-label="Explore Hospice Sales Pro" data-testid="public-spartan-intelligence">
+          {[
+            { icon: Sparkles, title: "Intelligence", body: "Verify an account, answer a CMS policy question, or understand a market.", href: "/tools/intelligence", action: "Open Intelligence", testId: "button-public-spartan-intelligence" },
+            { icon: BookOpen, title: "Resources", body: "Use a downloadable script, checklist, template, or field guide right now.", href: "/resources", action: "Browse resources", testId: "button-explore-resources" },
+            { icon: GraduationCap, title: "Learn", body: "Build the knowledge, practice the skill, then test your judgment.", href: "/portal/learn", action: "Open Learn", testId: "button-explore-learn" },
+          ].map(({ icon: Icon, title, body, href, action, testId }) => (
+            <Card key={title} className="flex h-full flex-col border border-primary/20 bg-primary/[0.04] p-5">
               <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground"><Sparkles className="h-5 w-5" /></div>
-                <div>
-                  <p className="font-black text-foreground">Spartan Intelligence</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Verify an account, answer a CMS policy question, or explore a market.</p>
-                </div>
+                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground"><Icon className="h-5 w-5" /></div>
+                <div><p className="font-black text-foreground">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p></div>
               </div>
-              <Button asChild className="min-h-11 shrink-0 font-bold">
-                <Link href="/tools/intelligence" data-testid="button-public-spartan-intelligence">
-                  Open Intelligence
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+              <Button asChild variant="outline" className="mt-4 min-h-11 font-bold">
+                <Link href={href} data-testid={testId}>{action}<ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
-            </div>
-          </Card>
+            </Card>
+          ))}
         </section>
       </SlideUp>
 
@@ -234,7 +234,7 @@ export default function Tools() {
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     Browse every tool before you decide. Standard unlocks live field work and eligible saves;
-                    Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
+                    Elite adds private Coach and deidentified hospice policy education. Already subscribed? Sign in with
                     the same email to restore access.
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
@@ -571,7 +571,7 @@ export default function Tools() {
                       Advanced library
                     </h2>
                     <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                      Specialized AI workflows and permission-controlled clinical tools — secondary to
+                      Specialized AI workflows and permission-controlled nonclinical decision support — secondary to
                       your daily Hospice Sales Pro spine.
                     </p>
                   </div>

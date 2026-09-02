@@ -13,6 +13,7 @@ const LINKS = [
     desc: "Industry insights and thought leadership for hospice growth.",
     icon: BookOpen,
     memberOnly: false,
+    group: "Build knowledge",
   },
   {
     href: "/podcasts",
@@ -20,6 +21,7 @@ const LINKS = [
     desc: "Listen to coaching conversations and field lessons.",
     icon: Headphones,
     memberOnly: false,
+    group: "Field lessons",
   },
   {
     href: "/resources",
@@ -27,6 +29,7 @@ const LINKS = [
     desc: "Templates, scripts, and downloadable field materials.",
     icon: FolderOpen,
     memberOnly: false,
+    group: "Field lessons",
   },
   {
     href: "/learn/knowledge-base",
@@ -34,6 +37,7 @@ const LINKS = [
     desc: "Hospice terminology and regulations reference (membership).",
     icon: BookOpen,
     memberOnly: true,
+    group: "Build knowledge",
   },
   {
     href: "/drills",
@@ -41,6 +45,7 @@ const LINKS = [
     desc: "Short practice reps that build consistent execution.",
     icon: Flame,
     memberOnly: true,
+    group: "Practice",
   },
   {
     href: "/quiz",
@@ -48,6 +53,7 @@ const LINKS = [
     desc: "Test hospice sales knowledge with scored questions.",
     icon: HelpCircle,
     memberOnly: true,
+    group: "Practice",
   },
 ];
 
@@ -68,13 +74,16 @@ export default function PortalLearn() {
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-portal-learn">
       <SEO />
       <div className="mb-10 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro · Field Workshop</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro · Learn</p>
         <h1 className="text-h1 font-display font-black">Learn it. Practice it. Use it.</h1>
-        <p className="text-muted-foreground max-w-2xl leading-relaxed">Use the learning tracks below to prepare, practice, test your judgment, and carry one better move into the field.</p>
+        <p className="text-muted-foreground max-w-2xl leading-relaxed">Build the knowledge, practice the skill, and carry one better move into the next conversation.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
-        {LINKS.map((item) => {
+      <div className="space-y-8 mb-10">
+        {["Build knowledge", "Practice", "Field lessons"].map((group) => <section key={group} aria-labelledby={`learn-${group.replace(/\s/g, "-").toLowerCase()}`}>
+          <h2 id={`learn-${group.replace(/\s/g, "-").toLowerCase()}`} className="mb-3 text-xl font-black">{group}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {LINKS.filter((item) => item.group === group).map((item) => {
           const Icon = item.icon;
           const locked = item.memberOnly && !canUseFieldKit;
           const href = locked ? "/request-access" : item.href;
@@ -104,6 +113,8 @@ export default function PortalLearn() {
             </Link>
           );
         })}
+          </div>
+        </section>)}
       </div>
 
       {!canUseFieldKit && (

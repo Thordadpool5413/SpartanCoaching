@@ -18,7 +18,7 @@ describe("REQ-UX-001 core workspace actions", () => {
 
   it.each([
     ["Home", "../components/elite/ElitePortalHome.tsx", /href=\{?['\"]\/(tools|portal)/],
-    ["Command Center", "../pages/SalesWorkflow.tsx", /Open Tools/],
+    ["Command Center", "../pages/SalesWorkflow.tsx", /Open today/],
     ["Tools", "../pages/Tools.tsx", /button-tool-|Open Intelligence/],
     ["Resources", "../pages/Resources.tsx", /button-download-|Open My Work/],
     ["Coach", "../pages/Coach.tsx", /New conversation/],
