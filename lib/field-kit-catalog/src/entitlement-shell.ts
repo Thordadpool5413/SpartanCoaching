@@ -8,6 +8,7 @@ export type EntitlementShellId =
   | "trial"
   | "active"
   | "active_canceling"
+  | "platform_active"
   | "company_active"
   | "comp_active"
   | "expired"
@@ -51,6 +52,13 @@ const BENEFITS = [
   "Cancel anytime · same seat both surfaces",
 ] as const;
 
+const PLATFORM_BENEFITS = [
+  "Full workspace and field-tool access",
+  "Command Center for today’s visits",
+  "Saves and checklist synced web ↔ iPhone",
+  "No customer subscription or self-serve billing",
+] as const;
+
 export function resolveEntitlementShell(input: EntitlementShellInput): EntitlementShellId {
   if (!input.isAuthenticated) return "logged_out";
 
@@ -59,6 +67,8 @@ export function resolveEntitlementShell(input: EntitlementShellInput): Entitleme
   const type = (input.orgType || "").toLowerCase();
   const plan = (input.billingPlan || "").toLowerCase();
 
+  // Platform access is role-backed and must not inherit stale customer billing state.
+  if (type === "platform") return "platform_active";
   if (status === "suspended" || reason === "suspended") return "suspended";
   if (status === "expired" || reason === "expired") return "expired";
   if (status === "trial") return "trial";
@@ -126,6 +136,17 @@ export function entitlementShellCopy(
         primaryCta: "Manage billing",
         restoreNote,
         benefits: BENEFITS,
+      };
+    case "platform_active":
+      return {
+        id,
+        chip: "Platform administrator · no charge",
+        title: "Platform access active",
+        body: "Your administrator account has full workspace access. It is not a customer subscription and is not billed.",
+        primaryCta: "Open Portal",
+        restoreNote:
+          "Sign in with this same administrator account on web or iPhone to continue with the same access.",
+        benefits: PLATFORM_BENEFITS,
       };
     case "company_active":
       return {

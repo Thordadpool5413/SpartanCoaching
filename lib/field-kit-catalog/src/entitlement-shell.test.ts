@@ -65,11 +65,29 @@ describe("entitlement shell (craft Phase 4)", () => {
     ).toBe("company_active");
   });
 
+  it("keeps platform administrators out of paid subscription messaging", () => {
+    const id = resolveEntitlementShell({
+      isAuthenticated: true,
+      orgStatus: "expired",
+      orgType: "platform",
+      billingPlan: "individual_weekly",
+      hasPaidSubscription: true,
+      cancelAtPeriodEnd: true,
+      fieldKitAllowed: true,
+    });
+    const copy = entitlementShellCopy(id);
+
+    expect(id).toBe("platform_active");
+    expect(copy.chip).toBe("Platform administrator · no charge");
+    expect(`${copy.title} ${copy.body} ${copy.restoreNote}`).not.toMatch(/\$|subscription active|manage billing|cancel anytime/i);
+  });
+
   it("copy always includes restore note and benefits", () => {
     for (const id of [
       "logged_out",
       "trial",
       "active",
+      "platform_active",
       "expired",
       "suspended",
       "locked",
