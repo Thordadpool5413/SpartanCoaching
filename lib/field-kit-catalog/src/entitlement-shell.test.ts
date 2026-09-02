@@ -68,7 +68,7 @@ describe("entitlement shell (craft Phase 4)", () => {
   it("keeps platform administrators out of paid subscription messaging", () => {
     const id = resolveEntitlementShell({
       isAuthenticated: true,
-      orgStatus: "active",
+      orgStatus: "expired",
       orgType: "platform",
       billingPlan: "individual_weekly",
       hasPaidSubscription: true,

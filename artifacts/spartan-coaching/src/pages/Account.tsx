@@ -209,8 +209,9 @@ export default function Account() {
       org?.status === "active" ||
       !org?.status);
   const canPortal =
-    Boolean(billing?.canOpenPortal) ||
-    Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
+    !isPlatform &&
+    (Boolean(billing?.canOpenPortal) ||
+      Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer));
 
   // Mirror iOS EntitlementBanner language (craft Phase 3)
   const statusLabel =
@@ -309,7 +310,8 @@ export default function Account() {
           hoursRemaining: fieldKit?.hoursRemaining,
         }}
         onPrimary={() => {
-          if (canCheckout) void (selectedPlan === "elite_weekly" ? startEliteCheckout() : startCheckout());
+          if (isPlatform) setLocation("/portal");
+          else if (canCheckout) void (selectedPlan === "elite_weekly" ? startEliteCheckout() : startCheckout());
           else if (canPortal) void openPortal();
           else setLocation("/portal");
         }}

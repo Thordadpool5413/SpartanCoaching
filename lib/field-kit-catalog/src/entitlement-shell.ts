@@ -67,12 +67,13 @@ export function resolveEntitlementShell(input: EntitlementShellInput): Entitleme
   const type = (input.orgType || "").toLowerCase();
   const plan = (input.billingPlan || "").toLowerCase();
 
+  // Platform access is role-backed and must not inherit stale customer billing state.
+  if (type === "platform") return "platform_active";
   if (status === "suspended" || reason === "suspended") return "suspended";
   if (status === "expired" || reason === "expired") return "expired";
   if (status === "trial") return "trial";
 
   if (status === "active" || input.fieldKitAllowed) {
-    if (type === "platform") return "platform_active";
     if (type === "company") return "company_active";
     if (plan === "comp") return "comp_active";
     if (input.cancelAtPeriodEnd) return "active_canceling";
