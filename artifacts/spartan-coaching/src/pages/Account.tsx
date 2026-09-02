@@ -22,7 +22,7 @@ import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
 import { AccountDayZero } from "@/components/AccountDayZero";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
-import { PLATFORM_ACCOUNT_COPY } from "@/lib/accountAccessCopy";
+import { platformAccountCopy } from "@/lib/accountAccessCopy";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -180,7 +180,9 @@ export default function Account() {
   const billingOrg = billing?.organization;
   const isPersonal = org?.type === "personal";
   const isCompany = org?.type === "company";
-  const isPlatform = org?.type === "platform" || member.role === "platform_admin";
+  const isPlatformAdmin = member.role === "platform_admin";
+  const isPlatform = org?.type === "platform" || isPlatformAdmin;
+  const platformCopy = platformAccountCopy(isPlatformAdmin);
   const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
   const billingPlan = billingOrg?.billingPlan || org?.billingPlan;
   const billingProvider = billingOrg?.billingProvider || org?.billingProvider;
@@ -217,7 +219,7 @@ export default function Account() {
   // Mirror iOS EntitlementBanner language (craft Phase 3)
   const statusLabel =
     isPlatform
-      ? "Platform administrator · no charge"
+      ? platformCopy.statusLabel
       : org?.status === "trial"
       ? "Hospice Sales Pro · evaluation"
       : org?.status === "active"
@@ -236,7 +238,7 @@ export default function Account() {
 
   const membershipBlurb =
     isPlatform
-      ? "Platform administrator access is active. This account is not a customer subscription and is not billed."
+      ? platformCopy.membershipBlurb
       : org?.status === "trial"
       ? "You are on a timed evaluation. Choose Standard or Elite before the window ends. Both individual memberships can be canceled anytime."
       : org?.status === "active" && hasPaidSub
@@ -339,7 +341,7 @@ export default function Account() {
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
           {isPlatform
-            ? PLATFORM_ACCOUNT_COPY.crossSurface
+            ? platformCopy.crossSurface
             : "One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone."}
         </p>
         <AppHandoffPanel
@@ -348,7 +350,7 @@ export default function Account() {
           title="Continue in the iPhone app"
           description={
             isPlatform
-              ? PLATFORM_ACCOUNT_COPY.appHandoff
+              ? platformCopy.appHandoff
               : "Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
           }
         />
@@ -389,7 +391,7 @@ export default function Account() {
               <dt className="text-muted-foreground">Billing</dt>
               <dd className="font-semibold">
                 {isPlatform
-                  ? "Platform administrator · no charge"
+                  ? platformCopy.billingLabel
                   : isComp
                   ? "Complimentary (no card on file)"
                   : hasPaidSub
@@ -427,7 +429,7 @@ export default function Account() {
               <CreditCard className="w-4 h-4 text-primary" />
             )}
             {isPlatform
-              ? PLATFORM_ACCOUNT_COPY.billingHeading
+              ? platformCopy.billingHeading
               : canCheckout
                 ? "Start Hospice Sales Pro"
                 : "Hospice Sales Pro & billing"}
@@ -495,7 +497,9 @@ export default function Account() {
               )}
             </div>
           )}
-          {billingLoading ? (
+          {isPlatform ? (
+            <p className="text-sm text-muted-foreground">{platformCopy.notBilled}</p>
+          ) : billingLoading ? (
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading billing…
             </p>
@@ -561,9 +565,6 @@ export default function Account() {
                       : "Billing actions will appear when your account is eligible."}
                   </p>
                 )}
-                {isPlatform && (
-                  <p className="text-sm text-muted-foreground">Platform admin accounts are not billed.</p>
-                )}
               </div>
             </>
           )}
@@ -609,7 +610,7 @@ export default function Account() {
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
           {isPlatform ? (
-            <>{PLATFORM_ACCOUNT_COPY.legalNote}</>
+            <>{platformCopy.legalNote}</>
           ) : (
             <>
               Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
