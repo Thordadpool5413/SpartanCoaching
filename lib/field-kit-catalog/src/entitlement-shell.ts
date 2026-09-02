@@ -140,12 +140,12 @@ export function entitlementShellCopy(
     case "platform_active":
       return {
         id,
-        chip: "Platform administrator · no charge",
+        chip: "Platform access · no charge",
         title: "Platform access active",
-        body: "Your administrator account has full workspace access. It is not a customer subscription and is not billed.",
+        body: "Your platform account has full workspace access. It is not a customer subscription and is not billed.",
         primaryCta: "Open Portal",
         restoreNote:
-          "Sign in with this same administrator account on web or iPhone to continue with the same access.",
+          "Sign in with this same platform account on web or iPhone to continue with the same access.",
         benefits: PLATFORM_BENEFITS,
       };
     case "company_active":

@@ -22,6 +22,7 @@ import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
 import { AccountDayZero } from "@/components/AccountDayZero";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
+import { platformAccountCopy } from "@/lib/accountAccessCopy";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -179,7 +180,9 @@ export default function Account() {
   const billingOrg = billing?.organization;
   const isPersonal = org?.type === "personal";
   const isCompany = org?.type === "company";
-  const isPlatform = org?.type === "platform" || member.role === "platform_admin";
+  const isPlatformAdmin = member.role === "platform_admin";
+  const isPlatform = org?.type === "platform" || isPlatformAdmin;
+  const platformCopy = platformAccountCopy(isPlatformAdmin);
   const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
   const billingPlan = billingOrg?.billingPlan || org?.billingPlan;
   const billingProvider = billingOrg?.billingProvider || org?.billingProvider;
@@ -216,7 +219,7 @@ export default function Account() {
   // Mirror iOS EntitlementBanner language (craft Phase 3)
   const statusLabel =
     isPlatform
-      ? "Platform administrator · no charge"
+      ? platformCopy.statusLabel
       : org?.status === "trial"
       ? "Hospice Sales Pro · evaluation"
       : org?.status === "active"
@@ -235,7 +238,7 @@ export default function Account() {
 
   const membershipBlurb =
     isPlatform
-      ? "Platform administrator access is active. This account is not a customer subscription and is not billed."
+      ? platformCopy.membershipBlurb
       : org?.status === "trial"
       ? "You are on a timed evaluation. Choose Standard or Elite before the window ends. Both individual memberships can be canceled anytime."
       : org?.status === "active" && hasPaidSub
@@ -337,13 +340,19 @@ export default function Account() {
           {membershipBlurb}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
-          One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone.
+          {isPlatform
+            ? platformCopy.crossSurface
+            : "One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone."}
         </p>
         <AppHandoffPanel
           compact
           destination="account"
           title="Continue in the iPhone app"
-          description="Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+          description={
+            isPlatform
+              ? platformCopy.appHandoff
+              : "Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+          }
         />
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
@@ -382,7 +391,7 @@ export default function Account() {
               <dt className="text-muted-foreground">Billing</dt>
               <dd className="font-semibold">
                 {isPlatform
-                  ? "Platform administrator · no charge"
+                  ? platformCopy.billingLabel
                   : isComp
                   ? "Complimentary (no card on file)"
                   : hasPaidSub
@@ -396,7 +405,7 @@ export default function Account() {
                       : billing?.configured === false
                         ? "Billing not configured on server yet"
                         : "No active subscription"}
-                {(billingOrg?.billingStatus || org?.billingStatus) && !isComp && (
+                {(billingOrg?.billingStatus || org?.billingStatus) && !isComp && !isPlatform && (
                   <span className="text-muted-foreground font-normal">
                     {" "}
                     · status: {billingOrg?.billingStatus || org?.billingStatus}
@@ -414,8 +423,16 @@ export default function Account() {
           id="subscribe"
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <CreditCard className="w-4 h-4 text-primary" />
-            {canCheckout ? "Start Hospice Sales Pro" : "Hospice Sales Pro & billing"}
+            {isPlatform ? (
+              <CheckCircle className="w-4 h-4 text-primary" />
+            ) : (
+              <CreditCard className="w-4 h-4 text-primary" />
+            )}
+            {isPlatform
+              ? platformCopy.billingHeading
+              : canCheckout
+                ? "Start Hospice Sales Pro"
+                : "Hospice Sales Pro & billing"}
           </div>
           {isPersonal && !isPlatform && (
             <div className="space-y-3">
@@ -480,7 +497,9 @@ export default function Account() {
               )}
             </div>
           )}
-          {billingLoading ? (
+          {isPlatform ? (
+            <p className="text-sm text-muted-foreground">{platformCopy.notBilled}</p>
+          ) : billingLoading ? (
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading billing…
             </p>
@@ -546,9 +565,6 @@ export default function Account() {
                       : "Billing actions will appear when your account is eligible."}
                   </p>
                 )}
-                {isPlatform && (
-                  <p className="text-sm text-muted-foreground">Platform admin accounts are not billed.</p>
-                )}
               </div>
             </>
           )}
@@ -575,14 +591,16 @@ export default function Account() {
               </Button>
             </>
           )}
-          {org?.status === "trial" && (
+          {org?.status === "trial" && !isPlatform && (
             <Button asChild variant="outline" className="font-bold">
               <Link href="/contact?service=Hospice+Sales+Pro+Debrief">Book a debrief</Link>
             </Button>
           )}
-          <Button asChild variant="outline" className="font-bold">
-            <Link href="/hospice-sales-pro">View plans</Link>
-          </Button>
+          {!isPlatform && (
+            <Button asChild variant="outline" className="font-bold">
+              <Link href="/hospice-sales-pro">View plans</Link>
+            </Button>
+          )}
           <Button asChild variant="ghost" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>
           </Button>
@@ -591,16 +609,22 @@ export default function Account() {
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
-          Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
-          terms follow your contract. See{" "}
-          <Link href="/terms" className="text-primary hover:underline">
-            Terms
-          </Link>
-          {" · "}
-          <Link href="/hospice-sales-pro" className="text-primary hover:underline">
-            Hospice Sales Pro
-          </Link>
-          .
+          {isPlatform ? (
+            <>{platformCopy.legalNote}</>
+          ) : (
+            <>
+              Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
+              terms follow your contract. See{" "}
+              <Link href="/terms" className="text-primary hover:underline">
+                Terms
+              </Link>
+              {" · "}
+              <Link href="/hospice-sales-pro" className="text-primary hover:underline">
+                Hospice Sales Pro
+              </Link>
+              .
+            </>
+          )}
         </p>
       </Card>
 

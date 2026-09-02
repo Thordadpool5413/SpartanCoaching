@@ -78,7 +78,7 @@ describe("entitlement shell (craft Phase 4)", () => {
     const copy = entitlementShellCopy(id);
 
     expect(id).toBe("platform_active");
-    expect(copy.chip).toBe("Platform administrator · no charge");
+    expect(copy.chip).toBe("Platform access · no charge");
     expect(`${copy.title} ${copy.body} ${copy.restoreNote}`).not.toMatch(/\$|subscription active|manage billing|cancel anytime/i);
   });
 
