@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { FieldBriefExperience } from "./FieldBriefExperience";
 
 vi.mock("wouter", () => ({
@@ -55,10 +55,16 @@ describe("FieldBriefExperience", () => {
 
     expect(screen.getAllByRole("tab")).toHaveLength(4);
     expect(screen.getByRole("tabpanel", { name: /prepare workflow preview/i })).toBeTruthy();
+    const prepareArtifact = screen.getByTestId("field-brief-artifact-prepare");
+    expect(prepareArtifact).toBeTruthy();
+    expect(within(prepareArtifact).getByText(/maple ridge medical group/i)).toBeTruthy();
 
     fireEvent.click(screen.getByTestId("field-brief-tab-review"));
 
     expect(screen.getByRole("tabpanel", { name: /review workflow preview/i })).toBeTruthy();
+    const reviewArtifact = screen.getByTestId("field-brief-artifact-review");
+    expect(reviewArtifact).toBeTruthy();
+    expect(within(reviewArtifact).getByText(/a door opened/i)).toBeTruthy();
     expect(screen.getByText(/record the learning and put the next conversation on the calendar/i)).toBeTruthy();
     expect(screen.getByText(/do not enter phi/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /open the tool preview/i }).getAttribute("href")).toBe(

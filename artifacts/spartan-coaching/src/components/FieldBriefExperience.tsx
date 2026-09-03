@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "wouter";
 import {
   ArrowRight,
@@ -42,6 +42,12 @@ type FieldStep = {
   signal: string;
   nextMove: string;
   bullets: string[];
+  artifact: {
+    eyebrow: string;
+    title: string;
+    detail: string;
+    lines: string[];
+  };
 };
 
 const PATHFINDER_OPTIONS: PathfinderOption[] = [
@@ -121,6 +127,12 @@ const FIELD_STEPS: FieldStep[] = [
     signal: "Account signal",
     nextMove: "Choose the referral relationship that needs movement this week.",
     bullets: ["Account context", "Conversation objective", "One next question"],
+    artifact: {
+      eyebrow: "Thursday · 08:40",
+      title: "Maple Ridge Medical Group",
+      detail: "Warm introduction to case management",
+      lines: ["Two recent discharges", "Gatekeeper: office manager", "Ask: who owns the family handoff?"],
+    },
   },
   {
     id: "practice",
@@ -132,6 +144,12 @@ const FIELD_STEPS: FieldStep[] = [
     signal: "Objection pattern",
     nextMove: "Say the response in your voice, then sharpen the ask.",
     bullets: ["Likely objection", "Plain-language response", "Clear ask"],
+    artifact: {
+      eyebrow: "Likely pushback",
+      title: "“We already have a hospice.”",
+      detail: "Keep the door open without turning the visit into a pitch.",
+      lines: ["Acknowledge the current partner", "Ask what is working well", "Offer one useful comparison"],
+    },
   },
   {
     id: "execute",
@@ -143,6 +161,12 @@ const FIELD_STEPS: FieldStep[] = [
     signal: "Field action",
     nextMove: "Complete the visit and capture the professional follow-up.",
     bullets: ["Visit plan", "Conversation cue", "Follow-up window"],
+    artifact: {
+      eyebrow: "In the field · 11:15",
+      title: "Visit cue is ready",
+      detail: "Maple Ridge Medical Group · 12 min window",
+      lines: ["Lead with the family handoff question", "Listen for discharge friction", "Follow up Friday morning"],
+    },
   },
   {
     id: "review",
@@ -154,6 +178,12 @@ const FIELD_STEPS: FieldStep[] = [
     signal: "Next move",
     nextMove: "Record the learning and put the next conversation on the calendar.",
     bullets: ["What landed", "What changed", "Next scheduled move"],
+    artifact: {
+      eyebrow: "After-action note",
+      title: "A door opened",
+      detail: "The office manager offered an introduction to case management.",
+      lines: ["Signal: family handoff is inconsistent", "Learning: lead with workflow, not service list", "Next: Friday · 09:00"],
+    },
   },
 ];
 
@@ -260,8 +290,20 @@ function Pathfinder() {
 
 function FieldBriefTour() {
   const [selectedId, setSelectedId] = useState<FieldStep["id"]>("prepare");
+  const tabRefs = useRef<Partial<Record<FieldStep["id"], HTMLButtonElement | null>>>({});
   const selected = FIELD_STEPS.find((step) => step.id === selectedId) ?? FIELD_STEPS[0];
   const SelectedIcon = selected.icon;
+  const selectStep = (id: FieldStep["id"]) => {
+    setSelectedId(id);
+    trackPublicAction(`tour_step_${id}`);
+  };
+  const moveTab = (currentId: FieldStep["id"], direction: -1 | 1) => {
+    const currentIndex = FIELD_STEPS.findIndex((step) => step.id === currentId);
+    const nextIndex = (currentIndex + direction + FIELD_STEPS.length) % FIELD_STEPS.length;
+    const nextId = FIELD_STEPS[nextIndex].id;
+    selectStep(nextId);
+    tabRefs.current[nextId]?.focus();
+  };
 
   return (
     <div className="field-brief-tour" id="field-brief-tour" data-testid="field-brief-tour">
@@ -272,10 +314,17 @@ function FieldBriefTour() {
             A field system with a memory.
           </h3>
         </div>
-        <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-          See the four moves behind Hospice Sales Pro. This sample is useful without an account; live
-          generation and saved work stay behind the existing access paths.
-        </p>
+          <div className="field-brief-tour-context">
+            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+              See the four moves behind Hospice Sales Pro. This sample is useful without an account; live
+              generation and saved work stay behind the existing access paths.
+            </p>
+            <div className="field-brief-situation" aria-label="Fictional field situation">
+              <span className="field-brief-situation-stamp">Case 07 / fictional</span>
+              <span>Maple Ridge Medical Group</span>
+              <span>Thursday · community territory</span>
+            </div>
+          </div>
       </div>
 
       <div className="field-brief-tour-tabs" role="tablist" aria-label="Hospice Sales Pro workflow">
@@ -290,10 +339,34 @@ function FieldBriefTour() {
               role="tab"
               aria-selected={isSelected}
               aria-controls={`field-brief-panel-${step.id}`}
+              tabIndex={isSelected ? 0 : -1}
               className={cn("field-brief-tour-tab", isSelected && "is-selected")}
               onClick={() => {
-                setSelectedId(step.id);
-                trackPublicAction(`tour_step_${step.id}`);
+                selectStep(step.id);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowRight") {
+                  event.preventDefault();
+                  moveTab(step.id, 1);
+                }
+                if (event.key === "ArrowLeft") {
+                  event.preventDefault();
+                  moveTab(step.id, -1);
+                }
+                if (event.key === "Home") {
+                  event.preventDefault();
+                  selectStep(FIELD_STEPS[0].id);
+                  tabRefs.current[FIELD_STEPS[0].id]?.focus();
+                }
+                if (event.key === "End") {
+                  event.preventDefault();
+                  const lastId = FIELD_STEPS[FIELD_STEPS.length - 1].id;
+                  selectStep(lastId);
+                  tabRefs.current[lastId]?.focus();
+                }
+              }}
+              ref={(node) => {
+                tabRefs.current[step.id] = node;
               }}
               data-testid={`field-brief-tab-${step.id}`}
             >
@@ -310,6 +383,7 @@ function FieldBriefTour() {
         id={`field-brief-panel-${selected.id}`}
         role="tabpanel"
         aria-label={`${selected.label} workflow preview`}
+        aria-live="polite"
         tabIndex={0}
       >
         <div className="field-brief-tour-copy">
@@ -321,26 +395,34 @@ function FieldBriefTour() {
             {selected.title}
           </h4>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{selected.body}</p>
-        </div>
-        <div className="field-brief-paper" aria-label={`${selected.label} sample output`}>
-          <div className="field-brief-paper-topline">
-            <span>Sample / {selected.number}</span>
-            <ShieldCheck className="h-4 w-4" aria-hidden />
+          <div className="field-brief-next-move">
+            <span>Next move</span>
+            <p>{selected.nextMove}</p>
           </div>
-          <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-primary">
-            {selected.signal}
-          </p>
-          <ul className="mt-4 space-y-3">
-            {selected.bullets.map((bullet) => (
-              <li key={bullet} className="flex items-start gap-3 text-sm font-semibold text-foreground">
-                <span className="mt-0.5 text-primary">+</span>
-                {bullet}
+        </div>
+        <div
+          className={cn("field-brief-paper field-brief-artifact", `is-${selected.id}`)}
+          aria-label={`${selected.label} sample output`}
+          data-testid={`field-brief-artifact-${selected.id}`}
+        >
+          <div className="field-brief-paper-topline">
+            <span>Field artifact / {selected.number}</span>
+            <span className="field-brief-artifact-status"><ShieldCheck className="h-3.5 w-3.5" aria-hidden /> No PHI</span>
+          </div>
+          <p className="field-brief-artifact-eyebrow">{selected.artifact.eyebrow}</p>
+          <h5>{selected.artifact.title}</h5>
+          <p className="field-brief-artifact-detail">{selected.artifact.detail}</p>
+          <ul className="field-brief-artifact-lines">
+            {selected.artifact.lines.map((line, index) => (
+              <li key={line}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <span>{line}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-6 border-t border-border pt-4">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Next move</p>
-            <p className="mt-2 text-sm leading-relaxed text-foreground">{selected.nextMove}</p>
+          <div className="field-brief-artifact-footer">
+            <span>{selected.signal}</span>
+            <span className="field-brief-artifact-mark">{selected.id === "review" ? "Filed" : "Live brief"}</span>
           </div>
         </div>
       </div>
