@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Platform,
   Pressable,
@@ -93,6 +94,11 @@ function ToolsCatalogScreen() {
     return FIELD_KIT_CATEGORIES.includes(requested as FieldKitCategory) ? requested as FieldKitCategory : "All";
   });
   const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const [expandedToolId, setExpandedToolId] = useState<string | null>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
@@ -114,15 +120,18 @@ function ToolsCatalogScreen() {
     const q = filter.trim();
     if (!isAuthenticated || q.length < 2) {
       setRemoteGroups([]);
+      setIsSearching(false);
+      setSearchError(false);
       return;
     }
     let cancelled = false;
+    setIsSearching(true);
+    setSearchError(false);
+
     const timer = setTimeout(() => {
       void apiGet<SearchResponse>(`/api/v1/search?q=${encodeURIComponent(q)}&limit=12`)
         .then((data) => {
           if (!cancelled) {
-            // Explore owns interactive tools; Library owns resources. Do not
-            // let a broad search quietly turn this screen into both.
             setRemoteGroups(
               (data.groups || [])
                 .map((group) => ({
@@ -131,17 +140,27 @@ function ToolsCatalogScreen() {
                 }))
                 .filter((group) => group.hits.length > 0),
             );
+            setIsSearching(false);
           }
         })
         .catch(() => {
-          if (!cancelled) setRemoteGroups([]);
+          if (!cancelled) {
+            setSearchError(true);
+            setRemoteGroups([]);
+            setIsSearching(false);
+          }
         });
     }, 250);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [filter, isAuthenticated]);
+  }, [filter, isAuthenticated, retryCount]);
+
+  const toggleTool = (toolId: string) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpandedToolId((prev) => (prev === toolId ? null : toolId));
+  };
 
   const openCatalogTool = (tool: FieldKitTool) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -244,12 +263,33 @@ function ToolsCatalogScreen() {
           </View>
         ) : null}
 
-        {remoteGroups.length > 0 ? (
+        {q.length >= 2 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
-            {remoteGroups.flatMap((group) => group.hits).map((hit) => (
-              <ActionRow key={hit.id} title={hit.title} subtitle={hit.snippet} icon="search" onPress={() => openSearchHit(hit)} />
-            ))}
+            {isSearching && remoteGroups.length === 0 ? (
+              <View style={[styles.searchStateContainer, { borderColor: colors.border }]}>
+                <ActivityIndicator color={colors.primary} />
+                <Text style={[styles.searchStateText, { color: colors.mutedForeground }, font("regular")]}>Searching library and tools...</Text>
+              </View>
+            ) : searchError ? (
+              <View style={[styles.searchStateContainer, { borderColor: colors.destructive }]}>
+                <Feather name="alert-circle" size={20} color={colors.destructive} />
+                <Text style={[styles.searchStateText, { color: colors.destructive }, font("regular")]}>Search unavailable.</Text>
+                <Pressable onPress={() => setRetryCount(c => c + 1)} style={styles.retryButton} accessibilityRole="button" accessibilityLabel="Retry search">
+                  <Text style={[styles.retryText, { color: colors.primary }, font("bold")]}>Retry</Text>
+                </Pressable>
+              </View>
+            ) : remoteGroups.length > 0 ? (
+              remoteGroups.flatMap((group) => group.hits).map((hit) => (
+                <View key={hit.id} style={styles.toolItemContainer}>
+                  <ActionRow title={hit.title} subtitle={hit.snippet} icon="search" onPress={() => openSearchHit(hit)} />
+                </View>
+              ))
+            ) : !isSearching ? (
+              <View style={[styles.searchStateContainer, { borderColor: colors.border }]}>
+                <Text style={[styles.searchStateText, { color: colors.mutedForeground }, font("regular")]}>No remote matches found.</Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
 
@@ -274,10 +314,28 @@ function ToolsCatalogScreen() {
                {group.tools.map((tool) => {
                  const guide = getToolWorkGuide(tool);
                   const nextTool = guide.nextToolId ? FIELD_KIT_TOOLS.find((item) => item.id === guide.nextToolId) : undefined;
+                  const isExpanded = expandedToolId === tool.id;
                   return (
-                    <View key={tool.id}>
-                      <ActionRow title={mobileToolTitle(tool)} subtitle={`${guide.phase} · ${guide.outputPreview}`} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
-                      <NativeCatalogWorkflow guide={guide} nextTool={nextTool} onOpenTool={openCatalogTool} testID={`catalog-workflow-${tool.id}`} />
+                    <View key={tool.id} style={styles.toolItemContainer}>
+                      <ActionRow
+                        title={mobileToolTitle(tool)}
+                        subtitle={`${guide.phase} · ${guide.outputPreview}`}
+                        icon={toolIcon(tool)}
+                        badge={accessLabel(tool)}
+                        rightIcon={isExpanded ? "chevron-up" : "chevron-down"}
+                        expanded={isExpanded}
+                        onPress={() => toggleTool(tool.id)}
+                        testID={`tool-row-${tool.id}`}
+                      />
+                      {isExpanded ? (
+                        <NativeCatalogWorkflow
+                          tool={tool}
+                          guide={guide}
+                          nextTool={nextTool}
+                          onOpenTool={openCatalogTool}
+                          testID={`catalog-workflow-${tool.id}`}
+                        />
+                      ) : null}
                     </View>
                   );
                })}
@@ -285,7 +343,7 @@ function ToolsCatalogScreen() {
           ))}
         </View>
 
-        {!visibleTools.length && remoteGroups.length === 0 ? (
+        {!visibleTools.length && !isSearching && remoteGroups.length === 0 ? (
           <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
             <Feather name="search" size={24} color={colors.primary} />
             <Text style={[styles.emptyTitle, { color: colors.foreground }, font("bold")]}>No match for “{filter}”</Text>
@@ -328,15 +386,17 @@ function ExploreDestination({ icon, title, body, onPress }: { icon: React.Compon
   );
 }
 
-function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; badge?: string; onPress: () => void; testID?: string }) {
+function ActionRow({ title, subtitle, icon, badge, rightIcon = "chevron-right", expanded, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; badge?: string; rightIcon?: React.ComponentProps<typeof Feather>["name"]; expanded?: boolean; onPress: () => void; testID?: string }) {
   const colors = useColors();
   return (
     <Pressable
       onPress={onPress}
       testID={testID}
       accessibilityRole="button"
+      accessibilityState={{ expanded }}
+      accessibilityHint={expanded !== undefined ? (expanded ? "Collapses tool details" : "Expands tool details") : "Opens this result"}
       accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
-      style={({ pressed }) => [styles.actionRow, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }]}
+      style={({ pressed }) => [styles.actionRow, { backgroundColor: colors.card, borderColor: expanded ? colors.primary : colors.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }]}
     >
       <View style={[styles.actionIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
       <View style={{ flex: 1 }}>
@@ -346,17 +406,19 @@ function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: s
         </View>
         {subtitle ? <Text style={[styles.actionBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={2}>{subtitle}</Text> : null}
       </View>
-      <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+      <Feather name={rightIcon} size={18} color={colors.mutedForeground} />
     </Pressable>
   );
 }
 
 function NativeCatalogWorkflow({
+  tool,
   guide,
   nextTool,
   onOpenTool,
   testID,
 }: {
+  tool: FieldKitTool;
   guide: ReturnType<typeof getToolWorkGuide>;
   nextTool?: FieldKitTool;
   onOpenTool: (tool: FieldKitTool) => void;
@@ -366,16 +428,38 @@ function NativeCatalogWorkflow({
   return (
     <View style={[styles.catalogWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
       <Text style={[styles.catalogWorkflowMeta, { color: colors.primary }, font("bold")]}>{guide.phase.toUpperCase()} · FOR {guide.audience.toUpperCase()}</Text>
-      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Safe input: {guide.inputHint}</Text>
-      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Expected output: {guide.outputPreview}</Text>
-      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Saved: {guide.persistence}</Text>
-      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Review: {guide.reviewCheckpoint}</Text>
-      {nextTool ? (
-        <Pressable onPress={() => onOpenTool(nextTool)} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.catalogWorkflowNext}>
-          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
-          <Feather name="arrow-right" size={15} color={colors.primary} />
-        </Pressable>
-      ) : null}
+
+      <View style={styles.workflowAttributes}>
+        <View style={styles.workflowAttribute}>
+          <Feather name="edit-3" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Safe input:</Text> {guide.inputHint}</Text>
+        </View>
+        <View style={styles.workflowAttribute}>
+          <Feather name="file-text" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Output:</Text> {guide.outputPreview}</Text>
+        </View>
+        <View style={styles.workflowAttribute}>
+          <Feather name="save" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Saved:</Text> {guide.persistence}</Text>
+        </View>
+        <View style={styles.workflowAttribute}>
+          <Feather name="check-circle" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Review:</Text> {guide.reviewCheckpoint}</Text>
+        </View>
+      </View>
+
+      <View style={[styles.workflowActions, { borderTopColor: colors.borderStrong }]}>
+        <SpartanButton
+          title={`Open ${tool.title}`}
+          onPress={() => onOpenTool(tool)}
+        />
+        {nextTool ? (
+          <Pressable onPress={() => onOpenTool(nextTool)} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.catalogWorkflowNext}>
+            <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Next step: {nextTool.title}</Text>
+            <Feather name="arrow-right" size={16} color={colors.primary} />
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -388,6 +472,10 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
+  searchStateContainer: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 18, paddingHorizontal: 16, borderWidth: 1, borderRadius: 16, borderCurve: "continuous", marginTop: 8 },
+  searchStateText: { fontSize: 14, flex: 1 },
+  retryButton: { minHeight: 44, justifyContent: "center", paddingHorizontal: 12 },
+  retryText: { fontSize: 14 },
   destinationGrid: { gap: 14, marginBottom: 36 },
   destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
   destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
@@ -399,7 +487,7 @@ const styles = StyleSheet.create({
   countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },
   countLabel: { color: "rgba(255,255,255,0.78)", fontSize: 7, letterSpacing: 1.1 },
   categoryRail: { gap: 8, paddingVertical: 6, paddingRight: 12, marginBottom: 12 },
-  categoryChip: { minHeight: 42, justifyContent: "center", borderWidth: 1, borderRadius: 999, paddingHorizontal: 16 },
+  categoryChip: { minHeight: 44, justifyContent: "center", borderWidth: 1, borderRadius: 999, paddingHorizontal: 16 },
   categoryLabel: { fontSize: 12 },
   toolGroup: { marginTop: 32 },
   groupTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
@@ -421,16 +509,21 @@ const styles = StyleSheet.create({
   intentChip: { width: 190, minHeight: 94, borderWidth: 1, borderRadius: 16, padding: 14 },
   intentTitle: { fontSize: 14 },
   intentBody: { fontSize: 12, lineHeight: 17, marginTop: 6 },
-  actionRow: { minHeight: 88, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 18, borderCurve: "continuous", padding: 16, flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 12 },
+  toolItemContainer: { marginBottom: 12 },
+  actionRow: { minHeight: 88, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 18, borderCurve: "continuous", padding: 16, flexDirection: "row", alignItems: "center", gap: 14 },
   actionIcon: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   actionTitle: { fontSize: 15 },
   actionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   rowBadge: { fontSize: 8, letterSpacing: 0.8, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, overflow: "hidden" },
   actionBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
-  catalogWorkflow: { marginTop: -5, marginBottom: 15, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
+  catalogWorkflow: { marginTop: 8, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 16 },
   catalogWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
-  catalogWorkflowLine: { fontSize: 10, lineHeight: 15, marginTop: 5 },
-  catalogWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
+  workflowAttributes: { gap: 10, marginTop: 16, marginBottom: 16 },
+  workflowAttribute: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
+  workflowIcon: { marginTop: 2 },
+  workflowText: { flex: 1, fontSize: 13, lineHeight: 18 },
+  workflowActions: { gap: 12, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth },
+  catalogWorkflowNext: { minHeight: 44, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 8, paddingVertical: 4, alignSelf: "flex-start" },
   empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
   emptyTitle: { fontSize: 18, marginTop: 10 },
   emptyBody: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },

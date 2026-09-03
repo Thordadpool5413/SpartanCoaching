@@ -44,6 +44,7 @@ import {
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
+import { isSafeForMemberContinuity } from "@/lib/memberSync";
 import { userFacingApiError } from "@/lib/offlineQueue";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
@@ -94,16 +95,43 @@ export default function CoachScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [landingVisible, setLandingVisible] = useState(true);
   const [landingPrompt, setLandingPrompt] = useState("");
+  const [historyError, setHistoryError] = useState(false);
 
   useEffect(() => {
     if (!canUseElite) return;
+    setHistoryError(false);
     void Promise.all([listCoachConversations(), getCoachPreferences()])
       .then(([items, saved]) => {
         setConversations(items);
         setPreference(saved);
+        setHistoryError(false);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        setHistoryError(true);
+      });
   }, [canUseElite]);
+
+  async function retryHistory() {
+    setHistoryError(false);
+    setBusy(true);
+    try {
+      const items = await listCoachConversations();
+      setConversations(items);
+      try {
+        const saved = await getCoachPreferences();
+        setPreference(saved);
+      } catch {}
+      if (items.length) {
+        setHistoryOpen(true);
+      } else {
+        setLandingVisible(false);
+      }
+    } catch {
+      setHistoryError(true);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const firstName = user?.member?.name?.trim().split(/\s+/)[0] || "there";
   const initials = (user?.member?.name || "SC")
@@ -308,8 +336,15 @@ export default function CoachScreen() {
 
   async function saveCommitment() {
     if (!feedback || !commitment.trim() || busy) return;
-    setBusy(true);
     const savedCommitment = commitment.trim();
+    if (!isSafeForMemberContinuity({ value: savedCommitment })) {
+      Alert.alert(
+        "Remove identifying details",
+        "Remove names, dates, contact details, and other patient identifiers before saving this commitment.",
+      );
+      return;
+    }
+    setBusy(true);
     try {
       // Cache + account sync first: the local mutation remains queued on a
       // weak connection, while the existing Coach memory stays in step online.
@@ -319,8 +354,12 @@ export default function CoachScreen() {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         "Commitment saved",
-        "It is private. Nothing is shared unless you explicitly share a summary or commitment.",
-        [{ text: "Open Home", onPress: () => router.replace("/(tabs)") }],
+        "It is private. Nothing is shared unless you explicitly share a summary.",
+        [
+          { text: "My Work", onPress: () => router.replace("/(tabs)/my-work") },
+          { text: "Tools", onPress: () => router.replace("/(tabs)/tools") },
+          { text: "Start over", onPress: () => resetSession(true) },
+        ],
       );
     } catch {
       Alert.alert(
@@ -521,11 +560,15 @@ export default function CoachScreen() {
 
           <Pressable
             accessibilityRole="button"
-            onPress={() =>
-              conversations.length
-                ? setHistoryOpen(true)
-                : setLandingVisible(false)
-            }
+            onPress={() => {
+              if (historyError) {
+                void retryHistory();
+              } else {
+                conversations.length
+                  ? setHistoryOpen(true)
+                  : setLandingVisible(false);
+              }
+            }}
             style={({ pressed }) => [
               styles.resumeCard,
               pressed && styles.rowPressed,
@@ -533,31 +576,39 @@ export default function CoachScreen() {
             testID="coach-resume-private-conversation"
           >
             <Feather
-              name={conversations.length ? "clock" : "message-circle"}
+              name={historyError ? "alert-circle" : conversations.length ? "clock" : "message-circle"}
               size={21}
-              color={colors.primary}
+              color={historyError ? colors.destructive : colors.primary}
             />
             <View style={{ flex: 1 }}>
               <Text style={styles.resumeTitle}>
-                {conversations.length
-                  ? "Resume a private conversation"
-                  : "Start your first private conversation"}
+                {historyError
+                  ? "History unavailable"
+                  : conversations.length
+                    ? "Resume a private conversation"
+                    : "Start your first private conversation"}
               </Text>
               <Text style={styles.resumeBody}>
-                {conversations.length
-                  ? `${conversations.length} private ${
-                      conversations.length === 1
-                        ? "conversation"
-                        : "conversations"
-                    } available`
-                  : "Begin with the professional situation and the outcome you want."}
+                {historyError
+                  ? "Tap to retry loading your saved conversations."
+                  : conversations.length
+                    ? `${conversations.length} private ${
+                        conversations.length === 1
+                          ? "conversation"
+                          : "conversations"
+                      } available`
+                    : "Begin with the professional situation and the outcome you want."}
               </Text>
             </View>
-            <Feather
-              name="chevron-right"
-              size={20}
-              color={colors.mutedForeground}
-            />
+            {busy && historyError ? (
+              <ActivityIndicator color={colors.mutedForeground} size="small" />
+            ) : (
+              <Feather
+                name={historyError ? "refresh-cw" : "chevron-right"}
+                size={20}
+                color={colors.mutedForeground}
+              />
+            )}
           </Pressable>
 
           <View style={styles.coachPrivacyCard}>

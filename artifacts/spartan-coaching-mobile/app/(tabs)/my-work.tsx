@@ -39,6 +39,24 @@ export default function MyWorkScreen() {
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
+  const loadMemberWork = useCallback(async () => {
+    const result = await apiGet<{ items: MemberWorkItem[] }>("/api/v1/member-work");
+    return result.items || [];
+  }, []);
+
+  const refreshWork = useCallback(async () => {
+    setLoadingWork(true);
+    setWorkError("");
+    try {
+      const nextWork = await loadMemberWork();
+      setMemberWork(nextWork);
+    } catch (error) {
+      setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
+    } finally {
+      setLoadingWork(false);
+    }
+  }, [loadMemberWork]);
+
   useFocusEffect(useCallback(() => {
     let cancelled = false;
     setLoadingWork(true);
@@ -46,21 +64,21 @@ export default function MyWorkScreen() {
     void Promise.all([
       listDownloadedLibraryItems(),
       listCalculatorReports(),
-      apiGet<{ items: MemberWorkItem[] }>("/api/v1/member-work").catch((error) => {
+      loadMemberWork().catch((error) => {
         if (!cancelled) setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
-        return { items: [] };
+        return [];
       }),
       user?.member.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
     ]).then(([nextDownloads, nextReports, nextWork, nextCommitment]) => {
       if (cancelled) return;
       setDownloads(nextDownloads);
       setReports(nextReports);
-      setMemberWork(nextWork.items || []);
+      setMemberWork(nextWork);
       setCommitment(nextCommitment);
       setLoadingWork(false);
     });
     return () => { cancelled = true; };
-  }, [user?.member.id]));
+  }, [user?.member.id, loadMemberWork]));
 
   const openMemberWork = (item: MemberWorkItem) => {
     const classic = getToolById(item.toolId);
@@ -147,13 +165,24 @@ export default function MyWorkScreen() {
             {loadingWork ? (
               <View style={styles.loadingCard}><ActivityIndicator color={colors.primary} /><Text style={styles.downloadEmptyText}>Loading work from web and iPhone…</Text></View>
             ) : workError ? (
-              <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>{workError}</Text></View>
+              <View style={styles.errorCard}>
+                <View style={styles.errorHeader}>
+                  <Feather name="alert-circle" size={18} color={colors.destructive} />
+                  <Text style={styles.errorTitle}>Connection failed</Text>
+                </View>
+                <Text style={styles.errorBody}>{workError}</Text>
+                <Pressable accessibilityRole="button" style={styles.retryButton} onPress={refreshWork}>
+                  <Feather name="refresh-cw" size={15} color={colors.foreground} />
+                  <Text style={styles.retryButtonText}>Retry</Text>
+                </Pressable>
+              </View>
             ) : memberWork.length ? memberWork.slice(0, 12).map((item) => (
               <WorkRow
                 key={item.id}
                 icon={item.status === "draft" ? "edit-3" : "check-circle"}
+                iconColor={item.status === "draft" ? colors.mutedForeground : colors.primary}
                 title={item.title}
-                body={`${item.kind.replaceAll("_", " ")} · ${new Date(item.updatedAt).toLocaleDateString()}${item.nextAction?.title ? ` · ${item.nextAction.title}` : ""}`}
+                body={`${item.kind.replaceAll("_", " ")} · ${item.status === "draft" ? "Draft" : "Completed"} · ${new Date(item.updatedAt).toLocaleDateString()}${item.nextAction?.title ? ` · ${item.nextAction.title}` : ""}`}
                 onPress={() => openMemberWork(item)}
               />
             )) : (
@@ -174,7 +203,14 @@ export default function MyWorkScreen() {
               <Pressable onPress={() => router.push("/(tabs)/learn" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
-              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Listed in your Library, but not downloaded on this iPhone. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />
+              <WorkRow
+                key={item.sourceUrl}
+                icon={item.availability === "unavailable" ? "cloud-off" : item.kind === "audio" ? "headphones" : "file-text"}
+                iconColor={item.availability === "unavailable" ? colors.destructive : colors.primary}
+                title={item.title}
+                body={item.availability === "unavailable" ? "Unavailable offline. Reconnect to download." : "Available offline on this iPhone."}
+                onPress={() => openDownload(item)}
+              />
             )) : (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Saved Library items will appear here for offline access.</Text></View>
             )}
@@ -199,12 +235,12 @@ function SavedReportRow({ report, onDelete }: { report: SavedCalculatorReport; o
   </View>;
 }
 
-function WorkRow({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
+function WorkRow({ icon, iconColor, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; iconColor?: string; title: string; body: string; onPress: () => void }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <View style={styles.rowIcon}><Feather name={icon} size={19} color={colors.primary} /></View>
+      <View style={styles.rowIcon}><Feather name={icon} size={19} color={iconColor || colors.primary} /></View>
       <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{title}</Text><Text style={styles.rowBody}>{body}</Text></View>
       <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
     </Pressable>
@@ -239,6 +275,12 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     deleteReport: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
     downloadEmpty: { minHeight: 92, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
     loadingCard: { minHeight: 92, flexDirection: "row", gap: 10, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
+    errorCard: { borderRadius: 18, borderWidth: 1, borderColor: colors.destructive + "40", backgroundColor: colors.card, padding: 18 },
+    errorHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+    errorTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
+    errorBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 8, ...font("regular") },
+    retryButton: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", gap: 6, marginTop: 14, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.secondary },
+    retryButtonText: { color: colors.foreground, fontSize: 13, ...font("bold") },
     downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
     emptyCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 20, marginTop: 30 },
     emptyTitle: { color: colors.foreground, fontSize: 20, marginTop: 16, ...font("heavy") },
