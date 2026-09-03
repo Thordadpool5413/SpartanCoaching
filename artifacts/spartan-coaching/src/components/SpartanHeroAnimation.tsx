@@ -345,7 +345,7 @@ export function SpartanHeroAnimation({ onComplete }: { onComplete?: () => void }
   }
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden bg-background">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-background" data-testid="hero-animation">
       {/* Persistent background glow orbs */}
       <div className="absolute inset-0 z-0">
         <motion.div

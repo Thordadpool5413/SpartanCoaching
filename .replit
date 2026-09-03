@@ -56,7 +56,7 @@ timeoutMs = 120000
 
 [nix]
 channel = "stable-25_05"
-packages = ["psmisc"]
+packages = ["psmisc", "glib", "nspr", "nss", "dbus", "atk", "at-spi2-atk", "cups", "xorg.libxcb", "libxkbcommon", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "cairo", "pango", "alsa-lib", "libgbm"]
 
 [userenv]
 

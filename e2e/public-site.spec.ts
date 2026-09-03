@@ -56,6 +56,25 @@ async function isolatePublicPage(page: Page) {
   );
 }
 
+async function prepareHomepageVisualTest(page: Page) {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await isolatePublicPage(page);
+  await page.goto("/", { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts?.ready);
+  await page.addStyleTag({
+    content: `
+      [data-testid="button-chat-widget"],
+      [data-testid="button-contact-sticky"] {
+        display: none !important;
+      }
+    `,
+  });
+  await expect(page.getByTestId("section-hero")).toBeVisible();
+  await expect(page.getByTestId("section-field-brief")).toBeVisible();
+  await expect(page.getByTestId("section-results")).toBeVisible();
+  await expect(page.getByTestId("section-closing")).toBeVisible();
+}
+
 async function attachFullPage(page: Page, testInfo: TestInfo, name: string) {
   const viewport = page.viewportSize() ?? { width: 1280, height: 720 };
   await testInfo.attach(`${name}-${testInfo.project.name}`, {
@@ -125,5 +144,51 @@ test.describe("public website release gate", () => {
     await expect(page.locator("h1").first()).toContainText("Leave with the next move.");
     await expect(page.locator("main")).toContainText("Elite");
     await expect(page.locator("main")).toContainText("Standard");
+  });
+
+  test("homepage editorial regions remain visually stable", async ({ page }) => {
+    await prepareHomepageVisualTest(page);
+
+    for (const region of [
+      { name: "hero", testId: "section-hero" },
+      { name: "simulator", testId: "section-field-brief" },
+      { name: "proof-ledger", testId: "section-results" },
+      { name: "closing-cta", testId: "section-closing" },
+    ]) {
+      await expect(page.getByTestId(region.testId)).toHaveScreenshot(`home-${region.name}.png`, {
+        animations: "disabled",
+        caret: "hide",
+      });
+    }
+  });
+
+  test("homepage uses the static hero fallback when reduced motion is preferred", async ({ page }) => {
+    await prepareHomepageVisualTest(page);
+
+    await expect(page.getByTestId("hero-animation")).toHaveCount(0);
+    await expect(page.getByTestId("hero-video-frame").locator("img").first()).toBeVisible();
+    await expect(page.getByTestId("hero-video-frame")).toHaveScreenshot("home-hero-reduced-motion.png", {
+      animations: "disabled",
+      caret: "hide",
+    });
+  });
+
+  test("homepage role deep links preserve the selected Pathfinder after navigation", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await isolatePublicPage(page);
+    await page.goto("/?role=combined#field-brief", { waitUntil: "networkidle" });
+
+    const combinedOption = page.getByTestId("pathfinder-option-combined");
+    await expect(combinedOption).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
+      "Recommended path · consulting + seats",
+    );
+    await expect(page.getByRole("heading", { name: "Pair a field system with human coaching." })).toBeVisible();
+
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(combinedOption).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
+      "Recommended path · consulting + seats",
+    );
   });
 });
