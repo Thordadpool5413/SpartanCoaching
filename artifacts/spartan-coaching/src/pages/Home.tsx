@@ -94,18 +94,18 @@ export default function Home() {
         data-testid="section-hero"
         aria-labelledby="home-hero-title"
       >
-        <img
+          <img
           src="/hero-poster.jpg"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-20"
+          className="absolute inset-0 h-full w-full object-cover opacity-10"
           fetchPriority="high"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/90" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="grid items-center gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 xl:gap-16">
             <div className="max-w-2xl text-left">
-            <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
+            <p className="text-kicker mb-5">For hospice growth leaders, reps, and provider teams</p>
             <h1
               id="home-hero-title"
               className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-foreground leading-[1.02]"
@@ -114,8 +114,8 @@ export default function Home() {
               Make the next hospice conversation count.
             </h1>
             <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Practical consulting for growth leaders. A focused field system for the people who
-              carry the work forward every day.
+              Choose the kind of help you need next: human consulting for a team or a focused field
+              system for the work between conversations.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
@@ -123,7 +123,7 @@ export default function Home() {
                   href="/services"
                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
                 >
-                  Explore consulting
+                  Explore consulting for teams
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
@@ -132,17 +132,17 @@ export default function Home() {
                   href="/hospice-sales-pro"
                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
                 >
-                  See Hospice Sales Pro
+                  See Hospice Sales Pro for daily work
                 </Link>
               </Button>
             </div>
             <p className="mt-5 text-xs font-medium text-muted-foreground">
-              Consulting for teams. Hospice Sales Pro for daily execution.
+              Not sure yet? Start with a strategy call and we’ll help you choose the right path.
             </p>
             </div>
             <div className="w-full min-w-0">
               <div
-                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20 [container-type:size]"
+                 className="relative aspect-[16/10] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20 [container-type:size]"
                 data-testid="hero-video-frame"
                 aria-label="Spartan Coaching hero film"
               >
@@ -380,20 +380,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 4b. WEB ↔ IPHONE — same product, clear handoff ── */}
-      <section className="relative bg-background py-12 sm:py-16 lg:py-20" data-testid="section-app-handoff">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeIn>
-            <AppHandoffPanel
-              destination="command"
-              title="The field system does not stay at your desk."
-              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
-            />
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ── 5. PROOF (trust, not hollow claims) ── */}
+      {/* ── 5. PROOF — close enough to support the offer decision ── */}
       <section className="relative bg-background py-16 sm:py-24" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -414,6 +401,19 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── 5b. WEB ↔ IPHONE — same product, clear handoff ── */}
+      <section className="relative bg-background py-12 sm:py-16 lg:py-20" data-testid="section-app-handoff">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <AppHandoffPanel
+              destination="command"
+              title="The field system does not stay at your desk."
+              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
+            />
+          </FadeIn>
         </div>
       </section>
 

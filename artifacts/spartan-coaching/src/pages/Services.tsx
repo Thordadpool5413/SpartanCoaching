@@ -223,36 +223,66 @@ export default function Services() {
         </div>
       </div>
 
-      {/* Engagement frames — trust without fake price lists */}
+      {/* Engagement guide — help visitors choose before the full catalog */}
       <div
-        className="grid sm:grid-cols-3 gap-4 max-w-5xl mx-auto mb-12 sm:mb-16"
-        data-testid="section-engagement-frames"
+        className="max-w-6xl mx-auto mb-12 sm:mb-16"
+        data-testid="section-engagement-guide"
       >
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <p className="text-kicker justify-center mb-3">Start with the right fit</p>
+          <h2 className="text-h2 font-display text-foreground">What kind of help do you need?</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+            Choose the closest match. Each path opens the kind of conversation, time commitment, and next step you can expect.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             t: "Individual coaching",
             frame: "Session-based",
-            d: "Virtual sessions and ridealongs scoped to one rep’s real obstacles. Investment discussed on the call.",
+            d: "One rep’s obstacle, territory, or conversation. Investment is scoped on the call.",
+            href: "#individual",
+            action: "See individual options",
           },
           {
             t: "Team workshops",
             frame: "Typically 1–2 days",
-            d: "Shared language and practice for the whole team. Scoped to your market and diagnosis mix.",
+            d: "Shared language, practice, and a repeatable team process for your market.",
+            href: "#leadership",
+            action: "See team options",
           },
           {
             t: "Leadership & strategy",
             frame: "Monthly or multi-month",
-            d: "Director coaching, growth systems, and multi-market installs. Proposal after a strategy conversation.",
+            d: "Director coaching, growth systems, and multi-market execution with a clear roadmap.",
+            href: "#corporate",
+            action: "See leadership options",
+          },
+          {
+            t: "Technology solutions",
+            frame: "Custom engagement",
+            d: "Purpose-built CRM, iOS, or web tools for hospice-specific workflows.",
+            href: "#technology",
+            action: "See technology options",
           },
         ].map((s) => (
-          <Card key={s.t} className="border border-border/80 bg-card p-5 text-left h-full">
+          <Card key={s.t} className="border border-border/80 bg-card p-5 text-left h-full flex flex-col">
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
               {s.frame}
             </p>
             <h3 className="text-base font-display font-bold text-foreground mb-2">{s.t}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed flex-1">{s.d}</p>
+            <Link
+              href={s.href}
+              className="inline-flex items-center gap-1.5 mt-5 min-h-11 text-sm font-bold text-primary hover:underline underline-offset-4"
+              data-testid={`link-engagement-${s.t.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              {s.action}
+              <ArrowRight className="w-4 h-4" aria-hidden />
+            </Link>
           </Card>
         ))}
+        </div>
       </div>
 
       {/* How engagements work — craft strip, coaching-first */}

@@ -423,19 +423,33 @@ export function Header() {
                   </>
                 ) : (
                   <>
+                    <MobileNavSection title="Choose your path" />
+                    <MobileNavLink href="/services" label="Consulting for teams" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro · daily work" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/contact" label="Book a strategy call" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavSection title="Account & app" />
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/app" label="Get the iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
-                      <div key={section.title}>
-                        <MobileNavSection title={section.title} />
-                        <div className="flex flex-col space-y-1">
-                          {section.items.map((item) => (
-                            <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                          ))}
-                        </div>
-                      </div>
+                      (() => {
+                        const secondaryItems = section.items.filter(
+                          (item) =>
+                            !["/services", "/hospice-sales-pro", "/request-access", "/contact", "/register", "/app"].includes(item.path),
+                        );
+                        if (!secondaryItems.length) return null;
+                        return (
+                          <div key={section.title}>
+                            <MobileNavSection title={section.title} />
+                            <div className="flex flex-col space-y-1">
+                              {secondaryItems.map((item) => (
+                                <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()
                     ))}
                   </>
                 )}

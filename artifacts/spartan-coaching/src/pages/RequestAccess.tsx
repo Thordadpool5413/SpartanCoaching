@@ -227,7 +227,6 @@ export default function RequestAccess() {
             create an account
           </Link>{" "}
           and subscribe for {PRICING_FACTS.individualWeeklyLabel} (cancel anytime) — preview tools free first.
-          and subscribe for $14.99/week (cancel anytime) — preview tools free first.
         </p>
       </div>
 

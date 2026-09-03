@@ -89,14 +89,55 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      <Card className="mb-10 border border-border bg-card p-5 sm:p-6" data-testid="section-membership-context">
-        <p className="text-kicker mb-3">Before you choose</p>
-        <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first.</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Command Center guides today’s field work. Tools prepare and practice. Resources provide approved work aids.
-          Use the directory to see a specific job; return here when you are ready to choose or manage access.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
+      <Card className="mb-10 border border-primary/25 bg-card p-5 sm:p-7" data-testid="section-membership-context">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-kicker mb-3">Choose your path</p>
+            <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first. Start with the way you work.</h2>
+          </div>
+          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+            One product, three ways in. Use the directory to see a specific job, then pick the route that matches your role and the amount of support you need.
+          </p>
+        </div>
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <div className="rounded-xl border border-border bg-background/70 p-4">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" aria-hidden />
+              <p className="text-sm font-bold text-foreground">Individual rep</p>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Choose Standard for self-serve field execution or Elite when private coaching and policy education matter.
+            </p>
+            <Link href="#access-options" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary hover:underline underline-offset-4">
+              Compare individual plans <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+          <div className="rounded-xl border border-border bg-background/70 p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" aria-hidden />
+              <p className="text-sm font-bold text-foreground">Team or provider</p>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Request a timed evaluation, then arrange contracted seats and onboarding if it fits your organization.
+            </p>
+            <Link href="/request-access" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary hover:underline underline-offset-4">
+              Request team access <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+          <div className="rounded-xl border border-border bg-background/70 p-4">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" aria-hidden />
+              <p className="text-sm font-bold text-foreground">Consulting + seats</p>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Combine Hospice Sales Pro with leadership coaching, workshops, or a broader growth engagement.
+            </p>
+            <Link href="/contact?service=Consulting+%2B+Hospice+Sales+Pro" className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-primary hover:underline underline-offset-4">
+              Book a strategy call <ArrowRight className="ml-1.5 h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3 border-t border-border pt-5">
           <Button asChild variant="outline" className="font-bold">
             <Link href="/tools">Preview the tool directory</Link>
           </Button>
@@ -149,7 +190,7 @@ export default function FieldKitMembership() {
       </div>
 
       {/* ── Access options (pricing after product understanding) ── */}
-      <div className="mb-10">
+      <div className="mb-10 scroll-mt-24" id="access-options">
         <SectionHeader
           kicker="Access"
           title="How people get Hospice Sales Pro"
