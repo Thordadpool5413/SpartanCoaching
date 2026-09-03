@@ -230,7 +230,7 @@ export default function Services() {
       >
         <div className="text-center max-w-2xl mx-auto mb-6">
           <p className="text-kicker justify-center mb-3">Start with the right fit</p>
-          <h2 className="text-h2 font-display text-foreground">What kind of help do you need?</h2>
+          <h2 className="text-h2 font-display text-foreground">What kind of <span className="text-primary">help</span> do you need?</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mt-3">
             Choose the closest match. Each path opens the kind of conversation, time commitment, and next step you can expect.
           </p>
@@ -306,7 +306,7 @@ export default function Services() {
             <UserCheck className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">For Individual Sales Reps</h2>
+            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">For Individual <span className="text-primary">Sales Reps</span></h2>
             <p className="text-body text-muted-foreground">Get better at the job you&apos;re doing right now.</p>
           </div>
         </div>
@@ -369,7 +369,7 @@ export default function Services() {
             <Users className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">For Sales Leadership</h2>
+            <h2 className="text-h2 text-foreground mb-1">For Sales <span className="text-primary">Leadership</span></h2>
             <p className="text-body text-muted-foreground">Build teams that execute consistently and scale what works.</p>
           </div>
         </div>
@@ -432,7 +432,7 @@ export default function Services() {
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">For Corporate Hospice Providers</h2>
+            <h2 className="text-h2 text-foreground mb-1">For Corporate <span className="text-primary">Hospice Providers</span></h2>
             <p className="text-body text-muted-foreground">Scale execution across markets and make growth predictable.</p>
           </div>
         </div>
@@ -574,7 +574,7 @@ export default function Services() {
 
       {/* What This Is All For — dark authority band inside hybrid page */}
       <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
-        <h2 className="text-h2 font-black text-foreground mb-6">What This Is All For</h2>
+        <h2 className="text-h2 font-black text-foreground mb-6">What This Is <span className="text-primary">All For</span></h2>
         <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
           Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
         </p>

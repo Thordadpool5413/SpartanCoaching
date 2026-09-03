@@ -52,7 +52,7 @@ export default function ComplianceEthics() {
         <FadeIn>
           <div className="text-center mb-10 sm:mb-16">
             <h1 className="text-h1 text-foreground mb-6" data-testid="text-compliance-title">
-              Compliance & Data Practices
+              Compliance & <span className="text-primary">Data Practices</span>
             </h1>
             <p className="text-h3 text-muted-foreground leading-relaxed">
               Spartan Coaching is committed to ethical hospice sales coaching that prioritizes patient access, clinical integrity, and full regulatory compliance. We do not store, process, or transmit Protected Health Information (PHI).

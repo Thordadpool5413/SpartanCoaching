@@ -154,7 +154,7 @@ export default function FAQ() {
       <FadeIn>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-faq-title">
-            Frequently Asked Questions
+            Frequently Asked <span className="text-primary">Questions</span>
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             Consulting, Hospice Sales Pro, evaluation trials, individual {PRICING_FACTS.individualWeeklyLabel}, team contracts, and compliance.

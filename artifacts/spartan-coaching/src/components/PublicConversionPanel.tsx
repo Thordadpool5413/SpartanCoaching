@@ -59,7 +59,7 @@ export function PublicConversionPanel({
             <div>
               <p className="text-kicker">A clear next step</p>
               <h2 className="mt-3 text-h2 font-display uppercase tracking-tight text-foreground">
-                Choose the path that matches the work in front of you.
+                Choose the path that matches the <span className="text-primary">work in front of you.</span>
               </h2>
               <dl className="mt-6 grid gap-4 sm:grid-cols-3">
                 <div>

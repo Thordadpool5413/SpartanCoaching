@@ -26,7 +26,7 @@ export default function TrustCenter() {
       <header className="space-y-3">
         <p className="text-kicker">Trust & transparency</p>
         <h1 className="text-h1 font-display font-black text-foreground tracking-tight">
-          Trust Center
+          Trust <span className="text-primary">Center</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">{TRUST_CENTER_INTRO}</p>
       </header>

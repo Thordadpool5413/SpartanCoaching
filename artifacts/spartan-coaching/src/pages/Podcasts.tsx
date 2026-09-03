@@ -50,7 +50,7 @@ export default function Podcasts() {
           <BackButton />
         </div>
         <div className="text-center max-w-2xl mx-auto py-20">
-          <h1 className="text-h1 text-foreground mb-6" data-testid="text-podcasts-title">Coaching Podcasts</h1>
+          <h1 className="text-h1 text-foreground mb-6" data-testid="text-podcasts-title">Coaching <span className="text-primary">Podcasts</span></h1>
           <p className="text-body-lg text-muted-foreground">
             No podcast episodes available yet. Check back soon!
           </p>
@@ -68,7 +68,7 @@ export default function Podcasts() {
 
       <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-16">
         <h1 className="text-h1 text-foreground mb-8" data-testid="text-podcasts-title">
-          Coaching Podcasts
+          Coaching <span className="text-primary">Podcasts</span>
         </h1>
         <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
           Listen to expert insights, strategies, and real-world advice to elevate your hospice sales performance

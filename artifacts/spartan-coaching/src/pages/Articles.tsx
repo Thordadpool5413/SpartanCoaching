@@ -57,7 +57,7 @@ export default function Articles() {
         <SEO />
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
-          <h1 className="text-h1 text-foreground mb-6">Articles</h1>
+          <h1 className="text-h1 text-foreground mb-6"><span className="text-primary">Articles</span></h1>
           <p className="text-body-lg text-muted-foreground">
             No articles have been published yet. Check back soon for insights on hospice sales, coaching, and industry trends.
           </p>
@@ -74,7 +74,7 @@ export default function Articles() {
       {/* Header */}
       <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-16">
         <h1 className="text-h1 text-foreground mb-8" data-testid="text-articles-title">
-          Articles & <span className="text-gradient-primary">Insights</span>
+          Articles & <span className="text-primary">Insights</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Practical insights on hospice sales, territory management, and building relationships that matter. 

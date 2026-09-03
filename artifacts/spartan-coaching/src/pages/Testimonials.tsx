@@ -29,7 +29,7 @@ export default function Testimonials() {
       <BackButton />
       <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-16">
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-testimonials-title">
-          Success Stories
+          Success <span className="text-primary">Stories</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes. Behind every number is a family that got the conversation they needed.
@@ -54,7 +54,7 @@ export default function Testimonials() {
             <div className="space-y-8 md:space-y-12 lg:space-y-16">
               <div className="flex items-center gap-3 mb-8">
                 <Quote className="w-8 h-8 text-primary" />
-                <h2 className="text-h2 text-foreground">What People Are Saying</h2>
+                <h2 className="text-h2 text-foreground">What People Are <span className="text-primary">Saying</span></h2>
               </div>
 
               <div className="grid md:grid-cols-3 gap-cards">
@@ -89,7 +89,7 @@ export default function Testimonials() {
             <div className="space-y-8 md:space-y-12 lg:space-y-16">
               <div className="flex items-center gap-3 mt-12 mb-8">
                 <Award className="w-8 h-8 text-primary" />
-                <h2 className="text-h2 text-foreground">Case Studies</h2>
+                <h2 className="text-h2 text-foreground">Case <span className="text-primary">Studies</span></h2>
               </div>
 
               <div className="grid grid-cols-1 gap-8">

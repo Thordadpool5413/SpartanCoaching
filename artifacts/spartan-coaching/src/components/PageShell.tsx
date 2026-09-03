@@ -62,7 +62,7 @@ export function PageShell({
 
 type PageHeaderProps = {
   kicker?: string;
-  title: string;
+  title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
   className?: string;

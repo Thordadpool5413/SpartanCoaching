@@ -23,6 +23,7 @@ import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { trackProductOutcome } from "@/lib/analytics";
 import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { ExpandableText } from "@/components/ui/ExpandableText";
+import { StateBlock } from "@/components/StateBlock";
 import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
 import {
   FIELD_KIT_TOOLS,
@@ -259,7 +260,12 @@ export default function Resources() {
     queryKey: ["/api/resources"],
   });
 
-  const { data: providerData, isLoading: providerLoading } = useQuery<{
+  const {
+    data: providerData,
+    isLoading: providerLoading,
+    isError: providerError,
+    refetch: refetchProviderResources,
+  } = useQuery<{
     items: ProviderResourceItem[];
     canManage?: boolean;
     ownershipLabel?: string;
@@ -269,7 +275,9 @@ export default function Resources() {
       const res = await fetch("/api/v1/provider-resources", {
         credentials: "include",
       });
-      if (!res.ok) return { items: [] };
+      if (!res.ok) {
+        throw new Error("Provider resources are temporarily unavailable.");
+      }
       return res.json();
     },
     enabled: Boolean(canUseFieldKit),
@@ -535,7 +543,7 @@ export default function Resources() {
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
         <div className="text-center max-w-2xl mx-auto py-20">
-          <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
+          <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training <span className="text-primary">Resources Library</span></h1>
           <p className="text-body-lg text-muted-foreground">
             No resources are available yet. You can continue with a focused tool or contact support.
           </p>
@@ -556,7 +564,11 @@ export default function Resources() {
           {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
         <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-resources-title">
-          {canUseFieldKit ? "Use the right resource at the right moment." : "Training Resources Library"}
+          {canUseFieldKit ? (
+            <>Use the right resource at the <span className="text-primary">right moment.</span></>
+          ) : (
+            <>Training <span className="text-primary">Resources Library</span></>
+          )}
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-7">
           {canUseFieldKit
@@ -624,7 +636,7 @@ export default function Resources() {
               <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
                 Provider organization
               </p>
-              <h2 className="text-h2">Your private library</h2>
+              <h2 className="text-h2">Your private <span className="text-primary">library</span></h2>
               <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
                 Organization-only scripts, coverage maps, escalation guides, and policies.
                 Clearly separate from{" "}
@@ -706,6 +718,14 @@ export default function Resources() {
 
           {providerLoading ? (
             <p className="text-sm text-muted-foreground">Loading provider library…</p>
+          ) : providerError ? (
+            <StateBlock
+              variant="error"
+              title="Provider library unavailable"
+              description="Your organization resources could not be loaded. Core Hospice Sales Pro resources are still available below."
+              action={{ label: "Try provider library again", onClick: () => void refetchProviderResources() }}
+              className="py-8"
+            />
           ) : providerItems.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No provider-owned resources yet

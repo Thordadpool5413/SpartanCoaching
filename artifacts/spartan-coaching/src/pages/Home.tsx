@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,82 @@ import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel"
 import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { FieldBriefExperience } from "@/components/FieldBriefExperience";
 import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
-import heroHelmet from "@assets/generated_images/spartan-hero-helmet.png";
 import founderPhoto from "@assets/nick-photo.jpg";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
+const PUBLIC_BASE = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const HERO_VIDEO_SRC = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro.mp4`;
+const HERO_VIDEO_POSTER = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro-poster.jpg`;
+
+function HeroIntroVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [reduceMotion, setReduceMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const [videoUnavailable, setVideoUnavailable] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = (event: MediaQueryListEvent) => setReduceMotion(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (reduceMotion) {
+      video.pause();
+      video.currentTime = 0;
+      return;
+    }
+    void video.play().catch(() => {
+      // The poster remains visible when a browser declines autoplay.
+    });
+  }, [reduceMotion]);
+
+  return (
+    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
+      <div className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-foreground shadow-[10px_10px_0_hsl(var(--primary))]">
+        {videoUnavailable ? (
+          <img
+            src={HERO_VIDEO_POSTER}
+            alt="Spartan Hospice Coaching introduction"
+            width={1280}
+            height={720}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            className="h-full w-full object-cover"
+            autoPlay={!reduceMotion}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={HERO_VIDEO_POSTER}
+            aria-describedby="home-hero-video-caption"
+            onError={() => setVideoUnavailable(true)}
+            data-testid="video-home-hero"
+          >
+            <source src={HERO_VIDEO_SRC} type="video/mp4" />
+          </video>
+        )}
+        {reduceMotion ? (
+          <span className="absolute bottom-3 right-3 bg-background/95 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
+            Motion paused
+          </span>
+        ) : null}
+      </div>
+      <figcaption id="home-hero-video-caption" className="sr-only">
+        A short visual introduction to Spartan Hospice Coaching. The video is muted and pauses when reduced motion is preferred.
+      </figcaption>
+    </figure>
+  );
+}
 
 export default function Home() {
   return (
@@ -117,13 +190,7 @@ export default function Home() {
                   className="absolute right-0 top-[calc(9%+8px)] h-px w-[38%] bg-primary"
                   aria-hidden="true"
                 />
-                <img
-                  src={heroHelmet}
-                  alt="Blackened Spartan helmet marked with Spartan red"
-                  className="absolute inset-0 z-10 h-full w-full object-contain object-center contrast-125 saturate-110"
-                  loading="eager"
-                  decoding="async"
-                />
+                <HeroIntroVideo />
                 <div className="absolute bottom-5 left-0 z-20 border-l-4 border-primary bg-background/95 px-4 py-3">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
                     Field standard 01
@@ -193,7 +260,7 @@ export default function Home() {
             </div>
             <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">The real problem</p>
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 font-display uppercase tracking-tight" data-testid="text-stakes-title">
-              The gap is not clinical.<br/>It is conversational.
+              The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
             </h2>
             <p className="text-lg text-muted-foreground font-medium leading-relaxed mb-8 max-w-2xl mx-auto">
               Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
@@ -211,7 +278,9 @@ export default function Home() {
           <FadeIn>
             <div className="text-center mb-12 sm:mb-16">
               <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">How Spartan helps</p>
-              <h2 className="text-4xl sm:text-5xl font-display font-black uppercase text-foreground">Two ways to put it to work.</h2>
+              <h2 className="text-4xl sm:text-5xl font-display font-black uppercase text-foreground">
+                <span className="text-primary">Two ways</span> to put it to work.
+              </h2>
             </div>
           </FadeIn>
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
@@ -252,7 +321,11 @@ export default function Home() {
                   >
                     <p className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
                     <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight uppercase">
-                      {p.title}
+                      {p.primary ? (
+                        <>Human <span className="text-primary">coaching</span></>
+                      ) : (
+                        <>The tools <span className="text-primary">product</span></>
+                      )}
                     </h3>
                     <p className="text-base font-medium text-muted-foreground leading-relaxed mb-6">{p.desc}</p>
                     <ul className="space-y-3 mb-8 flex-1">
@@ -296,7 +369,7 @@ export default function Home() {
               Field-built authority
             </p>
             <h2 className="mt-5 max-w-3xl font-display text-5xl uppercase leading-[0.92] text-background sm:text-6xl">
-              Built by someone who has carried the number.
+              Built by someone who has <span className="text-primary">carried the number.</span>
             </h2>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-background/75">
               Nick Lynch built Spartan Coaching from the field: hospice-specific sales, leadership,
@@ -347,7 +420,7 @@ export default function Home() {
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-6">Ready to close the gap?</p>
             <h2 className="text-5xl sm:text-7xl font-black text-background mb-8 font-display uppercase tracking-tight" data-testid="text-closing-title">
-              Stop winging it.
+              Stop <span className="text-primary">winging it.</span>
             </h2>
             <p className="text-lg text-background/75 font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
               Start with the next move that fits your work. We will keep the path clear from there.

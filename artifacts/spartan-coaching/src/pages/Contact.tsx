@@ -189,7 +189,7 @@ export default function Contact() {
         <FadeIn>
           <div className="text-center mb-10 sm:mb-12">
             <h1 className="text-h1 text-foreground mb-6" data-testid="text-contact-title">
-              Book a Discovery Call
+              Book a <span className="text-primary">Discovery Call</span>
             </h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
               Share a little context so Nick can come prepared. After you submit, expect scheduling options within one business day.

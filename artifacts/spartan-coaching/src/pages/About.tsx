@@ -73,7 +73,7 @@ export default function About() {
 
         {/* The Stakes */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <h2 className="text-h2 text-foreground mt-12 mb-8">The Stakes Are Real</h2>
+          <h2 className="text-h2 text-foreground mt-12 mb-8">The Stakes Are <span className="text-primary">Real</span></h2>
           <div className="grid md:grid-cols-3 gap-cards">
             <Card className="border-2 group relative text-center spacing-card" data-testid="card-stakes-teams">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -119,7 +119,7 @@ export default function About() {
         {/* What We Built */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <Card className="spacing-card mt-16 mb-16">
-            <h2 className="text-h2 text-foreground mb-6">Foundation of Spartan Coaching</h2>
+            <h2 className="text-h2 text-foreground mb-6">Foundation of <span className="text-primary">Spartan Coaching</span></h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>Spartan Coaching was built because hospice deserves better than motivational posters and one-time pep talks. People need a system they can run on Tuesday afternoon when a clinic is short-staffed, the hospitalist is behind, and the family is scared.</p>
               <p>
@@ -137,7 +137,7 @@ export default function About() {
 
         {/* The Founding Moment */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <h2 className="text-h2 text-foreground mt-16 mb-8">Why This Business Exists</h2>
+          <h2 className="text-h2 text-foreground mt-16 mb-8">Why This Business <span className="text-primary">Exists</span></h2>
           <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
               <p>
@@ -171,7 +171,7 @@ export default function About() {
 
         {/* About the Founder */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <h2 className="text-h2 text-foreground mb-8 text-center">About the Founder</h2>
+          <h2 className="text-h2 text-foreground mb-8 text-center">About the <span className="text-primary">Founder</span></h2>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="md:col-span-1">
