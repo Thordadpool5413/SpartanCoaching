@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,9 +106,7 @@ export default function ColdCallScript() {
     <FieldKitToolLayout toolPath="/tools/cold-call-script">
       <SEO />
 
-      <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-script-title">
-        Cold Call Script Generator
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-script-title"><AccentText>Cold Call Script Generator</AccentText></h1>
       <p className="text-body-lg text-muted-foreground mb-8 max-w-2xl" data-testid="text-script-subtitle">
         Enter the prospect type and your situation. Get a personalized opening script with three objection handlers built in — ready to use on your next call.
       </p>
@@ -115,7 +114,7 @@ export default function ColdCallScript() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Form */}
         <Card className="spacing-card">
-          <h2 className="text-h2 font-bold text-foreground mb-6">Your Call Details</h2>
+          <h2 className="text-h2 font-bold text-foreground mb-6"><AccentText>Your Call Details</AccentText></h2>
           <div className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="prospect-type">Prospect Type <span className="text-destructive">*</span></Label>
@@ -201,7 +200,7 @@ export default function ColdCallScript() {
           {script && !isLoading && (
             <Card className="spacing-card" data-testid="card-script-output">
               <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-                <h2 className="text-h2 font-bold text-foreground">Your Script</h2>
+                <h2 className="text-h2 font-bold text-foreground"><AccentText>Your Script</AccentText></h2>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={handleCopy} data-testid="button-copy-script">
                     <Copy className="w-4 h-4 mr-1.5" />
@@ -234,7 +233,7 @@ export default function ColdCallScript() {
 
           {!script && !isLoading && (
             <Card className="bg-accent/30 spacing-card" data-testid="card-script-instructions">
-              <h3 className="text-h3 font-bold text-foreground mb-4">What you get</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-4"><AccentText>What you get</AccentText></h3>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex gap-3">
                   <span className="font-bold text-primary shrink-0">1.</span>

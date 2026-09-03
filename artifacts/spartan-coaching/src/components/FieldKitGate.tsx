@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function FieldKitGate({ compact }: Props) {
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/15 text-primary flex items-center justify-center">
             <Lock className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground">{title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground"><AccentText>{title}</AccentText></h1>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">{body}</p>
         </div>
 

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
@@ -55,7 +56,7 @@ export default function SignAgreements() {
     return (
       <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-16 text-center">
         <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-sign-error">Invalid Signing Link</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-sign-error"><AccentText>Invalid Signing Link</AccentText></h1>
         <p className="text-muted-foreground">This signing link is invalid or has expired. Please contact Spartan Coaching for a new link.</p>
       </div>
     );
@@ -70,7 +71,7 @@ export default function SignAgreements() {
         <SEO />
         <FadeIn>
           <CheckCircle2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-sign-complete">All Agreements Signed</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-sign-complete"><AccentText>All Agreements Signed</AccentText></h1>
           <p className="text-muted-foreground max-w-md mx-auto">
             All requested agreements have been signed and PDF copies have been sent to your email. Thank you, {request.recipientName}.
           </p>
@@ -83,9 +84,7 @@ export default function SignAgreements() {
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-12">
       <SEO />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-2" data-testid="text-sign-title">
-          Agreement Signing
-        </h1>
+        <h1 className="text-h1 text-foreground mb-2" data-testid="text-sign-title"><AccentText>Agreement Signing</AccentText></h1>
         <p className="text-body text-muted-foreground mb-8">
           Hi {request.recipientName}, please review and sign the following agreement(s) requested by Spartan Coaching.
         </p>
@@ -105,7 +104,7 @@ export default function SignAgreements() {
                 <CardHeader className="flex flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <FileText className="w-5 h-5 text-primary shrink-0" />
-                    <CardTitle className="text-base">{docType}</CardTitle>
+                    <CardTitle className="text-base"><AccentText>{docType}</AccentText></CardTitle>
                   </div>
                   {isSigned ? (
                     <Badge variant="default" className="gap-1 shrink-0">

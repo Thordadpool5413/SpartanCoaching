@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ export default function SetPassword() {
       <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
         <div className="text-center space-y-2">
           <p className="text-xs font-bold tracking-widest text-primary uppercase">Secure setup</p>
-          <h1 className="text-2xl font-display font-black">Set your password</h1>
+          <h1 className="text-2xl font-display font-black"><AccentText>Set your password</AccentText></h1>
           <p className="text-sm text-muted-foreground">
             Create a password to enter your membership portal. After this you will land on a short first-session
             path: role → one real tool → debrief.

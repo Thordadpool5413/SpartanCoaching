@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { AccentText } from "@/components/AccentText";
 
 export type PageShellWidth = "sm" | "md" | "lg" | "xl" | "full" | "prose";
 
@@ -106,7 +107,7 @@ export function PageHeader({
             </p>
           )}
           <h1 className="text-h1 font-display font-extrabold text-foreground tracking-tight text-balance">
-            {title}
+            <AccentText>{title}</AccentText>
           </h1>
           {description && (
             <div

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -166,7 +167,7 @@ export default function AssessmentResultsPDF() {
             <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b7280", marginBottom: "4px" }}>
               Spartan Hospice Coaching — Candidate Evaluation Report
             </div>
-            <h1 style={{ fontSize: "22px", fontWeight: 700, margin: "0 0 4px 0" }}>{submission.candidateName}</h1>
+            <h1 style={{ fontSize: "22px", fontWeight: 700, margin: "0 0 4px 0" }}><AccentText>{submission.candidateName}</AccentText></h1>
             <p style={{ color: "#6b7280", fontSize: "12px", margin: 0 }}>{submission.candidateEmail}</p>
             <p style={{ color: "#6b7280", fontSize: "11px", margin: "4px 0 0 0" }}>
               {assessment.name} &bull; Completed {submission.completedAt ? new Date(submission.completedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
@@ -1946,9 +1947,7 @@ export default function Admin() {
                 <Lock className="w-8 h-8 text-primary" />
               </div>
             </div>
-            <DialogTitle className="text-center text-2xl">
-              Administrator sign-in required
-            </DialogTitle>
+            <DialogTitle className="text-center text-2xl"><AccentText>Administrator sign-in required</AccentText></DialogTitle>
             <DialogDescription className="text-center">
               Sign in with an active platform administrator account to continue.
             </DialogDescription>
@@ -1983,9 +1982,7 @@ export default function Admin() {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title">
-          Admin Dashboard
-        </h1>
+        <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title"><AccentText>Admin Dashboard</AccentText></h1>
         <p className="text-xl text-muted-foreground">
           Manage inquiries, subscribers, articles, resources, podcasts,
           testimonials, and more
@@ -1993,7 +1990,7 @@ export default function Admin() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Visitor Statistics</h2>
+        <h2 className="text-2xl font-bold mb-4"><AccentText>Visitor Statistics</AccentText></h2>
         {analyticsLoading ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
@@ -2097,7 +2094,7 @@ export default function Admin() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Event Analytics</h2>
+        <h2 className="text-2xl font-bold mb-4"><AccentText>Event Analytics</AccentText></h2>
 
         <Card className="mb-4" data-testid="card-ai-readiness">
           <CardHeader className="pb-3">
@@ -2569,9 +2566,7 @@ export default function Admin() {
                           />
                         )}
                         <div className="min-w-0">
-                          <CardTitle className="text-2xl">
-                            {inquiry.name}
-                          </CardTitle>
+                          <CardTitle className="text-2xl"><AccentText>{inquiry.name}</AccentText></CardTitle>
                           <CardDescription className="flex items-center gap-2 mt-2">
                             <Calendar className="w-4 h-4" />
                             {new Date(inquiry.submittedAt).toLocaleDateString()}
@@ -2655,7 +2650,7 @@ export default function Admin() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Send className="w-5 h-5" />
-                Send Newsletter
+                Send <span className="text-spartan-red">Newsletter</span>
               </CardTitle>
               <CardDescription>
                 Compose and send an email to all {subscribers.length} subscriber
@@ -2754,7 +2749,7 @@ export default function Admin() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    Newsletter Subscribers
+                    Newsletter <span className="text-spartan-red">Subscribers</span>
                   </CardTitle>
                   <CardDescription>
                     {subscribers.length} active subscribers
@@ -2788,7 +2783,7 @@ export default function Admin() {
 
         <TabsContent value="articles" className="space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Manage Articles</h2>
+            <h2 className="text-2xl font-bold"><AccentText>Manage Articles</AccentText></h2>
             <Button
               onClick={() => {
                 setEditingArticle(null);
@@ -2824,9 +2819,7 @@ export default function Admin() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <CardTitle className="text-xl">
-                            {article.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl"><AccentText>{article.title}</AccentText></CardTitle>
                           {article.featured && (
                             <Badge variant="default" className="gap-1">
                               <Star className="w-3 h-3 fill-current" />
@@ -2884,12 +2877,12 @@ export default function Admin() {
 
         <TabsContent value="resources" className="space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Manage Resources</h2>
+            <h2 className="text-2xl font-bold"><AccentText>Manage Resources</AccentText></h2>
           </div>
 
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Add New Resource</CardTitle>
+              <CardTitle><AccentText>Add New Resource</AccentText></CardTitle>
               <CardDescription>
                 Upload training materials, templates, scripts, and checklists
                 for your team
@@ -3149,7 +3142,7 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <h3 className="text-xl font-bold mb-4">Existing Resources</h3>
+          <h3 className="text-xl font-bold mb-4"><AccentText>Existing Resources</AccentText></h3>
 
           {resourcesLoading ? (
             <div className="text-center py-12">
@@ -3171,9 +3164,7 @@ export default function Admin() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <CardTitle className="text-xl">
-                            {resource.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl"><AccentText>{resource.title}</AccentText></CardTitle>
                           <Badge variant="outline">{resource.category}</Badge>
                           {(resource as SelectResource & { versionLabel?: string | null }).versionLabel ||
                           resource.contentArchitecture?.contentVersion ? (
@@ -3365,7 +3356,7 @@ export default function Admin() {
         <TabsContent value="podcasts" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Podcast Episode</CardTitle>
+              <CardTitle><AccentText>Add New Podcast Episode</AccentText></CardTitle>
               <CardDescription>
                 Upload and publish podcast episodes for your coaching content
               </CardDescription>
@@ -3511,7 +3502,7 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <h3 className="text-xl font-bold mb-4">Existing Podcasts</h3>
+          <h3 className="text-xl font-bold mb-4"><AccentText>Existing Podcasts</AccentText></h3>
 
           {podcastsLoading ? (
             <div className="text-center py-12">
@@ -3538,9 +3529,7 @@ export default function Admin() {
                               Episode {podcast.episodeNumber}
                             </Badge>
                           )}
-                          <CardTitle className="text-xl">
-                            {podcast.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl"><AccentText>{podcast.title}</AccentText></CardTitle>
                         </div>
                         {podcast.description && (
                           <CardDescription>
@@ -3575,7 +3564,7 @@ export default function Admin() {
         <TabsContent value="testimonials" className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h2 className="text-xl font-bold">Testimonials</h2>
+              <h2 className="text-xl font-bold"><AccentText>Testimonials</AccentText></h2>
               <p className="text-sm text-muted-foreground">
                 {testimonialsList.length} quotes and {caseStudiesList.length}{" "}
                 case studies
@@ -3629,7 +3618,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="space-y-3">
-              <h3 className="font-semibold text-lg">Quotes</h3>
+              <h3 className="font-semibold text-lg"><AccentText>Quotes</AccentText></h3>
               {testimonialsList.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   No testimonials yet.
@@ -3640,7 +3629,7 @@ export default function Admin() {
                     <CardHeader className="flex flex-row items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-base">{t.name}</CardTitle>
+                          <CardTitle className="text-base"><AccentText>{t.name}</AccentText></CardTitle>
                           {t.featured && (
                             <Badge variant="secondary">Featured</Badge>
                           )}
@@ -3694,7 +3683,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="space-y-3 mt-4">
-              <h3 className="font-semibold text-lg">Case Studies</h3>
+              <h3 className="font-semibold text-lg"><AccentText>Case Studies</AccentText></h3>
               {caseStudiesList.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   No case studies yet.
@@ -3705,7 +3694,7 @@ export default function Admin() {
                     <CardHeader className="flex flex-row items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-base">{s.title}</CardTitle>
+                          <CardTitle className="text-base"><AccentText>{s.title}</AccentText></CardTitle>
                           <Badge variant="outline" className="text-xs">
                             {s.category}
                           </Badge>
@@ -3750,7 +3739,7 @@ export default function Admin() {
         <TabsContent value="agreements" className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h2 className="text-xl font-bold">Agreements</h2>
+              <h2 className="text-xl font-bold"><AccentText>Agreements</AccentText></h2>
               <p className="text-sm text-muted-foreground">
                 {agreements.length} signed,{" "}
                 {agreementRequests.filter((r) => r.status === "pending").length}{" "}
@@ -3771,7 +3760,7 @@ export default function Admin() {
           >
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Send Signing Request</DialogTitle>
+                <DialogTitle><AccentText>Send Signing Request</AccentText></DialogTitle>
                 <DialogDescription>
                   Send agreement documents to a lead for digital signing.
                 </DialogDescription>
@@ -3900,7 +3889,7 @@ export default function Admin() {
           ) : (
             agreementRequests.length > 0 && (
               <div className="space-y-3">
-                <h3 className="font-semibold text-lg">Signing Requests</h3>
+                <h3 className="font-semibold text-lg"><AccentText>Signing Requests</AccentText></h3>
                 {agreementRequests.map((req) => {
                   const reqSignedAgs = agreements.filter(
                     (a) => a.requestId === req.id,
@@ -3911,9 +3900,7 @@ export default function Admin() {
                       <CardHeader className="flex flex-row items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-base">
-                              {req.recipientName}
-                            </CardTitle>
+                            <CardTitle className="text-base"><AccentText>{req.recipientName}</AccentText></CardTitle>
                             <Badge
                               variant={
                                 req.status === "completed"
@@ -3979,9 +3966,7 @@ export default function Admin() {
           )}
 
           <div className="space-y-3">
-            <h3 className="font-semibold text-lg">
-              Signed Agreements ({agreements.length})
-            </h3>
+            <h3 className="font-semibold text-lg"><AccentText>Signed Agreements ({agreements.length})</AccentText></h3>
             {agreementsLoading ? (
               <div className="text-center py-8 text-muted-foreground">
                 Loading agreements...
@@ -4008,9 +3993,7 @@ export default function Admin() {
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-base">
-                            {ag.signerName}
-                          </CardTitle>
+                          <CardTitle className="text-base"><AccentText>{ag.signerName}</AccentText></CardTitle>
                           <Badge variant="secondary" className="text-xs">
                             {ag.agreementType}
                           </Badge>
@@ -4091,7 +4074,7 @@ export default function Admin() {
         {/* Role-Play Tab */}
         <TabsContent value="roleplay" className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">Role-Play Sessions</h2>
+            <h2 className="text-xl font-bold"><AccentText>Role-Play Sessions</AccentText></h2>
             <p className="text-sm text-muted-foreground">
               {roleplaySessions.length} sessions recorded
             </p>
@@ -4192,9 +4175,7 @@ export default function Admin() {
                       >
                         <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-base">
-                              {session.scenarioTitle}
-                            </CardTitle>
+                            <CardTitle className="text-base"><AccentText>{session.scenarioTitle}</AccentText></CardTitle>
                             <p className="text-sm text-muted-foreground mt-1">
                               {new Date(session.createdAt).toLocaleDateString()}{" "}
                               &bull; {session.status}
@@ -4219,7 +4200,7 @@ export default function Admin() {
         {/* Drills Tab */}
         <TabsContent value="drills" className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">Drills Activity</h2>
+            <h2 className="text-xl font-bold"><AccentText>Drills Activity</AccentText></h2>
             <p className="text-sm text-muted-foreground">
               {drillCompletions.length} total completions recorded
             </p>
@@ -4293,9 +4274,7 @@ export default function Admin() {
                       >
                         <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-base">
-                              {completion.drillTitle}
-                            </CardTitle>
+                            <CardTitle className="text-base"><AccentText>{completion.drillTitle}</AccentText></CardTitle>
                             <p className="text-sm text-muted-foreground mt-1">
                               Drill #{completion.drillIndex} &bull;{" "}
                               {new Date(
@@ -4324,7 +4303,7 @@ export default function Admin() {
         <TabsContent value="leads" className="space-y-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-xl font-bold">Leads</h2>
+              <h2 className="text-xl font-bold"><AccentText>Leads</AccentText></h2>
               <p className="text-sm text-muted-foreground">
                 {groupedLeads.length} unique leads captured via tool gate
               </p>
@@ -4380,7 +4359,7 @@ export default function Admin() {
                   <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <CardTitle className="text-base">{lead.name}</CardTitle>
+                        <CardTitle className="text-base"><AccentText>{lead.name}</AccentText></CardTitle>
                         {lead.interactions >= 3 && (
                           <Badge
                             variant="destructive"
@@ -4442,7 +4421,7 @@ export default function Admin() {
         <TabsContent value="assessments" className="space-y-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-xl font-bold">Candidate Assessments</h2>
+              <h2 className="text-xl font-bold"><AccentText>Candidate Assessments</AccentText></h2>
               <p className="text-sm text-muted-foreground">
                 Create assessments with quiz and scenario questions for
                 candidate evaluation
@@ -4491,7 +4470,7 @@ export default function Admin() {
                         setSubmissionClientFilter("all");
                       }}
                     >
-                      <CardTitle className="text-base">{a.name}</CardTitle>
+                      <CardTitle className="text-base"><AccentText>{a.name}</AccentText></CardTitle>
                       {a.description && (
                         <p className="text-sm text-muted-foreground mt-1">
                           {a.description}
@@ -4548,9 +4527,7 @@ export default function Admin() {
                     <CardContent className="border-t pt-4 space-y-6">
                       <div>
                         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                          <h3 className="font-semibold text-sm">
-                            Questions ({assessmentQuestions.length})
-                          </h3>
+                          <h3 className="font-semibold text-sm"><AccentText>Questions ({assessmentQuestions.length})</AccentText></h3>
                           <Button
                             size="sm"
                             onClick={() => {
@@ -4649,13 +4626,11 @@ export default function Admin() {
                           return (
                             <>
                               <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                                <h3 className="font-semibold text-sm">
-                                  Submissions ({filteredSubmissions.length}
+                                <h3 className="font-semibold text-sm"><AccentText>Submissions ({filteredSubmissions.length}
                                   {submissionClientFilter !== "all"
                                     ? ` of ${assessmentSubmissions.length}`
                                     : ""}
-                                  )
-                                </h3>
+                                  )</AccentText></h3>
                                 {clientSlugs.length > 0 && (
                                   <Select
                                     value={submissionClientFilter}
@@ -4917,9 +4892,7 @@ export default function Admin() {
                                                   {aiData.standoutQualities
                                                     ?.length > 0 && (
                                                     <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-green-700 dark:text-green-400 mb-2">
-                                                        Standout Qualities
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-green-700 dark:text-green-400 mb-2"><AccentText>Standout Qualities</AccentText></h4>
                                                       {aiData.standoutQualities.map(
                                                         (
                                                           s: string,
@@ -4939,9 +4912,7 @@ export default function Admin() {
                                                   {aiData.redFlags?.length >
                                                     0 && (
                                                     <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md p-3">
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-red-600 dark:text-red-400 mb-2">
-                                                        Red Flags
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-red-600 dark:text-red-400 mb-2"><AccentText>Red Flags</AccentText></h4>
                                                       <ul className="space-y-1.5">
                                                         {aiData.redFlags.map(
                                                           (
@@ -4967,9 +4938,7 @@ export default function Admin() {
                                                     {aiData.strengths?.length >
                                                       0 && (
                                                       <div>
-                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                          Strengths
-                                                        </h4>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Strengths</AccentText></h4>
                                                         <ul className="space-y-1.5">
                                                           {aiData.strengths.map(
                                                             (
@@ -4993,9 +4962,7 @@ export default function Admin() {
                                                     {aiData.developmentAreas
                                                       ?.length > 0 && (
                                                       <div>
-                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                          Development Areas
-                                                        </h4>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Development Areas</AccentText></h4>
                                                         <ul className="space-y-1.5">
                                                           {aiData.developmentAreas.map(
                                                             (
@@ -5021,9 +4988,7 @@ export default function Admin() {
                                                   {aiData.coachabilitySignals
                                                     ?.length > 0 && (
                                                     <div>
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                        Coachability Signals
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Coachability Signals</AccentText></h4>
                                                       <div className="flex flex-wrap gap-2">
                                                         {aiData.coachabilitySignals.map(
                                                           (
@@ -5045,9 +5010,7 @@ export default function Admin() {
                                                   {aiData.scenarioFeedback
                                                     ?.length > 0 && (
                                                     <div>
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                        Scenario Evaluation
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Scenario Evaluation</AccentText></h4>
                                                       <div className="space-y-2">
                                                         {aiData.scenarioFeedback.map(
                                                           (
@@ -5086,9 +5049,7 @@ export default function Admin() {
 
                                                   {aiData.candidatePotential && (
                                                     <div>
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                        Candidate Potential
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Candidate Potential</AccentText></h4>
                                                       <p className="text-sm text-muted-foreground">
                                                         {
                                                           aiData.candidatePotential
@@ -5100,10 +5061,8 @@ export default function Admin() {
                                                   {aiData.interviewGuide
                                                     ?.length > 0 && (
                                                     <div>
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                        Interview Questions to
-                                                        Ask
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Interview Questions to
+                                                        Ask</AccentText></h4>
                                                       <div className="space-y-2">
                                                         {aiData.interviewGuide.map(
                                                           (
@@ -5131,9 +5090,7 @@ export default function Admin() {
                                                   {aiData.developmentPlan
                                                     ?.length > 0 && (
                                                     <div>
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
-                                                        Coaching Plan
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2"><AccentText>Coaching Plan</AccentText></h4>
                                                       <div className="space-y-2">
                                                         {aiData.developmentPlan.map(
                                                           (
@@ -5164,9 +5121,7 @@ export default function Admin() {
 
                                                   {aiData.hiringRecommendation && (
                                                     <div className="bg-muted/40 rounded-md p-3">
-                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
-                                                        Hiring Recommendation
-                                                      </h4>
+                                                      <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5"><AccentText>Hiring Recommendation</AccentText></h4>
                                                       <p className="text-sm font-medium">
                                                         {
                                                           aiData.hiringRecommendation
@@ -5177,9 +5132,7 @@ export default function Admin() {
                                                 </>
                                               ) : sub.aiFeedback ? (
                                                 <div>
-                                                  <h4 className="text-sm font-semibold mb-2">
-                                                    AI Evaluation
-                                                  </h4>
+                                                  <h4 className="text-sm font-semibold mb-2"><AccentText>AI Evaluation</AccentText></h4>
                                                   <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/50 p-3 rounded-md">
                                                     {sub.aiFeedback}
                                                   </div>
@@ -5196,9 +5149,7 @@ export default function Admin() {
                                                       >;
                                                     return (
                                                       <div>
-                                                        <h4 className="text-sm font-semibold mb-2">
-                                                          Full Answer Record
-                                                        </h4>
+                                                        <h4 className="text-sm font-semibold mb-2"><AccentText>Full Answer Record</AccentText></h4>
                                                         <div className="space-y-2">
                                                           {Object.entries(
                                                             answersObj,
@@ -5267,9 +5218,7 @@ export default function Admin() {
 
                       <div>
                         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                          <h3 className="font-semibold text-sm">
-                            Invites ({assessmentInvites.length})
-                          </h3>
+                          <h3 className="font-semibold text-sm"><AccentText>Invites ({assessmentInvites.length})</AccentText></h3>
                           <Button
                             size="sm"
                             onClick={() => setInviteDialogOpen(true)}
@@ -5360,7 +5309,7 @@ export default function Admin() {
           <div className="border-t pt-6 mt-6">
             <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
               <div>
-                <h3 className="text-lg font-bold">Branded Assessment URLs</h3>
+                <h3 className="text-lg font-bold"><AccentText>Branded Assessment URLs</AccentText></h3>
                 <p className="text-sm text-muted-foreground">
                   Create custom branded URLs for client organizations (e.g.,
                   /assess/acme-hospice)
@@ -5461,7 +5410,7 @@ export default function Admin() {
           <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create Branded Assessment URL</DialogTitle>
+                <DialogTitle><AccentText>Create Branded Assessment URL</AccentText></DialogTitle>
                 <DialogDescription>
                   Set up a custom branded assessment page for a client
                   organization.
@@ -5574,7 +5523,7 @@ export default function Admin() {
 
         <TabsContent value="linkedin" className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold">LinkedIn Social Proof</h2>
+            <h2 className="text-xl font-bold"><AccentText>LinkedIn Social Proof</AccentText></h2>
             <p className="text-sm text-muted-foreground">
               Configure the LinkedIn widget shown on the homepage. Leave fields
               empty to hide them.
@@ -5677,7 +5626,7 @@ export default function Admin() {
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Send Assessment Invite</DialogTitle>
+            <DialogTitle><AccentText>Send Assessment Invite</AccentText></DialogTitle>
             <DialogDescription>
               Send a personalized assessment link to a candidate via email.
             </DialogDescription>
@@ -5738,7 +5687,7 @@ export default function Admin() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create Assessment</DialogTitle>
+            <DialogTitle><AccentText>Create Assessment</AccentText></DialogTitle>
             <DialogDescription>
               Create a new candidate assessment with a name and description.
             </DialogDescription>
@@ -5800,7 +5749,7 @@ export default function Admin() {
       <Dialog open={questionDialogOpen} onOpenChange={setQuestionDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add Question</DialogTitle>
+            <DialogTitle><AccentText>Add Question</AccentText></DialogTitle>
             <DialogDescription>
               Add a quiz or scenario question to this assessment.
             </DialogDescription>
@@ -5927,7 +5876,7 @@ export default function Admin() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Email {leadEmailTarget?.name}</DialogTitle>
+            <DialogTitle><AccentText>Email {leadEmailTarget?.name}</AccentText></DialogTitle>
             <DialogDescription>
               Send a personal follow-up to {leadEmailTarget?.email}
             </DialogDescription>
@@ -6002,9 +5951,7 @@ export default function Admin() {
           data-testid="dialog-article-form"
         >
           <DialogHeader>
-            <DialogTitle>
-              {editingArticle ? "Edit Article" : "Add New Article"}
-            </DialogTitle>
+            <DialogTitle><AccentText>{editingArticle ? "Edit Article" : "Add New Article"}</AccentText></DialogTitle>
             <DialogDescription>
               {editingArticle
                 ? "Update the article details below"
@@ -6197,9 +6144,7 @@ export default function Admin() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}
-            </DialogTitle>
+            <DialogTitle><AccentText>{editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}</AccentText></DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveTestimonial} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -6361,9 +6306,7 @@ export default function Admin() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {editingCaseStudy ? "Edit Case Study" : "Add Case Study"}
-            </DialogTitle>
+            <DialogTitle><AccentText>{editingCaseStudy ? "Edit Case Study" : "Add Case Study"}</AccentText></DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveCaseStudy} className="space-y-4">
             <div className="space-y-1">

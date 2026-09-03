@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 /**
  * Provider organization administration workspace (program foundation).
  * Company org_admin only — seats, roles, invites, audit.
@@ -145,7 +146,7 @@ export default function OrgAdmin() {
       <PageShell width="md" className="py-12">
         <SEO title="Organization admin | Hospice Sales Pro" noIndex />
         <Card className="p-6 space-y-3">
-          <h1 className="text-xl font-bold">Organization admin</h1>
+          <h1 className="text-xl font-bold"><AccentText>Organization admin</AccentText></h1>
           <p className="text-sm text-muted-foreground">
             Available to organization administrators on company accounts with active Hospice Sales Pro
             access.
@@ -188,7 +189,7 @@ export default function OrgAdmin() {
       <SEO title="Organization admin | Hospice Sales Pro" noIndex />
       <header className="space-y-2">
         <p className="text-kicker">Provider administration</p>
-        <h1 className="text-h1 font-display font-black">Organization admin</h1>
+        <h1 className="text-h1 font-display font-black"><AccentText>Organization admin</AccentText></h1>
         <p className="text-sm text-muted-foreground max-w-2xl">
           Manage seats, roles, invitations, and review audit history for your tenant. Individual tool
           results stay private to each member.
@@ -196,7 +197,7 @@ export default function OrgAdmin() {
       </header>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-profile">
-        <h2 className="text-lg font-bold">Organization profile</h2>
+        <h2 className="text-lg font-bold"><AccentText>Organization profile</AccentText></h2>
         {profile && (
           <ul className="text-sm space-y-1 text-muted-foreground">
             <li>
@@ -255,7 +256,7 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-contacts">
-        <h2 className="text-lg font-bold">Billing &amp; security contacts</h2>
+        <h2 className="text-lg font-bold"><AccentText>Billing &amp; security contacts</AccentText></h2>
         <p className="text-xs text-muted-foreground">
           Provider-facing contacts for this organization. No payment secrets stored here.
         </p>
@@ -342,7 +343,7 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-usage">
-        <h2 className="text-lg font-bold">Team usage (last {usage?.days ?? 7} days)</h2>
+        <h2 className="text-lg font-bold"><AccentText>Team usage (last {usage?.days ?? 7} days)</AccentText></h2>
         <p className="text-xs text-muted-foreground">
           Aggregate tool activity only — no individual tool content or free-text payloads.
         </p>
@@ -356,7 +357,7 @@ export default function OrgAdmin() {
               <p className="font-medium mb-2">
                 Total events: <span className="text-primary">{usage.total}</span>
               </p>
-              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1">By tool</h3>
+              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1"><AccentText>By tool</AccentText></h3>
               <ul className="space-y-1">
                 {usage.byTool.slice(0, 8).map((row) => (
                   <li key={row.toolName} className="flex justify-between gap-2">
@@ -367,7 +368,7 @@ export default function OrgAdmin() {
               </ul>
             </div>
             <div>
-              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1">By member</h3>
+              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1"><AccentText>By member</AccentText></h3>
               <ul className="space-y-1">
                 {usage.byMember.slice(0, 8).map((row) => (
                   <li key={row.email} className="flex justify-between gap-2">
@@ -382,14 +383,14 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-structure">
-        <h2 className="text-lg font-bold">Branches &amp; teams</h2>
+        <h2 className="text-lg font-bold"><AccentText>Branches &amp; teams</AccentText></h2>
         <p className="text-xs text-muted-foreground">
           Multi-site structure for your provider org. Assign members below after creating branches
           or teams.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <h3 className="text-sm font-bold">Branches</h3>
+            <h3 className="text-sm font-bold"><AccentText>Branches</AccentText></h3>
             <ul className="text-sm space-y-1 text-muted-foreground">
               {branches.length === 0 ? (
                 <li>No branches yet.</li>
@@ -444,7 +445,7 @@ export default function OrgAdmin() {
             </div>
           </div>
           <div className="space-y-2">
-            <h3 className="text-sm font-bold">Teams</h3>
+            <h3 className="text-sm font-bold"><AccentText>Teams</AccentText></h3>
             <ul className="text-sm space-y-1 text-muted-foreground">
               {teams.length === 0 ? (
                 <li>No teams yet.</li>
@@ -525,7 +526,7 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-members">
-        <h2 className="text-lg font-bold">Members</h2>
+        <h2 className="text-lg font-bold"><AccentText>Members</AccentText></h2>
         <ul className="space-y-3 text-sm">
           {members.map((m) => (
             <li
@@ -670,7 +671,7 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-invites">
-        <h2 className="text-lg font-bold">Invitations</h2>
+        <h2 className="text-lg font-bold"><AccentText>Invitations</AccentText></h2>
         {invites.length > 0 && (
           <ul className="text-sm space-y-2 mb-4">
             {invites.map((i) => (
@@ -741,7 +742,7 @@ export default function OrgAdmin() {
       </Card>
 
       <Card className="p-6 space-y-3" data-testid="org-admin-audit">
-        <h2 className="text-lg font-bold">Audit history</h2>
+        <h2 className="text-lg font-bold"><AccentText>Audit history</AccentText></h2>
         {audit.length === 0 ? (
           <p className="text-sm text-muted-foreground">No admin actions recorded yet.</p>
         ) : (

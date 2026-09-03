@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -48,7 +49,7 @@ export function EntitlementSuite({
         {copy.chip}
       </Badge>
       <div>
-        <h2 className="text-xl font-display font-black text-foreground tracking-tight">{copy.title}</h2>
+        <h2 className="text-xl font-display font-black text-foreground tracking-tight"><AccentText>{copy.title}</AccentText></h2>
         <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{copy.body}</p>
       </div>
       <ul className="grid sm:grid-cols-2 gap-2">

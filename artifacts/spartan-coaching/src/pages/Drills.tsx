@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -225,7 +226,7 @@ function ActivityHeatmap({ completions }: { completions: DrillCompletion[] }) {
   return (
     <Card className="spacing-card" data-testid="card-activity-heatmap">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-bold" data-testid="text-activity-title">Activity</CardTitle>
+        <CardTitle className="text-lg font-bold" data-testid="text-activity-title"><AccentText>Activity</AccentText></CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -402,9 +403,7 @@ export default function Drills() {
       />
 
       <SlideUp>
-        <h1 className="text-h1 font-black text-foreground mb-2" data-testid="text-drills-title">
-          Daily Coaching Drills
-        </h1>
+        <h1 className="text-h1 font-black text-foreground mb-2" data-testid="text-drills-title"><AccentText>Daily Coaching Drills</AccentText></h1>
         <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed" data-testid="text-drills-subtitle">
           Elevate your performance with focused daily practice. Each drill is designed to sharpen a specific skill that drives results.
         </p>
@@ -448,9 +447,7 @@ export default function Drills() {
 
       <Card className="spacing-card mb-8 border-2 border-primary/50" data-testid="card-today-drill">
           <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap space-y-0 pb-2">
-            <CardTitle className="text-h3 font-bold" data-testid="text-drill-heading">
-              Today's Drill
-            </CardTitle>
+            <CardTitle className="text-h3 font-bold" data-testid="text-drill-heading"><AccentText>Today's Drill</AccentText></CardTitle>
             <Badge
               className={cn("no-default-hover-elevate no-default-active-elevate", getCategoryBadgeClass(activeDrill.category))}
               data-testid="badge-drill-category"
@@ -550,9 +547,7 @@ export default function Drills() {
       ) : null}
 
       <div className="mb-8">
-        <h2 className="text-h2 font-bold text-foreground mb-6" data-testid="text-history-heading">
-          Completion History
-        </h2>
+        <h2 className="text-h2 font-bold text-foreground mb-6" data-testid="text-history-heading"><AccentText>Completion History</AccentText></h2>
 
         {completionsLoading ? (
           <div className="space-y-4">
@@ -609,9 +604,7 @@ export default function Drills() {
         <div className="flex items-center gap-3 mb-6">
           <Library className="w-6 h-6 text-primary shrink-0" />
           <div>
-            <h2 className="text-h2 font-bold text-foreground" data-testid="text-library-heading">
-              Drill Library
-            </h2>
+            <h2 className="text-h2 font-bold text-foreground" data-testid="text-library-heading"><AccentText>Drill Library</AccentText></h2>
             <p className="text-sm text-muted-foreground">
               {libraryDrills ? `${libraryDrills.length} drills across ${Object.keys(groupedLibrary).length} categories. Complete any drill to build your streak.` : "Loading drills..."}
             </p>

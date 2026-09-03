@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 /**
  * Reusable Hospice Sales Pro tool anatomy (HSP-30) — web.
  * Compose only the sections that add value; do not force every slot.
@@ -52,7 +53,7 @@ export function ToolAnatomyContext({
   return (
     <SectionChrome section="context">
       <p className="text-kicker mb-1">{kicker}</p>
-      <h1 className="text-h2 font-bold text-foreground tracking-tight">{title}</h1>
+      <h1 className="text-h2 font-bold text-foreground tracking-tight"><AccentText>{title}</AccentText></h1>
       {children}
     </SectionChrome>
   );

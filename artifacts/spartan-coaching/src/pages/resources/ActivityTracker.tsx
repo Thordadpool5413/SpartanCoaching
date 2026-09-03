@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ function DaySection({ day }: { day: string }) {
   return (
     <div className="day-section mb-6">
       <div className="bg-gray-900 text-white p-2 mb-2">
-        <h2 className="text-base font-bold uppercase">{day}</h2>
+        <h2 className="text-base font-bold uppercase"><AccentText>{day}</AccentText></h2>
       </div>
       <div className="mb-2">
         <p className="text-xs font-semibold text-gray-600 uppercase mb-1">Conversations</p>
@@ -108,9 +109,9 @@ export default function ActivityTracker() {
       `}</style>
 
       <div className="text-center mb-4 border-b-4 border-red-600 pb-3 no-break">
-        <h1 className="text-2xl font-black mb-1">SPARTAN COACHING</h1>
+        <h1 className="text-2xl font-black mb-1"><AccentText>SPARTAN COACHING</AccentText></h1>
         <p className="text-xs font-semibold text-gray-500 tracking-widest mb-1">DISCIPLINE | EMPATHY | STRATEGY</p>
-        <h2 className="text-lg font-bold">Weekly Activity Tracker</h2>
+        <h2 className="text-lg font-bold"><AccentText>Weekly Activity Tracker</AccentText></h2>
         <p className="text-xs text-gray-600">Track Daily Conversations, Referrals, and Admissions</p>
       </div>
 
@@ -136,7 +137,7 @@ export default function ActivityTracker() {
 
       <div className="weekly-summary border-t-4 border-gray-900 pt-4 mb-6">
         <div className="bg-gray-900 text-white p-3 mb-3">
-          <h2 className="text-base font-bold">WEEKLY SUMMARY AND REFLECTION</h2>
+          <h2 className="text-base font-bold"><AccentText>WEEKLY SUMMARY AND REFLECTION</AccentText></h2>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4 text-xs">

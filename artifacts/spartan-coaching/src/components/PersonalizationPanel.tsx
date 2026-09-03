@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 /**
  * Continue + Recommended today + recents (HSP-37) — explainable, removable.
  */
@@ -56,7 +57,7 @@ export function PersonalizationPanel() {
             For you
           </p>
           <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">
-            Continue & recommended today
+            Continue & recommended <span className="text-spartan-red">today</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed">
             Lightweight preferences that follow you across devices. Every suggestion includes a short
@@ -117,7 +118,7 @@ export function PersonalizationPanel() {
       {view && !loading ? (
         <div className="grid lg:grid-cols-2 gap-4">
           <Card className="border border-border p-4 sm:p-5 space-y-3" data-testid="personalization-continue">
-            <h3 className="text-sm font-bold text-foreground">Continue</h3>
+            <h3 className="text-sm font-bold text-foreground"><AccentText>Continue</AccentText></h3>
             {view.continueItems.length === 0 ? (
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {view.emptyHistory
@@ -158,7 +159,7 @@ export function PersonalizationPanel() {
           </Card>
 
           <Card className="border border-border p-4 sm:p-5 space-y-3" data-testid="personalization-recommended">
-            <h3 className="text-sm font-bold text-foreground">Recommended today</h3>
+            <h3 className="text-sm font-bold text-foreground"><AccentText>Recommended today</AccentText></h3>
             {view.recommendedToday.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No recommendations — pin a tool or clear dismissals.

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useCallback, useRef, useMemo } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
@@ -573,9 +574,7 @@ export default function ActivityCalculator() {
             <h1
               className="text-h1 font-black text-foreground mb-4"
               data-testid="text-activity-title"
-            >
-              Activity Calculator
-            </h1>
+            ><AccentText>Activity Calculator</AccentText></h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed">
               Turn a monthly admission goal into the exact number of referral source
               conversations needed for the month, week, and day. Built for tenured
@@ -784,9 +783,7 @@ export default function ActivityCalculator() {
               <div className="max-w-5xl mx-auto space-y-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-h2 font-black text-foreground" data-testid="text-results-title">
-                      {result.repName ? `${result.repName}'s Plan` : "Activity Plan"}
-                    </h2>
+                    <h2 className="text-h2 font-black text-foreground" data-testid="text-results-title"><AccentText>{result.repName ? `${result.repName}'s Plan` : "Activity Plan"}</AccentText></h2>
                     <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
                       <span className="inline-flex items-center gap-1">
                         <Target className="w-4 h-4 text-primary" />

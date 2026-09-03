@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { ArrowRight, User, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -19,7 +20,7 @@ export function AccessPaths({ className }: { className?: string }) {
       <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
         <p className="text-kicker justify-center">Two clear paths</p>
         <h2 className="text-h2 text-foreground font-display">
-          How Hospice Sales Pro access works
+          How Hospice Sales Pro <span className="text-spartan-red">access works</span>
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Individuals self-serve. Teams and evaluations request access — so pricing never feels mixed up.
@@ -35,7 +36,7 @@ export function AccessPaths({ className }: { className?: string }) {
               Path A · Individual · {PRICING_FACTS.productName}
             </p>
             <h3 className="text-lg font-display font-bold text-foreground">
-              Create account → subscribe
+              Create account → <span className="text-spartan-red">subscribe</span>
             </h3>
           </div>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
@@ -60,9 +61,7 @@ export function AccessPaths({ className }: { className?: string }) {
             <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-1">
               Path B · Team / evaluation
             </p>
-            <h3 className="text-lg font-display font-bold text-foreground">
-              Request → approve → trial
-            </h3>
+            <h3 className="text-lg font-display font-bold text-foreground"><AccentText>Request → approve → trial</AccentText></h3>
           </div>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
             <li>Request team or evaluation access</li>

@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { LeadGateState } from "@/hooks/use-lead-gate";
 import { CONSENT_COPY } from "@/lib/complianceCopy";
 import { Link } from "wouter";
+import { AccentText } from "@/components/AccentText";
 
 interface LeadGateDialogProps {
   gateState: LeadGateState;
@@ -34,9 +35,7 @@ export function LeadGateDialog({ gateState }: LeadGateDialogProps) {
     <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isReturning ? "Confirm to continue" : CONSENT_COPY.resourceDeliveryTitle}
-          </DialogTitle>
+          <DialogTitle><AccentText>{isReturning ? "Confirm to continue" : CONSENT_COPY.resourceDeliveryTitle}</AccentText></DialogTitle>
           <DialogDescription>
             {isReturning
               ? "Confirm your details below to continue. Resource delivery does not require marketing email."

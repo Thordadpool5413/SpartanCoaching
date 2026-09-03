@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { MembershipActivation } from "@/components/MembershipActivation";
@@ -39,7 +40,7 @@ export default function Portal() {
       <SEO title="Hospice Sales Pro Workspace | Spartan Coaching" noIndex />
       <MembershipActivation />
       <section id="section-mission-next" aria-labelledby="portal-next-action-heading" aria-live="polite">
-        <h1 id="portal-next-action-heading" className="sr-only">Your Hospice Sales Pro workspace</h1>
+        <h1 id="portal-next-action-heading" className="sr-only"><AccentText>Your Hospice Sales Pro workspace</AccentText></h1>
         <ElitePortalHome
           firstName={member?.name?.split(" ")[0] || ""}
           nextMove={{

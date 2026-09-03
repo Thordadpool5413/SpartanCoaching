@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
@@ -85,7 +86,7 @@ export function ObjectUploader({
         >
           <div className="bg-background rounded-lg shadow-lg max-w-2xl w-full mx-4">
             <div className="p-4 border-b flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Upload PDF</h2>
+              <h2 className="text-lg font-semibold"><AccentText>Upload PDF</AccentText></h2>
               <Button 
                 variant="ghost" 
                 size="icon"

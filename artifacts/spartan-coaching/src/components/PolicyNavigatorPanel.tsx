@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState, type ReactNode } from "react";
 import { BookOpen, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -82,7 +83,7 @@ export function PolicyNavigatorPanel() {
     <Card className="p-5 sm:p-6 space-y-5 h-fit">
       <div className="flex gap-3 items-start">
         <div className="rounded-xl bg-primary/10 p-2.5"><BookOpen className="h-5 w-5 text-primary" /></div>
-        <div><p className="text-xs font-bold tracking-wider text-primary uppercase">Policy Intelligence</p><h2 className="mt-1 text-xl font-black text-foreground">Ask the question you will hear in the field.</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Choose a policy lane, audience, and state context. Spartan AI turns the official baseline into a usable explanation without making a patient-specific decision.</p></div>
+        <div><p className="text-xs font-bold tracking-wider text-primary uppercase">Policy Intelligence</p><h2 className="mt-1 text-xl font-black text-foreground"><AccentText>Ask the question you will hear in the field.</AccentText></h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Choose a policy lane, audience, and state context. Spartan AI turns the official baseline into a usable explanation without making a patient-specific decision.</p></div>
       </div>
       <div className="space-y-2"><Label htmlFor="policy-topic">Policy lane</Label><select id="policy-topic" value={topic} onChange={(event) => { setTopic(event.target.value as Topic); setBrief(null); }} className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground">{topics.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -96,15 +97,15 @@ export function PolicyNavigatorPanel() {
     </Card>
 
     <Card className="p-5 sm:p-6 min-h-[28rem]">
-      {!brief ? <div className="flex min-h-[25rem] flex-col items-center justify-center text-center px-5"><ShieldCheck className="h-9 w-9 text-primary" /><h3 className="mt-4 text-xl font-black">Your sourced field guide appears here.</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">It will separate the explanation, talk track, verification steps, language to avoid, escalation boundary, and official sources.</p></div> :
+      {!brief ? <div className="flex min-h-[25rem] flex-col items-center justify-center text-center px-5"><ShieldCheck className="h-9 w-9 text-primary" /><h3 className="mt-4 text-xl font-black"><AccentText>Your sourced field guide appears here.</AccentText></h3><p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">It will separate the explanation, talk track, verification steps, language to avoid, escalation boundary, and official sources.</p></div> :
       <div className="space-y-5" data-testid="policy-brief-result">
-        <div className="border-b border-border pb-4"><div className="flex flex-wrap gap-2"><span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">{brief.generatedBy || "Spartan Intelligence"}</span><span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">{brief.source.liveCmsSnapshot ? "Live CMS snapshot" : "Official-reference baseline"}</span></div><h3 className="mt-3 text-2xl font-black text-foreground">{brief.title}</h3><p className="mt-2 text-sm text-muted-foreground">{brief.purpose}</p></div>
+        <div className="border-b border-border pb-4"><div className="flex flex-wrap gap-2"><span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">{brief.generatedBy || "Spartan Intelligence"}</span><span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">{brief.source.liveCmsSnapshot ? "Live CMS snapshot" : "Official-reference baseline"}</span></div><h3 className="mt-3 text-2xl font-black text-foreground"><AccentText>{brief.title}</AccentText></h3><p className="mt-2 text-sm text-muted-foreground">{brief.purpose}</p></div>
         <PolicySection title="Direct answer"><p>{brief.answer}</p></PolicySection>
         <PolicySection title="Say it this way"><p className="rounded-xl bg-background p-4 font-semibold">“{brief.talkTrack}”</p></PolicySection>
         <div className="grid gap-4 md:grid-cols-2"><PolicySection title="What to verify"><List items={brief.reviewChecklist} /></PolicySection><PolicySection title="Do not say"><List items={brief.whatNotToSay} /></PolicySection></div>
         <PolicySection title="Escalation boundary"><p>{brief.escalation}</p></PolicySection>
         <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 text-xs leading-relaxed text-muted-foreground">{brief.boundary}</div>
-        <div className="space-y-2"><h4 className="text-xs font-bold tracking-wider text-primary uppercase">Official sources</h4>{brief.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-sm font-semibold text-foreground hover:border-primary">{source.label}<span className="mt-1 block text-xs font-normal text-muted-foreground">Checked {new Date(source.checkedAt).toLocaleDateString()}</span></a>)}</div>
+        <div className="space-y-2"><h4 className="text-xs font-bold tracking-wider text-primary uppercase"><AccentText>Official sources</AccentText></h4>{brief.sources.map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border p-3 text-sm font-semibold text-foreground hover:border-primary">{source.label}<span className="mt-1 block text-xs font-normal text-muted-foreground">Checked {new Date(source.checkedAt).toLocaleDateString()}</span></a>)}</div>
         <ToolResultActions toolId="spartan-intelligence" title="Keep this guidance" description="Save the brief to My Work for use on web and iPhone." saveResult={{ toolId: "spartan-intelligence", title: brief.title, kind: "intelligence_brief", value: JSON.stringify(brief), input: { topic, audience, state, question }, nextAction: { title: "Review this guidance before the conversation", href: "/tools/intelligence" } }} actions={[{ id: "my-work", label: "Open My Work", href: "/my-work" }]} testId="policy-brief-actions" />
       </div>}
     </Card>
@@ -112,4 +113,4 @@ export function PolicyNavigatorPanel() {
 }
 
 function List({ items }: { items: string[] }) { return <ul className="space-y-2">{items.map((item) => <li key={item} className="flex gap-2"><span className="font-bold text-primary">•</span><span>{item}</span></li>)}</ul>; }
-function PolicySection({ title, children }: { title: string; children: ReactNode }) { return <section className="space-y-2 text-sm leading-relaxed text-foreground"><h4 className="text-xs font-bold tracking-wider text-primary uppercase">{title}</h4>{children}</section>; }
+function PolicySection({ title, children }: { title: string; children: ReactNode }) { return <section className="space-y-2 text-sm leading-relaxed text-foreground"><h4 className="text-xs font-bold tracking-wider text-primary uppercase"><AccentText>{title}</AccentText></h4>{children}</section>; }

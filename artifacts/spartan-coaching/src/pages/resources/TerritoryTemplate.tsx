@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export default function TerritoryTemplate() {
       `}</style>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-3xl font-black mb-2">TERRITORY PLANNING TEMPLATE</h1>
+        <h1 className="text-3xl font-black mb-2"><AccentText>TERRITORY PLANNING TEMPLATE</AccentText></h1>
         <p className="text-sm text-gray-600">Map your market, prioritize accounts, build your route</p>
       </div>
 
@@ -69,7 +70,7 @@ export default function TerritoryTemplate() {
 
       <div className="mb-8">
         <div className="bg-red-600 text-white p-3 mb-3">
-          <h2 className="text-lg font-bold">ACCOUNT PRIORITY MATRIX</h2>
+          <h2 className="text-lg font-bold"><AccentText>ACCOUNT PRIORITY MATRIX</AccentText></h2>
           <p className="text-xs">Rank accounts by potential and current engagement</p>
         </div>
 
@@ -107,11 +108,11 @@ export default function TerritoryTemplate() {
 
       <div className="page-break mb-8">
         <div className="bg-gray-900 text-white p-3 mb-3">
-          <h2 className="text-lg font-bold">PRIORITY DEFINITIONS</h2>
+          <h2 className="text-lg font-bold"><AccentText>PRIORITY DEFINITIONS</AccentText></h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4">
           <div className="border-2 border-red-600 p-4 bg-red-50">
-            <h3 className="font-black text-lg mb-2 text-red-600">TIER A</h3>
+            <h3 className="font-black text-lg mb-2 text-red-600"><AccentText>TIER A</AccentText></h3>
             <p className="text-sm font-semibold mb-2">High-Value Accounts</p>
             <ul className="text-xs space-y-1 list-disc list-inside">
               <li>Currently referring competitors</li>
@@ -124,7 +125,7 @@ export default function TerritoryTemplate() {
             </div>
           </div>
           <div className="border-2 border-yellow-600 p-4 bg-yellow-50">
-            <h3 className="font-black text-lg mb-2 text-yellow-700">TIER B</h3>
+            <h3 className="font-black text-lg mb-2 text-yellow-700"><AccentText>TIER B</AccentText></h3>
             <p className="text-sm font-semibold mb-2">Medium-Value Accounts</p>
             <ul className="text-xs space-y-1 list-disc list-inside">
               <li>Moderate patient volume</li>
@@ -137,7 +138,7 @@ export default function TerritoryTemplate() {
             </div>
           </div>
           <div className="border-2 border-gray-400 p-4 bg-gray-50">
-            <h3 className="font-black text-lg mb-2 text-gray-600">TIER C</h3>
+            <h3 className="font-black text-lg mb-2 text-gray-600"><AccentText>TIER C</AccentText></h3>
             <p className="text-sm font-semibold mb-2">Low-Priority Accounts</p>
             <ul className="text-xs space-y-1 list-disc list-inside">
               <li>Low patient volume</li>
@@ -154,13 +155,13 @@ export default function TerritoryTemplate() {
 
       <div className="mb-8">
         <div className="bg-red-600 text-white p-3 mb-3">
-          <h2 className="text-lg font-bold">WEEKLY ROUTE PLAN</h2>
+          <h2 className="text-lg font-bold"><AccentText>WEEKLY ROUTE PLAN</AccentText></h2>
           <p className="text-xs">Cluster visits by geography to maximize face-time</p>
         </div>
 
         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
           <div key={day} className="mb-4 border-2 border-gray-300 p-3">
-            <h3 className="font-bold text-sm mb-2 bg-gray-100 px-2 py-1">{day.toUpperCase()}</h3>
+            <h3 className="font-bold text-sm mb-2 bg-gray-100 px-2 py-1"><AccentText>{day.toUpperCase()}</AccentText></h3>
             <div className="overflow-x-auto">
             <table className="text-xs min-w-[400px]">
               <thead>
@@ -197,7 +198,7 @@ export default function TerritoryTemplate() {
       </div>
 
       <div className="bg-gray-100 p-4 border-l-4 border-red-600">
-        <h3 className="font-bold text-sm mb-2">SPARTAN ROUTE PLANNING TIPS</h3>
+        <h3 className="font-bold text-sm mb-2"><AccentText>SPARTAN ROUTE PLANNING TIPS</AccentText></h3>
         <ul className="text-xs space-y-1 list-disc list-inside">
           <li><strong>Geographic Clustering:</strong> Group visits by area to reduce drive time</li>
           <li><strong>Peak Hours:</strong> Visit hospitals 8 to 10am and 2 to 4pm (before and after rounds)</li>

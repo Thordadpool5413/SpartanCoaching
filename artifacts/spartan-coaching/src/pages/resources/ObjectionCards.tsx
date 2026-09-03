@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -72,7 +73,7 @@ export default function ObjectionCards() {
       `}</style>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-h1 font-black mb-2">OBJECTION RESPONSE CARDS</h1>
+        <h1 className="text-h1 font-black mb-2"><AccentText>OBJECTION RESPONSE CARDS</AccentText></h1>
         <p className="text-sm text-gray-600">Pocket-sized responses for the 8 most common hospice objections</p>
         <p className="text-xs text-gray-500 mt-2">Print double-sided, cut along lines, and laminate for field use</p>
       </div>
@@ -81,7 +82,7 @@ export default function ObjectionCards() {
         {objections.map((item, idx) => (
           <div key={idx} className="card border-2 border-gray-400 rounded-lg p-4 bg-gradient-to-br from-white to-gray-50">
             <div className="bg-red-600 text-white px-3 py-2 rounded-t-lg -mx-4 -mt-4 mb-3">
-              <h3 className="font-bold text-sm">OBJECTION #{idx + 1}</h3>
+              <h3 className="font-bold text-sm"><AccentText>OBJECTION #{idx + 1}</AccentText></h3>
             </div>
             
             <div className="mb-3">
@@ -103,18 +104,18 @@ export default function ObjectionCards() {
       </div>
 
       <div className="mt-8 bg-gray-900 text-white p-6 rounded-lg">
-        <h2 className="font-black text-h2 mb-3">THE UNIVERSAL FRAMEWORK</h2>
+        <h2 className="font-black text-h2 mb-3"><AccentText>THE UNIVERSAL FRAMEWORK</AccentText></h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 text-sm">
           <div>
-            <h3 className="font-bold mb-2 text-red-400">1. ACKNOWLEDGE</h3>
+            <h3 className="font-bold mb-2 text-red-400"><AccentText>1. ACKNOWLEDGE</AccentText></h3>
             <p className="text-xs">"I understand..." "That makes sense..." "I hear you..."</p>
           </div>
           <div>
-            <h3 className="font-bold mb-2 text-red-400">2. REFRAME</h3>
+            <h3 className="font-bold mb-2 text-red-400"><AccentText>2. REFRAME</AccentText></h3>
             <p className="text-xs">Shift perspective without being pushy. Educate, don't pressure.</p>
           </div>
           <div>
-            <h3 className="font-bold mb-2 text-red-400">3. ASK</h3>
+            <h3 className="font-bold mb-2 text-red-400"><AccentText>3. ASK</AccentText></h3>
             <p className="text-xs">"Would it help if...?" "Could we...?" "What if we tried...?"</p>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -57,9 +58,7 @@ function Pillar({ number, label, title, Icon, dark = false, children }: PillarPr
               <h2
                 className="font-display font-black text-foreground leading-tight"
                 style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}
-              >
-                {title}
-              </h2>
+              ><AccentText>{title}</AccentText></h2>
             </div>
           </div>
           {children}
@@ -131,9 +130,7 @@ export default function Manifesto() {
         <div className="relative max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
-              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}>
-                Why Spartan
-              </h2>
+              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>Why Spartan</AccentText></h2>
               <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">The origin of the name</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -166,7 +163,7 @@ export default function Manifesto() {
           </p>
         </div>
         <div className="border border-border bg-card bg-muted/40 rounded-sm p-6">
-          <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-5">What discipline looks like on Tuesday at 2pm</h3>
+          <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-5"><AccentText>What discipline looks like on Tuesday at 2pm</AccentText></h3>
           <ul className="space-y-3">
             {[
               "You know exactly which three accounts you are visiting and why those three",
@@ -230,9 +227,7 @@ export default function Manifesto() {
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
-              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}>
-                The Stakes
-              </h2>
+              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>The Stakes</AccentText></h2>
               <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">Why this work matters beyond a sales quota</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed mb-12">
@@ -258,7 +253,7 @@ export default function Manifesto() {
                     <div className="w-10 h-10 rounded-sm bg-primary/10 border border-primary/25 flex items-center justify-center mb-4">
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
-                    <h3 className="font-display font-black text-foreground text-lg mb-2">{heading}</h3>
+                    <h3 className="font-display font-black text-foreground text-lg mb-2"><AccentText>{heading}</AccentText></h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
                   </div>
                 </StaggerItem>
@@ -281,9 +276,7 @@ export default function Manifesto() {
         <div className="relative max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
-              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}>
-                What a Spartan Rep Looks Like
-              </h2>
+              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>What a Spartan Rep Looks Like</AccentText></h2>
               <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">Observable behaviors, not aspirational adjectives</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed mb-10">
@@ -304,7 +297,7 @@ export default function Manifesto() {
                 { label: "With their own performance", items: ["Scorecard filled out honestly, even the bad weeks", "Patterns reviewed not just numbers reported", "Practice done before conversations, not after failures", "Coaching received as information, not judgment"] },
               ].map((group, i) => (
                 <div key={i} className="border border-border bg-card bg-muted/40 rounded-sm p-5">
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">{group.label}</h3>
+                  <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-4"><AccentText>{group.label}</AccentText></h3>
                   <ul className="space-y-2">
                     {group.items.map((item, j) => (
                       <li key={j} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -325,9 +318,7 @@ export default function Manifesto() {
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
-              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}>
-                Ethics Is Not a Constraint
-              </h2>
+              <h2 className="font-display font-black text-foreground leading-tight mb-1" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>Ethics Is Not a Constraint</AccentText></h2>
               <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">It is the foundation</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -352,9 +343,7 @@ export default function Manifesto() {
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
-              <h2 className="font-display font-black text-foreground leading-tight" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}>
-                A Closing Statement
-              </h2>
+              <h2 className="font-display font-black text-foreground leading-tight" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>A Closing Statement</AccentText></h2>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
               <p>Spartan Coaching is not for everyone. It is for the rep who is tired of winging it and wants a system they can actually run. It is for the leader who wants to coach behavior, not just manage results. It is for the organization that understands the connection between execution quality and patient access.</p>

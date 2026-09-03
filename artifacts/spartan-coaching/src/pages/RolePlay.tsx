@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useRef, useEffect } from "react";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { motion } from "framer-motion";
@@ -275,9 +276,7 @@ export default function RolePlay() {
       <FieldKitToolLayout toolPath="/tools/role-play">
         <SEO />
         <SlideUp>
-          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roleplay-title">
-            Role-Play Practice
-          </h1>
+          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roleplay-title"><AccentText>Role-Play Practice</AccentText></h1>
         </SlideUp>
         <SlideUp delay={0.1}>
           <p className="text-body-lg text-muted-foreground mb-10 leading-relaxed max-w-2xl" data-testid="text-roleplay-subtitle">
@@ -306,9 +305,7 @@ export default function RolePlay() {
                         {scenario.difficulty}
                       </Badge>
                     </div>
-                    <h3 className="text-h3 font-bold text-foreground mb-2" data-testid={`text-scenario-title-${scenario.id}`}>
-                      {scenario.title}
-                    </h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-2" data-testid={`text-scenario-title-${scenario.id}`}><AccentText>{scenario.title}</AccentText></h3>
                     <p className="text-sm text-muted-foreground mb-5 flex-1 leading-relaxed" data-testid={`text-scenario-desc-${scenario.id}`}>
                       {scenario.description}
                     </p>
@@ -350,9 +347,7 @@ export default function RolePlay() {
                       <Pencil className="w-6 h-6 text-foreground" />
                     </div>
                     <div>
-                      <h3 className="text-h3 font-bold text-foreground" data-testid="text-scenario-title-custom">
-                        Custom Scenario
-                      </h3>
+                      <h3 className="text-h3 font-bold text-foreground" data-testid="text-scenario-title-custom"><AccentText>Custom Scenario</AccentText></h3>
                       <p className="text-sm text-muted-foreground mt-0.5">
                         Define your own character and situation
                       </p>
@@ -466,9 +461,7 @@ export default function RolePlay() {
             </div>
 
             <SlideUp>
-              <h2 className="text-h2 font-bold text-foreground mb-6" data-testid="text-feedback-heading">
-                Performance Feedback
-              </h2>
+              <h2 className="text-h2 font-bold text-foreground mb-6" data-testid="text-feedback-heading"><AccentText>Performance Feedback</AccentText></h2>
             </SlideUp>
 
             <SlideUp delay={0.15}>
@@ -504,7 +497,7 @@ export default function RolePlay() {
                 <div className="mb-6" data-testid="display-strengths">
                   <div className="flex items-center gap-2 mb-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <h3 className="text-lg font-bold text-foreground">Strengths</h3>
+                    <h3 className="text-lg font-bold text-foreground"><AccentText>Strengths</AccentText></h3>
                   </div>
                   <Card className="spacing-card bg-green-50/50 dark:bg-green-950/20 border-green-200/50 dark:border-green-800/30">
                     <MarkdownContent content={feedbackSections.strengths.join("\n")} />
@@ -518,7 +511,7 @@ export default function RolePlay() {
                 <div className="mb-6" data-testid="display-improvements">
                   <div className="flex items-center gap-2 mb-3">
                     <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    <h3 className="text-lg font-bold text-foreground">Areas to Improve</h3>
+                    <h3 className="text-lg font-bold text-foreground"><AccentText>Areas to Improve</AccentText></h3>
                   </div>
                   <Card className="spacing-card bg-amber-50/50 dark:bg-amber-950/20 border-amber-200/50 dark:border-amber-800/30">
                     <MarkdownContent content={feedbackSections.improvements.join("\n")} />
@@ -583,9 +576,7 @@ export default function RolePlay() {
               <ActiveIcon className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground leading-tight" data-testid="text-conversation-title">
-                {activeScenarioTitle}
-              </h1>
+              <h1 className="text-lg font-bold text-foreground leading-tight" data-testid="text-conversation-title"><AccentText>{activeScenarioTitle}</AccentText></h1>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
                   <PulsingDot className="text-green-500" />

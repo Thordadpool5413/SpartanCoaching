@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ export default function FieldKitMembership() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-kicker mb-3">Choose your path</p>
-            <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first. Start with the way you work.</h2>
+            <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first. Start with the way you <span className="text-spartan-red">work.</span></h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
             One product, three ways in. Use the directory to see a specific job, then pick the route that matches your role and the amount of support you need.
@@ -166,7 +167,7 @@ export default function FieldKitMembership() {
               return (
                 <div key={cat}>
                   <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
-                    <h3 className="text-base font-bold text-foreground">{config?.label ?? cat}</h3>
+                    <h3 className="text-base font-bold text-foreground"><AccentText>{config?.label ?? cat}</AccentText></h3>
                     {config?.blurb && (
                       <p className="text-sm text-muted-foreground">{config.blurb}</p>
                     )}
@@ -202,7 +203,7 @@ export default function FieldKitMembership() {
             <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
               <User className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro Standard</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro <span className="text-spartan-red">Standard</span></h2>
             <p className="mb-3">
               <span className="text-2xl font-black text-primary">
                 ${PRICING_FACTS.individualWeeklyUsd.toFixed(2)}
@@ -234,7 +235,7 @@ export default function FieldKitMembership() {
             <div className="w-11 h-11 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-4">
               <Award className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">{PRICING_FACTS.eliteProductName}</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1"><AccentText>{PRICING_FACTS.eliteProductName}</AccentText></h2>
             <p className="mb-3">
               <span className="text-2xl font-black text-primary">
                 ${PRICING_FACTS.eliteWeeklyUsd.toFixed(2)}
@@ -262,7 +263,7 @@ export default function FieldKitMembership() {
             <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
               <Users className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">Provider seats</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1">Provider <span className="text-spartan-red">seats</span></h2>
             <p className="mb-3">
               <span className="text-2xl font-black text-foreground">Contract</span>
               <span className="text-sm font-semibold text-muted-foreground"> · per seat / week</span>
@@ -291,7 +292,7 @@ export default function FieldKitMembership() {
             <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
               <Building2 className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">Enterprise + coaching</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1">Enterprise + <span className="text-spartan-red">coaching</span></h2>
             <p className="mb-3">
               <span className="text-2xl font-black text-foreground">Engagement</span>
               <span className="text-sm font-semibold text-muted-foreground">-based</span>
@@ -354,7 +355,10 @@ export default function FieldKitMembership() {
 
       {/* ── How it works ── */}
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto mb-10">
-        <h2 className="text-h3 font-bold">Choose or manage access</h2>
+        <h2 className="text-h3 font-bold">
+          <span className="sr-only">Choose or manage access</span>
+          <span aria-hidden="true">Choose or manage <span className="text-spartan-red">access</span></span>
+        </h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
           <li>
             <strong className="text-foreground">Choose Standard or Elite</strong> — Standard is {PRICING_FACTS.individualWeeklyLabel}; Elite is {PRICING_FACTS.eliteWeeklyLabel}.

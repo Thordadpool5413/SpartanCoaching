@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useRef, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -248,9 +249,7 @@ function Pathfinder() {
 
       <div className="field-brief-pathfinder-result" aria-live="polite">
         <p className="field-brief-label text-[10px]">{selected.result.label}</p>
-        <h3 className="mt-2 text-xl font-display font-bold tracking-tight text-foreground">
-          {selected.result.headline}
-        </h3>
+        <h3 className="mt-2 text-xl font-display font-bold tracking-tight text-foreground"><AccentText>{selected.result.headline}</AccentText></h3>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{selected.result.body}</p>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
           <Button asChild size="sm" className="min-h-10 font-bold">
@@ -318,9 +317,7 @@ function FieldBriefTour() {
       <div className="field-brief-tour-header">
         <div>
           <p className="field-brief-label">Read-only product tour</p>
-          <h3 className="mt-2 text-2xl font-display font-bold tracking-tight text-foreground sm:text-3xl">
-            A field system with a memory.
-          </h3>
+          <h3 className="mt-2 text-2xl font-display font-bold tracking-tight text-foreground sm:text-3xl"><AccentText>A field system with a memory.</AccentText></h3>
         </div>
           <div className="field-brief-tour-context">
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
@@ -399,9 +396,7 @@ function FieldBriefTour() {
             <SelectedIcon className="h-5 w-5" aria-hidden />
           </div>
           <p className="field-brief-label">{selected.signal}</p>
-          <h4 className="mt-3 text-2xl font-display font-bold leading-tight text-foreground">
-            {selected.title}
-          </h4>
+          <h4 className="mt-3 text-2xl font-display font-bold leading-tight text-foreground"><AccentText>{selected.title}</AccentText></h4>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{selected.body}</p>
           <div className="field-brief-next-move">
             <span>Next move</span>
@@ -418,7 +413,10 @@ function FieldBriefTour() {
             <span className="field-brief-artifact-status"><ShieldCheck className="h-3.5 w-3.5" aria-hidden /> No PHI</span>
           </div>
           <p className="field-brief-artifact-eyebrow">{selected.artifact.eyebrow}</p>
-          <h5>{selected.artifact.title}</h5>
+          <h5>
+            <span className="sr-only">{selected.artifact.title}</span>
+            <span aria-hidden="true"><AccentText>{selected.artifact.title}</AccentText></span>
+          </h5>
           <p className="field-brief-artifact-detail">{selected.artifact.detail}</p>
           <ul className="field-brief-artifact-lines">
             {selected.artifact.lines.map((line, index) => (
@@ -469,9 +467,7 @@ export function FieldBriefExperience() {
             <h2
               id="field-brief-title"
               className="mt-4 text-3xl font-display font-black tracking-tight text-foreground sm:text-5xl"
-            >
-              Prepared conversations are built, not wished for.
-            </h2>
+            ><AccentText>Prepared conversations are built, not wished for.</AccentText></h2>
           </div>
           <p className="max-w-md text-base leading-relaxed text-muted-foreground">
             Spartan turns the work between meetings into a repeatable rhythm: prepare the objective,
@@ -482,9 +478,7 @@ export function FieldBriefExperience() {
         <div className="field-brief-main-grid">
           <div className="field-brief-route field-brief-route-full">
             <p className="field-brief-label">Start with the work in front of you</p>
-            <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground">
-              Find the right Spartan path in under a minute.
-            </h3>
+            <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground"><AccentText>Find the right Spartan path in under a minute.</AccentText></h3>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
               No generic funnel. Choose the role closest to your current responsibility and get a
               specific next step with clear expectations.

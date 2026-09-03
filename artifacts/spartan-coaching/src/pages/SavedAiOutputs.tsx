@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ChevronDown, ChevronUp, FileText, RefreshCw } from "lucide-react";
@@ -106,7 +107,7 @@ export default function SavedAiOutputs() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="space-y-3">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">My Work</p>
-          <h1 className="text-3xl font-display font-black tracking-tight sm:text-4xl">Your work, ready when you are.</h1>
+          <h1 className="text-3xl font-display font-black tracking-tight sm:text-4xl"><AccentText>Your work, ready when you are.</AccentText></h1>
           <p className="max-w-2xl text-muted-foreground leading-7">Review completed work from the website or iPhone app without rebuilding your thinking.</p>
         </div>
 

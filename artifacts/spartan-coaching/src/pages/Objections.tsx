@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -149,9 +150,7 @@ export default function Objections() {
     <FieldKitToolLayout toolPath="/tools/objections">
       <SEO />
       {/* context — layout shell + page title */}
-      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
-        Objection Handler
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title"><AccentText>Objection Handler</AccentText></h1>
 
       <ToolAnatomyGuidance whenToUse="Before or after a visit when you hear 'not ready,' preferred hospice, or timing pushback. Pick a common line below or treat it as a starter — generate a Spartan Method alternative you can use in the room." />
 
@@ -170,7 +169,7 @@ export default function Objections() {
             data-testid={`card-objection-${idx}`}
           >
             <div className="flex-1">
-              <h3 className="text-h3 font-bold text-foreground mb-4">{obj.q}</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-4"><AccentText>{obj.q}</AccentText></h3>
               <p className="text-muted-foreground italic border-l-4 border-primary pl-4">
                 &ldquo;{obj.a}&rdquo;
               </p>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -107,13 +108,11 @@ export function MembershipActivation() {
           <h2
             id="membership-activation-title"
             className="text-2xl sm:text-3xl font-display font-black text-foreground"
-          >
-            {confirmed
+          ><AccentText>{confirmed
               ? `You're in${firstName ? `, ${firstName}` : ""}`
               : confirming
                 ? "Confirming Hospice Sales Pro…"
-                : `Welcome${firstName ? `, ${firstName}` : ""}`}
-          </h2>
+                : `Welcome${firstName ? `, ${firstName}` : ""}`}</AccentText></h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {confirmed
               ? "Hospice Sales Pro is active. Start in Sales Command Center — add your next facility account (no PHI) and run the day from there."

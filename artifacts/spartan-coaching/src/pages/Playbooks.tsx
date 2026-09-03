@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -154,7 +155,7 @@ export default function Playbooks() {
       {generatedPlaybook && (
         <div id="playbook-print-area">
           <div className="print-header">
-            <h1>SPARTAN COACHING | Sales Playbook</h1>
+            <h1><AccentText>SPARTAN COACHING | Sales Playbook</AccentText></h1>
             <p style={{ fontSize: "10pt", color: "#666" }}>Generated {new Date().toLocaleDateString()} | spartancoaching.com</p>
           </div>
           <MarkdownContent content={generatedPlaybook} />
@@ -164,9 +165,7 @@ export default function Playbooks() {
           </div>
         </div>
       )}
-      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">
-        Playbook Generator
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title"><AccentText>Playbook Generator</AccentText></h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         A playbook is not just a script; it's a strategic battle plan. Describe any sales scenario, and the Spartan AI will generate a complete, strategic playbook to guide you to success.
       </p>
@@ -174,7 +173,7 @@ export default function Playbooks() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
           <Card className="border-2 shadow-lg spacing-card">
-            <h2 className="text-h2 font-bold mb-4">1. Describe a Scenario</h2>
+            <h2 className="text-h2 font-bold mb-4"><AccentText>1. Describe a Scenario</AccentText></h2>
             <p className="text-sm text-muted-foreground mb-4">
               Be specific about the referral source, challenges, and goals.
             </p>
@@ -196,7 +195,7 @@ export default function Playbooks() {
               </p>
             )}
 
-            <h2 className="text-h2 font-bold mt-6 mb-4">2. Desired Outcomes (Optional)</h2>
+            <h2 className="text-h2 font-bold mt-6 mb-4"><AccentText>2. Desired Outcomes (Optional)</AccentText></h2>
             <p className="text-sm text-muted-foreground mb-4">
               Specify your goals. The AI will prioritize these to tailor the playbook.
             </p>
@@ -221,7 +220,7 @@ export default function Playbooks() {
           </Card>
 
           <Card className="border-2 shadow-lg spacing-card">
-            <h2 className="text-h2 font-bold mb-4">Classic Spartan Playbooks</h2>
+            <h2 className="text-h2 font-bold mb-4"><AccentText>Classic Spartan Playbooks</AccentText></h2>
             <p className="text-sm text-muted-foreground mb-4">
               Need inspiration? Click a classic scenario to instantly generate a proven playbook.
             </p>
@@ -257,7 +256,7 @@ export default function Playbooks() {
           {generatedPlaybook && !showModal && (
             <Card className="border-2 shadow-lg spacing-card">
               <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
-                <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
+                <h2 className="text-h2 font-bold"><AccentText>Your Custom Playbook</AccentText></h2>
                 <div className="flex gap-2">
                   <Button variant="outline" size="default" onClick={handleCopyPlaybook} className="font-bold touch-manipulation" data-testid="button-copy">
                     <Copy className="w-4 h-4 mr-2" />
@@ -303,7 +302,7 @@ export default function Playbooks() {
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Generated Playbook</DialogTitle>
+            <DialogTitle><AccentText>Generated Playbook</AccentText></DialogTitle>
           </DialogHeader>
           {isLoading ? (
             <div className="flex justify-center items-center h-48">

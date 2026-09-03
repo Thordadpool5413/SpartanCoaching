@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -52,9 +53,7 @@ export default function BrandVideo() {
             <Share2 className="w-4 h-4 text-primary" />
             <span className="text-sm font-bold text-primary uppercase tracking-wide">Outreach Asset</span>
           </div>
-          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-brand-video-title">
-            Spartan Brand Video
-          </h1>
+          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-brand-video-title"><AccentText>Spartan Brand Video</AccentText></h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             Use this cinematic logo reveal as a credibility asset in your prospect outreach. Copy the shareable link and send it directly — no login required to view.
           </p>
@@ -112,7 +111,7 @@ export default function BrandVideo() {
 
       <FadeIn delay={0.3}>
         <div className="rounded-xl border-2 border-border bg-accent/30 p-6 sm:p-8">
-          <h2 className="text-h3 font-bold text-foreground mb-4">How to use this in outreach</h2>
+          <h2 className="text-h3 font-bold text-foreground mb-4"><AccentText>How to use this in outreach</AccentText></h2>
           <ul className="space-y-3 text-body text-muted-foreground">
             <li className="flex items-start gap-3">
               <span className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">1</span>

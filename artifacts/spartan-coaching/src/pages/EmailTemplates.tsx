@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,9 +46,7 @@ function PendingReminders({
     <div className="mb-8 rounded-xl border-2 border-primary/20 bg-primary/5 p-5">
       <div className="flex items-center gap-2 mb-4">
         <Clock className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-bold uppercase tracking-wide text-primary">
-          Pending Reminders
-        </h3>
+        <h3 className="text-sm font-bold uppercase tracking-wide text-primary"><AccentText>Pending Reminders</AccentText></h3>
       </div>
       <ul className="space-y-2">
         {reminders.map((r) => (
@@ -223,7 +222,7 @@ export default function EmailTemplates() {
     <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-6xl">
       <SEO />
         <div className="mb-8">
-          <h1 className="text-h1 font-black mb-6">Email Templates</h1>
+          <h1 className="text-h1 font-black mb-6"><AccentText>Email Templates</AccentText></h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             Generate professional, relationship-building emails for your hospice sales outreach
           </p>
@@ -237,7 +236,7 @@ export default function EmailTemplates() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                Template Generator
+                Template <span className="text-spartan-red">Generator</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -319,7 +318,7 @@ export default function EmailTemplates() {
           <Card className="min-w-0 border shadow-sm spacing-card">
             <CardHeader>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <CardTitle>Generated Template</CardTitle>
+                <CardTitle><AccentText>Generated Template</AccentText></CardTitle>
                 {generatedTemplate && (
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -372,7 +371,7 @@ export default function EmailTemplates() {
                   />
 
                   <div className="mt-6 space-y-3 border-t pt-4">
-                    <h4 className="font-semibold text-sm">Send this Email</h4>
+                    <h4 className="font-semibold text-sm"><AccentText>Send this Email</AccentText></h4>
                     <div className="space-y-2">
                       <Label htmlFor="send-to">Recipient Email</Label>
                       <Input

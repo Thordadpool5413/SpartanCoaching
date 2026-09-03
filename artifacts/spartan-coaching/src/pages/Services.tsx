@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
@@ -270,7 +271,7 @@ export default function Services() {
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
               {s.frame}
             </p>
-            <h3 className="text-base font-display font-bold text-foreground mb-2">{s.t}</h3>
+            <h3 className="text-base font-display font-bold text-foreground mb-2"><AccentText>{s.t}</AccentText></h3>
             <p className="text-sm text-muted-foreground leading-relaxed flex-1">{s.d}</p>
             <Link
               href={s.href}
@@ -317,7 +318,7 @@ export default function Services() {
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
-                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -380,7 +381,7 @@ export default function Services() {
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
-                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -459,7 +460,7 @@ export default function Services() {
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
-                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -512,7 +513,7 @@ export default function Services() {
             <MonitorSmartphone className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">Technology Solutions</h2>
+            <h2 className="text-h2 text-foreground mb-1">Technology <span className="text-spartan-red">Solutions</span></h2>
             <p className="text-body text-muted-foreground">Custom-built tools designed specifically for hospice providers.</p>
           </div>
         </div>
@@ -529,7 +530,7 @@ export default function Services() {
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
-                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
                 <p className="text-3xl font-black text-primary mb-6">{service.price}</p>
 
                 <div className="mb-4">
@@ -597,7 +598,7 @@ export default function Services() {
             <ClipboardList className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">How we start</h2>
+            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">How we <span className="text-spartan-red">start</span></h2>
             <p className="text-body text-muted-foreground">Four steps from first contact to weekly coaching.</p>
           </div>
         </div>
@@ -630,7 +631,7 @@ export default function Services() {
                 <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg flex-shrink-0">
                   {item.step}
                 </div>
-                <h3 className="text-h3 font-bold text-foreground">{item.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground"><AccentText>{item.title}</AccentText></h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
             </Card>
@@ -645,7 +646,7 @@ export default function Services() {
             <MessageCircleQuestion className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">Common Questions</h2>
+            <h2 className="text-h2 text-foreground mb-1">Common <span className="text-spartan-red">Questions</span></h2>
             <p className="text-body text-muted-foreground">Answers to the questions we hear most before getting started.</p>
           </div>
         </div>
@@ -698,9 +699,7 @@ export default function Services() {
 
       {/* CTA Section */}
       <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
-        <h2 className="text-h2 font-black text-foreground mb-6">
-          Not Sure Which Service Fits?
-        </h2>
+        <h2 className="text-h2 font-black text-foreground mb-6"><AccentText>Not Sure Which Service Fits?</AccentText></h2>
         <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
           Every engagement starts with understanding your specific challenge. Let's talk about what is not working and build a plan that fixes it.
         </p>

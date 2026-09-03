@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import React, { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ExternalLink, Monitor, Smartphone } from "lucide-react";
@@ -64,9 +65,7 @@ export function AppHandoffPanel({
       <div className={cn("relative z-10", compact ? "p-5 sm:p-6" : "p-8 sm:p-10")}>
         <div className={cn("flex flex-col md:flex-row gap-6 md:gap-10", compact ? "items-start" : "items-center")}>
           <div className="flex-1 space-y-3 sm:space-y-4">
-            <h3 className={cn("font-display font-bold text-foreground leading-tight tracking-tight", compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl")}>
-              {title}
-            </h3>
+            <h3 className={cn("font-display font-bold text-foreground leading-tight tracking-tight", compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl")}><AccentText>{title}</AccentText></h3>
             <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
               {description}
             </p>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,30 +10,28 @@ export default function EmrAccess() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-emr-access-title">
-          EMR/Data Access Agreement
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-emr-access-title"><AccentText>EMR/Data Access Agreement</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Parties</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Parties</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This EMR/Data Access Agreement ("Agreement") is entered into by and between Spartan Coaching ("Consultant") and the hospice organization engaging the Consultant's services ("Organization"), collectively referred to as the "Parties." This Agreement governs the Consultant's access to the Organization's electronic systems and data in connection with the consulting engagement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The purpose of this Agreement is to establish terms and conditions for the Consultant's access to the Organization's Electronic Medical Records (EMR) system and other data systems for the purpose of providing consulting services, including sales performance analysis, workflow optimization, and training. This Agreement supplements and is made a part of the underlying services agreement between the Parties.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Scope of Access</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Scope of Access</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Access granted under this Agreement is limited to the specific modules, systems, and data as mutually agreed upon in the Statement of Work or consulting engagement letter. The following terms apply:
             </p>
@@ -45,7 +44,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Credential Management</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Credential Management</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Organization will provide the Consultant with unique login credentials for all authorized systems. The Consultant agrees to the following credential management obligations:
             </p>
@@ -59,7 +58,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Permitted Use</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Permitted Use</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant is permitted to access the Organization's systems for the following purposes in connection with the consulting engagement:
             </p>
@@ -73,7 +72,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Prohibited Use</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Prohibited Use</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant shall not engage in any of the following activities when accessing the Organization's systems:
             </p>
@@ -88,7 +87,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Security Requirements</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Security Requirements</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant shall adhere to the following security requirements when accessing the Organization's systems:
             </p>
@@ -102,7 +101,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Audit and Monitoring</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Audit and Monitoring</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Organization retains the right to monitor and audit the Consultant's access to its systems. The following terms apply:
             </p>
@@ -115,7 +114,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Termination of Access</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Termination of Access</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Access to the Organization's systems under this Agreement shall terminate under the following conditions:
             </p>
@@ -128,7 +127,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">10. Liability</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>10. Liability</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Consultant Liability:</strong> The Consultant shall be liable for any unauthorized access, data breaches, or security incidents resulting from the Consultant's negligence, willful misconduct, or failure to comply with the terms of this Agreement.
             </p>
@@ -138,7 +137,7 @@ export default function EmrAccess() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">11. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>11. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this EMR/Data Access Agreement, to request modifications to access permissions, or to report a security concern, please contact Spartan Coaching through the contact form on our website. We are committed to maintaining the security and confidentiality of all data accessed during our consulting engagements.
             </p>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight, Wrench } from "lucide-react";
@@ -81,7 +82,7 @@ export default function About() {
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <Target className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-3">For Teams</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>For Teams</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   When teams communicate clearly with referral partners and remove friction from the pathway, conversations happen sooner, handoffs are cleaner, and fewer next steps get lost.
                 </p>
@@ -94,7 +95,7 @@ export default function About() {
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <Users className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-3">For Reps</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>For Reps</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   When reps carry a clean plan for their top accounts, follow up is faster, objections become opportunities to educate, and referrals move from interest to signed order without getting lost.
                 </p>
@@ -107,7 +108,7 @@ export default function About() {
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <TrendingUp className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-3">For Organizations</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>For Organizations</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   When the corporate office can see the same standards across markets, wins are repeatable and growth is not guesswork.
                 </p>
@@ -186,7 +187,7 @@ export default function About() {
                       data-testid="img-founder"
                     />
                   </div>
-                  <h3 className="text-h3 font-bold text-foreground">Nick Lynch</h3>
+                  <h3 className="text-h3 font-bold text-foreground"><AccentText>Nick Lynch</AccentText></h3>
                   <p className="text-muted-foreground">Founder</p>
                 </div>
               </div>
@@ -208,7 +209,7 @@ export default function About() {
             <Card className="border-2 group relative spacing-card" data-testid="card-experience-field">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-3">Field Leadership</h3>
+                <h3 className="text-h3 font-bold text-primary mb-3"><AccentText>Field Leadership</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   Built and led field sales teams across multiple markets, developing territory strategies that respect clinical workflows while driving measurable growth in referrals and patient census.
                 </p>
@@ -218,7 +219,7 @@ export default function About() {
             <Card className="border-2 group relative spacing-card" data-testid="card-experience-operations">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
+                <h3 className="text-h3 font-bold text-primary mb-3"><AccentText>Operational Excellence</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   Designed and implemented systems for admissions speed, start-of-care readiness, and IDT communication so teams can identify delays, assign ownership, and close gaps faster.
                 </p>
@@ -228,7 +229,7 @@ export default function About() {
             <Card className="border-2 group relative spacing-card" data-testid="card-experience-coaching">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-3">Practical Coaching</h3>
+                <h3 className="text-h3 font-bold text-primary mb-3"><AccentText>Practical Coaching</AccentText></h3>
                 <p className="text-body text-muted-foreground leading-relaxed">
                   Believes in coaching that happens in the work, not in theory. Every framework is field-tested, every playbook is battle-proven, and every strategy prioritizes patient-first outcomes.
                 </p>
@@ -238,7 +239,7 @@ export default function About() {
 
           {/* Values and Coaching Philosophy */}
           <div className="mt-16 mb-16">
-            <h2 className="text-h2 text-foreground mb-8 text-center">Values and Coaching Philosophy</h2>
+            <h2 className="text-h2 text-foreground mb-8 text-center">Values and Coaching <span className="text-spartan-red">Philosophy</span></h2>
             <div className="grid md:grid-cols-2 gap-cards">
               <Card className="border-2 group relative spacing-card" data-testid="card-value-practical">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -247,7 +248,7 @@ export default function About() {
                     <BookOpen className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-h3 font-bold text-foreground mb-2">Practical Over Theoretical</h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Practical Over Theoretical</AccentText></h3>
                     <p className="text-body text-muted-foreground leading-relaxed">Coaching happens in the work, not in a classroom</p>
                   </div>
                 </div>
@@ -260,7 +261,7 @@ export default function About() {
                     <Repeat className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-h3 font-bold text-foreground mb-2">Consistency Over Intensity</h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Consistency Over Intensity</AccentText></h3>
                     <p className="text-body text-muted-foreground leading-relaxed">Simple plans repeated well beat heroic one-time efforts</p>
                   </div>
                 </div>
@@ -273,7 +274,7 @@ export default function About() {
                     <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-h3 font-bold text-foreground mb-2">Patient-First Outcomes</h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Patient-First Outcomes</AccentText></h3>
                     <p className="text-body text-muted-foreground leading-relaxed">Every strategy prioritizes getting eligible patients into care earlier</p>
                   </div>
                 </div>
@@ -286,7 +287,7 @@ export default function About() {
                     <Handshake className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-h3 font-bold text-foreground mb-2">Ethical Relationship Building</h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Ethical Relationship Building</AccentText></h3>
                     <p className="text-body text-muted-foreground leading-relaxed">Education-based outreach that respects clinical partners</p>
                   </div>
                 </div>
@@ -296,7 +297,7 @@ export default function About() {
 
           {/* Ethical Growth Stance */}
           <div className="mb-16">
-            <h2 className="text-h2 text-foreground mb-8 text-center">Ethical Growth Stance</h2>
+            <h2 className="text-h2 text-foreground mb-8 text-center">Ethical Growth <span className="text-spartan-red">Stance</span></h2>
             <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2" data-testid="card-ethical-stance">
               <div className="flex gap-4 items-start">
                 <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -314,7 +315,7 @@ export default function About() {
 
           {/* What a Spartan Rep Looks Like */}
           <div className="mt-16 mb-8">
-            <h2 className="text-h2 text-foreground mb-4">What a Spartan Rep Looks Like</h2>
+            <h2 className="text-h2 text-foreground mb-4">What a Spartan Rep <span className="text-spartan-red">Looks Like</span></h2>
             <p className="text-body-lg text-muted-foreground leading-relaxed mb-8">
               Not the most charismatic rep. Not the most experienced. The most prepared. Here is what that looks like in observable behaviors.
             </p>
@@ -358,7 +359,7 @@ export default function About() {
                 },
               ].map((group, i) => (
                 <Card key={i} className="spacing-card border-2" data-testid={`card-spartan-rep-${i}`}>
-                  <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-4">{group.label}</h3>
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-4"><AccentText>{group.label}</AccentText></h3>
                   <ul className="space-y-2">
                     {group.items.map((item, j) => (
                       <li key={j} className="flex items-start gap-2 text-body text-muted-foreground">
@@ -398,21 +399,21 @@ export default function About() {
         </div>
 
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-next-steps">
-          <h2 className="text-h2 text-foreground text-center">Explore the work, not another pitch.</h2>
+          <h2 className="text-h2 text-foreground text-center">Explore the work, not another <span className="text-spartan-red">pitch.</span></h2>
           <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
             This page is about the person and principles behind Spartan Coaching. See the method for the operating
             standard, or services for a consulting engagement.
           </p>
           <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
             <Card className="spacing-card border-2">
-              <h3 className="text-h3 font-bold text-foreground mb-2">The Spartan Method</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>The Spartan Method</AccentText></h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 The four-part practice standard and patient-first ethics that guide the work.
               </p>
               <Link href="/method" className="font-semibold text-primary hover:underline">See the method →</Link>
             </Card>
             <Card className="spacing-card border-2">
-              <h3 className="text-h3 font-bold text-foreground mb-2">Consulting services</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Consulting services</AccentText></h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 Coaching, workshops, and leadership systems scoped to your hospice team.
               </p>
@@ -423,7 +424,7 @@ export default function About() {
 
         {/* How consulting + Hospice Sales Pro fit together */}
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
-          <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
+          <h2 className="text-h2 text-foreground text-center">How we work with <span className="text-spartan-red">clients</span></h2>
           <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
             Spartan is a consulting practice first. Coaching and team systems are the core. Hospice Sales Pro is the tools and resources layer — web and iPhone — for people who want execution between sessions or on their own.
           </p>
@@ -449,7 +450,7 @@ export default function About() {
                 <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-3">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-2">{title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>{title}</AccentText></h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
               </Card>
             ))}
@@ -458,9 +459,7 @@ export default function About() {
 
         {/* CTA — dark authority band; two primary actions only */}
         <div className="surface-band rounded-2xl p-8 md:p-12 text-center mt-16 text-foreground border border-border">
-          <h2 className="text-h2 font-bold text-foreground mb-4">
-            If this resonates, reach out.
-          </h2>
+          <h2 className="text-h2 font-bold text-foreground mb-4"><AccentText>If this resonates, reach out.</AccentText></h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             No pressure. No obligation. Just an honest conversation about where your team is and what would actually help.
           </p>

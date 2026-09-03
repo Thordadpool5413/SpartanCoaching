@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import {
@@ -231,7 +232,7 @@ export default function MyWork() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-2">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Saved continuity</p>
-            <h1 className="text-4xl font-display font-black tracking-tight sm:text-5xl">My Work</h1>
+            <h1 className="text-4xl font-display font-black tracking-tight sm:text-5xl"><AccentText>My Work</AccentText></h1>
             <p className="max-w-2xl text-muted-foreground leading-7">
               Resume approved work from the website or iPhone without rebuilding your thinking.
             </p>
@@ -268,7 +269,7 @@ export default function MyWork() {
             <Link href="/my-work/elite-outputs" className="block">
               <Card className="h-full border-primary/25 p-6 transition hover:border-primary hover:shadow-md">
                 <Shield className="h-6 w-6 text-primary" />
-                <h2 className="mt-4 text-xl font-black">Saved Elite outputs</h2>
+                <h2 className="mt-4 text-xl font-black"><AccentText>Saved Elite outputs</AccentText></h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">Review completed advanced, nonclinical tool results and reopen the tool that created them.</p>
                 <span className="mt-5 inline-flex items-center text-sm font-bold text-primary">Open Elite outputs <ArrowRight className="ml-2 h-4 w-4" /></span>
               </Card>
@@ -276,7 +277,7 @@ export default function MyWork() {
             <Link href="/portal/coach" className="block">
               <Card className="h-full p-6 transition hover:border-primary hover:shadow-md">
                 <Target className="h-6 w-6 text-primary" />
-                <h2 className="mt-4 text-xl font-black">Current commitment</h2>
+                <h2 className="mt-4 text-xl font-black"><AccentText>Current commitment</AccentText></h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {continuity?.commitment?.value || "Open Coach and make one clear commitment for the next field action."}
                 </p>
@@ -315,7 +316,7 @@ export default function MyWork() {
           {savedCount === 0 ? (
             <Card className="p-10 text-center">
               <CheckCircle2 className="mx-auto h-8 w-8 text-primary" />
-              <h2 className="mt-4 text-xl font-black">Your next piece of work starts in Tools</h2>
+              <h2 className="mt-4 text-xl font-black"><AccentText>Your next piece of work starts in Tools</AccentText></h2>
               <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">Build a plan, run a calculator, use an interactive resource, or complete an Elite tool. Saved continuity returns here.</p>
               <Button asChild className="mt-5"><Link href="/tools">Open Tools</Link></Button>
             </Card>
@@ -330,7 +331,7 @@ function WorkSection({ title, empty, children }: { title: string; empty: string;
   const items = Array.isArray(children) ? children.filter(Boolean) : children ? [children] : [];
   return (
     <section className="space-y-3">
-      <h2 className="text-xl font-black">{title}</h2>
+      <h2 className="text-xl font-black"><AccentText>{title}</AccentText></h2>
       {items.length ? <div className="grid gap-3 md:grid-cols-2">{children}</div> : <Card className="p-5 text-sm text-muted-foreground">{empty}</Card>}
     </section>
   );

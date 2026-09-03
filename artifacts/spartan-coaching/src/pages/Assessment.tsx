@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useSearch } from "wouter";
@@ -146,9 +147,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
     return (
       <div className="w-full max-w-2xl mx-auto px-4 py-16 text-center" data-testid="display-invite-error">
         <SEO title="Invite Link Invalid" />
-        <h1 className="text-h1 font-bold text-foreground mb-4">
-          {isUsed ? "Invite Already Used" : "Invalid Invite Link"}
-        </h1>
+        <h1 className="text-h1 font-bold text-foreground mb-4"><AccentText>{isUsed ? "Invite Already Used" : "Invalid Invite Link"}</AccentText></h1>
         <p className="text-muted-foreground">
           {isUsed
             ? `This assessment invite for ${inviteUsedName} has already been completed. Each invite link can only be used once.`
@@ -162,7 +161,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
     return (
       <div className="w-full max-w-2xl mx-auto px-4 py-16 text-center" data-testid="display-error">
         <SEO title="Assessment Not Found" />
-        <h1 className="text-h1 font-bold text-foreground mb-4">Assessment Not Found</h1>
+        <h1 className="text-h1 font-bold text-foreground mb-4"><AccentText>Assessment Not Found</AccentText></h1>
         <p className="text-muted-foreground">This assessment link may be invalid or expired.</p>
       </div>
     );
@@ -174,7 +173,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
     return (
       <div className="w-full max-w-2xl mx-auto px-4 py-16 text-center" data-testid="display-empty">
         <SEO title={assessment.name} />
-        <h1 className="text-h1 font-bold text-foreground mb-4">{assessment.name}</h1>
+        <h1 className="text-h1 font-bold text-foreground mb-4"><AccentText>{assessment.name}</AccentText></h1>
         <p className="text-muted-foreground">This assessment has no questions yet. Please check back later.</p>
       </div>
     );
@@ -294,9 +293,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <ClipboardList className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-h1 font-bold text-foreground mb-3" data-testid="text-assessment-title">
-            {assessment.name}
-          </h1>
+          <h1 className="text-h1 font-bold text-foreground mb-3" data-testid="text-assessment-title"><AccentText>{assessment.name}</AccentText></h1>
           {assessment.description && (
             <p className="text-muted-foreground leading-relaxed max-w-md mx-auto" data-testid="text-assessment-description">
               {assessment.description}
@@ -312,7 +309,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
 
         <Card data-testid="card-intake-form">
           <CardHeader>
-            <CardTitle className="text-lg">Get Started</CardTitle>
+            <CardTitle className="text-lg"><AccentText>Get Started</AccentText></CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleStartAssessment} className="space-y-4">
@@ -385,9 +382,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Award className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-h1 font-bold text-foreground mb-2" data-testid="text-results-title">
-            Assessment Complete
-          </h1>
+          <h1 className="text-h1 font-bold text-foreground mb-2" data-testid="text-results-title"><AccentText>Assessment Complete</AccentText></h1>
           <p className="text-muted-foreground">
             Thank you, {candidateName}. Here are your results.
           </p>
@@ -462,9 +457,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
 
       <Card className="mb-6" data-testid={`card-question-${currentQ}`}>
         <CardContent className="pt-6">
-          <h2 className="text-lg font-semibold text-foreground mb-6 leading-relaxed" data-testid="text-question">
-            {question.text}
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground mb-6 leading-relaxed" data-testid="text-question"><AccentText>{question.text}</AccentText></h2>
 
           {question.type === "quiz" && question.options && (
             <div className="space-y-3">

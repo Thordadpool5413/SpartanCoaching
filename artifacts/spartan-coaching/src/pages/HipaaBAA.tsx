@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,9 +10,7 @@ export default function HipaaBAA() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-baa-title">
-          HIPAA Business Associate Agreement
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-baa-title"><AccentText>HIPAA Business Associate Agreement</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
@@ -24,14 +23,14 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The purpose of this Agreement is to ensure that the Business Associate will appropriately safeguard Protected Health Information ("PHI") that may be created, received, maintained, or transmitted on behalf of the Covered Entity in compliance with the Health Insurance Portability and Accountability Act of 1996 ("HIPAA"), the Health Information Technology for Economic and Clinical Health Act ("HITECH Act"), and their implementing regulations, including the HIPAA Privacy Rule (45 CFR Part 160 and Subparts A and E of Part 164), the HIPAA Security Rule (45 CFR Part 160 and Subparts A and C of Part 164), and the HIPAA Breach Notification Rule (45 CFR Part 160 and Subparts A and D of Part 164).
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Definitions</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Definitions</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Terms used but not otherwise defined in this Agreement shall have the same meaning as those terms in the HIPAA Rules. The following definitions apply to this Agreement:
             </p>
@@ -46,7 +45,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Obligations of the Business Associate</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Obligations of the Business Associate</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Business Associate agrees to the following obligations:
             </p>
@@ -64,7 +63,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Permitted Uses and Disclosures</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Permitted Uses and Disclosures</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Business Associate is permitted to use and disclose PHI as follows:
             </p>
@@ -77,7 +76,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Obligations of the Covered Entity</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Obligations of the Covered Entity</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Covered Entity agrees to the following obligations:
             </p>
@@ -90,7 +89,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Breach Notification</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Breach Notification</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               In the event of a Breach of Unsecured PHI, the Business Associate shall:
             </p>
@@ -104,7 +103,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Security Measures</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Security Measures</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Business Associate shall implement and maintain reasonable and appropriate security measures, including but not limited to:
             </p>
@@ -119,7 +118,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Term and Termination</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Term and Termination</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Term:</strong> This Agreement shall be effective as of the date both Parties execute the underlying services agreement and shall terminate when all PHI provided by the Covered Entity to the Business Associate, or created or received by the Business Associate on behalf of the Covered Entity, is destroyed or returned to the Covered Entity, or if not feasible, protections are extended in accordance with Section 3 of this Agreement.
             </p>
@@ -132,7 +131,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Miscellaneous Provisions</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Miscellaneous Provisions</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Amendment:</strong> This Agreement may not be modified or amended except in writing signed by both Parties. The Parties agree to negotiate in good faith any amendment to this Agreement that may be necessary to ensure compliance with HIPAA and its implementing regulations.
             </p>
@@ -148,7 +147,7 @@ export default function HipaaBAA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">10. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>10. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this HIPAA Business Associate Agreement, to request execution of a BAA, or to report a potential Breach, please contact Spartan Coaching through the contact form on our website or reach out directly. We are committed to maintaining the privacy and security of all Protected Health Information entrusted to us and will respond to all inquiries promptly.
             </p>

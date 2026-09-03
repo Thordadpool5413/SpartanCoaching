@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { ArrowRight, BookOpen, Crosshair, FolderCheck, Wrench } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -41,7 +42,8 @@ export function WorkspaceGuide() {
             How the workspace works
           </p>
           <h2 className="mt-1 text-xl font-black text-foreground">
-            One system. Four clear moves.
+            <span className="sr-only">One system. Four clear moves.</span>
+            <span aria-hidden="true"><AccentText>One system. Four clear moves.</AccentText></span>
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
             Command runs the day. Tools finish a specific job. Resources provide

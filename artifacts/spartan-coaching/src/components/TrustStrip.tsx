@@ -48,7 +48,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display uppercase tracking-tight text-foreground mb-2">
-            Hospice Sales Pro tools. Human consulting.
+            Hospice Sales Pro <span className="text-spartan-red">tools.</span> Human consulting.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Two clear offers: consulting stays human; Hospice Sales Pro unlocks tools on web and iPhone. Individuals self-serve
@@ -75,7 +75,12 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
                 <Icon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground mb-1">{item.title}</p>
+                <p className="text-sm font-bold text-foreground mb-1">
+                  {item.title === "No PHI in tools" ? <>No PHI in <span className="text-spartan-red">tools</span></> :
+                   item.title === "Two clear access paths" ? <>Two clear <span className="text-spartan-red">access paths</span></> :
+                   item.title === "Clear Hospice Sales Pro path" ? <>Clear Hospice Sales Pro <span className="text-spartan-red">path</span></> :
+                   <>Privacy & compliance <span className="text-spartan-red">first</span></>}
+                </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{item.body}</p>
               </div>
             </div>

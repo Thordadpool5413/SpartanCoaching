@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
@@ -140,7 +141,7 @@ export default function Method() {
         <Card className="relative border border-border/80 shadow-elite spacing-card overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" />
           <div className="relative">
-            <h2 className="text-h2 text-foreground mb-6 font-display tracking-tight">The Spartan Mission</h2>
+            <h2 className="text-h2 text-foreground mb-6 font-display tracking-tight">The Spartan <span className="text-spartan-red">Mission</span></h2>
             <p className="text-body-lg text-foreground/90 leading-relaxed mb-6">
               Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
             </p>
@@ -152,7 +153,7 @@ export default function Method() {
 
         {/* Three Pillars */}
         <section>
-          <h2 className="text-h2 text-foreground mb-4 text-center">The Three Pillars</h2>
+          <h2 className="text-h2 text-foreground mb-4 text-center">The Three <span className="text-spartan-red">Pillars</span></h2>
           <p className="text-center text-body-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
             The philosophical foundation that guides everything we do
           </p>
@@ -167,7 +168,7 @@ export default function Method() {
                   Success in hospice sales requires more than good intentions. It demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2">Key Components:</h4>
+                  <h4 className="font-bold mb-2"><AccentText>Key Components:</AccentText></h4>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Weekly territory planning with clear objectives and named accounts</li>
                     <li>Standardized call preparation and follow-up protocols that fit clinical workflows</li>
@@ -187,7 +188,7 @@ export default function Method() {
                   At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity. This means understanding that a case manager at 2pm on Friday has different needs than a physician at 8am Monday morning.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2">Core Practices:</h4>
+                  <h4 className="font-bold mb-2"><AccentText>Core Practices:</AccentText></h4>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Active listening techniques for clinical conversations (not sales pitches)</li>
                     <li>Understanding provider pain points and workflow constraints</li>
@@ -207,7 +208,7 @@ export default function Method() {
                   Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and proven tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2">Strategic Elements:</h4>
+                  <h4 className="font-bold mb-2"><AccentText>Strategic Elements:</AccentText></h4>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Data-driven territory analysis and segmentation (not guesswork)</li>
                     <li>Competitive intelligence and market positioning based on real gaps</li>
@@ -223,7 +224,7 @@ export default function Method() {
         {/* Healthcare Sales Mastery Model */}
         <section>
           <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-mastery-model-title">Healthcare Sales Mastery Model</h2>
+            <h2 className="text-h2 text-foreground mb-4" data-testid="text-mastery-model-title">Healthcare Sales <span className="text-spartan-red">Mastery Model</span></h2>
             <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               This model is built for hospice providers who want referrals to be consistent, appropriate, and repeatable inside an account. Not because someone is "great with people," but because the referral source has a clear path, clear expectations, and a clear reason to call you when the right patient shows up.
             </p>
@@ -252,24 +253,24 @@ export default function Method() {
                         <Icon className={`w-6 h-6 ${subject.color}`} />
                       </div>
                       <div className="flex-1">
-                        <h3 className={`text-h3 font-bold ${subject.color} mb-1`}>{subject.title}</h3>
+                        <h3 className={`text-h3 font-bold ${subject.color} mb-1`}><AccentText>{subject.title}</AccentText></h3>
                         <p className="text-sm text-muted-foreground italic">Subject {idx + 1} of 4</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Purpose</h4>
+                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Purpose</AccentText></h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">{subject.purpose}</p>
                       </div>
 
                       <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Execution Standard</h4>
+                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Execution Standard</AccentText></h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">{subject.executionStandard}</p>
                       </div>
 
                       <div className={`p-3 rounded-md ${subject.bgColor} border ${subject.borderColor}`}>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Measurable Output</h4>
+                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Measurable Output</AccentText></h4>
                         <p className="text-sm text-foreground">{subject.measurableOutput}</p>
                       </div>
                     </div>
@@ -299,7 +300,7 @@ export default function Method() {
         {/* Five Fundamentals */}
         <section>
           <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-fundamentals-title">Five Fundamentals That Govern Every Subject</h2>
+            <h2 className="text-h2 text-foreground mb-4" data-testid="text-fundamentals-title"><span className="text-spartan-red">Five Fundamentals</span> That Govern Every Subject</h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
               These principles anchor every activity, every conversation, every decision
             </p>
@@ -313,7 +314,7 @@ export default function Method() {
                     <span className="text-base font-bold text-primary">{idx + 1}</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-h3 text-foreground mb-2">{fundamental.title}</h3>
+                    <h3 className="text-h3 text-foreground mb-2"><AccentText>{fundamental.title}</AccentText></h3>
                     <p className="text-body text-muted-foreground leading-relaxed">{fundamental.description}</p>
                   </div>
                 </div>
@@ -325,7 +326,7 @@ export default function Method() {
         {/* Ethics */}
         <section>
           <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-ethics-title">Ethics That Anchor The Model</h2>
+            <h2 className="text-h2 text-foreground mb-4" data-testid="text-ethics-title"><span className="text-spartan-red">Ethics</span> That Anchor The Model</h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
               These values are non-negotiable and visible in every interaction
             </p>
@@ -341,7 +342,7 @@ export default function Method() {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-h3 text-foreground mb-3">{ethic.title}</h3>
+                  <h3 className="text-h3 text-foreground mb-3"><AccentText>{ethic.title}</AccentText></h3>
                   <p className="text-body text-muted-foreground leading-relaxed">{ethic.description}</p>
                 </Card>
               );
@@ -353,7 +354,7 @@ export default function Method() {
         <section>
           <Card className="relative border-2 shadow-lg spacing-card bg-card">
             <div className="text-center mb-8">
-              <h2 className="text-h2 text-foreground mb-4">Why the Method Exists</h2>
+              <h2 className="text-h2 text-foreground mb-4">Why the Method <span className="text-spartan-red">Exists</span></h2>
               <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 The Spartan Method is not a sales training framework. It is a patient access framework.
               </p>
@@ -394,7 +395,7 @@ export default function Method() {
         {/* Traceability */}
         <section data-testid="section-traceability">
           <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-traceability-title">Traceability</h2>
+            <h2 className="text-h2 text-spartan-red mb-4" data-testid="text-traceability-title"><AccentText>Traceability</AccentText></h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
               Every principle maps to a subject. The Mamba standard is not separate from the model. It is woven into every step.
             </p>
@@ -432,9 +433,7 @@ export default function Method() {
         {/* Closing */}
         <Card className="relative overflow-hidden border border-border/80 shadow-elite spacing-card bg-card">
           <div className="relative text-center">
-            <h3 className="text-h3 text-foreground mb-6 font-display tracking-tight" data-testid="text-closing-title">
-              Built in the Field. Proven in Practice.
-            </h3>
+            <h3 className="text-h3 text-foreground mb-6 font-display tracking-tight" data-testid="text-closing-title"><AccentText>Built in the Field. Proven in Practice.</AccentText></h3>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
               Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
             </p>

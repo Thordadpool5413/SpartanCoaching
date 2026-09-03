@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
@@ -267,9 +268,7 @@ function Scene4_CrestHero() {
           initial={{ opacity: 0, y: 40 }}
           animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ type: "spring", stiffness: 500, damping: 28 }}>
-          <h2 className="text-[4cqi] font-display uppercase tracking-widest text-[#e8291e] font-black">
-            DOMINATE YOUR MARKET
-          </h2>
+          <h2 className="text-[4cqi] font-display uppercase tracking-widest text-[#e8291e] font-black"><AccentText>DOMINATE YOUR MARKET</AccentText></h2>
           <motion.div className="h-[3px] bg-[#e8291e] w-full origin-left mt-2"
             initial={{ scaleX: 0 }}
             animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}

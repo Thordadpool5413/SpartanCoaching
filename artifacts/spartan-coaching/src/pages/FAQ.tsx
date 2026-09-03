@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useMemo, useState } from "react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
@@ -168,9 +169,7 @@ export default function FAQ() {
             <h2
               className="text-h2 text-foreground mb-4"
               data-testid={`text-category-${category.title.toLowerCase().replace(/\s+/g, "-")}`}
-            >
-              {category.title}
-            </h2>
+            ><AccentText>{category.title}</AccentText></h2>
             <Accordion
               type="multiple"
               className="space-y-2"
@@ -214,9 +213,7 @@ export default function FAQ() {
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none rounded-md" />
           <div className="relative max-w-3xl mx-auto px-6 sm:px-8 py-14 sm:py-16 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
-              Ready for a clear next step?
-            </h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight"><AccentText>Ready for a clear next step?</AccentText></h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
               Two offers: book consulting, or start Hospice Sales Pro for tools ({PRICING_FACTS.individualWeeklyLabel}). Preview free. Honest conversation — no pressure.
             </p>

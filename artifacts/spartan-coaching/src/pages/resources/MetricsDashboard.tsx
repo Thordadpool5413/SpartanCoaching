@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export default function MetricsDashboard() {
       `}</style>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-3xl font-black mb-2">METRICS DASHBOARD</h1>
+        <h1 className="text-3xl font-black mb-2"><AccentText>METRICS DASHBOARD</AccentText></h1>
         <p className="text-sm text-gray-600">Track what matters: Referrals, Conversions, Speed to Care</p>
       </div>
 
@@ -63,13 +64,13 @@ export default function MetricsDashboard() {
 
       <div className="mb-8">
         <div className="bg-red-600 text-white p-3 mb-4">
-          <h2 className="text-lg font-bold mb-1">ACTIVITY METRICS</h2>
+          <h2 className="text-lg font-bold mb-1"><AccentText>ACTIVITY METRICS</AccentText></h2>
           <p className="text-xs">How much work are you putting in?</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6">
           <div className="border-2 border-gray-300 p-4">
-            <h3 className="text-sm font-bold mb-3 bg-gray-100 p-2">TOUCHES & VISITS</h3>
+            <h3 className="text-sm font-bold mb-3 bg-gray-100 p-2"><AccentText>TOUCHES & VISITS</AccentText></h3>
             <div className="space-y-3">
               <div>
                 <label htmlFor="total-touches" className="text-xs font-semibold block mb-1">Total Meaningful Touches</label>
@@ -97,7 +98,7 @@ export default function MetricsDashboard() {
           </div>
 
           <div className="border-2 border-gray-300 p-4">
-            <h3 className="text-sm font-bold mb-3 bg-gray-100 p-2">ACCOUNT COVERAGE</h3>
+            <h3 className="text-sm font-bold mb-3 bg-gray-100 p-2"><AccentText>ACCOUNT COVERAGE</AccentText></h3>
             <div className="space-y-3">
               <div>
                 <label htmlFor="total-active-accounts" className="text-xs font-semibold block mb-1">Total Active Accounts</label>
@@ -131,13 +132,13 @@ export default function MetricsDashboard() {
 
       <div className="mb-8">
         <div className="bg-gray-900 text-white p-3 mb-4">
-          <h2 className="text-lg font-bold mb-1">CONVERSION METRICS</h2>
+          <h2 className="text-lg font-bold mb-1"><AccentText>CONVERSION METRICS</AccentText></h2>
           <p className="text-xs">Are your activities turning into results?</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-6">
           <div className="border-2 border-red-600 bg-red-50 p-4">
-            <h3 className="text-sm font-bold mb-3 text-red-700">REFERRALS RECEIVED</h3>
+            <h3 className="text-sm font-bold mb-3 text-red-700"><AccentText>REFERRALS RECEIVED</AccentText></h3>
             <input id="referrals-total" name="referrals-total" type="number" className="text-4xl font-black text-center mb-2 bg-transparent border-b-4 border-red-600" placeholder="0" />
             <p className="text-xs text-center text-gray-600">Goal: 8 to 12 per month</p>
             <div className="mt-4 space-y-2 text-xs">
@@ -157,7 +158,7 @@ export default function MetricsDashboard() {
           </div>
 
           <div className="border-2 border-green-600 bg-green-50 p-4">
-            <h3 className="text-sm font-bold mb-3 text-green-700">ADMISSIONS (SOC)</h3>
+            <h3 className="text-sm font-bold mb-3 text-green-700"><AccentText>ADMISSIONS (SOC)</AccentText></h3>
             <input id="admissions-total" name="admissions-total" type="number" className="text-4xl font-black text-center mb-2 bg-transparent border-b-4 border-green-600" placeholder="0" />
             <p className="text-xs text-center text-gray-600">Goal: 6 to 8 per month</p>
             <div className="mt-4 text-xs">
@@ -174,7 +175,7 @@ export default function MetricsDashboard() {
           </div>
 
           <div className="border-2 border-blue-600 bg-blue-50 p-4">
-            <h3 className="text-sm font-bold mb-3 text-blue-700">AVG. TIME TO SOC</h3>
+            <h3 className="text-sm font-bold mb-3 text-blue-700"><AccentText>AVG. TIME TO SOC</AccentText></h3>
             <div className="flex items-baseline justify-center gap-2 mb-2">
               <input id="avg-time-to-soc" name="avg-time-to-soc" type="number" className="text-4xl font-black text-center w-24 bg-transparent border-b-4 border-blue-600" placeholder="0" />
               <span className="text-xl font-bold">hrs</span>
@@ -205,7 +206,7 @@ export default function MetricsDashboard() {
 
       <div className="mb-8">
         <div className="bg-red-600 text-white p-3 mb-4">
-          <h2 className="text-lg font-bold mb-1">TOP REFERRAL SOURCES</h2>
+          <h2 className="text-lg font-bold mb-1"><AccentText>TOP REFERRAL SOURCES</AccentText></h2>
           <p className="text-xs">Which accounts are driving results?</p>
         </div>
 
@@ -241,17 +242,17 @@ export default function MetricsDashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 mb-6">
         <div className="border-2 border-gray-300 p-4">
-          <h3 className="text-sm font-bold mb-3 bg-green-100 p-2 border-l-4 border-green-600">WINS THIS MONTH</h3>
+          <h3 className="text-sm font-bold mb-3 bg-green-100 p-2 border-l-4 border-green-600"><AccentText>WINS THIS MONTH</AccentText></h3>
           <textarea id="wins-this-month" name="wins-this-month" className="w-full border border-gray-300 p-2 min-h-[100px] text-sm" placeholder="What went well? New accounts? Strong conversions?"></textarea>
         </div>
         <div className="border-2 border-gray-300 p-4">
-          <h3 className="text-sm font-bold mb-3 bg-yellow-100 p-2 border-l-4 border-yellow-600">NEEDS IMPROVEMENT</h3>
+          <h3 className="text-sm font-bold mb-3 bg-yellow-100 p-2 border-l-4 border-yellow-600"><AccentText>NEEDS IMPROVEMENT</AccentText></h3>
           <textarea id="needs-improvement" name="needs-improvement" className="w-full border border-gray-300 p-2 min-h-[100px] text-sm" placeholder="What needs work? Slow response times? Low conversion?"></textarea>
         </div>
       </div>
 
       <div className="bg-gray-100 border-l-4 border-red-600 p-4">
-        <h3 className="font-bold text-sm mb-2">NEXT MONTH'S FOCUS</h3>
+        <h3 className="font-bold text-sm mb-2"><AccentText>NEXT MONTH'S FOCUS</AccentText></h3>
         <textarea id="next-month-focus" name="next-month-focus" className="w-full border border-gray-300 p-2 min-h-[60px] text-sm" placeholder="Based on this month's data, what will you prioritize next month?"></textarea>
       </div>
 

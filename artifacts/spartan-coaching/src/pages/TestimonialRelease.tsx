@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,23 +10,21 @@ export default function TestimonialRelease() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-testimonial-release-title">
-          Testimonial / Case Study Release
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-testimonial-release-title"><AccentText>Testimonial / Case Study Release</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Testimonial and Case Study Release Agreement ("Agreement") grants Spartan Coaching ("Consultant") permission to use the Client's testimonials, case study results, and related information for marketing and promotional purposes. This Agreement is entered into by and between Spartan Coaching and the entity or individual providing the testimonial or participating in the case study ("Client").
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Grant of Permission</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Grant of Permission</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Client grants Spartan Coaching a non-exclusive, royalty-free, perpetual license to use the following in marketing materials, website content, social media, presentations, and promotional materials:
             </p>
@@ -38,7 +37,7 @@ export default function TestimonialRelease() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Approved Use</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Approved Use</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Spartan Coaching will use testimonials and case studies in a professional manner consistent with the Client's reputation and the integrity of the information provided. Content may be used in the following formats:
             </p>
@@ -53,7 +52,7 @@ export default function TestimonialRelease() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Review and Approval</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Review and Approval</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Before publication, Spartan Coaching will provide the Client with a copy of any testimonial or case study for review and approval. The following review process applies:
             </p>
@@ -66,7 +65,7 @@ export default function TestimonialRelease() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Anonymity Options</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Anonymity Options</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Client may choose how they wish to be identified in any testimonial or case study. Available attribution options include:
             </p>
@@ -79,14 +78,14 @@ export default function TestimonialRelease() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. HIPAA Compliance</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. HIPAA Compliance</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               No testimonial or case study will include any Protected Health Information (PHI) or individually identifiable patient data as defined under the Health Insurance Portability and Accountability Act (HIPAA). All performance metrics referenced in testimonials or case studies will be presented in aggregate form only. Both Parties agree to ensure that no patient-specific information is disclosed, referenced, or implied in any testimonial, case study, or marketing material produced under this Agreement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Revocation</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Revocation</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Client may revoke this release at any time by providing thirty (30) days written notice to Spartan Coaching. Upon revocation, the following terms apply:
             </p>
@@ -98,14 +97,14 @@ export default function TestimonialRelease() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Compensation</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Compensation</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               No compensation is provided for testimonials or case study participation. The Client's participation is entirely voluntary, and the Client acknowledges that they are providing their testimonial or participating in the case study without expectation of payment, discount, or other consideration from Spartan Coaching.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this Testimonial and Case Study Release Agreement, to request changes to your attribution preferences, or to submit a revocation notice, please contact Spartan Coaching through the contact form on our website. We value your partnership and are committed to representing your experience accurately and professionally.
             </p>

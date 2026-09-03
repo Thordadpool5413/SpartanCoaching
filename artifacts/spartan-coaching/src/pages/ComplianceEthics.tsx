@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -68,7 +69,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <CheckCircle className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">What Data We Collect</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>What Data We Collect</AccentText></h2>
               </div>
               <Card className="spacing-card border-2" data-testid="card-data-collected">
                 <StaggerContainer className="space-y-4">
@@ -91,7 +92,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <ShieldOff className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">What We Do Not Store (No PHI)</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>What We Do Not Store (No PHI)</AccentText></h2>
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {noPhiItems.map((item, index) => (
@@ -115,7 +116,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <Lock className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">How Data Is Protected</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>How Data Is Protected</AccentText></h2>
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {dataProtectionItems.map((item, index) => (
@@ -139,7 +140,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <Shield className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">BAA Availability for Corporate Accounts</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>BAA Availability for Corporate Accounts</AccentText></h2>
               </div>
               <Card className="spacing-card border-2 bg-gradient-to-br from-primary/5 to-transparent" data-testid="card-baa-availability">
                 <div className="space-y-4">
@@ -175,7 +176,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <AlertTriangle className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">What We Will Not Train</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>What We Will Not Train</AccentText></h2>
               </div>
               <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2" data-testid="card-boundaries">
                 <StaggerContainer className="space-y-4">
@@ -198,7 +199,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <Heart className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">Ethical Education-Based Relationship Building</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>Ethical Education-Based Relationship Building</AccentText></h2>
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {ethicalItems.map((item, index) => (
@@ -218,9 +219,7 @@ export default function ComplianceEthics() {
 
           <FadeIn>
             <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
-              <h2 className="text-h2 font-black text-foreground mb-4">
-                Compliance Questions?
-              </h2>
+              <h2 className="text-h2 font-black text-foreground mb-4"><AccentText>Compliance Questions?</AccentText></h2>
               <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
                 Our team is available to answer questions about data handling, HIPAA compliance posture, or BAA requests. Reach out and we will respond within one business day.
               </p>

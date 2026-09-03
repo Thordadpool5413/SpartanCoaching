@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -158,7 +159,7 @@ export default function RequestAccess() {
           <Card className="w-full max-w-xl border-2 bg-card shadow-sm p-8 sm:p-10 space-y-6">
             <div className="text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
-              <h1 className="text-2xl font-display font-black text-foreground">Request received</h1>
+              <h1 className="text-2xl font-display font-black text-foreground"><AccentText>Request received</AccentText></h1>
               <p className="text-muted-foreground leading-relaxed">
                 Thank you. We review every membership request personally and respond within{" "}
                 <strong className="text-foreground">one business day</strong>.
@@ -220,7 +221,7 @@ export default function RequestAccess() {
 
       <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro</p>
-        <h1 className="text-h1 font-display font-black text-foreground">Request team or evaluation access</h1>
+        <h1 className="text-h1 font-display font-black text-foreground"><AccentText>Request team or evaluation access</AccentText></h1>
         <p className="text-muted-foreground leading-relaxed">
           For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
           <Link href="/register" className="text-primary font-semibold hover:underline">

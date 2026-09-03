@@ -766,6 +766,12 @@ body {
   html[data-theme-mode="light"] .text-primary-foreground * {
     color: inherit;
   }
+  /* Hero descendants inherit ink above for legacy white utilities; deliberate
+     Spartan-red emphasis must remain red instead of being flattened to ink. */
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-primary,
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-spartan-red {
+    color: hsl(357 86% 45%) !important;
+  }
   /* Explicit primary-foreground on primary fills (buttons, badges) */
   html[data-theme-mode="light"] .bg-primary .text-primary-foreground,
   html[data-theme-mode="light"] button.bg-primary,
@@ -1618,6 +1624,16 @@ body {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: hsl(var(--primary));
+  }
+
+  .text-spartan-red {
+    color: hsl(357 86% 45%);
+  }
+
+  .public-home {
+    --primary: 357 86% 45%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 357 86% 45%;
   }
   .text-kicker::before {
     content: "";

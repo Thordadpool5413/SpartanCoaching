@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useRef } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
@@ -395,6 +396,7 @@ export default function Quiz() {
 <title>Spartan Coaching Certificate</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+import { AccentText } from "@/components/AccentText";
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Inter', Arial, sans-serif; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .cert { width: 100%; max-width: 720px; padding: 48px 56px; border: 3px solid #b91c1c; position: relative; text-align: center; }
@@ -481,9 +483,7 @@ export default function Quiz() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-2">
                   <BookOpen className="w-8 h-8 text-primary" />
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-black text-foreground">
-                  Hospice Sales Knowledge Quiz
-                </h1>
+                <h1 className="text-4xl sm:text-5xl font-black text-foreground"><AccentText>Hospice Sales Knowledge Quiz</AccentText></h1>
                 <p className="text-lg text-muted-foreground max-w-xl mx-auto">
                   Test your knowledge across eligibility criteria, objection handling, territory strategy, physician engagement, follow-up, and compliance.
                 </p>
@@ -552,9 +552,7 @@ export default function Quiz() {
               {/* Question */}
               <Card className="quiz-results-card">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl leading-snug" data-testid="text-question">
-                    {question.question}
-                  </CardTitle>
+                  <CardTitle className="text-lg sm:text-xl leading-snug" data-testid="text-question"><AccentText>{question.question}</AccentText></CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {question.options.map((option, idx) => {
@@ -687,7 +685,7 @@ export default function Quiz() {
 
               {/* Per-question breakdown */}
               <div className="space-y-3">
-                <h2 className="text-xl font-bold text-foreground">Question Breakdown</h2>
+                <h2 className="text-xl font-bold text-foreground"><AccentText>Question Breakdown</AccentText></h2>
                 {questions.map((q, i) => {
                   const userAnswer = answers[i];
                   const correct = userAnswer === q.correctIndex;
@@ -764,7 +762,7 @@ export default function Quiz() {
       <Dialog open={showCertDialog} onOpenChange={setShowCertDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Your Certificate</DialogTitle>
+            <DialogTitle><AccentText>Your Certificate</AccentText></DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>

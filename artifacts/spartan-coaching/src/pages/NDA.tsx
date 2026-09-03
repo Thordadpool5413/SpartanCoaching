@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,30 +10,28 @@ export default function NDA() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-nda-title">
-          Non-Disclosure Agreement
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-nda-title"><AccentText>Non-Disclosure Agreement</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Parties</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Parties</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Mutual Non-Disclosure Agreement ("Agreement" or "NDA") is entered into by and between Spartan Coaching and the entity or individual engaging Spartan Coaching's services, each of whom may be referred to as a "Disclosing Party" or a "Receiving Party" depending on the context in which confidential information is shared, and collectively referred to as the "Parties." This Agreement is mutual in nature, meaning that both Parties may disclose and receive confidential information under its terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The purpose of this Agreement is to facilitate the exchange of confidential and proprietary information between the Parties for the purpose of evaluating, negotiating, and engaging in consulting services related to hospice sales training, coaching, and professional development. Both Parties acknowledge that the disclosure of certain confidential information is necessary to enable the Consultant to provide effective and customized services to the Client.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Definition of Confidential Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Definition of Confidential Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               For the purposes of this Agreement, "Confidential Information" means any and all non-public information disclosed by either Party to the other, whether in written, oral, electronic, or visual form, including but not limited to:
             </p>
@@ -49,7 +48,7 @@ export default function NDA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Obligations of Receiving Party</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Obligations of Receiving Party</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Receiving Party agrees to the following obligations with respect to the Disclosing Party's Confidential Information:
             </p>
@@ -64,7 +63,7 @@ export default function NDA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Exclusions</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Exclusions</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The obligations set forth in this Agreement shall not apply to any information that the Receiving Party can demonstrate:
             </p>
@@ -78,7 +77,7 @@ export default function NDA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Term</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Term</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">General Obligations:</strong> The confidentiality obligations set forth in this Agreement shall survive for a period of three (3) years following the date of each disclosure of Confidential Information, unless a longer period is required by applicable law.
             </p>
@@ -88,35 +87,35 @@ export default function NDA() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Return of Materials</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Return of Materials</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Upon termination or expiration of this Agreement, or upon the written request of the Disclosing Party, the Receiving Party shall, within thirty (30) days, return to the Disclosing Party or destroy all documents, materials, and other tangible manifestations of the Confidential Information, including all copies, reproductions, summaries, analyses, and extracts thereof. The Receiving Party shall certify in writing that all such materials have been returned or destroyed. Notwithstanding the foregoing, the Receiving Party may retain one archival copy of the Confidential Information solely for the purpose of monitoring compliance with this Agreement, provided that such copy remains subject to the confidentiality obligations herein.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. No License</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. No License</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Nothing in this Agreement shall be construed as granting, either expressly or by implication, estoppel, or otherwise, any license, right, title, or interest in or to any intellectual property, trade secret, patent, copyright, trademark, or other proprietary right of the Disclosing Party. All Confidential Information remains the exclusive property of the Disclosing Party, and no transfer of ownership or rights is intended or effected by this Agreement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Remedies</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Remedies</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Both Parties acknowledge and agree that any breach or threatened breach of this Agreement may cause irreparable harm to the Disclosing Party for which monetary damages alone would be an inadequate remedy. Accordingly, in addition to any other remedies available at law or in equity, the Disclosing Party shall be entitled to seek injunctive relief, specific performance, or other equitable relief, without the necessity of proving actual damages or posting a bond or other security. The pursuit of equitable remedies shall not limit the Disclosing Party's right to pursue any other remedies available under law, including the recovery of monetary damages.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">10. Governing Law</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>10. Governing Law</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Agreement shall be governed by and construed in accordance with the laws of the state in which the Client is located, without regard to its conflict of laws principles. Any disputes arising under or in connection with this Agreement shall be resolved through good faith negotiation between the Parties. If the Parties are unable to resolve a dispute through negotiation, either Party may pursue resolution through mediation or, if necessary, binding arbitration in accordance with the rules of the American Arbitration Association.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">11. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>11. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this Non-Disclosure Agreement, to request execution of an NDA, or to discuss confidentiality concerns, please contact Spartan Coaching through the contact form on our website. We take the protection of confidential information seriously and will respond to all inquiries promptly.
             </p>

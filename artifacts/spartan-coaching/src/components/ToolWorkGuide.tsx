@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import type { FieldKitTool } from "@/lib/fieldKitCatalog";
@@ -23,9 +24,7 @@ export function ToolWorkGuide({ tool }: { tool: FieldKitTool }) {
           <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
             Make the result useful
           </p>
-          <h2 id="tool-work-guide-heading" className="mt-1 text-base font-bold text-foreground">
-            From input to next field action
-          </h2>
+          <h2 id="tool-work-guide-heading" className="mt-1 text-base font-bold text-foreground"><AccentText>From input to next field action</AccentText></h2>
         </div>
         <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
           <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />

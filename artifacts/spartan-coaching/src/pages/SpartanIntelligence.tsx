@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, type ComponentType } from "react";
 import { BookOpen, CheckCircle2, Crosshair, Database, Map, ShieldCheck } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
@@ -34,7 +35,7 @@ export default function SpartanIntelligence() {
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Verified public data
               </span>
             </div>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-4xl">Walk into the next conversation prepared.</h1>
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-4xl"><AccentText>Walk into the next conversation prepared.</AccentText></h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Choose a mission and work in one focused space. Every result stays connected to its public source, with no patient information or invented referral data.
             </p>
@@ -84,7 +85,7 @@ function Promise({ icon: Icon, title, body }: { icon: typeof Database; title: st
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <Icon className="h-5 w-5 text-primary" />
-      <h2 className="mt-3 font-bold text-foreground">{title}</h2>
+      <h2 className="mt-3 font-bold text-foreground"><AccentText>{title}</AccentText></h2>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );

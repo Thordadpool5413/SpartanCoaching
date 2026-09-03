@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export default function ForgotPassword() {
       <SEO />
       <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-display font-black">Reset password</h1>
+          <h1 className="text-2xl font-display font-black"><AccentText>Reset password</AccentText></h1>
           <p className="text-sm text-muted-foreground">
             Enter your account email. If we find a match, we will send a reset link.
           </p>

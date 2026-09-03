@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import type { ReactNode } from "react";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
@@ -63,9 +64,7 @@ export function ToolResultPanel({
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase mb-1">
             Field output
           </p>
-          <h3 className="text-lg font-display font-bold text-foreground tracking-tight">
-            {title}
-          </h3>
+          <h3 className="text-lg font-display font-bold text-foreground tracking-tight"><AccentText>{title}</AccentText></h3>
         </div>
         {copyText && !empty && !loading && (
           <Button

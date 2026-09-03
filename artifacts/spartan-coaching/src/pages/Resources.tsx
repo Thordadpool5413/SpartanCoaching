@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -595,7 +596,7 @@ export default function Resources() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold tracking-widest text-primary uppercase">Core field library</p>
-            <h2 id="core-library-heading" className="mt-1 text-h2">Find the right working asset</h2>
+            <h2 id="core-library-heading" className="mt-1 text-h2">Find the right working <span className="text-spartan-red">asset</span></h2>
             <p className="mt-1 text-sm text-muted-foreground">Search by the conversation, outcome, or resource you need.</p>
           </div>
           <div className="relative w-full lg:max-w-md">
@@ -750,9 +751,7 @@ export default function Resources() {
                       <Badge variant="outline">{item.kind}</Badge>
                       <Badge variant="secondary">{item.status}</Badge>
                     </div>
-                    <h3 className="text-h3 text-foreground leading-tight mb-2">
-                      {item.title}
-                    </h3>
+                    <h3 className="text-h3 text-foreground leading-tight mb-2"><AccentText>{item.title}</AccentText></h3>
                     {item.description ? (
                       <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                         {item.description}
@@ -896,7 +895,7 @@ export default function Resources() {
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="flex-1 relative">
                     <div className="mb-3 flex min-w-0 items-start justify-between gap-2">
-                      <h3 className="min-w-0 overflow-wrap-anywhere text-base font-bold leading-5 text-foreground">{resource.title}</h3>
+                      <h3 className="min-w-0 overflow-wrap-anywhere text-base font-bold leading-5 text-foreground"><AccentText>{resource.title}</AccentText></h3>
                       <div className="flex flex-wrap gap-1.5 shrink-0">
                         <Badge variant="outline">
                           {categoryNames[resource.category] || resource.category}
@@ -1086,7 +1085,7 @@ export default function Resources() {
         ))}
         {visibleResources.length === 0 ? (
           <Card className="p-8 text-center" data-testid="resources-empty-search">
-            <h2 className="text-lg font-bold text-foreground">No resources match that search</h2>
+            <h2 className="text-lg font-bold text-foreground">No resources match that <span className="text-spartan-red">search</span></h2>
             <p className="mt-2 text-sm text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
             <Button type="button" variant="outline" className="mt-4" onClick={() => { setResourceSearch(""); setResourceCategory("all"); }}>
               Clear filters
@@ -1097,7 +1096,7 @@ export default function Resources() {
 
       <div className="mt-16">
         <h2 className="text-h2 mb-2 flex items-center gap-3 flex-wrap">
-          Printable Fill-In Templates
+          Printable Fill-In <span className="text-spartan-red">Templates</span>
           <Badge variant="secondary" className="text-sm">5</Badge>
         </h2>
         <p className="text-muted-foreground mb-6">
@@ -1121,7 +1120,7 @@ export default function Resources() {
           ].map((item) => (
             <Card key={item.href} className="flex flex-col border-2 hover-elevate spacing-card">
               <div className="flex-1">
-                <h3 className="text-h3 text-foreground leading-tight mb-2">{item.title}</h3>
+                <h3 className="text-h3 text-foreground leading-tight mb-2"><AccentText>{item.title}</AccentText></h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
               </div>
               <Link href={item.href}>
@@ -1140,7 +1139,7 @@ export default function Resources() {
       <Dialog open={gateOpen} onOpenChange={(open) => { setGateOpen(open); if (!open) setSelectedResource(null); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Get Your Free Resource</DialogTitle>
+            <DialogTitle><AccentText>Get Your Free Resource</AccentText></DialogTitle>
             <DialogDescription>
               Enter your name and email to download "{selectedResource?.title}". We'll also send you occasional hospice sales tips.
             </DialogDescription>

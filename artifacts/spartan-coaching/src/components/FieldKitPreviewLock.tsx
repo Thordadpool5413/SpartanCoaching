@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useCallback, useEffect, useState, type ReactNode, type SyntheticEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -214,9 +215,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                   <Lock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 id="preview-unlock-title" className="text-lg font-bold text-foreground">
-                    Unlock this tool
-                  </h2>
+                  <h2 id="preview-unlock-title" className="text-lg font-bold text-foreground"><AccentText>Unlock this tool</AccentText></h2>
                   <p className="text-sm text-muted-foreground leading-relaxed mt-1">
                     You&apos;re viewing the real Hospice Sales Pro tool interface. Live runs, AI generation, saves, and
                     exports require active access or an evaluation window.

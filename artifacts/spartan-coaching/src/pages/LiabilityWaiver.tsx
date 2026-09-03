@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,37 +10,35 @@ export default function LiabilityWaiver() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-liability-waiver-title">
-          Liability Waiver / Hold Harmless Agreement
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-liability-waiver-title"><AccentText>Liability Waiver / Hold Harmless Agreement</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Parties</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Parties</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Liability Waiver and Hold Harmless Agreement ("Agreement") is entered into by and between Spartan Coaching ("Consultant") and the entity or individual engaging Spartan Coaching's services ("Client"), collectively referred to as the "Parties." This Agreement is incorporated into and made a part of the underlying consulting services agreement between the Parties.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The purpose of this Agreement is to limit liability and establish risk acknowledgment for consulting services provided by Spartan Coaching, including but not limited to on-site visits, training sessions, coaching engagements, and the implementation of recommended strategies. Both Parties acknowledge and understand the nature of the consulting relationship and the inherent risks associated with business consulting services.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Assumption of Risk</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Assumption of Risk</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Client acknowledges that sales consulting involves recommendations and strategies that the Client may choose to implement at their own discretion. Results may vary based on market conditions, team execution, regulatory changes, and other factors outside the Consultant's control. The Client assumes full responsibility for evaluating the suitability of any recommendations before implementation and understands that past performance or case study results do not guarantee future outcomes.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. On-Site Activities</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. On-Site Activities</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               For in-person training sessions, ride-alongs, or on-site consulting engagements, the following terms apply:
             </p>
@@ -52,14 +51,14 @@ export default function LiabilityWaiver() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. No Guaranteed Outcomes</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. No Guaranteed Outcomes</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Consultant makes no guarantees regarding specific business outcomes, referral increases, revenue growth, or patient census improvements. All projections, estimates, and benchmarks provided by the Consultant are based on industry experience and are provided for educational and informational purposes only. Actual results will depend on numerous factors, including but not limited to market conditions, competitive landscape, team performance, management decisions, regulatory environment, and the Client's commitment to implementing recommended strategies.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Implementation Responsibility</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Implementation Responsibility</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Client is solely responsible for implementing strategies and recommendations provided by the Consultant. The Client should ensure all implementations comply with applicable federal, state, and local regulations, including but not limited to:
             </p>
@@ -72,7 +71,7 @@ export default function LiabilityWaiver() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Hold Harmless</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Hold Harmless</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Client's Indemnification of Consultant:</strong> Client agrees to hold harmless and indemnify Spartan Coaching, its owner, employees, contractors, and affiliates from and against any and all claims, damages, losses, liabilities, costs, or expenses (including reasonable attorney's fees) arising from the Client's implementation of recommendations, use of training materials, or actions taken based on consulting advice provided by Spartan Coaching.
             </p>
@@ -82,14 +81,14 @@ export default function LiabilityWaiver() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Insurance</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Insurance</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Consultant maintains professional liability insurance (Errors and Omissions coverage) appropriate for the consulting services provided. Client is encouraged to maintain appropriate insurance coverage for their organization and employees, including general liability, professional liability, and workers' compensation insurance as required by applicable law. Upon request, either Party shall provide the other with certificates of insurance evidencing current coverage.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Limitation of Liability</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Limitation of Liability</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant's total aggregate liability under this Agreement shall be limited to the total fees paid by the Client to the Consultant during the twelve (12) months immediately preceding the event giving rise to the claim.
             </p>
@@ -99,14 +98,14 @@ export default function LiabilityWaiver() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">10. Severability</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>10. Severability</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               If any provision of this Agreement is found to be invalid, illegal, or unenforceable by a court of competent jurisdiction, the remaining provisions shall remain in full force and effect. The invalid or unenforceable provision shall be modified to the minimum extent necessary to make it valid and enforceable while preserving the original intent of the Parties.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">11. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>11. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this Liability Waiver and Hold Harmless Agreement, please contact Spartan Coaching through the contact form on our website. We are committed to addressing your concerns and ensuring a clear understanding of the terms outlined in this Agreement.
             </p>

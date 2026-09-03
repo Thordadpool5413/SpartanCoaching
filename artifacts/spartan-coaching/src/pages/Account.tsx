@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -280,9 +281,7 @@ export default function Account() {
       <SEO />
       <div>
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Account</p>
-        <h1 className="text-h1 font-display font-black">
-          {showDayZero ? "Finish setup" : "Your access"}
-        </h1>
+        <h1 className="text-h1 font-display font-black"><AccentText>{showDayZero ? "Finish setup" : "Your access"}</AccentText></h1>
         {showDayZero && (
           <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-xl">
             One checkout unlocks Hospice Sales Pro tools and resources. Preview is free; live runs need an active subscription.
@@ -633,7 +632,7 @@ export default function Account() {
         <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-membership">
           <div>
             <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your Hospice Sales Pro</p>
-            <h2 className="text-lg font-bold text-foreground">13 private tools — all unlocked</h2>
+            <h2 className="text-lg font-bold text-foreground"><AccentText>13 private tools — all unlocked</AccentText></h2>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Access everything below from the{" "}
               <Link href="/portal" className="text-primary hover:underline font-semibold">
@@ -682,7 +681,7 @@ export default function Account() {
         <Card className="border border-border bg-card p-6 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold">Team seats</h2>
+              <h2 className="text-lg font-bold"><AccentText>Team seats</AccentText></h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {members.filter((m) => m.status !== "disabled").length}
                 {seatLimit != null ? ` / ${seatLimit}` : ""} seats in use
@@ -772,7 +771,7 @@ export default function Account() {
       )}
 
       <Card className="border border-border bg-card p-6 space-y-4">
-        <h2 className="text-lg font-bold">Sessions &amp; security</h2>
+        <h2 className="text-lg font-bold"><AccentText>Sessions &amp; security</AccentText></h2>
         <p className="text-sm text-muted-foreground">
           Sessions last up to 14 days. Changing your password signs out other devices automatically.
         </p>
@@ -800,7 +799,7 @@ export default function Account() {
       </Card>
 
       <Card className="border border-border bg-card p-6 space-y-4">
-        <h2 className="text-lg font-bold">Change password</h2>
+        <h2 className="text-lg font-bold"><AccentText>Change password</AccentText></h2>
         <form
           className="grid sm:grid-cols-2 gap-3"
           onSubmit={async (e) => {
@@ -855,7 +854,7 @@ export default function Account() {
       {member.role === "org_admin" && usage && (
         <Card className="border border-border bg-card p-6 space-y-4" data-testid="org-usage">
           <div>
-            <h2 className="text-lg font-bold">Team usage (last {usage.days} days)</h2>
+            <h2 className="text-lg font-bold"><AccentText>Team usage (last {usage.days} days)</AccentText></h2>
             <p className="text-sm text-muted-foreground mt-1">
               {usage.total} tool action{usage.total === 1 ? "" : "s"} across your seats
             </p>

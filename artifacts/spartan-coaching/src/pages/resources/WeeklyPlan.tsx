@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -309,7 +310,7 @@ export default function WeeklyPlan() {
       {/* Resource detail (HSP-26) */}
       <div className="no-print mb-6 rounded-xl border-2 border-red-100 bg-red-50/40 p-4 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-lg font-black text-foreground">Interactive weekly plan</h2>
+          <h2 className="text-lg font-black text-foreground"><AccentText>Interactive weekly plan</AccentText></h2>
           <Badge variant="secondary">{status === "completed" ? "Completed" : "In progress"}</Badge>
           {detail?.completionTimeMinutes ? (
             <Badge variant="outline">~{detail.completionTimeMinutes} min</Badge>
@@ -390,7 +391,7 @@ export default function WeeklyPlan() {
       </div>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-3xl font-black mb-2">SPARTAN WEEKLY PLAN</h1>
+        <h1 className="text-3xl font-black mb-2"><AccentText>SPARTAN WEEKLY PLAN</AccentText></h1>
         <p className="text-sm text-gray-600">Discipline • Empathy • Strategy</p>
       </div>
 
@@ -422,7 +423,7 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="bg-red-600 text-white p-3 mb-4">
-        <h2 className="text-lg font-bold mb-1">THIS WEEK&apos;S PRIMARY OBJECTIVE</h2>
+        <h2 className="text-lg font-bold mb-1"><AccentText>THIS WEEK&apos;S PRIMARY OBJECTIVE</AccentText></h2>
         <p className="text-xs">What is the ONE outcome that would make this week successful?</p>
       </div>
       <textarea
@@ -435,7 +436,7 @@ export default function WeeklyPlan() {
       />
 
       <div className="mb-6">
-        <h2 className="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">DAILY PRIORITIES</h2>
+        <h2 className="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2"><AccentText>DAILY PRIORITIES</AccentText></h2>
         {days.map(({ key, label }) => (
           <div key={key} className="mb-3 border border-gray-300 p-2">
             <div className="font-bold text-sm mb-1">{label.toUpperCase()}</div>
@@ -480,7 +481,7 @@ export default function WeeklyPlan() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
-          <h3 className="font-bold text-sm mb-2 bg-gray-100 p-2">KEY METRICS THIS WEEK</h3>
+          <h3 className="font-bold text-sm mb-2 bg-gray-100 p-2"><AccentText>KEY METRICS THIS WEEK</AccentText></h3>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center pb-1">
               <span>Meaningful Touches:</span>
@@ -530,7 +531,7 @@ export default function WeeklyPlan() {
         </div>
 
         <div className="border-2 border-gray-300 p-3">
-          <h3 className="font-bold text-sm mb-2 bg-gray-100 p-2">TOP 5 FOCUS ACCOUNTS</h3>
+          <h3 className="font-bold text-sm mb-2 bg-gray-100 p-2"><AccentText>TOP 5 FOCUS ACCOUNTS</AccentText></h3>
           <div className="space-y-1 text-xs">
             {[0, 1, 2, 3, 4].map((num) => (
               <div key={num} className="flex items-center gap-2">
@@ -554,7 +555,7 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="bg-gray-100 p-3 mb-4">
-        <h3 className="font-bold text-sm mb-2">WEEKLY RECOVERY PLAN</h3>
+        <h3 className="font-bold text-sm mb-2"><AccentText>WEEKLY RECOVERY PLAN</AccentText></h3>
         <p className="text-xs text-gray-600 mb-2">What will you do to recharge and avoid burnout?</p>
         <textarea
           id="recovery-plan"
@@ -566,7 +567,7 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="border-t-2 border-gray-300 pt-3">
-        <h3 className="font-bold text-sm mb-2">END OF WEEK REFLECTION</h3>
+        <h3 className="font-bold text-sm mb-2"><AccentText>END OF WEEK REFLECTION</AccentText></h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 text-xs">
           <div>
             <label className="font-semibold block mb-1" htmlFor="worked-well">What worked well?</label>

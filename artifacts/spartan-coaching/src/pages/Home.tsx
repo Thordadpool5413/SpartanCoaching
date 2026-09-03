@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -170,18 +171,14 @@ export default function Home() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <span className="text-foreground">Built for leaders.</span>
-                <span className="text-foreground">Driven by experience.</span>
-                <span className="text-foreground">Focused on results.</span>
+                <span className="text-foreground">Built for <span className="text-spartan-red">leaders.</span></span>
+                <span className="text-foreground">Driven by <span className="text-spartan-red">experience.</span></span>
+                <span className="text-foreground">Focused on <span className="text-spartan-red">results.</span></span>
               </div>
             </div>
 
             <div className="w-full min-w-0 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[34rem] min-h-[28rem] sm:min-h-[36rem] lg:min-h-[42rem] overflow-hidden">
-                <div
-                  className="absolute inset-x-0 bottom-[12%] h-[36%] bg-primary"
-                  aria-hidden="true"
-                />
+              <div className="relative w-full max-w-[34rem] min-h-[24rem] sm:min-h-[30rem] lg:min-h-[32rem] overflow-hidden">
                 <div
                   className="absolute right-0 top-[9%] h-px w-[78%] bg-foreground"
                   aria-hidden="true"
@@ -191,12 +188,12 @@ export default function Home() {
                   aria-hidden="true"
                 />
                 <HeroIntroVideo />
-                <div className="absolute bottom-5 left-0 z-20 border-l-4 border-primary bg-background/95 px-4 py-3">
+                <div className="absolute bottom-1 left-0 z-20 border-l-4 border-primary bg-background/95 px-4 py-3">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
                     Field standard 01
                   </p>
                   <p className="mt-1 font-display text-xl uppercase leading-none text-foreground">
-                    Prepared beats improvised.
+                    Prepared beats <span className="text-spartan-red">improvised.</span>
                   </p>
                 </div>
               </div>
@@ -212,7 +209,7 @@ export default function Home() {
           <div className="flex gap-4">
             <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide">Private & Secure</p>
+              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Private & Secure</AccentText></p>
               <p className="text-xs text-muted-foreground mt-1">Your data. Your practice. Always protected.</p>
             </div>
           </div>
@@ -221,28 +218,29 @@ export default function Home() {
               {FIELD_KIT_TOOLS.length}
             </span>
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide">Field Tools</p>
+              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Field Tools</AccentText></p>
               <p className="text-xs text-muted-foreground mt-1">Built for the moments that matter most.</p>
             </div>
           </div>
           <div className="flex gap-4">
             <Briefcase className="w-8 h-8 text-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide">Spartan Coach</p>
+              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Spartan Coach</AccentText></p>
               <p className="text-xs text-muted-foreground mt-1">Direct feedback. Real improvement.</p>
             </div>
           </div>
           <div className="flex gap-4">
             <CheckCircle className="w-8 h-8 text-primary shrink-0" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide">Saved Work</p>
+              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Saved Work</AccentText></p>
               <p className="text-xs text-muted-foreground mt-1">Pick up where you left off. Stay ready.</p>
             </div>
           </div>
         </div>
         <div className="bg-muted py-4 border-t border-border flex items-center justify-center gap-6 px-4 text-center">
            <p className="font-display font-black text-sm sm:text-base uppercase tracking-[0.2em] text-foreground">
-             One Platform. Every Advantage.
+             <span className="sr-only">One Platform. Every Advantage.</span>
+             <span aria-hidden="true"><AccentText accent="Every Advantage.">One Platform. Every Advantage.</AccentText></span>
            </p>
            <p className="font-mono text-xs tracking-wider text-muted-foreground hidden sm:block">
              www.spartanhospicecoaching.com

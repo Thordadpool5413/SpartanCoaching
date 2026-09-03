@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,7 @@ export function CoachingCTA({ className }: CoachingCTAProps) {
     <Card className={cn("spacing-card border-2 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6", className)}>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Ready to go deeper?</p>
-        <h3 className="text-h3 font-bold text-foreground mb-1">Take This Further With Nick</h3>
+        <h3 className="text-h3 font-bold text-foreground mb-1"><AccentText>Take This Further With Nick</AccentText></h3>
         <p className="text-body text-muted-foreground leading-relaxed">
           Apply this to your specific territory and situation with direct, personalized coaching.
         </p>

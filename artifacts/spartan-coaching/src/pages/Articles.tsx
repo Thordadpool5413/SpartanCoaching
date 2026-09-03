@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,7 +89,7 @@ export default function Articles() {
         <div className="mb-10 sm:mb-16">
           <div className="flex items-center gap-3 mb-8">
             <Star className="w-7 h-7 text-primary fill-primary" />
-            <h2 className="text-h2 text-foreground">Featured Articles</h2>
+            <h2 className="text-h2 text-foreground">Featured <span className="text-spartan-red">Articles</span></h2>
           </div>
           
           <div className="grid md:grid-cols-2 gap-cards">
@@ -105,9 +106,7 @@ export default function Articles() {
                     <span className="text-xs font-semibold text-primary uppercase tracking-wide">Featured</span>
                   </div>
                   
-                  <h3 className="text-h3 text-foreground mb-4 leading-tight">
-                    {article.title}
-                  </h3>
+                  <h3 className="text-h3 text-foreground mb-4 leading-tight"><AccentText>{article.title}</AccentText></h3>
                   
                   <p className="text-base text-muted-foreground leading-relaxed mb-6">
                     {article.description}
@@ -162,7 +161,7 @@ export default function Articles() {
       {/* Regular Articles */}
       {regularArticles.length > 0 && (
         <div>
-          <h2 className="text-h2 text-foreground mb-8">All Articles</h2>
+          <h2 className="text-h2 text-foreground mb-8">All <span className="text-spartan-red">Articles</span></h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
             {regularArticles.map((article) => (
@@ -173,9 +172,7 @@ export default function Articles() {
               >
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="flex-1 relative">
-                  <h3 className="text-h3 text-foreground mb-4 leading-tight">
-                    {article.title}
-                  </h3>
+                  <h3 className="text-h3 text-foreground mb-4 leading-tight"><AccentText>{article.title}</AccentText></h3>
                   
                   <p className="text-base text-muted-foreground leading-relaxed mb-6">
                     {article.description}

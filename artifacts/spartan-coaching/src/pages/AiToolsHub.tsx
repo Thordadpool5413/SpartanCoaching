@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -147,7 +148,8 @@ export default function AiToolsHub() {
               )}
             </div>
             <h3 className="text-lg font-display font-bold tracking-tight text-foreground">
-              {experience.title ?? tool.name}
+              <span className="sr-only">{experience.title ?? tool.name}</span>
+              <span aria-hidden="true"><AccentText>{experience.title ?? tool.name}</AccentText></span>
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {experience.promise}
@@ -186,9 +188,7 @@ export default function AiToolsHub() {
         <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <BrainCircuit className="h-6 w-6" />
         </div>
-        <h1 className="text-3xl font-display font-black tracking-tight sm:text-4xl text-foreground">
-          Advanced library
-        </h1>
+        <h1 className="text-3xl font-display font-black tracking-tight sm:text-4xl text-foreground"><AccentText>Advanced library</AccentText></h1>
         <p className="text-base leading-7 text-muted-foreground">
           Specialized workflows with typed inputs. Your{" "}
           <strong className="text-foreground">daily kit</strong> (
@@ -260,9 +260,7 @@ export default function AiToolsHub() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                Field AI
-              </h2>
+              <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>Field AI</AccentText></h2>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-2xl">
                 Content, learning, and sales enablement — no PHI. Same ethics as the
                 main Hospice Sales Pro tools. Use these between coaching sessions for specialized runs.
@@ -287,9 +285,7 @@ export default function AiToolsHub() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div className="min-w-0 space-y-2">
-                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                  Clinical access vault
-                </h2>
+                <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>Clinical access vault</AccentText></h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">
                   {CLINICAL_VAULT.hubIntro}
                 </p>

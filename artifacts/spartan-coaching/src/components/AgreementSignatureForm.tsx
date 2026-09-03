@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -102,9 +103,7 @@ export function AgreementSignatureForm({ agreementType, agreementTitle, prefillE
     <FadeIn delay={0.2}>
       <Card className="mt-12">
         <CardHeader>
-          <CardTitle className="text-xl" data-testid="text-signature-form-title">
-            Digital Signature for {agreementTitle}
-          </CardTitle>
+          <CardTitle className="text-xl" data-testid="text-signature-form-title"><AccentText>Digital Signature for {agreementTitle}</AccentText></CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
             By completing this form, you acknowledge that you have read and agree to the terms above. A signed PDF copy will be emailed to you and to Spartan Coaching.
           </p>

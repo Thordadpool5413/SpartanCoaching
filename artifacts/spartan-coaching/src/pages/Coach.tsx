@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Check, Copy, MessageSquarePlus, Printer, Send, ShieldCheck, Trash2 } from "lucide-react";
@@ -153,13 +154,13 @@ export default function Coach() {
     const popup = window.open("", "_blank", "noopener,noreferrer");
     if (!popup) return;
     const safe = message.content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1>Spartan Coach Brief</h1><pre>${safe}</pre></body></html>`);
+    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1><AccentText>Spartan Coach Brief</AccentText></h1><pre>${safe}</pre></body></html>`);
     popup.document.close();
     popup.focus();
     popup.print();
   }
 
-  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /><h1 className="mt-4 text-xl font-bold">Opening your coaching workspace</h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
+  if (loading) return <div className="min-h-[60vh] grid place-items-center px-6" role="status" aria-live="polite"><div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-sm"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /><h1 className="mt-4 text-xl font-bold"><AccentText>Opening your coaching workspace</AccentText></h1><p className="mt-2 text-sm text-muted-foreground">Loading your private conversation history and latest field brief.</p></div></div>;
 
   if (eliteRequired) {
     return (
@@ -167,7 +168,7 @@ export default function Coach() {
         <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
         <Card className="p-8 sm:p-12 border-2 border-primary/40 text-center space-y-5">
           <p className="text-kicker justify-center">Hospice Sales Pro Elite</p>
-          <h1 className="text-h1 font-display font-extrabold">Your private field coach</h1>
+          <h1 className="text-h1 font-display font-extrabold"><AccentText>Your private field coach</AccentText></h1>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
             Continue one private conversation on the website and iPhone. Elite includes Spartan Coach, shared history, and 90 day conversation retention.
           </p>
@@ -186,7 +187,7 @@ export default function Coach() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
         <div className="space-y-3">
           <p className="text-kicker">Elite private coaching</p>
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">Spartan Coach</h1>
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl"><AccentText>Spartan Coach</AccentText></h1>
           <p className="text-muted-foreground max-w-2xl leading-relaxed">
             Prepare, rehearse, review, and keep the conversation going. Your private history follows your account on the website and iPhone for 90 days.
           </p>
@@ -226,7 +227,7 @@ export default function Coach() {
             {messages.length === 0 && (
               <div className="max-w-2xl mx-auto text-center py-10 space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>
-                <h2 className="text-2xl font-display font-extrabold">What are you walking into?</h2>
+                <h2 className="text-2xl font-display font-extrabold"><AccentText>What are you walking into?</AccentText></h2>
                 <p className="text-muted-foreground leading-relaxed">Give Coach the situation, the outcome you want, and what feels difficult. Use general professional context only.</p>
                 <div className="grid gap-2 text-left sm:grid-cols-2" aria-label="Coach conversation starters">
                   {["Help me prepare for a difficult referral-source conversation", "Coach me through an objection I keep hearing", "Review my follow-up approach", "Help me decide the strongest next move"].map((prompt) => (

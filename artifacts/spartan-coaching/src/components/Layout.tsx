@@ -27,6 +27,7 @@ import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
 import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
+import { AccentText } from "@/components/AccentText";
 
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
@@ -36,6 +37,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
     <Link
       href={href}
       onClick={onClick}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         "relative px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
         isActive
@@ -49,10 +51,12 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
 }
 
 function MobileNavLink({ href, label, location, onClose }: { href: string; label: string; location: string; onClose: () => void }) {
+  const isActive = location === href;
   return (
     <Link
       href={href}
       onClick={onClose}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         "px-4 py-4 rounded-none text-xs font-mono uppercase tracking-widest font-bold touch-manipulation min-h-[48px] flex items-center transition-all border-b border-border",
         location === href
@@ -493,7 +497,7 @@ export function Header() {
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="sm:max-w-[600px]" data-testid="dialog-search">
           <DialogHeader>
-            <DialogTitle>Search</DialogTitle>
+            <DialogTitle><AccentText>Search</AccentText></DialogTitle>
             <DialogDescription>
               Search through pages and AI tools to quickly navigate to what you need.
             </DialogDescription>

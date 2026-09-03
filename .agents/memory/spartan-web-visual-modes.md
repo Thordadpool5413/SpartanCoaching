@@ -7,4 +7,4 @@ Spartan Coaching’s web identity uses one shared editorial language with two co
 
 **Why:** Applying the light public tokens directly to the existing navy workspace made workspace labels and navigation unreadable. The dark workspace must define its own foreground, muted, card, popover, input, sidebar, and border semantics.
 
-**How to apply:** New public pages should default to hard editorial paper surfaces. New authenticated screens should live inside the workspace command scope and consume semantic tokens. Preserve validated saved appearance choices across first paint and React initialization.
+**How to apply:** New public pages should default to hard editorial paper surfaces. New authenticated screens should live inside the workspace command scope and consume semantic tokens. Preserve validated saved appearance choices across first paint and React initialization. Public-surface compatibility rules must preserve intentional Spartan-red emphasis rather than flattening it into the surrounding ink color.

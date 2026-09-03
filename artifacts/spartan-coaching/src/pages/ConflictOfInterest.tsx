@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,30 +10,28 @@ export default function ConflictOfInterest() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-conflict-of-interest-title">
-          Conflict of Interest Disclosure
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-conflict-of-interest-title"><AccentText>Conflict of Interest Disclosure</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Purpose</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Purpose</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The purpose of this Conflict of Interest Disclosure ("Disclosure") is to transparently disclose potential conflicts of interest and establish clear boundaries when Spartan Coaching ("Consultant") provides consulting services to multiple hospice organizations, potentially in overlapping or adjacent markets. This Disclosure supplements and is made a part of the underlying services agreement between Spartan Coaching and the engaging hospice organization ("Organization").
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Disclosure</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Disclosure</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Spartan Coaching provides consulting services to multiple hospice organizations across various markets throughout the United States. It is possible that the Consultant may work with organizations that operate in the same or adjacent service areas. The Consultant believes that this breadth of experience enhances the quality of consulting services provided to each client, while recognizing the importance of maintaining strict confidentiality and ethical boundaries between engagements.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Information Barriers</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Information Barriers</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant maintains strict information barriers between all client engagements. The following commitments apply:
             </p>
@@ -45,7 +44,7 @@ export default function ConflictOfInterest() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Scope Limitations</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Scope Limitations</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               When working with multiple organizations in overlapping or adjacent markets, the Consultant will adhere to the following scope limitations:
             </p>
@@ -58,35 +57,35 @@ export default function ConflictOfInterest() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Notification</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Notification</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               If the Consultant becomes aware of a material conflict of interest that cannot be adequately managed through the information barriers described in this Disclosure, the Consultant will promptly notify the affected Organization in writing. Upon such notification, the Consultant may decline to undertake the conflicting engagement or, if the conflict arises during an existing engagement, may terminate the conflicting engagement. The Consultant will work with the Organization to ensure a smooth transition if termination becomes necessary.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Client's Right to Terminate</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Client's Right to Terminate</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               If a conflict of interest arises that the Organization believes cannot be adequately managed through the information barriers and scope limitations described in this Disclosure, the Organization has the right to terminate the consulting engagement with fifteen (15) days written notice without penalty. In the event of such termination, the Organization shall only be responsible for fees and expenses incurred up to the effective date of termination, and the Consultant shall deliver all completed and in-progress deliverables.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Ongoing Obligation</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Ongoing Obligation</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Disclosure and the Consultant's obligations under it remain in effect for the duration of the consulting engagement and for twelve (12) months following its conclusion. During this period, the Consultant will continue to maintain all information barriers and confidentiality obligations with respect to the Organization's confidential information, regardless of whether the Consultant continues to provide services to other organizations in the same or adjacent markets.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Acknowledgment</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Acknowledgment</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               By signing below, the Organization acknowledges that it has received and reviewed this Conflict of Interest Disclosure. The Organization agrees that the existence of other client relationships does not, by itself, constitute a breach of any agreement or duty owed to the Organization by Spartan Coaching. The Organization further acknowledges that the Consultant's experience working with multiple hospice organizations contributes to the depth and quality of the consulting services provided.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this Conflict of Interest Disclosure or to discuss any concerns regarding potential conflicts, please contact Spartan Coaching through the contact form on our website. We are committed to transparency and will address all inquiries promptly and professionally.
             </p>

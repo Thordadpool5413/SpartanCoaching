@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,8 +25,8 @@ export default function NotFound() {
       />
       <FadeIn>
         <div className="text-center max-w-lg mx-auto">
-          <h1 className="text-9xl font-black text-primary mb-4" data-testid="text-404">404</h1>
-          <h2 className="text-h2 font-bold text-foreground mb-4" data-testid="text-not-found-title">Page Not Found</h2>
+          <h1 className="text-9xl font-black text-primary mb-4" data-testid="text-404"><AccentText>404</AccentText></h1>
+          <h2 className="text-h2 font-bold text-foreground mb-4" data-testid="text-not-found-title"><AccentText>Page Not Found</AccentText></h2>
           <p className="text-body-lg text-muted-foreground mb-10 max-w-md mx-auto" data-testid="text-not-found-description">
             This page does not exist or may have been moved. Here are some places to get started.
           </p>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,13 +76,13 @@ export default function PortalLearn() {
       <SEO />
       <div className="mb-10 space-y-3">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro · Learn</p>
-        <h1 className="text-h1 font-display font-black">Learn it. Practice it. Use it.</h1>
+        <h1 className="text-h1 font-display font-black"><AccentText>Learn it. Practice it. Use it.</AccentText></h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">Build the knowledge, practice the skill, and carry one better move into the next conversation.</p>
       </div>
 
       <div className="space-y-8 mb-10">
         {["Build knowledge", "Practice", "Field lessons"].map((group) => <section key={group} aria-labelledby={`learn-${group.replace(/\s/g, "-").toLowerCase()}`}>
-          <h2 id={`learn-${group.replace(/\s/g, "-").toLowerCase()}`} className="mb-3 text-xl font-black">{group}</h2>
+          <h2 id={`learn-${group.replace(/\s/g, "-").toLowerCase()}`} className="mb-3 text-xl font-black"><AccentText>{group}</AccentText></h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {LINKS.filter((item) => item.group === group).map((item) => {
           const Icon = item.icon;
@@ -96,7 +97,7 @@ export default function PortalLearn() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-foreground">{item.title}</h3>
+                      <h3 className="font-bold text-foreground"><AccentText>{item.title}</AccentText></h3>
                       {item.memberOnly && (
                         <span className="text-[10px] uppercase tracking-wide text-primary font-bold">
                           {locked ? "Pro" : "Hospice Sales Pro"}

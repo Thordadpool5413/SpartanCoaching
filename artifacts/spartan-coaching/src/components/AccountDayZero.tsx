@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -84,7 +85,8 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
           id="day-zero-heading"
           className="text-2xl sm:text-3xl font-display font-black text-foreground leading-tight"
         >
-          {headline}
+          <span className="sr-only">{headline}</span>
+          <span aria-hidden="true"><AccentText>{headline}</AccentText></span>
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">{sub}</p>
       </div>

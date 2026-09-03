@@ -47,6 +47,7 @@ import {
   copyText,
   loginUrl,
 } from "@/lib/accessDeskTemplates";
+import { AccentText } from "@/components/AccentText";
 
 export function AccessDesk() {
   const { toast } = useToast();
@@ -599,7 +600,7 @@ export function AccessDesk() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
               <AlertTriangle className="w-5 h-5 text-amber-400" />
-              Follow-ups due ({followUpsDue.length})
+              Follow-ups due <span className="text-spartan-red">({followUpsDue.length})</span>
             </CardTitle>
             <CardDescription>
               Pipeline dates at or past due. Open the org, log a note, set the next follow-up.
@@ -880,7 +881,7 @@ export function AccessDesk() {
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <CardTitle>Clients & pipeline</CardTitle>
+              <CardTitle><AccentText>Clients & pipeline</AccentText></CardTitle>
               <CardDescription>
                 Open a record for notes, timeline, won/lost, extend trial, and follow-ups.
               </CardDescription>
@@ -1007,7 +1008,7 @@ export function AccessDesk() {
       {requests.filter((r) => r.status !== "pending").length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Recent decisions</CardTitle>
+            <CardTitle><AccentText>Recent decisions</AccentText></CardTitle>
             <CardDescription>
               Resend invite emails or jump to the org. Login link:{" "}
               <button

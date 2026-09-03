@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import type { ReactNode } from "react";
 import { useLocation } from "wouter";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -64,7 +65,7 @@ export function FieldKitToolLayout({
       <div className="min-w-0">{children}</div>
       {section === "tools" && tool ? (
         <footer className="tool-next-step" aria-label="Continue after this tool">
-          <div><p>Continue the work</p><h2>Turn this output into your next field move.</h2><span>Use a resource for structure or ask Coach to pressure-test the approach.</span></div>
+          <div><p>Continue the work</p><h2><AccentText>Turn this output into your next field move.</AccentText></h2><span>Use a resource for structure or ask Coach to pressure-test the approach.</span></div>
           <div className="tool-next-step-actions">
             <Link href="/resources"><BookOpen /> Related resources <ArrowRight /></Link>
             <Link href="/portal/coach"><MessageCircle /> Ask Coach <ArrowRight /></Link>

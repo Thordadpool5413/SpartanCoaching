@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -112,9 +113,7 @@ export default function Register() {
             height={48}
           />
           <p className="text-kicker justify-center">Path A · Individual · Hospice Sales Pro</p>
-          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
-            Create your account
-          </h1>
+          <h1 className="text-2xl font-display font-black text-foreground tracking-tight"><AccentText>Create your account</AccentText></h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             You selected <strong className="text-foreground">{requestedPlanLabel}</strong>. You can review
             the other plan before checkout, and you can cancel anytime.{" "}

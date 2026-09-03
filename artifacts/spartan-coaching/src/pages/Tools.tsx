@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
 import {
@@ -129,9 +130,7 @@ export default function Tools() {
                 <div className="p-2.5 rounded-xl bg-muted/80 text-foreground shrink-0">
                   {TOOL_ICONS[tool.id] ?? <Calculator className="w-6 h-6" />}
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight tracking-tight">
-                  {tool.title}
-                </h3>
+                <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight tracking-tight"><AccentText>{tool.title}</AccentText></h3>
               </div>
               {locked && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted/80 border border-border/70 rounded-full px-2 py-1 shrink-0">
@@ -180,9 +179,7 @@ export default function Tools() {
       <SlideUp>
         <div className="max-w-3xl mb-7">
           <p className="text-kicker mb-3">Explore</p>
-          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-tools-title">
-            Choose the outcome. We will point you to the tool.
-          </h1>
+          <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-tools-title"><AccentText>Choose the outcome. We will point you to the tool.</AccentText></h1>
           <p className="mt-4 text-base text-muted-foreground leading-7">
             {showCatalogGate
               ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
@@ -194,7 +191,7 @@ export default function Tools() {
       {UX_WORKSPACE_IMPROVEMENTS ? (
         <Card className="mb-8 border border-border/80 bg-card p-5" data-testid="tools-how-to-choose">
           <p className="text-xs font-black uppercase tracking-widest text-primary">How to choose</p>
-          <h2 className="mt-1 text-xl font-black text-foreground">Start with the result you need</h2>
+          <h2 className="mt-1 text-xl font-black text-foreground"><AccentText>Start with the result you need</AccentText></h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Search the situation, choose the best-matched workspace, complete its primary action, then save or continue the result in My Work. If you are unsure, start with Command or ask Coach.</p>
           <div className="mt-4 flex flex-wrap gap-2"><Button asChild><Link href="/tools/sales-workflow">Open Command</Link></Button><Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div>
         </Card>
@@ -229,9 +226,7 @@ export default function Tools() {
                   <Lock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-foreground mb-1 tracking-tight">
-                    Preview open · live tools locked
-                  </h2>
+                  <h2 className="text-base font-bold text-foreground mb-1 tracking-tight"><AccentText>Preview open · live tools locked</AccentText></h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     Browse every tool before you decide. Standard unlocks live field work and eligible saves;
                     Elite adds private Coach and deidentified hospice policy education. Already subscribed? Sign in with
@@ -322,7 +317,7 @@ export default function Tools() {
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
                   Start with the job
                 </p>
-                <h2 className="text-h2 text-foreground">Professional entry points</h2>
+                <h2 className="text-h2 text-foreground"><AccentText>Professional entry points</AccentText></h2>
               </div>
               <Link
                 href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
@@ -339,9 +334,7 @@ export default function Tools() {
                   className="tools-intent-card border border-border/80 p-4"
                   data-testid={`intent-card-${intent.id}`}
                 >
-                  <h3 className="text-base font-bold text-foreground">
-                    {intent.title}
-                  </h3>
+                  <h3 className="text-base font-bold text-foreground"><AccentText>{intent.title}</AccentText></h3>
                   <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                     {intent.description}
                   </p>
@@ -369,7 +362,7 @@ export default function Tools() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold tracking-widest text-primary uppercase">Full workspace</p>
-              <h2 className="mt-1 text-xl font-display font-bold text-foreground">Know the tool you want?</h2>
+              <h2 className="mt-1 text-xl font-display font-bold text-foreground"><AccentText>Know the tool you want?</AccentText></h2>
               <p className="mt-1 text-sm text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
             </div>
             <Button
@@ -412,9 +405,7 @@ export default function Tools() {
                         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
                           Next action spine · same as iPhone Command
                         </p>
-                        <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">
-                          {command.title}
-                        </h2>
+                        <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>{command.title}</AccentText></h2>
                         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
                           Your day starts here—not in a grid of equal tools. Plan the visit, practice if
                           needed, capture the outcome, lock the next step.
@@ -473,9 +464,7 @@ export default function Tools() {
               <section key={job.id} data-testid={job.testId}>
                 <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
                   <div>
-                    <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                      {job.title}
-                    </h2>
+                    <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>{job.title}</AccentText></h2>
                     <p className="text-sm text-muted-foreground mt-1">{job.blurb}</p>
                   </div>
                 </div>
@@ -502,9 +491,7 @@ export default function Tools() {
                 <>
                   <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
                     <div>
-                      <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                        Field support
-                      </h2>
+                      <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>Field support</AccentText></h2>
                       <p className="text-sm text-muted-foreground mt-1">
                         Satellite to Command — not a second product
                       </p>
@@ -522,9 +509,7 @@ export default function Tools() {
           <section data-testid="tools-leaders">
             <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
               <div>
-                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                  For directors &amp; leaders
-                </h2>
+                <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>For directors &amp; leaders</AccentText></h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Activity, economics, and branch runway
                 </p>
@@ -548,7 +533,7 @@ export default function Tools() {
             return (
               <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
                 <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
-                  <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
+                  <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>{cat}</AccentText></h2>
                   <span className="text-xs font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
                 </div>
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
@@ -567,9 +552,7 @@ export default function Tools() {
                     <BrainCircuit className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-base font-display font-bold text-foreground tracking-tight">
-                      Advanced library
-                    </h2>
+                    <h2 className="text-base font-display font-bold text-foreground tracking-tight"><AccentText>Advanced library</AccentText></h2>
                     <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                       Specialized AI workflows and permission-controlled nonclinical decision support — secondary to
                       your daily Hospice Sales Pro spine.
@@ -604,7 +587,7 @@ export default function Tools() {
 
       {!UX_WORKSPACE_IMPROVEMENTS ? <SlideUp delay={0.2}>
         <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border/80 bg-card shadow-elite surface-noise">
-          <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
+          <h2 className="text-h2 font-bold text-foreground mb-4"><AccentText>Coaching stays human</AccentText></h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             Hospice Sales Pro tools support execution between sessions. Strategy calls and consulting engagements
             are how organizations transform.

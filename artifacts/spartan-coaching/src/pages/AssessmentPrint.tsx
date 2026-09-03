@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ export default function AssessmentPrint() {
       <div className="print-page">
         <div className="no-print flex items-center justify-between gap-4 mb-8 pb-4 border-b">
           <div>
-            <h1 className="text-lg font-bold">Assessment Print View</h1>
+            <h1 className="text-lg font-bold"><AccentText>Assessment Print View</AccentText></h1>
             <p className="text-sm text-muted-foreground">Click Print to save or print this assessment. Correct answers are shown for your reference.</p>
           </div>
           <Button onClick={() => window.print()} data-testid="button-print-assessment">
@@ -83,7 +84,7 @@ export default function AssessmentPrint() {
           <div className="flex items-center gap-3 mb-1">
             <span className="text-xs font-bold tracking-widest uppercase text-muted-foreground">Spartan Hospice Coaching</span>
           </div>
-          <h1 className="text-2xl font-bold mb-2">{assessment.name}</h1>
+          <h1 className="text-2xl font-bold mb-2"><AccentText>{assessment.name}</AccentText></h1>
           <p className="text-sm text-muted-foreground">{assessment.description}</p>
         </div>
 

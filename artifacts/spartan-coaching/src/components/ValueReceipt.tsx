@@ -43,7 +43,7 @@ export function ValueReceipt({ className }: { className?: string }) {
       <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
         This week · value receipt
       </p>
-      <h2 className="text-lg font-display font-bold text-foreground">What you used</h2>
+      <h2 className="text-lg font-display font-bold text-foreground">What you <span className="text-spartan-red">used</span></h2>
       {loading ? (
         <p className="text-sm text-muted-foreground flex items-center gap-2">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading…

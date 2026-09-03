@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import {
   useEffect,
   useMemo,
@@ -169,7 +170,7 @@ function EmailOptionCard({ option, index }: { option: EmailOption; index: number
         </span>
         <div>
           <p className="text-[10px] font-bold tracking-[0.18em] text-primary">READY TO SEND</p>
-          <h3 className="text-base font-bold text-foreground">{title}</h3>
+          <h3 className="text-base font-bold text-foreground"><AccentText>{title}</AccentText></h3>
         </div>
       </div>
       <div className="rounded-xl border border-border/60 bg-card p-4">
@@ -290,9 +291,7 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
                 ? "mb-2 text-sm font-bold tracking-wide text-primary uppercase"
                 : "mb-1 text-sm font-semibold text-foreground"
             }
-          >
-            {humanKey(key)}
-          </h3>
+          ><AccentText>{humanKey(key)}</AccentText></h3>
           <ResultValue value={child} depth={depth + 1} />
         </div>
       ))}
@@ -497,7 +496,7 @@ function MfaPanel({ onVerified }: { onVerified: () => void }) {
       <div className="flex gap-3">
         <ShieldCheck className="mt-0.5 h-5 w-5 text-amber-600" />
         <div className="flex-1">
-          <h2 className="font-semibold">Clinical verification required</h2>
+          <h2 className="font-semibold"><AccentText>Clinical verification required</AccentText></h2>
           <p className="mt-1 text-sm text-muted-foreground">
             A six-digit code verifies your clinical session for 15 minutes.
           </p>
@@ -729,7 +728,7 @@ export default function AiToolPage() {
       <FieldKitToolLayout title="Tool not found" showHowTo={false}>
         <Card className="p-8 text-center">
           <AlertCircle className="mx-auto h-8 w-8 text-muted-foreground" />
-          <h1 className="mt-4 text-xl font-semibold">AI tool not found</h1>
+          <h1 className="mt-4 text-xl font-semibold"><AccentText>AI tool not found</AccentText></h1>
           <Link
             href="/tools/ai"
             className="mt-4 inline-block text-primary hover:underline"
@@ -787,9 +786,7 @@ export default function AiToolPage() {
               </Badge>
             )}
           </div>
-          <h1 className="text-3xl font-display font-black tracking-tight text-foreground">
-            {experience.title ?? tool.name}
-          </h1>
+          <h1 className="text-3xl font-display font-black tracking-tight text-foreground"><AccentText>{experience.title ?? tool.name}</AccentText></h1>
           <p className="mt-3 leading-7 text-muted-foreground">
             {experience.promise}
           </p>
@@ -1100,7 +1097,7 @@ export default function AiToolPage() {
           {run?.output != null &&
             getSpartanAiToolConnections(tool.id).length > 0 && (
               <Card className="p-5">
-                <h2 className="font-semibold">Continue this workflow</h2>
+                <h2 className="font-semibold"><AccentText>Continue this workflow</AccentText></h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Prefill a compatible tool from this result. The handoff stays
                   in memory and is never written to browser storage.

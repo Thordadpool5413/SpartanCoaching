@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -236,7 +237,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="w-4 h-4" /> Back to list
         </Button>
-        <h2 className="text-xl font-black font-display">{org.name}</h2>
+        <h2 className="text-xl font-black font-display"><AccentText>{org.name}</AccentText></h2>
         <Badge variant="secondary">{org.status}</Badge>
         <Badge>{org.pipelineStatus || "—"}</Badge>
         <Badge variant="outline">{org.type}</Badge>
@@ -267,7 +268,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-1 border border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Snapshot</CardTitle>
+            <CardTitle className="text-base"><AccentText>Snapshot</AccentText></CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <p>
@@ -383,7 +384,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
         <Card className="lg:col-span-2 border border-primary/30 bg-primary/5" data-testid="card-corporate-contract">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Corporate / provider contract</CardTitle>
+            <CardTitle className="text-base"><AccentText>Corporate / provider contract</AccentText></CardTitle>
             <CardDescription>
               Weekly price per seat under contract. Activates the org as a paying client and sets seat
               capacity. Use invoice mode to bill via Stripe, or offline if you invoice outside Stripe.
@@ -500,7 +501,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
         <Card className="lg:col-span-2 border border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Pipeline & follow-up</CardTitle>
+            <CardTitle className="text-base"><AccentText>Pipeline & follow-up</AccentText></CardTitle>
             <CardDescription>
               Won activates access. Churned suspends. Lost keeps access as-is for now.
             </CardDescription>
@@ -583,7 +584,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="border border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Members</CardTitle>
+            <CardTitle className="text-base"><AccentText>Members</AccentText></CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="text-sm space-y-2">
@@ -637,7 +638,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
         <Card className="border border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Add note</CardTitle>
+            <CardTitle className="text-base"><AccentText>Add note</AccentText></CardTitle>
             <CardDescription>Templates speed common CRM updates.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -682,7 +683,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
       <Card className="border border-border">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Timeline</CardTitle>
+          <CardTitle className="text-base"><AccentText>Timeline</AccentText></CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-3 text-sm">
@@ -704,7 +705,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       {requests.length > 0 && (
         <Card className="border border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Related access requests</CardTitle>
+            <CardTitle className="text-base"><AccentText>Related access requests</AccentText></CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="text-sm space-y-2">

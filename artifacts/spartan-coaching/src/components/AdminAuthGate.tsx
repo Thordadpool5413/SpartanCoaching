@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -120,7 +121,7 @@ export function AdminAuthGate({
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8 rounded-2xl border border-border/80 bg-card/70 backdrop-blur-md p-4 sm:p-5 shadow-elite">
         <div>
           <p className="text-kicker mb-1">Admin</p>
-          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">{title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>{title}</AccentText></h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {headerExtra}

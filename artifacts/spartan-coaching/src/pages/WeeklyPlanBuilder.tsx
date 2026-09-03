@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,9 +138,7 @@ export default function WeeklyPlanBuilder() {
     <FieldKitToolLayout toolPath="/tools/weekly-plan-builder">
       <SEO />
 
-      <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-plan-title">
-        Weekly Plan Builder
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-plan-title"><AccentText>Weekly Plan Builder</AccentText></h1>
       <p className="text-body-lg text-muted-foreground mb-8 max-w-2xl" data-testid="text-plan-subtitle">
         Enter your accounts and goals for the week. Get a specific Monday–Friday territory plan with visit objectives, talk track focus, and a Friday review checklist.
       </p>
@@ -147,7 +146,7 @@ export default function WeeklyPlanBuilder() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Form */}
         <Card className="spacing-card">
-          <h2 className="text-h2 font-bold text-foreground mb-6">This Week's Setup</h2>
+          <h2 className="text-h2 font-bold text-foreground mb-6"><AccentText>This Week's Setup</AccentText></h2>
           <div className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="accounts">Accounts to Visit <span className="text-destructive">*</span></Label>
@@ -243,7 +242,7 @@ export default function WeeklyPlanBuilder() {
           {plan && !isLoading && (
             <Card className="spacing-card" data-testid="card-plan-output">
               <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-                <h2 className="text-h2 font-bold text-foreground">Your Week</h2>
+                <h2 className="text-h2 font-bold text-foreground"><AccentText>Your Week</AccentText></h2>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={handleCopy} data-testid="button-copy-plan">
                     <Copy className="w-4 h-4 mr-1.5" />
@@ -276,7 +275,7 @@ export default function WeeklyPlanBuilder() {
 
           {!plan && !isLoading && (
             <Card className="bg-accent/30 spacing-card" data-testid="card-plan-instructions">
-              <h3 className="text-h3 font-bold text-foreground mb-4">What you get</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-4"><AccentText>What you get</AccentText></h3>
               <ul className="space-y-3 text-muted-foreground">
                 <li className="flex gap-3">
                   <span className="font-bold text-primary shrink-0">1.</span>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import type { ReactNode } from "react";
 import { AlertCircle, Inbox, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ export function StateBlock({
         aria-hidden
       />
       <h2 className="text-base sm:text-lg font-display font-bold text-foreground mb-1.5">
-        {title}
+        <AccentText>{title}</AccentText>
       </h2>
       {description && (
         <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto mb-5">

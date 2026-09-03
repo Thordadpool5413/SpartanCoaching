@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import React from "react";
 import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
@@ -61,7 +62,7 @@ export default function AppLander() {
           <FadeIn>
             <div className="text-center max-w-2xl mx-auto mb-16">
                <h2 className="text-h2 font-display font-bold text-foreground">
-                 Walk in prepared.
+                 Walk in <span className="text-spartan-red">prepared.</span>
                </h2>
                <p className="text-body text-muted-foreground mt-4 leading-relaxed">
                  The same methodology that powers the web experience, optimized for the moments between visits.
@@ -109,7 +110,7 @@ export default function AppLander() {
                     <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6 ring-1 ring-primary/20">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-3">{f.title}</h3>
+                    <h3 className="text-lg font-bold text-foreground mb-3"><AccentText>{f.title}</AccentText></h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                   </div>
                 </StaggerItem>
@@ -125,7 +126,7 @@ export default function AppLander() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
           <FadeIn>
             <h2 className="text-h2 font-display font-black text-foreground mb-6">
-              A companion, not a tracker.
+              A companion, not a <span className="text-spartan-red">tracker.</span>
             </h2>
             <p className="text-body-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl mx-auto">
               Most mobile CRMs ask you to log what happened. Hospice Sales Pro prepares you for what's next. 

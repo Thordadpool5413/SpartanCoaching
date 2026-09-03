@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -205,7 +206,7 @@ export default function RepCostCalculator() {
               <img src="/hospice-sales-moneyball-logo.png" alt="Hospice Sales Moneyball" className="w-16 h-16 object-contain" />
               <div>
                 <p className="text-sm font-bold tracking-widest uppercase text-primary">Hospice Sales Intelligence</p>
-                <h1 className="text-h1 font-black text-foreground">Rep Cost Calculator</h1>
+                <h1 className="text-h1 font-black text-foreground"><AccentText>Rep Cost Calculator</AccentText></h1>
               </div>
             </div>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-3xl">
@@ -313,7 +314,7 @@ export default function RepCostCalculator() {
       </FieldKitToolLayout>
 
       <section className="print-report" aria-label="Printable Hospice Rep Cost Calculator report">
-        <div className="print-header"><img src="/hospice-sales-moneyball-logo.png" alt="Hospice Sales Moneyball" /><div><p>Spartan Coaching | Hospice Sales Intelligence</p><h1>Hospice Rep Cost Calculator Report</h1></div><span>Generated {new Date().toLocaleDateString()}</span></div>
+        <div className="print-header"><img src="/hospice-sales-moneyball-logo.png" alt="Hospice Sales Moneyball" /><div><p>Spartan Coaching | Hospice Sales Intelligence</p><h1><AccentText>Hospice Rep Cost Calculator Report</AccentText></h1></div><span>Generated {new Date().toLocaleDateString()}</span></div>
         <div className="print-metrics"><PrintMetric label="Total Rep Cost" value={money(result.totalRepCost)} /><PrintMetric label="Cost Per Call" value={money(result.costPerCall)} /><PrintMetric label="Cost Per Referral" value={money(result.costPerReferral)} /><PrintMetric label="Cost Per Admit" value={money(result.costPerAdmit)} /><PrintMetric label="Annual Conversion Loss" value={money(result.annualConversionLoss)} critical /></div>
         <div className="print-grid">
           <PrintPanel title="Annual Cost Stack"><PrintTable rows={[["Base Salary", money(inputs.baseSalary)], ["Benefits, Mileage & Fixed", money(result.benefitsAndFixed)], ["Annual Commission", money(result.annualCommission)], ["Total Annual Cost", money(result.totalRepCost)]]} /></PrintPanel>
@@ -371,7 +372,7 @@ function PrintMetric({ label, value, critical = false }: { label: string; value:
 }
 
 function PrintPanel({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="print-panel"><h2>{title}</h2>{children}</section>;
+  return <section className="print-panel"><h2><AccentText>{title}</AccentText></h2>{children}</section>;
 }
 
 function PrintTable({ rows, columns }: { rows: string[][]; columns?: string[] }) {

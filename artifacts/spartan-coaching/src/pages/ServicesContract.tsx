@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -9,23 +10,21 @@ export default function ServicesContract() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-contract-title">
-          Services Contract Agreement
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-contract-title"><AccentText>Services Contract Agreement</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Last Updated: February 2026
         </p>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-h2 text-foreground mb-3">1. Parties</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>1. Parties</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Services Contract Agreement ("Agreement") is entered into by and between Spartan Coaching ("Consultant") and the entity or individual engaging Spartan Coaching's services ("Client"), collectively referred to as the "Parties." This Agreement establishes the terms and conditions under which the Consultant will provide professional consulting services to the Client.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">2. Scope of Services</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>2. Scope of Services</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               The Consultant agrees to provide the following professional services to the Client, as further detailed in any applicable Statement of Work ("SOW"):
             </p>
@@ -42,7 +41,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">3. Term and Schedule</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>3. Term and Schedule</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Effective Date:</strong> This Agreement shall become effective upon execution by both Parties and shall remain in effect for the initial term as specified in the applicable Statement of Work.
             </p>
@@ -55,7 +54,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">4. Fees and Payment</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>4. Fees and Payment</AccentText></h2>
             <ul className="list-disc list-inside space-y-2 text-body text-muted-foreground leading-relaxed">
               <li><strong className="text-foreground">Fee Structure:</strong> Fees for services shall be as outlined in the applicable Statement of Work. Fees may be structured on a per-session, monthly retainer, or per-engagement basis as agreed upon by both Parties.</li>
               <li><strong className="text-foreground">Invoicing:</strong> The Consultant shall invoice the Client monthly or per engagement, as specified in the Statement of Work. Each invoice shall include a detailed description of services rendered during the billing period.</li>
@@ -66,7 +65,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">5. Cancellation and Rescheduling</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>5. Cancellation and Rescheduling</AccentText></h2>
             <ul className="list-disc list-inside space-y-2 text-body text-muted-foreground leading-relaxed">
               <li><strong className="text-foreground">Individual Sessions:</strong> The Client must provide at least twenty-four (24) hours advance notice to cancel or reschedule an individual coaching or consulting session.</li>
               <li><strong className="text-foreground">Group and Team Training:</strong> The Client must provide at least forty-eight (48) hours advance notice to cancel or reschedule group or team training sessions.</li>
@@ -76,7 +75,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Confidentiality</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>6. Confidentiality</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               Both Parties acknowledge that during the course of this engagement, each Party may have access to confidential and proprietary information belonging to the other Party. Both Parties agree to the following confidentiality obligations:
             </p>
@@ -88,14 +87,14 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">7. Independent Contractor</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>7. Independent Contractor</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               The Consultant is an independent contractor and is not an employee, agent, partner, or joint venturer of the Client. The Consultant shall be solely responsible for all taxes, insurance, and other obligations arising from the Consultant's status as an independent contractor. Nothing in this Agreement shall be construed to create an employer-employee relationship between the Parties. The Consultant retains the right to perform services for other clients, provided such services do not create a conflict of interest or breach the confidentiality provisions of this Agreement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Intellectual Property</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>8. Intellectual Property</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Ownership:</strong> Spartan Coaching retains all intellectual property rights, including copyrights, trademarks, and trade secrets, in and to all methods, frameworks, training materials, templates, tools, and other proprietary content developed by or on behalf of the Consultant, whether created before or during the engagement.
             </p>
@@ -105,7 +104,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Limitation of Liability</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>9. Limitation of Liability</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Cap on Liability:</strong> The Consultant's total aggregate liability arising out of or related to this Agreement shall not exceed the total fees paid by the Client to the Consultant during the twelve (12) months immediately preceding the event giving rise to the claim.
             </p>
@@ -115,7 +114,7 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">10. Termination</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>10. Termination</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Termination for Convenience:</strong> Either Party may terminate this Agreement at any time by providing thirty (30) days written notice to the other Party. Written notice may be provided via email to the contact information on file.
             </p>
@@ -128,28 +127,28 @@ export default function ServicesContract() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">11. Indemnification</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>11. Indemnification</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Each Party agrees to indemnify, defend, and hold harmless the other Party and its officers, directors, employees, agents, and affiliates from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or related to the indemnifying Party's negligence, willful misconduct, or breach of any term or condition of this Agreement. This indemnification obligation shall survive the termination or expiration of this Agreement.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">12. Governing Law</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>12. Governing Law</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Agreement shall be governed by and construed in accordance with the laws of the state in which the Client is located, without regard to its conflict of laws principles. Any disputes arising under or in connection with this Agreement shall be resolved through good faith negotiation between the Parties. If the Parties are unable to resolve a dispute through negotiation, either Party may pursue resolution through mediation or, if necessary, binding arbitration in accordance with the rules of the American Arbitration Association.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">13. Entire Agreement</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>13. Entire Agreement</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               This Agreement, together with any applicable Statement of Work, constitutes the entire agreement between the Parties with respect to the subject matter hereof and supersedes all prior and contemporaneous agreements, representations, warranties, and understandings, whether written or oral, relating to such subject matter. No amendment, modification, or waiver of any provision of this Agreement shall be effective unless made in writing and signed by both Parties. The failure of either Party to enforce any provision of this Agreement shall not constitute a waiver of that Party's right to enforce that provision or any other provision in the future.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">14. Contact Information</h2>
+            <h2 className="text-h2 text-foreground mb-3"><AccentText>14. Contact Information</AccentText></h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               For questions about this Services Contract Agreement, to request a Statement of Work, or to discuss engagement terms, please contact Spartan Coaching through the contact form on our website. We are committed to establishing clear, transparent, and mutually beneficial consulting relationships and will respond to all inquiries promptly.
             </p>

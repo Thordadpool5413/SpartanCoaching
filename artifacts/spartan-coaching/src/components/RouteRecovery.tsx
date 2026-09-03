@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,7 @@ export class RouteErrorBoundary extends Component<
     return (
       <PageShell width="sm" className="min-h-[60vh] flex items-center">
         <div className="w-full">
-          <h1 className="sr-only">We could not load this page</h1>
+          <h1 className="sr-only"><AccentText>We could not load this page</AccentText></h1>
           <StateBlock
             variant="error"
             title="We could not load this page"

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useEffect, useState } from "react";
 import { Link, useSearch } from "wouter";
 import { SEO } from "@/components/SEO";
@@ -43,9 +44,7 @@ export default function CheckoutReturn() {
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 py-16 text-center gap-6">
       <SEO title="Checkout complete | Hospice Sales Pro" noIndex />
       <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Hospice Sales Pro</p>
-      <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground max-w-lg">
-        {canUseFieldKit ? "You're in" : "Payment received"}
-      </h1>
+      <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground max-w-lg"><AccentText>{canUseFieldKit ? "You're in" : "Payment received"}</AccentText></h1>
       <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
         {fromApp
           ? "Return to the app to continue — if it did not open automatically, tap the button below or switch back to Hospice Sales Pro."

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -103,9 +104,7 @@ export default function Login() {
             height={48}
           />
           <p className="text-kicker justify-center">Client access</p>
-          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">
-            Sign in
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>Sign in</AccentText></h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
             Members: use the email and password from your set-password email.
             Need an account?{" "}

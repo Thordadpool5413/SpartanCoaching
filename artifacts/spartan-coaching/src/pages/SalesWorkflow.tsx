@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useMemo } from "react";
 import { Link } from "wouter";
 import {
@@ -70,7 +71,7 @@ export default function SalesWorkflow() {
             <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
               Hospice Sales Pro · Daily spine
             </p>
-            <h1 className="text-2xl font-black text-foreground">Sales Command Center</h1>
+            <h1 className="text-2xl font-black text-foreground"><AccentText>Sales Command Center</AccentText></h1>
             <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
               Plan calls, practice objections, complete visits, review coaching, and schedule the next
               step — one continuous account workflow.
@@ -156,7 +157,7 @@ export default function SalesWorkflow() {
         <section className="command-focus-bar mb-6" aria-labelledby="command-next-action">
           <div>
             <p className="command-dashboard-label">Today’s command</p>
-            <h1 id="command-next-action">Schedule → prepare → close the loop.</h1>
+            <h1 id="command-next-action"><AccentText>Schedule → prepare → close the loop.</AccentText></h1>
             <p>Choose the next account, prepare the outcome, then record what happened. Never enter patient information.</p>
           </div>
           <div className="command-focus-actions">

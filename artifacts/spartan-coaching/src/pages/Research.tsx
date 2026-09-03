@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,9 +77,7 @@ export default function Research() {
   return (
     <FieldKitToolLayout toolPath="/tools/research" className="max-w-4xl">
       <SEO />
-      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
-        Grounded Research
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title"><AccentText>Grounded Research</AccentText></h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Get expert insights with real web sources plus Spartan Method grounding. Ask about hospice trends,
         regulations, or competitive intelligence — never include PHI.
@@ -175,16 +174,14 @@ export default function Research() {
       {results && (
         <div className="space-y-6">
           <Card className="border-2 shadow-lg spacing-card">
-            <h2 className="text-h2 font-bold text-foreground mb-4">Research Results</h2>
+            <h2 className="text-h2 font-bold text-foreground mb-4"><AccentText>Research Results</AccentText></h2>
             <div className="mb-6" data-testid="text-research-results">
               <MarkdownContent content={results.text} />
             </div>
 
             {results.spartanCitations && results.spartanCitations.length > 0 && (
               <div className="mb-6 rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-2" data-testid="spartan-citations">
-                <h3 className="text-xs font-bold tracking-widest uppercase text-primary">
-                  Spartan Method grounding
-                </h3>
+                <h3 className="text-xs font-bold tracking-widest uppercase text-primary"><AccentText>Spartan Method grounding</AccentText></h3>
                 <ul className="space-y-2">
                   {results.spartanCitations.map((c) => (
                     <li key={c.id} className="text-sm">
@@ -203,7 +200,7 @@ export default function Research() {
 
             {results.sources && results.sources.length > 0 && (
               <div>
-                <h3 className="text-h3 font-bold text-muted-foreground mb-4">Web sources</h3>
+                <h3 className="text-h3 font-bold text-muted-foreground mb-4"><AccentText>Web sources</AccentText></h3>
                 <ul className="space-y-2">
                   {results.sources.map((source, idx) => (
                     <li key={idx}>

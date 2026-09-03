@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -427,9 +428,7 @@ export default function KnowledgeBase() {
                   <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
               </div>
-              <h1 className="text-h2 text-gradient-elegant mb-4">
-                Hospice Knowledge Base
-              </h1>
+              <h1 className="text-h2 text-gradient-elegant mb-4"><AccentText>Hospice Knowledge Base</AccentText></h1>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
                 The definitive reference for hospice terminology, regulations, eligibility criteria, and clinical concepts
               </p>
@@ -533,9 +532,7 @@ export default function KnowledgeBase() {
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
-                        <h3 className="text-lg font-bold text-foreground leading-snug">
-                          {entry.term}
-                        </h3>
+                        <h3 className="text-lg font-bold text-foreground leading-snug"><AccentText>{entry.term}</AccentText></h3>
                         <Badge variant="secondary" className="no-default-hover-elevate shrink-0">
                           {entry.category}
                         </Badge>
@@ -559,7 +556,7 @@ export default function KnowledgeBase() {
                     <BookOpen className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-foreground mb-1">Ready to test yourself?</h3>
+                    <h3 className="text-lg font-bold text-foreground mb-1"><AccentText>Ready to test yourself?</AccentText></h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Put your hospice knowledge to work with our interactive quiz. Covers eligibility, Medicare benefit rules, clinical terms, and compliance.
                     </p>

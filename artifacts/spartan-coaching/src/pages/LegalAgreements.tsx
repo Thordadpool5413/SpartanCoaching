@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
@@ -57,9 +58,7 @@ export default function LegalAgreements() {
       <SEO />
       <BackButton />
       <FadeIn>
-        <h1 className="text-h1 text-foreground mb-4" data-testid="text-legal-title">
-          Legal Agreements
-        </h1>
+        <h1 className="text-h1 text-foreground mb-4" data-testid="text-legal-title"><AccentText>Legal Agreements</AccentText></h1>
         <p className="text-body text-muted-foreground mb-10">
           Review and digitally sign the agreements required for your consulting engagement with Spartan Coaching. Each document can be signed electronically and a confirmation will be sent to your email.
         </p>
@@ -75,9 +74,7 @@ export default function LegalAgreements() {
               <Shield className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-foreground mb-1">
-                HIPAA Business Associate Agreement
-              </h2>
+              <h2 className="text-lg font-bold text-foreground mb-1"><AccentText>HIPAA Business Associate Agreement</AccentText></h2>
               <p className="text-sm text-muted-foreground leading-relaxed mb-1">
                 Safeguards Protected Health Information (PHI) in compliance with HIPAA, HITECH Act, and related regulations during consulting engagements.
               </p>
@@ -115,9 +112,7 @@ export default function LegalAgreements() {
                     <agreement.icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-semibold text-foreground mb-1">
-                      {agreement.title}
-                    </h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-1"><AccentText>{agreement.title}</AccentText></h2>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {agreement.description}
                     </p>

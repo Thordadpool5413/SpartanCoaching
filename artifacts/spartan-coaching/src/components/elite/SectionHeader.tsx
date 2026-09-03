@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { AccentText } from "@/components/AccentText";
 
 type Props = {
   kicker?: string;
@@ -43,7 +44,7 @@ export function SectionHeader({
           titleClassName,
         )}
       >
-        {title}
+        <AccentText>{title}</AccentText>
       </h2>
       {description && (
         <p className="text-muted-foreground mt-3 leading-relaxed text-sm sm:text-base">

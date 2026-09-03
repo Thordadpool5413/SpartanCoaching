@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -217,7 +218,7 @@ export default function Contact() {
                 <div className="w-16 h-16 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}>You're In</h2>
+                <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}>You&apos;re <span className="text-spartan-red">In</span></h2>
                 <p className="text-body-lg text-muted-foreground max-w-md">
                   Nick will review your submission and reach out within one business day to schedule a 30-minute discovery call.
                 </p>
@@ -293,9 +294,7 @@ export default function Contact() {
                   onFocusCapture={trackStart}
                   className="space-y-5"
                 >
-                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
-                    Step {step}: {STEP_LABELS[step - 1]}
-                  </h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only"><AccentText>Step {step}: {STEP_LABELS[step - 1]}</AccentText></h2>
                   {submitError && (
                     <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-foreground" data-testid="contact-submit-error">
                       <p className="font-semibold">Your request was not sent.</p>

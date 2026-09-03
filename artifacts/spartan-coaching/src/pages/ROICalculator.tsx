@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -71,9 +72,7 @@ export default function ROICalculator() {
                 <Calculator className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roi-title">
-              ROI Calculator
-            </h1>
+            <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roi-title"><AccentText>ROI Calculator</AccentText></h1>
             <p className="text-body-lg text-muted-foreground">
               See the potential impact of Spartan Coaching on your hospice organization's performance and revenue
             </p>

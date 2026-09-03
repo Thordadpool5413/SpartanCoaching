@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
@@ -17,19 +18,13 @@ export function MarkdownContent({ content, variant = "full", className }: Markdo
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h1 className={cn("font-bold text-foreground", isCompact ? "text-base mt-3 mb-1" : "text-xl mt-6 mb-3 first:mt-0")}>
-              {children}
-            </h1>
+            <h1 className={cn("font-bold text-foreground", isCompact ? "text-base mt-3 mb-1" : "text-xl mt-6 mb-3 first:mt-0")}><AccentText>{children}</AccentText></h1>
           ),
           h2: ({ children }) => (
-            <h2 className={cn("font-semibold text-foreground", isCompact ? "text-base mt-2 mb-1" : "text-lg mt-5 mb-2 first:mt-0")}>
-              {children}
-            </h2>
+            <h2 className={cn("font-semibold text-foreground", isCompact ? "text-base mt-2 mb-1" : "text-lg mt-5 mb-2 first:mt-0")}><AccentText>{children}</AccentText></h2>
           ),
           h3: ({ children }) => (
-            <h3 className={cn("font-semibold text-foreground", isCompact ? "text-sm mt-2 mb-1" : "text-base mt-4 mb-2 first:mt-0")}>
-              {children}
-            </h3>
+            <h3 className={cn("font-semibold text-foreground", isCompact ? "text-sm mt-2 mb-1" : "text-base mt-4 mb-2 first:mt-0")}><AccentText>{children}</AccentText></h3>
           ),
           p: ({ children }) => (
             <p className={cn("text-sm leading-relaxed text-foreground", isCompact ? "mb-2 last:mb-0" : "mb-3 last:mb-0")}>

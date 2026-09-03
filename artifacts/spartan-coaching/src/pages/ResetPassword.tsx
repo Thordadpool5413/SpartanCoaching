@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export default function ResetPassword() {
       <SEO />
       <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-display font-black">Choose a new password</h1>
+          <h1 className="text-2xl font-display font-black"><AccentText>Choose a new password</AccentText></h1>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">

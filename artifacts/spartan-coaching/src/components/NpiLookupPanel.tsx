@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,7 +146,7 @@ export function NpiLookupPanel({
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
             Referral Intelligence · NPPES verified
           </p>
-          <h2 className="text-xl font-extrabold text-foreground">Build the account brief before the visit.</h2>
+          <h2 className="text-xl font-extrabold text-foreground"><AccentText>Build the account brief before the visit.</AccentText></h2>
           <p className="max-w-2xl text-sm text-muted-foreground leading-relaxed">
             Find the public record, choose the right provider, and convert verified facts into a focused meeting plan. Never enter patient information.
           </p>
@@ -263,7 +264,7 @@ export function NpiLookupPanel({
         <div className="rounded-xl border border-border bg-background/70 p-4 space-y-4" data-testid="account-brief-builder">
           <div>
             <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Elite meeting preparation</p>
-            <h4 className="font-bold text-foreground mt-1">Prepare for {selected.name}</h4>
+            <h4 className="font-bold text-foreground mt-1"><AccentText>Prepare for {selected.name}</AccentText></h4>
           </div>
           <div className="space-y-2">
             <Label className="text-xs">Relationship</Label>
@@ -289,7 +290,7 @@ export function NpiLookupPanel({
 
       {enableBrief && brief ? (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-5" data-testid="account-brief-result">
-          <div><p className="text-[10px] font-bold tracking-widest text-primary uppercase">Ready for the room</p><h4 className="font-bold text-foreground mt-1">{brief.headline}</h4></div>
+          <div><p className="text-[10px] font-bold tracking-widest text-primary uppercase">Ready for the room</p><h4 className="font-bold text-foreground mt-1"><AccentText>{brief.headline}</AccentText></h4></div>
           <div className="grid sm:grid-cols-2 gap-2">{brief.verifiedFacts.map((fact) => <div key={fact.label} className="rounded-lg border border-border bg-card p-3"><p className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">{fact.label}</p><p className="text-sm font-semibold text-foreground mt-1">{fact.value}</p></div>)}</div>
           {brief.generatedBy ? <p className="text-xs font-bold text-primary">{brief.generatedBy}</p> : null}
           {brief.accountLens ? <BriefSection title="Account lens"><p>{brief.accountLens}</p></BriefSection> : null}
@@ -334,5 +335,5 @@ export function NpiLookupPanel({
 }
 
 function BriefSection({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="space-y-2 text-sm leading-relaxed text-foreground"><h5 className="text-[10px] font-bold tracking-widest text-primary uppercase">{title}</h5>{children}</section>;
+  return <section className="space-y-2 text-sm leading-relaxed text-foreground"><h5 className="text-[10px] font-bold tracking-widest text-primary uppercase"><AccentText>{title}</AccentText></h5>{children}</section>;
 }

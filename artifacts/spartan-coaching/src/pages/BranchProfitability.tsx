@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useMemo } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
@@ -244,9 +245,7 @@ export default function BranchProfitability() {
             <h1
               className="text-h1 font-black text-foreground mb-2"
               data-testid="text-branch-profit-title"
-            >
-              Branch Profitability Simulator
-            </h1>
+            ><AccentText>Branch Profitability Simulator</AccentText></h1>
             <p className="text-body-lg text-muted-foreground max-w-2xl leading-relaxed">
               Model your hospice branch across any average daily census. Enter
               your revenue rates, clinical variable costs, and staffing to find
@@ -313,7 +312,7 @@ export default function BranchProfitability() {
 
           {/* Scenario Preset */}
           <Card className="spacing-card">
-            <h2 className="text-base font-bold mb-3">Scenario Preset</h2>
+            <h2 className="text-base font-bold mb-3"><AccentText>Scenario Preset</AccentText></h2>
             <div className="grid grid-cols-3 gap-2">
               {(["lean", "base", "highAcuity"] as const).map((k) => (
                 <Button
@@ -342,7 +341,7 @@ export default function BranchProfitability() {
 
           {/* Census & LOS */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Census &amp; Length of Stay</h2>
+            <h2 className="text-base font-bold"><AccentText>Census &amp; Length of Stay</AccentText></h2>
             <div>
               <Label htmlFor="adc" className="text-sm font-medium flex items-center">
                 Target ADC (patients)
@@ -397,7 +396,7 @@ export default function BranchProfitability() {
 
           {/* Revenue Rates */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Revenue Rates</h2>
+            <h2 className="text-base font-bold"><AccentText>Revenue Rates</AccentText></h2>
             <div>
               <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">
                 RHC Day 1–60 ($/day)
@@ -438,7 +437,7 @@ export default function BranchProfitability() {
 
           {/* Variable Costs */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Variable Clinical Costs ($/day)</h2>
+            <h2 className="text-base font-bold"><AccentText>Variable Clinical Costs ($/day)</AccentText></h2>
             {(
               [
                 { key: "pharmacyPerDay",  label: "Pharmacy" },
@@ -472,7 +471,7 @@ export default function BranchProfitability() {
 
           {/* Fixed Overhead */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Fixed Overhead</h2>
+            <h2 className="text-base font-bold"><AccentText>Fixed Overhead</AccentText></h2>
             <div>
               <Label htmlFor="overhead" className="text-sm font-medium flex items-center">
                 Monthly Non-Payroll Overhead ($)
@@ -515,7 +514,7 @@ export default function BranchProfitability() {
 
           {/* Sales Assumptions */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Sales Assumptions</h2>
+            <h2 className="text-base font-bold"><AccentText>Sales Assumptions</AccentText></h2>
             <div>
               <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium flex items-center">
                 Admissions per Marketer / Month
@@ -638,9 +637,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="text-base font-bold">
-                  Summary at ADC {inputs.targetADC}
-                </h2>
+                <h2 className="text-base font-bold"><AccentText>Summary at ADC {inputs.targetADC}</AccentText></h2>
                 <div className="mt-1">
                   <StatusBadge />
                 </div>
@@ -709,7 +706,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold">Admissions Reference — Standard ADC Checkpoints</h2>
+              <h2 className="text-base font-bold"><AccentText>Admissions Reference — Standard ADC Checkpoints</AccentText></h2>
             </div>
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
               Required monthly and weekly admissions at key ADC levels using your current LOS of{" "}
@@ -771,7 +768,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card">
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold">Cash Runway — 18-Month Ramp</h2>
+              <h2 className="text-base font-bold"><AccentText>Cash Runway — 18-Month Ramp</AccentText></h2>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4 mb-5">
@@ -924,7 +921,7 @@ export default function BranchProfitability() {
 
           {/* Profit Curve */}
           <Card className="spacing-card">
-            <h2 className="text-base font-bold mb-4">Profit Curve — ADC 10 to 200</h2>
+            <h2 className="text-base font-bold mb-4"><AccentText>Profit Curve — ADC 10 to 200</AccentText></h2>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -984,7 +981,7 @@ export default function BranchProfitability() {
 
           {/* Operating Margin by ADC */}
           <Card className="spacing-card">
-            <h2 className="text-base font-bold mb-4">Operating Margin by ADC</h2>
+            <h2 className="text-base font-bold mb-4"><AccentText>Operating Margin by ADC</AccentText></h2>
             <div className="h-56 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -1038,7 +1035,7 @@ export default function BranchProfitability() {
               <div>
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
-                  <h2 className="text-base font-bold">Your Staffing Plan at ADC {inputs.targetADC}</h2>
+                  <h2 className="text-base font-bold"><AccentText>Your Staffing Plan at ADC {inputs.targetADC}</AccentText></h2>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">Edit FTE and annual salary. Profit, margin, break-even, runway, charts, and exports recalculate from this plan.</p>
               </div>

@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 /**
  * First meaningful value loop (HSP-39) — real product steps, not a long tutorial.
  * Registration/subscription alone is not activation.
@@ -138,7 +139,7 @@ export function ActivationLoopPanel({ enabled = true }: Props) {
             First value loop · {activation.role}
           </p>
           <h2 className="text-xl font-display font-black text-foreground">
-            Get to real field value
+            Get to real field <span className="text-spartan-red">value</span>
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
             Subscribing is not activation. Complete this short path in the real product — Command
@@ -176,7 +177,7 @@ export function ActivationLoopPanel({ enabled = true }: Props) {
       {activation.nextStep ? (
         <Card className="border border-primary/40 bg-primary/[0.06] p-4 space-y-3" data-testid="activation-next">
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Next step</p>
-          <h3 className="text-lg font-bold text-foreground">{activation.nextStep.title}</h3>
+          <h3 className="text-lg font-bold text-foreground"><AccentText>{activation.nextStep.title}</AccentText></h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{activation.nextStep.why}</p>
           <div className="flex flex-wrap gap-2">
             <Button asChild className="font-bold" data-testid="activation-go">

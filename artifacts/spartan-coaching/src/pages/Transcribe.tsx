@@ -1,3 +1,4 @@
+import { AccentText } from "@/components/AccentText";
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -147,9 +148,7 @@ export default function Transcribe() {
   return (
     <FieldKitToolLayout toolPath="/tools/transcribe">
       <SEO />
-      <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-transcribe-title">
-        Call Transcriber
-      </h1>
+      <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-transcribe-title"><AccentText>Call Transcriber</AccentText></h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Record or upload a sales call, practice session, or coaching conversation. Get a full transcript and optional AI coaching analysis based on the Spartan Method.
       </p>
@@ -256,7 +255,7 @@ export default function Transcribe() {
       {transcript && (
         <Card className="spacing-card mb-6" data-testid="card-transcript">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <h2 className="text-h2 font-bold text-foreground">Transcript</h2>
+            <h2 className="text-h2 font-bold text-foreground"><AccentText>Transcript</AccentText></h2>
             <div className="flex items-center gap-2 flex-wrap">
               <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold" data-testid="button-copy">
                 <Copy className="w-4 h-4 mr-2" />
@@ -342,7 +341,7 @@ export default function Transcribe() {
         <Card className="spacing-card" data-testid="card-analysis">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="text-h2 font-bold text-foreground">Coaching Analysis</h2>
+            <h2 className="text-h2 font-bold text-foreground"><AccentText>Coaching Analysis</AccentText></h2>
           </div>
           <MarkdownContent content={analysis} />
           <div className="mt-5">
@@ -370,7 +369,7 @@ export default function Transcribe() {
 
       {!transcript && !isTranscribing && (
         <Card className="bg-accent/30 spacing-card" data-testid="card-instructions">
-          <h3 className="text-h3 font-bold text-foreground mb-4">How it works</h3>
+          <h3 className="text-h3 font-bold text-foreground mb-4"><AccentText>How it works</AccentText></h3>
           <ol className="space-y-3 text-muted-foreground">
             <li className="flex gap-3">
               <span className="font-bold text-primary shrink-0">1.</span>
