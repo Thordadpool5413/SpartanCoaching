@@ -1,10 +1,9 @@
 /**
  * Role-play uses existing RolePlayTool body inside ToolShell chrome.
  */
-import React, { useContext } from "react";
+import React from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useAuth } from "@/lib/AuthContext";
 import { RolePlayTool } from "@/components/RolePlayTool";
 import { ToolShell } from "./ToolShell";
@@ -12,8 +11,7 @@ import { ToolShell } from "./ToolShell";
 export function RolePlayToolScreen() {
   const { canUseFieldKit } = useAuth();
   const insets = useSafeAreaInsets();
-  const rnTabBarHeight = useContext(BottomTabBarHeightContext);
-  const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
+  const tabBarHeight = insets.bottom + 49;
   const bottomPad = insets.bottom + 24;
 
   return (

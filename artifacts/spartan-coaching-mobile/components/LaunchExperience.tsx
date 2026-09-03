@@ -114,7 +114,7 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
 
 const styles = StyleSheet.create({
   root: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 1000,
     backgroundColor: "#07111F",
     paddingHorizontal: 28,

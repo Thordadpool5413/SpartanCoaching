@@ -8,3 +8,4 @@
 - [Mobile continuity privacy](mobile-generated-result-privacy.md) — generated tool content stays session-only; commitment text must pass privacy checks before any local write.
 - [Paid campaign attribution](paid-campaign-attribution.md) — warm-audience attribution uses only allow-listed UTM tokens and never carries ad or visitor prose into analytics.
 - [Spartan web visual modes](spartan-web-visual-modes.md) — public pages use paper/ink/red; authenticated tools use a complete dark command scope, not inherited public tokens.
+- [Expo 57 monorepo constraints](expo57-monorepo.md) — align root peer contexts, avoid direct React Navigation imports, and clear Expo tokens for session login.

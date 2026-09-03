@@ -411,7 +411,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     kicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
     title: { color: colors.foreground, fontSize: 15, lineHeight: 20, marginTop: 2, ...font("bold") },
     reader: { flex: 1, backgroundColor: colors.card },
-    readerOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", padding: 28, gap: 10 },
+    readerOverlay: { ...StyleSheet.absoluteFill, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", padding: 28, gap: 10 },
     readerStatus: { color: colors.mutedForeground, fontSize: 13, ...font("medium") },
     empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 32, gap: 10 },
     emptyTitle: { color: colors.foreground, fontSize: 19, textAlign: "center", ...font("heavy") },

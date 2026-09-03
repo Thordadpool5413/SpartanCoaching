@@ -51,7 +51,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     webview: { flex: 1, backgroundColor: colors.background },
     notice: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, backgroundColor: colors.primaryMuted, paddingHorizontal: 16, paddingVertical: 10 },
     noticeText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("medium") },
-    loading: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: colors.background },
+    loading: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center", gap: 12, backgroundColor: colors.background },
     loadingText: { color: colors.mutedForeground, fontSize: 13, ...font("medium") },
     empty: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, paddingHorizontal: 34 },
     emptyIcon: { width: 58, height: 58, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },

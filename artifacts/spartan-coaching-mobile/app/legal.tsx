@@ -88,7 +88,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     contextBar: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 16, backgroundColor: colors.primaryMuted, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
     contextText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
     webView: { flex: 1, backgroundColor: colors.background },
-    loading: { ...StyleSheet.absoluteFillObject, top: 44, alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: colors.background },
+    loading: { ...StyleSheet.absoluteFill, top: 44, alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: colors.background },
     loadingText: { color: colors.mutedForeground, fontSize: 12, ...font("medium") },
     center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28, gap: 12 },
     icon: { width: 54, height: 54, borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },

@@ -7,7 +7,7 @@ let s = fs.readFileSync(path, "utf8");
 const importEnd = s.indexOf("const EMAIL_TYPES");
 if (importEnd < 0) throw new Error("EMAIL_TYPES not found");
 
-const newHead = `import React, { useContext, useEffect, useState } from "react";
+const newHead = `import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -24,7 +24,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useColors } from "@/hooks/useColors";
 import { apiPost, getWebSiteUrl } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";

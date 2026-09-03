@@ -4,6 +4,14 @@ packages:
   - lib/integrations/*
   - scripts
 
+allowBuilds:
+  esbuild: true
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-w3rx-r6r6-pgpr
+    - GHSA-5p2g-fcmc-qvqq
+
 autoInstallPeers: false
 
 catalog:
@@ -13,16 +21,16 @@ catalog:
   '@tailwindcss/vite': ^4.1.14
   '@tanstack/react-query': ^5.90.21
   '@types/node': ^25.3.3
-  '@types/react': 19.1.10
-  '@types/react-dom': 19.1.7
+  '@types/react': 19.2.4
+  '@types/react-dom': 19.2.3
   '@vitejs/plugin-react': ^5.0.4
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
   drizzle-orm: 0.45.2
   framer-motion: ^12.23.24
   lucide-react: ^0.545.0
-  react: 19.1.0
-  react-dom: 19.1.0
+  react: 19.2.3
+  react-dom: 19.2.3
   tailwind-merge: ^3.3.1
   tailwindcss: ^4.1.14
   tsx: ^4.21.0
@@ -33,17 +41,9 @@ catalog:
 
 minimumReleaseAge: 1440
 
-# image-size GHSAs (GHSA-w3rx-r6r6-pgpr, GHSA-5p2g-fcmc-qvqq): no patched npm
-# release yet (latest 2.0.2). Transitive via metro/@expo/cli only. Drop when fixed.
-auditConfig:
-  ignoreGhsas:
-    - GHSA-w3rx-r6r6-pgpr
-    - GHSA-5p2g-fcmc-qvqq
-
 minimumReleaseAgeExclude:
   - '@replit/*'
   - stripe-replit-sync
-  # Security patches pulled via overrides for CI audit --audit-level high
   - brace-expansion
   - undici
   - fast-uri
@@ -60,8 +60,8 @@ onlyBuiltDependencies:
   - msw
   - unrs-resolver
 
-# Worklets babel plugin requires @babel/types at require-time; it is not always
-# linked under the plugin package with pnpm isolation (Replit publish #fail).
+# Worklets babel plugin requires Babel packages at require-time when pnpm's
+# isolated linker does not place them under the plugin package.
 packageExtensions:
   react-native-worklets@*:
     dependencies:
@@ -72,42 +72,6 @@ packageExtensions:
       "@babel/types": "*"
 
 overrides:
-  # Single React type root — prevents dual @types/react ref incompatibility on tsc.
-  "@types/react": "19.1.10"
-  "@types/react-dom": "19.1.7"
-  # Keep brace-expansion major-compatible (RN codegen needs expand() from 1.x/2.x).
-  # A flat pin of ALL majors to 5.x breaks iOS "Install pods" with:
-  # TypeError: expand is not a function. Patch each major separately.
-  # High: GHSA-mh99-v99m-4gvg / GHSA-rgw5-rvv9-x895 (CI pnpm audit --audit-level high)
-  'brace-expansion@>=1.0.0 <2.0.0': 1.1.18
-  'brace-expansion@>=2.0.0 <3.0.0': 2.1.4
-  'brace-expansion@>=3.0.0 <4.0.0': 3.0.3
-  # No patched 4.x line — audit requires >=5.0.9 for the 4.x/5.x series.
-  'brace-expansion@>=4.0.0 <5.0.0': 5.0.9
-  'brace-expansion@>=5.0.0': 5.0.9
-  # GHSA-5jgf-p345-68v8, GHSA-f65p-4m7j-42xc, GHSA-fph4-wmhf-6fwf,
-  # GHSA-jqff-g426-hqxp: URI normalization and host-confusion fixes.
-  'fast-uri@>=3.0.0 <3.1.6': 3.1.6
-  # jsdom (web vitest) pulls undici 7.x — GHSA-4cwx-7wf7-3272
-  'undici@>=7.0.0 <7.29.0': 7.29.0
-  # express-rate-limit → ip-address — GHSA-mwp4-54f8-5fhr
-  'ip-address@<=10.3.0': 10.4.0
-  # Expo CLI archive handling. GHSA-r292-9mhp-454m is fixed in 7.5.21.
-  'tar@>=7.0.0 <7.5.21': 7.5.21
-  # High: GHSA-5p4m-2wfm-xmqj (js-yaml !!omap quadratic CPU) — patch both majors
-  'js-yaml@>=3.0.0 <3.15.1': 3.15.1
-  'js-yaml@>=4.0.0 <4.3.1': 4.3.1
-  # High: GHSA-2v37-7h3g-55p8 — nanoid infinite loop when size is 0
-  'nanoid@>=3.0.0 <3.3.17': 3.3.18
-  'minimatch@>=5.0.0 <5.1.8': 5.1.8
-  'postcss@<=8.5.17': 8.5.18
-  # High: GHSA-c83g-rgw3-j3cx / GHSA-73wf-gq98-2v4g
-  'browserslist@<=4.28.6': 4.28.7
-  # High: GHSA-fx2h-pf6j-xcff — vite server.fs.deny bypass (Windows ADS)
-  # Keep every workspace package off vite 5.x / unpatched 6.x for CI audit.
-  'vite@>=5.0.0 <6.0.0': 7.3.6
-  'vite@>=6.0.0 <6.4.3': 6.4.3
-  'vite@>=7.0.0 <7.3.2': 7.3.6
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-arm64': '-'
   '@expo/ngrok-bin>@expo/ngrok-bin-darwin-x64': '-'
@@ -128,6 +92,14 @@ overrides:
   '@tailwindcss/oxide>@tailwindcss/oxide-linux-arm64-musl': '-'
   '@tailwindcss/oxide>@tailwindcss/oxide-linux-x64-musl': '-'
   '@tailwindcss/oxide>@tailwindcss/oxide-win32-arm64-msvc': '-'
+  '@types/react': 19.2.4
+  '@types/react-dom': 19.2.3
+  brace-expansion@>=1.0.0 <2.0.0: 1.1.18
+  brace-expansion@>=2.0.0 <3.0.0: 2.1.4
+  brace-expansion@>=3.0.0 <4.0.0: 3.0.3
+  brace-expansion@>=4.0.0 <5.0.0: 5.0.9
+  brace-expansion@>=5.0.0: 5.0.9
+  browserslist@<=4.28.6: 4.28.7
   esbuild: 0.27.3
   esbuild>@esbuild/aix-ppc64: '-'
   esbuild>@esbuild/android-arm: '-'
@@ -153,6 +125,10 @@ overrides:
   esbuild>@esbuild/sunos-x64: '-'
   esbuild>@esbuild/win32-arm64: '-'
   esbuild>@esbuild/win32-ia32: '-'
+  fast-uri@>=3.0.0 <3.1.6: 3.1.6
+  ip-address@<=10.3.0: 10.4.0
+  js-yaml@>=3.0.0 <3.15.1: 3.15.1
+  js-yaml@>=4.0.0 <4.3.1: 4.3.1
   lightningcss>lightningcss-android-arm64: '-'
   lightningcss>lightningcss-darwin-arm64: '-'
   lightningcss>lightningcss-darwin-x64: '-'
@@ -162,6 +138,9 @@ overrides:
   lightningcss>lightningcss-linux-arm64-musl: '-'
   lightningcss>lightningcss-linux-x64-musl: '-'
   lightningcss>lightningcss-win32-arm64-msvc: '-'
+  minimatch@>=5.0.0 <5.1.8: 5.1.8
+  nanoid@>=3.0.0 <3.3.17: 3.3.18
+  postcss@<=8.5.17: 8.5.18
   rollup>@rollup/rollup-android-arm-eabi: '-'
   rollup>@rollup/rollup-android-arm64: '-'
   rollup>@rollup/rollup-darwin-arm64: '-'
@@ -185,8 +164,8 @@ overrides:
   rollup>@rollup/rollup-win32-arm64-msvc: '-'
   rollup>@rollup/rollup-win32-ia32-msvc: '-'
   rollup>@rollup/rollup-win32-x64-gnu: '-'
-
-# pnpm 11 requires an explicit build approval even when the package is listed
-# in onlyBuiltDependencies. Keep local, Replit, and CI installs deterministic.
-allowBuilds:
-  esbuild: true
+  tar@>=7.0.0 <7.5.21: 7.5.21
+  undici@>=7.0.0 <7.29.0: 7.29.0
+  vite@>=5.0.0 <6.0.0: 7.3.6
+  vite@>=6.0.0 <6.4.3: 6.4.3
+  vite@>=7.0.0 <7.3.2: 7.3.6

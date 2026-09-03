@@ -17,7 +17,7 @@ const AppearanceContext = createContext<AppearanceContextValue>({
 });
 
 function applyPreference(preference: AppearancePreference) {
-  Appearance.setColorScheme(preference === "system" ? null : preference);
+  Appearance.setColorScheme(preference === "system" ? "unspecified" : preference);
 }
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {

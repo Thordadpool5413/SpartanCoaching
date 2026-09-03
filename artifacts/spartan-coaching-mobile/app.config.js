@@ -42,7 +42,6 @@ module.exports = {
     icon: "./assets/images/icon.png",
     scheme: "spartan-coaching-mobile",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
     splash: {
       image: "./assets/images/helmet-mark.png",
       resizeMode: "contain",

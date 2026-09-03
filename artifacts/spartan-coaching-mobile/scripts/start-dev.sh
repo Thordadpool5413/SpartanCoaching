@@ -8,6 +8,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Physical iOS Expo Go 57 only accepts projects from an authenticated Expo
+# development session. Keep startup non-blocking for local/web environments.
+if [[ -n "${REPLIT_EXPO_SESSION_SECRET:-}" ]]; then
+  (
+    unset EXPO_TOKEN
+    pnpm exec create-launch login --session "$REPLIT_EXPO_SESSION_SECRET"
+  ) || true
+fi
+
 export CHOKIDAR_USEPOLLING="${CHOKIDAR_USEPOLLING:-1}"
 export CHOKIDAR_INTERVAL="${CHOKIDAR_INTERVAL:-2000}"
 export EXPO_NO_METRO_LAZY="${EXPO_NO_METRO_LAZY:-1}"
