@@ -16,6 +16,7 @@ import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
+import { FieldBriefExperience } from "@/components/FieldBriefExperience";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
@@ -169,6 +170,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FieldBriefExperience />
 
       <section className="relative border-y border-amber-500/25 bg-card py-14 sm:py-18" data-testid="section-spartan-intelligence-public">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />

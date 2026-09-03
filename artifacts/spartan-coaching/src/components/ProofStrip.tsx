@@ -1,6 +1,5 @@
 import { Link } from "wouter";
-import { Quote, ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { ArrowRight, Check, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PROOF_PACK, type ProofItem } from "@/lib/proof";
 import { cn } from "@/lib/utils";
@@ -28,30 +27,39 @@ export function ProofStrip({
         <p className="text-kicker justify-center">{kicker}</p>
         <h2 className="text-h2 text-foreground font-display">{title}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Representative client-described outcomes. Named logos ship only with
-          permission — the work is real; the privacy of operators is too.
+          A proof ledger, not a highlight reel. These are representative client-described outcomes,
+          kept role-based until named permission is available.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+      <div className="proof-ledger">
         {items.map((item) => (
-          <Card
+          <article
             key={item.id}
-            className="p-6 h-full flex flex-col border-border/80"
+            className="proof-ledger-entry"
             data-testid={`proof-card-${item.id}`}
           >
-            <Quote className="w-7 h-7 text-primary/30 mb-3" aria-hidden />
-            <p className="text-sm sm:text-base text-foreground leading-relaxed flex-1">
-              “{item.quote}”
-            </p>
-            <div className="mt-5 pt-4 border-t border-border/60 space-y-1">
-              <p className="text-sm font-bold text-foreground">{item.role}</p>
-              <p className="text-xs text-muted-foreground">{item.context}</p>
-              <p className="text-xs font-semibold text-primary pt-1">
-                {item.outcome}
-              </p>
+            <div className="proof-ledger-meta">
+              <span className="proof-ledger-index">{String(items.indexOf(item) + 1).padStart(2, "0")}</span>
+              <span>Field signal</span>
+              <Check className="ml-auto h-4 w-4 text-primary" aria-hidden />
             </div>
-          </Card>
+            <div className="proof-ledger-quote">
+              <Quote className="h-6 w-6 shrink-0 text-primary/45" aria-hidden />
+              <p className="text-sm leading-relaxed text-foreground sm:text-base">“{item.quote}”</p>
+            </div>
+            <div className="proof-ledger-context">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Observed in</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{item.role}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{item.context}</p>
+              </div>
+              <div className="proof-ledger-outcome">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">The shift</p>
+                <p className="mt-1 text-sm font-semibold leading-relaxed text-foreground">{item.outcome}</p>
+              </div>
+            </div>
+          </article>
         ))}
       </div>
 

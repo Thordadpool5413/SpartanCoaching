@@ -1684,6 +1684,386 @@ body {
     box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.45);
   }
 
+  /* Public field brief — editorial command-dossier treatment */
+  .field-brief-section {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(56px, 8vw, 112px) 0;
+    background:
+      linear-gradient(90deg, hsl(var(--primary) / 0.08) 1px, transparent 1px) 0 0 / 80px 80px,
+      linear-gradient(hsl(var(--primary) / 0.05) 1px, transparent 1px) 0 0 / 80px 80px,
+      hsl(var(--background));
+    border-block: 1px solid hsl(var(--border) / 0.8);
+  }
+  .field-brief-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(118deg, transparent 0 41%, hsl(var(--primary) / 0.07) 41.1%, transparent 41.25%);
+  }
+  .field-brief-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .field-brief-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: hsl(var(--primary));
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+  .field-brief-label::before {
+    content: "";
+    display: inline-block;
+    width: 1.25rem;
+    height: 2px;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  }
+  .field-brief-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.7fr);
+    gap: clamp(2rem, 8vw, 8rem);
+    align-items: end;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid hsl(var(--primary) / 0.4);
+  }
+  .field-brief-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    padding: clamp(2rem, 5vw, 4rem) 0;
+  }
+  .field-brief-route {
+    min-width: 0;
+    padding-left: 1.25rem;
+    border-left: 2px solid hsl(var(--primary) / 0.65);
+  }
+  .field-brief-manifesto {
+    align-self: start;
+    padding: 1.5rem 0 1.5rem 1.5rem;
+    border-left: 1px solid hsl(var(--border));
+  }
+  .field-brief-manifesto-row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+  }
+  .field-brief-manifesto-row + .field-brief-manifesto-row {
+    margin-top: 1.25rem;
+  }
+  .field-brief-manifesto-number {
+    color: hsl(var(--primary));
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+  }
+  .field-brief-pathfinder {
+    margin-top: 1.75rem;
+    max-width: 680px;
+    border: 1px solid hsl(var(--border));
+    border-left: 3px solid hsl(var(--primary));
+    background: hsl(var(--card) / 0.72);
+    box-shadow: 0 20px 60px hsl(0 0% 0% / 0.12);
+  }
+  .field-brief-pathfinder-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 1.25rem 1.25rem 0;
+  }
+  .field-brief-pathfinder-options {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+  }
+  .field-brief-pathfinder-option {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) 1.5rem;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+    min-height: 68px;
+    padding: 0.75rem;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.52);
+    text-align: left;
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  }
+  .field-brief-pathfinder-option:hover {
+    border-color: hsl(var(--primary) / 0.55);
+    transform: translateX(3px);
+  }
+  .field-brief-pathfinder-option.is-selected {
+    border-color: hsl(var(--primary) / 0.8);
+    background: hsl(var(--primary) / 0.08);
+    box-shadow: inset 3px 0 0 hsl(var(--primary));
+  }
+  .field-brief-pathfinder-icon {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--primary));
+    border: 1px solid hsl(var(--primary) / 0.3);
+    background: hsl(var(--primary) / 0.08);
+  }
+  .field-brief-pathfinder-check {
+    display: inline-flex;
+    width: 1.5rem;
+    height: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--primary));
+  }
+  .field-brief-pathfinder-result {
+    padding: 1.25rem;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.52);
+  }
+  .field-brief-tour {
+    border-top: 1px solid hsl(var(--primary) / 0.45);
+    background: hsl(var(--card) / 0.76);
+  }
+  .field-brief-tour-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: end;
+    padding: 2rem 2rem 1.5rem;
+  }
+  .field-brief-tour-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid hsl(var(--border));
+  }
+  .field-brief-tour-tab {
+    position: relative;
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.5rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+  .field-brief-tour-tab + .field-brief-tour-tab {
+    border-left: 1px solid hsl(var(--border));
+  }
+  .field-brief-tour-tab:hover,
+  .field-brief-tour-tab.is-selected {
+    color: hsl(var(--foreground));
+    background: hsl(var(--primary) / 0.08);
+  }
+  .field-brief-tour-tab.is-selected::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 3px;
+    background: hsl(var(--primary));
+  }
+  .field-brief-tour-tab-number {
+    color: hsl(var(--primary));
+    font-size: 0.64rem;
+  }
+  .field-brief-tour-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+    gap: clamp(1.5rem, 5vw, 5rem);
+    padding: 2rem;
+  }
+  .field-brief-tour-copy {
+    align-self: center;
+    max-width: 32rem;
+  }
+  .field-brief-panel-icon {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--primary));
+    border: 1px solid hsl(var(--primary) / 0.35);
+    background: hsl(var(--primary) / 0.08);
+  }
+  .field-brief-paper {
+    position: relative;
+    align-self: stretch;
+    min-height: 240px;
+    padding: 1.5rem;
+    border: 1px solid hsl(var(--border));
+    border-top: 3px solid hsl(var(--primary));
+    background:
+      linear-gradient(90deg, hsl(var(--primary) / 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+      hsl(var(--background) / 0.7);
+  }
+  .field-brief-paper-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.64rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .field-brief-tour-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid hsl(var(--border));
+  }
+  .field-brief-tour-footer p {
+    margin: 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+  .proof-ledger {
+    max-width: 72rem;
+    margin: 0 auto;
+    border-top: 1px solid hsl(var(--border));
+  }
+  .proof-ledger-entry {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .proof-ledger-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.64rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .proof-ledger-index {
+    color: hsl(var(--primary));
+  }
+  .proof-ledger-quote {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    max-width: 52rem;
+    margin-top: 1rem;
+  }
+  .proof-ledger-context {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 0.65fr);
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+    padding-left: 2.5rem;
+  }
+  .proof-ledger-outcome {
+    padding-left: 1rem;
+    border-left: 1px solid hsl(var(--primary) / 0.45);
+  }
+
+  @media (max-width: 760px) {
+    .field-brief-intro,
+    .field-brief-main-grid,
+    .field-brief-tour-panel {
+      grid-template-columns: 1fr;
+    }
+    .field-brief-intro {
+      gap: 1.25rem;
+    }
+    .field-brief-manifesto {
+      padding-left: 1.25rem;
+    }
+    .field-brief-tour-header {
+      align-items: start;
+      flex-direction: column;
+      padding: 1.5rem 1.25rem 1.25rem;
+    }
+    .field-brief-tour-panel {
+      padding: 1.25rem;
+    }
+    .field-brief-tour-footer {
+      align-items: stretch;
+      flex-direction: column;
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .field-brief-tour-footer a {
+      width: 100%;
+    }
+    .proof-ledger-context {
+      grid-template-columns: 1fr;
+      padding-left: 2.5rem;
+    }
+    .proof-ledger-outcome {
+      padding-top: 1rem;
+      padding-left: 0;
+      border-top: 1px solid hsl(var(--primary) / 0.45);
+      border-left: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .field-brief-shell {
+      padding: 0 0.875rem;
+    }
+    .field-brief-route {
+      padding-left: 0.875rem;
+    }
+    .field-brief-pathfinder-heading {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding-inline: 1rem;
+    }
+    .field-brief-pathfinder-options,
+    .field-brief-pathfinder-result {
+      padding-inline: 1rem;
+    }
+    .field-brief-tour-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .field-brief-tour-tab:nth-child(3) {
+      border-top: 1px solid hsl(var(--border));
+      border-left: 0;
+    }
+    .field-brief-tour-tab:nth-child(4) {
+      border-top: 1px solid hsl(var(--border));
+    }
+    .field-brief-paper {
+      min-height: 0;
+      padding: 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .field-brief-pathfinder-option,
+    .field-brief-tour-tab {
+      transition: none;
+    }
+    .field-brief-pathfinder-option:hover {
+      transform: none;
+    }
+  }
+
   /* Controlled glow — premium, not neon */
   .glow-primary {
     box-shadow:
