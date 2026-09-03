@@ -30,6 +30,13 @@ export function ProofStrip({
           A proof ledger, not a highlight reel. These are representative client-described outcomes,
           kept role-based until named permission is available.
         </p>
+        <details className="proof-ledger-disclosure text-left">
+          <summary>Evidence standard</summary>
+          <p>
+            Public proof is intentionally qualitative and anonymized. No client name, metric, or
+            clinical story is implied unless it is explicitly published with permission.
+          </p>
+        </details>
       </div>
 
       <div className="proof-ledger">

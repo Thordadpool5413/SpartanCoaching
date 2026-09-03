@@ -30,6 +30,7 @@ vi.mock("@/lib/publicFunnel", () => ({
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState(null, "", "/");
   trackPublicFunnelEvent.mockClear();
 });
 
@@ -70,5 +71,18 @@ describe("FieldBriefExperience", () => {
     expect(screen.getByRole("link", { name: /open the tool preview/i }).getAttribute("href")).toBe(
       "/tools/sales-workflow",
     );
+  });
+
+  it("hydrates the pathfinder from a role deep link and preserves the selection in the URL", () => {
+    window.history.replaceState(null, "", "/?role=combined");
+
+    render(<FieldBriefExperience />);
+
+    expect(screen.getByTestId("pathfinder-option-combined").getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(screen.getByTestId("pathfinder-option-field"));
+
+    expect(window.location.search).toBe("?role=field");
+    expect(window.location.hash).toBe("#field-brief");
   });
 });

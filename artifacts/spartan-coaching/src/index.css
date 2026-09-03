@@ -1748,6 +1748,9 @@ body {
     padding-left: 1.25rem;
     border-left: 2px solid hsl(var(--primary) / 0.65);
   }
+  .field-brief-route-full {
+    grid-column: 1 / -1;
+  }
   .field-brief-manifesto {
     align-self: start;
     padding: 1.5rem 0 1.5rem 1.5rem;
@@ -2211,6 +2214,104 @@ body {
   .proof-ledger-outcome {
     padding-left: 1rem;
     border-left: 1px solid hsl(var(--primary) / 0.45);
+  }
+  .proof-ledger-disclosure {
+    max-width: 34rem;
+    margin: 1rem auto 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.72rem;
+    line-height: 1.55;
+  }
+  .proof-ledger-disclosure summary {
+    display: inline-flex;
+    cursor: pointer;
+    color: hsl(var(--primary));
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .proof-ledger-disclosure p {
+    margin-top: 0.65rem;
+  }
+
+  /* Keep the sharper marketing geometry local to the public homepage. */
+  .public-home .hero-video-frame,
+  .public-home .public-offer-card,
+  .public-home .public-trust-strip,
+  .public-home .public-closing-panel {
+    border-radius: 0.25rem;
+  }
+  .public-home .hero-video-frame {
+    box-shadow: 18px 18px 0 hsl(var(--primary) / 0.1), var(--shadow-2xl);
+  }
+  .public-home .public-offer-card {
+    position: relative;
+    overflow: hidden;
+    border-top-width: 3px;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .public-home .public-offer-card::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, hsl(var(--primary) / 0.08));
+    content: "";
+    pointer-events: none;
+  }
+  .public-home .public-offer-card:hover {
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / 0.55);
+    box-shadow: 12px 12px 0 hsl(var(--primary) / 0.08), var(--shadow-lg);
+  }
+  .public-home .public-offer-product {
+    border-top-color: hsl(42 92% 56%);
+  }
+  .public-home .public-offer-product::before {
+    background: linear-gradient(120deg, transparent, hsl(42 92% 56% / 0.08));
+  }
+  .public-home .public-intelligence-card {
+    border-radius: 0.25rem;
+    border-top: 2px solid hsl(42 92% 56% / 0.8);
+  }
+  .public-home .public-trust-strip {
+    border-top: 3px solid hsl(var(--primary) / 0.65);
+    background: hsl(var(--card) / 0.72);
+  }
+  .public-home .public-closing-panel {
+    border: 1px solid hsl(var(--primary) / 0.38);
+    border-top: 4px solid hsl(var(--primary));
+    background: hsl(var(--card) / 0.58);
+    box-shadow: 16px 16px 0 hsl(var(--primary) / 0.08);
+  }
+  .public-home .home-proof-scope {
+    border-top: 1px solid hsl(var(--border));
+    padding-top: 1rem;
+    color: hsl(var(--muted-foreground));
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .public-home .home-proof-scope svg {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+  .public-home .public-intelligence {
+    background:
+      linear-gradient(90deg, hsl(42 92% 56% / 0.07) 1px, transparent 1px) 0 0 / 64px 64px,
+      hsl(var(--card));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .public-home .public-offer-card {
+      transition: none;
+    }
+    .public-home .public-offer-card:hover {
+      transform: none;
+    }
   }
 
   @media (max-width: 760px) {

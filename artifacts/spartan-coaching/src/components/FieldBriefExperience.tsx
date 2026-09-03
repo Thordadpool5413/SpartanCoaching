@@ -192,7 +192,10 @@ function trackPublicAction(token: string) {
 }
 
 function Pathfinder() {
-  const [selectedId, setSelectedId] = useState<PathfinderOption["id"]>("field");
+  const [selectedId, setSelectedId] = useState<PathfinderOption["id"]>(() => {
+    const role = new URLSearchParams(window.location.search).get("role");
+    return role === "team" || role === "combined" ? role : "field";
+  });
   const selected = PATHFINDER_OPTIONS.find((option) => option.id === selectedId) ?? PATHFINDER_OPTIONS[0];
 
   return (
@@ -217,6 +220,11 @@ function Pathfinder() {
               aria-pressed={isSelected}
               onClick={() => {
                 setSelectedId(option.id);
+                window.history.replaceState(
+                  null,
+                  "",
+                  `${window.location.pathname}?role=${option.id}#field-brief`,
+                );
                 trackPublicAction(`pathfinder_select_${option.id}`);
               }}
               data-testid={`pathfinder-option-${option.id}`}
@@ -472,7 +480,7 @@ export function FieldBriefExperience() {
         </div>
 
         <div className="field-brief-main-grid">
-          <div className="field-brief-route">
+          <div className="field-brief-route field-brief-route-full">
             <p className="field-brief-label">Start with the work in front of you</p>
             <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground">
               Find the right Spartan path in under a minute.
@@ -482,31 +490,6 @@ export function FieldBriefExperience() {
               specific next step with clear expectations.
             </p>
             <Pathfinder />
-          </div>
-          <div className="field-brief-manifesto">
-            <p className="field-brief-label">The operating rhythm</p>
-            <div className="mt-7 space-y-5">
-              {[
-                ["01", "Plan the conversation", "The objective is decided before the drive."],
-                ["02", "Practice the pressure", "The hard question gets a useful answer."],
-                ["03", "Carry the next move", "The visit has a purpose, not just a stop."],
-                ["04", "Review what changed", "The learning becomes tomorrow’s advantage."],
-              ].map(([number, title, body]) => (
-                <div key={number} className="field-brief-manifesto-row">
-                  <span className="field-brief-manifesto-number">{number}</span>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">{title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 border-t border-primary/25 pt-5">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Field standard</p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">
-                Clear enough to use on a Tuesday. Human enough to sound like you.
-              </p>
-            </div>
           </div>
         </div>
 

@@ -14,7 +14,6 @@ import { useReducedMotion } from "framer-motion";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
-import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { FieldBriefExperience } from "@/components/FieldBriefExperience";
 
@@ -48,7 +47,7 @@ export default function Home() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div className="flex flex-col">
+    <div className="public-home flex flex-col">
       <SEO />
       <Helmet>
         <script type="application/ld+json">
@@ -173,23 +172,23 @@ export default function Home() {
 
       <FieldBriefExperience />
 
-      <section className="relative border-y border-amber-500/25 bg-card py-14 sm:py-18" data-testid="section-spartan-intelligence-public">
+      <section className="public-intelligence relative border-y border-amber-500/25 bg-card py-12 sm:py-16" data-testid="section-spartan-intelligence-public">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div>
-                <p className="text-kicker mb-3">New in Elite</p>
+                <p className="text-kicker mb-3">Field intelligence / optional layer</p>
                 <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-foreground">
-                  Spartan Intelligence
+                  Arrive with better context.
                 </h2>
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-                  Verified public data turned into practical preparation for the next provider conversation.
-                  Know the account, understand the policy, and enter with a clear objective.
+                  Add verified public data to the same prepare → practice → execute → review rhythm.
+                  It sharpens the conversation without pretending to replace judgment.
                 </p>
                 <Button asChild size="lg" className="mt-7 min-h-11 w-full font-bold sm:w-auto">
                   <Link href="/spartan-intelligence" data-testid="button-home-spartan-intelligence">
-                    Explore Spartan Intelligence
+                    See the intelligence layer
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -200,7 +199,7 @@ export default function Home() {
                   { icon: Sparkles, title: "CMS Policy Navigator", body: "Translate complex Medicare topics into clear field language." },
                   { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by location." },
                 ].map(({ icon: Icon, title, body }) => (
-                  <Card key={title} className="border border-border/80 bg-background/70 p-5">
+                  <Card key={title} className="public-intelligence-card border border-border/80 bg-background/70 p-5">
                     <Icon className="h-5 w-5 text-amber-500" />
                     <h3 className="mt-4 text-base font-bold text-foreground">{title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
@@ -245,29 +244,14 @@ export default function Home() {
                   conversations and weekly systems that move eligible patients into care — with ethics
                   and accountability in the same room.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                  <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
-                    <Link
-                      href="/contact"
-                      onClick={() =>
-                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
-                      }
-                    >
-                      Book a strategy call
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
-                    <Link
-                      href="/about"
-                      onClick={() =>
-                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
-                      }
-                    >
-                      About Nick Lynch
-                    </Link>
-                  </Button>
-                </div>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-foreground"
+                  data-testid="button-authority-about"
+                >
+                  Read Nick’s field background
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
               </div>
             </div>
           </FadeIn>
@@ -286,12 +270,10 @@ export default function Home() {
             <p className="text-body-lg text-muted-foreground leading-relaxed mb-8">
               Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
             </p>
-            <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-stakes-manifesto">
-              <Link href="/manifesto">
-                Read the Spartan Ethos
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
+            <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-foreground">
+              Read the Spartan Ethos
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
           </FadeIn>
         </div>
       </section>
@@ -302,7 +284,7 @@ export default function Home() {
           <FadeIn>
             <div className="text-center mb-8 sm:mb-12 lg:mb-14">
               <p className="text-kicker justify-center mb-4">How Spartan helps</p>
-              <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
+              <h2 className="text-h2 text-foreground font-display">Two ways to put it to work.</h2>
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
               Choose human coaching for the team or a field system for the work between conversations.
             </p>
@@ -342,7 +324,7 @@ export default function Home() {
               return (
                 <StaggerItem key={p.title}>
                   <Card
-                    className={`h-full p-6 sm:p-8 flex flex-col ${p.primary ? "border-primary/40 elite-emphasis" : "border-border"}`}
+                    className={`public-offer-card h-full p-6 sm:p-8 flex flex-col ${p.primary ? "public-offer-consulting border-primary/40 elite-emphasis" : "public-offer-product border-border"}`}
                     data-testid={p.testId}
                   >
                     <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-3">{p.kicker}</p>
@@ -389,7 +371,7 @@ export default function Home() {
           <FadeIn>
             <ProofStrip />
           </FadeIn>
-          <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto mt-10">
+          <div className="home-proof-scope flex flex-wrap justify-center gap-x-6 gap-y-3 max-w-3xl mx-auto mt-10">
             {[
               "Hospice-specific, not generic sales training",
               "Compliance-aware messaging",
@@ -397,7 +379,7 @@ export default function Home() {
             ].map((b) => (
               <div
                 key={b}
-                className="flex items-center gap-2 text-sm text-foreground/90 border border-border rounded-full px-4 py-2"
+                className="flex items-center gap-2 text-sm text-foreground/90"
               >
                 <CheckCircle className="w-4 h-4 text-primary shrink-0" />
                 {b}
@@ -424,16 +406,16 @@ export default function Home() {
       <section className="relative bg-background py-14 sm:py-18" data-testid="section-trust">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <TrustStrip />
+            <TrustStrip className="public-trust-strip" />
           </FadeIn>
         </div>
       </section>
 
       {/* ── 7. CLOSING — two clear CTAs only ── */}
-      <section className="relative surface-band py-20 sm:py-32" data-testid="section-closing">
+      <section className="public-closing relative surface-band py-20 sm:py-32" data-testid="section-closing">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40 pointer-events-none" />
         <FadeIn>
-          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center elite-panel p-8 sm:p-12">
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center public-closing-panel p-8 sm:p-12">
             <p className="text-kicker mb-6 justify-center">Ready to close the gap?</p>
             <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
               Stop winging it.
@@ -477,14 +459,6 @@ export default function Home() {
           </div>
         </FadeIn>
       </section>
-      <PublicConversionPanel
-        source="home"
-        audience="Hospice growth leaders, sales professionals, and provider teams choosing between human consulting and daily field tools."
-        promise="A practical path from the next conversation to a repeatable operating rhythm."
-        evidence="Field-tested coaching, role-based proof, and clear no-PHI product boundaries."
-        primary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
-        secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
-      />
     </div>
   );
 }
