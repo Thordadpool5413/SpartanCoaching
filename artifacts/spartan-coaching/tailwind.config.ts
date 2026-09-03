@@ -6,13 +6,13 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        '2xl': '1.125rem', /* 18px */
-        'xl': '0.875rem', /* 14px */
-        lg: '0.75rem', /* 12px */
-        md: '0.625rem', /* 10px */
-        sm: '0.375rem', /* 6px */
-        '3xl': '1.5rem', /* 24px */
-        '4xl': '2rem', /* 32px */
+        '2xl': '0',
+        'xl': '0',
+        lg: '0',
+        md: '0',
+        sm: '0',
+        '3xl': '0',
+        '4xl': '0',
       },
       boxShadow: {
         /** Dark-authority default; light mode overridden in index.css */

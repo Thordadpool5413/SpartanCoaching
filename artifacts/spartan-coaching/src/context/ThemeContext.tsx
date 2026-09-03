@@ -37,9 +37,9 @@ interface ThemeContextValue extends ThemeState {
 
 /** Module store — single source of truth so clicks always work, even if React context hiccups */
 let store: ThemeState = {
-  mode: "dark",
+  mode: "light",
   accent: "red",
-  background: "default",
+  background: "soft",
 };
 
 const listeners = new Set<() => void>();

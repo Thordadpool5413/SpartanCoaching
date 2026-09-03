@@ -129,8 +129,8 @@ export function SubscribeCTA({
               </Link>
             </Button>
           )}
-          <Button asChild variant="ghost" size={size} className="font-semibold">
-            <Link href="/login" onClick={() => track("login")}>
+          <Button asChild variant="ghost" size={size} className="font-semibold !text-foreground hover:!text-primary">
+            <Link href="/login" className="!text-foreground hover:!text-primary" onClick={() => track("login")}>
               Sign in
             </Link>
           </Button>

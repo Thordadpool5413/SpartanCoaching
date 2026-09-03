@@ -37,7 +37,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
   return (
     <section
       className={cn(
-        "border border-border bg-card/80 rounded-2xl",
+        "border border-border bg-card/80",
         compact ? "p-5 sm:p-6" : "p-6 sm:p-8",
         className,
       )}
@@ -47,7 +47,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
       {!compact && (
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
-          <h2 className="text-h3 font-display font-bold text-foreground mb-2">
+          <h2 className="text-h3 font-display uppercase tracking-tight text-foreground mb-2">
             Hospice Sales Pro tools. Human consulting.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -71,7 +71,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
               className="flex gap-3 sm:flex-col sm:gap-2"
               data-testid={`trust-item-${item.title.toLowerCase().replace(/\s+/g, "-")}`}
             >
-              <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+              <div className="w-10 h-10 shrink-0  bg-primary/15 text-primary flex items-center justify-center">
                 <Icon className="w-5 h-5" />
               </div>
               <div>

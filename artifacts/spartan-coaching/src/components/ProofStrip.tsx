@@ -25,7 +25,7 @@ export function ProofStrip({
     >
       <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
         <p className="text-kicker justify-center">{kicker}</p>
-        <h2 className="text-h2 text-foreground font-display">{title}</h2>
+        <h2 className="text-h2 font-display uppercase tracking-tight text-foreground">{title}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           A proof ledger, not a highlight reel. These are representative client-described outcomes,
           kept role-based until named permission is available.

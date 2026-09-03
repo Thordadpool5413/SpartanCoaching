@@ -7,3 +7,4 @@
 - [Public launch SEO](public-launch-seo.md) — crawl-facing metadata must be verified from production HTTP responses, not only client-side SPA state.
 - [Mobile generated-result privacy](mobile-generated-result-privacy.md) — generated field-tool input and output are session-only, never durable device or member-continuity data.
 - [Paid campaign attribution](paid-campaign-attribution.md) — warm-audience attribution uses only allow-listed UTM tokens and never carries ad or visitor prose into analytics.
+- [Spartan web visual modes](spartan-web-visual-modes.md) — public pages use paper/ink/red; authenticated tools use a complete dark command scope, not inherited public tokens.

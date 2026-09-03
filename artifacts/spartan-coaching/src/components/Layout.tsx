@@ -37,9 +37,9 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       href={href}
       onClick={onClick}
       className={cn(
-        "relative px-3 py-2 text-sm font-semibold tracking-wide transition-colors block whitespace-nowrap rounded-lg",
+        "relative px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
         isActive
-          ? "text-primary after:absolute after:left-3 after:right-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:content-['']"
+          ? "text-foreground border-border bg-muted/20"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
       )}
     >
@@ -54,10 +54,10 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       href={href}
       onClick={onClose}
       className={cn(
-        "px-4 py-3.5 rounded-xl text-sm font-semibold touch-manipulation min-h-[48px] flex items-center transition-all border",
+        "px-4 py-4 rounded-none text-xs font-mono uppercase tracking-widest font-bold touch-manipulation min-h-[48px] flex items-center transition-all border-b border-border",
         location === href
-          ? "text-primary bg-primary/12 border-primary/30 shadow-[inset_3px_0_0_0_hsl(var(--primary))]"
-          : "text-foreground bg-card/50 border-border/50 active:bg-muted/50"
+          ? "text-primary bg-primary/5 border-primary/30 shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
+          : "text-foreground bg-transparent border-transparent active:bg-muted/50"
       )}
       data-testid={`link-mobile-${href}`}
     >
@@ -152,7 +152,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap cursor-pointer",
+          "px-4 py-2 border border-transparent hover:border-border text-xs font-mono font-bold uppercase tracking-widest transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer rounded-none",
           isGroupActive || open
             ? "text-primary border-b-2 border-primary rounded-none"
             : "text-foreground hover:text-foreground"
@@ -287,7 +287,7 @@ export function Header() {
               <img
                 src="/spartan-logo-stamp.png"
                 alt=""
-                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] shrink-0"
+                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-none shrink-0"
                 width={36}
                 height={36}
                 decoding="async"
@@ -350,10 +350,10 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-              className="hidden lg:inline-flex font-semibold text-foreground"
+              className="hidden lg:inline-flex font-semibold !text-foreground hover:!text-primary"
               data-testid="button-login"
             >
-              <Link href="/login">
+              <Link href="/login" className="!text-foreground hover:!text-primary">
                 <LogIn className="w-4 h-4" />
                 Login
               </Link>
@@ -502,10 +502,9 @@ export function Header() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search pages and tools..."
-                value={searchQuery}
+                placeholder="SEARCH PAGES AND TOOLS..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 font-mono text-xs uppercase tracking-wider rounded-none"
                 autoFocus
                 data-testid="input-search"
                 aria-label="Search pages and tools"

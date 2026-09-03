@@ -58,7 +58,7 @@ export function PublicConversionPanel({
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div>
               <p className="text-kicker">A clear next step</p>
-              <h2 className="mt-3 text-h2 font-display text-foreground">
+              <h2 className="mt-3 text-h2 font-display uppercase tracking-tight text-foreground">
                 Choose the path that matches the work in front of you.
               </h2>
               <dl className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -77,14 +77,14 @@ export function PublicConversionPanel({
               </dl>
             </div>
             <div className="flex flex-col gap-3 lg:items-stretch">
-              <Button asChild size="lg" className="font-bold">
+              <Button asChild size="lg" className="font-display uppercase tracking-widest min-h-14 rounded-none">
                 <Link href={primary.href} onClick={() => trackCta(primary.token)}>
                   {primary.label}
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
                 </Link>
               </Button>
               {secondary ? (
-                <Button asChild variant="outline" size="lg" className="font-bold">
+                <Button asChild variant="outline" size="lg" className="font-display uppercase tracking-widest min-h-14 rounded-none">
                   <Link href={secondary.href} onClick={() => trackCta(secondary.token)}>
                     {secondary.label}
                   </Link>
@@ -156,7 +156,7 @@ function OfferPath({
           `${source}:offer_path_${label.toLowerCase().replace(/\s+/g, "_")}`,
         )
       }
-      className="rounded-xl border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
+      className=" border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
     >
       <Icon className="h-4 w-4 text-primary" aria-hidden />
       <p className="mt-2 text-sm font-bold text-foreground">{label}</p>

@@ -231,36 +231,18 @@ export function getInitialAccent(): AccentKey {
 }
 
 export function getInitialBackground(): BgKey {
-  if (typeof window === "undefined") return "midnight";
+  if (typeof window === "undefined") return "soft";
   try {
     const saved = localStorage.getItem("spartan_bg");
-    if (saved && BG_PRESETS.some((p) => p.key === saved)) return saved as BgKey;
+    if (saved && BG_PRESETS.some((preset) => preset.key === saved)) return saved as BgKey;
   } catch {
     /* ignore */
   }
-  // Product default: Midnight Navy across the site
-  return "midnight";
+  return "soft";
 }
 
 export function getInitialMode(): ThemeMode {
-  if (typeof window === "undefined") return "dark";
-  // Background tone wins — light paper must stay light
-  const bg = getInitialBackground();
-  const tone = modeForBackground(bg);
-  if (bg !== "default") return tone;
-  try {
-    const raw = localStorage.getItem("spartan_theme");
-    if (!raw) return "dark";
-    try {
-      const p = JSON.parse(raw);
-      if (p === "light" || p === "dark") return p;
-    } catch {
-      if (raw === "light" || raw === "dark") return raw;
-    }
-  } catch {
-    /* ignore */
-  }
-  return "dark";
+  return modeForBackground(getInitialBackground());
 }
 
 function setVar(prop: string, value: string) {

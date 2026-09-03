@@ -61,7 +61,6 @@
       (function () {
         try {
           var root = document.documentElement;
-          var bg = localStorage.getItem('spartan_bg') || 'midnight';
           var surfaces = {
             default:  { tone: 'dark',  bg: '0 0% 7%',     fg: '0 0% 97%' },
             soft:     { tone: 'light', bg: '210 25% 98%', fg: '222 30% 10%' },
@@ -72,9 +71,14 @@
             charcoal: { tone: 'dark',  bg: '0 0% 18%',    fg: '0 0% 98%' },
             forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 25% 97%' }
           };
+          var savedBg = localStorage.getItem('spartan_bg');
+          var bg = savedBg && surfaces[savedBg] ? savedBg : 'soft';
+          var savedAccent = localStorage.getItem('spartan_accent');
+          var accents = ['red', 'blue', 'green', 'gold', 'purple', 'slate'];
+          var accent = savedAccent && accents.indexOf(savedAccent) >= 0 ? savedAccent : 'red';
           /* Force cache-bust class so new CSS is obvious after deploy */
           root.classList.add('spartan-elite-2026');
-          var s = surfaces[bg] || surfaces.midnight;
+          var s = surfaces[bg] || surfaces.soft;
           var mode = s.tone;
           root.classList.toggle('dark', mode === 'dark');
           root.style.colorScheme = mode;
@@ -84,7 +88,7 @@
           root.style.color = 'hsl(' + s.fg + ')';
           root.dataset.themeMode = mode;
           root.dataset.bg = bg;
-          root.dataset.accent = localStorage.getItem('spartan_accent') || 'red';
+          root.dataset.accent = accent;
         } catch (e) { /* private mode */ }
       })();
     </script>

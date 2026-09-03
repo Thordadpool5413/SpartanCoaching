@@ -66,8 +66,8 @@ export default function FieldKitMembership() {
             showHint
             testId="membership-hero-subscribe"
           />
-          <Button asChild variant="ghost" className="font-medium" size="sm">
-            <Link href="/tools">Preview tools →</Link>
+          <Button asChild variant="ghost" className="font-medium !text-foreground hover:!text-primary" size="sm">
+            <Link href="/tools" className="!text-foreground hover:!text-primary">Preview tools →</Link>
           </Button>
         </div>
       </div>
