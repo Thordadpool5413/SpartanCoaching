@@ -133,7 +133,7 @@ export default function Tools() {
                 <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight tracking-tight"><AccentText>{tool.title}</AccentText></h3>
               </div>
               {locked && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted/80 border border-border/70 rounded-full px-2 py-1 shrink-0">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-muted/80 px-2.5 py-1.5 text-xs font-bold uppercase leading-none tracking-[0.06em] text-muted-foreground">
                   <Lock className="w-3 h-3" /> Preview
                 </span>
               )}
@@ -402,7 +402,7 @@ export default function Tools() {
                         {TOOL_ICONS["sales-workflow"] ?? <Calculator className="w-8 h-8" />}
                       </div>
                       <div className="space-y-2">
-                        <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                        <p className="text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
                           Next action spine · same as iPhone Command
                         </p>
                         <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>{command.title}</AccentText></h2>
@@ -414,7 +414,7 @@ export default function Tools() {
                           {["Mission", "Prepare", "Practice", "Capture", "Next step"].map((s) => (
                             <span
                               key={s}
-                              className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-border bg-background/60"
+                              className="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-xs font-semibold uppercase leading-none tracking-[0.05em]"
                             >
                               {s}
                             </span>

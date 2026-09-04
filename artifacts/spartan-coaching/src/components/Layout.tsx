@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalMobileLinks } from "@/components/PortalNav";
-import { useIsMobile } from "@/hooks/use-breakpoint";
 import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
 import { AccentText } from "@/components/AccentText";
 
@@ -39,9 +38,9 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-3 py-3 text-sm leading-none font-mono font-bold uppercase tracking-[0.08em] transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
+        "relative px-3 py-2 text-[13px] leading-none font-sans font-bold uppercase tracking-[0.06em] transition-colors block whitespace-nowrap rounded-none border-b-2 border-transparent hover:border-border",
         isActive
-          ? "text-foreground border-border bg-muted/20"
+          ? "text-foreground border-primary"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
       )}
     >
@@ -58,7 +57,7 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       onClick={onClose}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "px-4 py-4 rounded-none text-sm font-mono uppercase tracking-[0.08em] font-bold touch-manipulation min-h-[52px] flex items-center transition-all border-b border-border",
+        "px-5 py-4 rounded-none text-[15px] font-sans font-bold tracking-wide touch-manipulation min-h-[52px] flex items-center transition-all border-b border-border",
         location === href
           ? "text-primary bg-primary/5 border-primary/30 shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
           : "text-foreground bg-transparent border-transparent active:bg-muted/50"
@@ -72,16 +71,17 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
 
 function MobileNavSection({ title }: { title: string }) {
   return (
-    <div className="pt-3 pb-1">
-      <span className="px-4 text-sm font-semibold text-muted-foreground uppercase tracking-[0.08em]">{title}</span>
+    <div className="pt-4 pb-2">
+      <span className="px-5 text-[13px] font-bold text-muted-foreground uppercase tracking-[0.1em]">{title}</span>
     </div>
   );
 }
 
-export function NavDropdown({ label, items, dataTestId }: {
+export function NavDropdown({ label, items, dataTestId, align = "left" }: {
   label: string;
   items: { path: string; label: string; description: string }[];
   dataTestId: string;
+  align?: "left" | "center" | "right";
 }) {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
@@ -142,10 +142,6 @@ export function NavDropdown({ label, items, dataTestId }: {
       ref={rootRef}
       className="relative"
       data-testid={dataTestId}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => {
-        if (!rootRef.current?.contains(document.activeElement)) setOpen(false);
-      }}
       onBlur={(event) => {
         if (!rootRef.current?.contains(event.relatedTarget as Node | null)) {
           setOpen(false);
@@ -156,10 +152,10 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "px-3 py-3 border border-transparent hover:border-border text-sm leading-none font-mono font-bold uppercase tracking-[0.08em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
+          "px-3 py-2.5 border-b-2 border-transparent hover:border-border text-sm leading-tight font-sans font-bold uppercase tracking-[0.05em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
           isGroupActive || open
-            ? "text-primary border-b-2 border-primary rounded-none"
-            : "text-foreground hover:text-foreground"
+            ? "text-primary border-primary"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -216,12 +212,15 @@ export function NavDropdown({ label, items, dataTestId }: {
           }
         }}
         className={cn(
-          "absolute top-full left-0 pt-2 z-50 min-w-[220px]",
+          "absolute top-full pt-3 z-50 w-[20rem] max-w-[calc(100vw-2rem)]",
+          align === "left" && "left-0",
+          align === "center" && "left-1/2 -translate-x-1/2",
+          align === "right" && "right-0",
           open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
           "transition-opacity duration-150",
         )}
       >
-        <div className="bg-popover border rounded-lg shadow-lg py-2">
+        <div className="bg-popover border border-border rounded-none shadow-[0_18px_45px_rgba(15,18,28,0.16)] py-2">
           {items.map(item => (
             <Link
               key={item.path}
@@ -229,16 +228,16 @@ export function NavDropdown({ label, items, dataTestId }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "block px-4 py-2.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none",
+                "block px-5 py-3.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none border-l-2 border-transparent hover:border-primary",
                 location === item.path
-                  ? "bg-primary/10 text-primary font-medium"
+                  ? "bg-primary/5 text-primary font-bold border-primary"
                   : "text-foreground"
               )}
               data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
               onClick={() => setOpen(false)}
             >
-              <div className="font-medium">{item.label}</div>
-              <div className="text-sm leading-snug text-muted-foreground mt-1">{item.description}</div>
+              <div className="font-bold text-base leading-snug">{item.label}</div>
+              <div className="text-sm leading-relaxed text-muted-foreground mt-1.5">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -250,7 +249,6 @@ export function NavDropdown({ label, items, dataTestId }: {
 
 export function Header() {
   const [location, setLocation] = useLocation();
-  const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -280,9 +278,9 @@ export function Header() {
 
   return (
     <header className="public-site-header sticky top-0 z-50 w-full safe-area-top">
-      <div className="public-site-header-inner max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 h-[4.5rem] sm:h-20 md:h-[5.25rem] flex items-center safe-area-x">
+      <div className="public-site-header-inner max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 h-[4.75rem] sm:h-20 flex items-center safe-area-x">
         {/* Brand — fixed footprint, never collides with nav */}
-        <div className="public-site-brand shrink-0 flex items-center pr-3 sm:pr-5 xl:pr-7 xl:mr-2 xl:border-r xl:border-border">
+        <div className="public-site-brand shrink-0 flex items-center pr-3 sm:pr-5 2xl:pr-7 2xl:mr-2 2xl:border-r 2xl:border-border">
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
@@ -298,10 +296,10 @@ export function Header() {
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
+                <span className="font-black text-[1.1rem] sm:text-[1.35rem] md:text-[1.5rem] text-primary tracking-[-0.02em] font-display block leading-none group-hover:text-primary whitespace-nowrap">
                   SPARTAN COACHING
                 </span>
-                <span className="hidden md:block text-xs leading-none font-bold uppercase tracking-[0.08em] text-muted-foreground mt-1.5 whitespace-nowrap">
+                <span className="hidden md:block text-[11px] leading-none font-bold uppercase tracking-[0.15em] text-muted-foreground mt-2 whitespace-nowrap">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -311,7 +309,7 @@ export function Header() {
 
         {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-3 2xl:px-6"
+          className="hidden 2xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-5"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -323,6 +321,13 @@ export function Header() {
                 label={section.title}
                 dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
                 items={section.items}
+                align={
+                  section.title === "Learn"
+                    ? "right"
+                    : section.title === "Hospice Sales Pro"
+                      ? "center"
+                      : "left"
+                }
               />
             ))}
           <NavLink href="/about">About</NavLink>
@@ -333,16 +338,16 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="public-site-actions flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 xl:pl-5 xl:border-l xl:border-border">
+        <div className="public-site-actions flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 2xl:pl-5 2xl:border-l 2xl:border-border">
           <AppearanceControls
             compact
-            className="hidden xl:inline-flex touch-manipulation"
+            className="hidden 2xl:inline-flex touch-manipulation"
             testId="button-appearance-header"
           />
           <Button
             variant="ghost"
             size="icon"
-            className="header-utility-control xl:hidden touch-manipulation border border-[#b9bbc1] bg-white !text-[#111522] hover:bg-[#f4f4f5]"
+            className="header-utility-control 2xl:hidden touch-manipulation border border-[#b9bbc1] bg-white !text-[#111522] hover:bg-[#f4f4f5]"
             style={{ color: "#111522" }}
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
@@ -353,7 +358,7 @@ export function Header() {
           {!isAuthenticated && (
             <Link
               href="/login"
-              className="header-login-control hidden xl:inline-flex min-h-11 items-center gap-2 px-3 text-sm font-bold text-[#111522] hover:text-primary"
+              className="header-login-control hidden 2xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-[#111522] hover:text-primary"
               data-testid="button-login"
             >
               <LogIn className="w-4 h-4" />
@@ -362,9 +367,8 @@ export function Header() {
           )}
           {isAuthenticated ? (
             <Button
-              size="sm"
               asChild
-              className="hidden xl:inline-flex min-h-11 rounded-none px-4 text-sm font-bold shrink-0"
+              className="hidden 2xl:inline-flex min-h-11 rounded-none px-5 text-sm font-bold shrink-0"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -373,9 +377,8 @@ export function Header() {
             </Button>
           ) : (
             <Button
-              size="sm"
               asChild
-              className="hidden xl:inline-flex min-h-11 rounded-none px-4 text-sm font-bold shrink-0"
+              className="hidden 2xl:inline-flex min-h-11 rounded-none px-5 text-sm font-bold shrink-0 bg-primary hover:bg-primary/90"
               data-testid="button-book-call"
             >
               <Link href="/contact">Book a strategy call</Link>
@@ -388,7 +391,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="header-utility-control xl:hidden w-auto touch-manipulation gap-2 border border-[#b9bbc1] bg-white px-3 !text-[#111522] hover:bg-[#f4f4f5]"
+                className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-[#b9bbc1] bg-white px-3 !text-[#111522] hover:bg-[#f4f4f5]"
                 style={{ color: "#111522" }}
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
@@ -582,7 +585,12 @@ export function Footer() {
 
   return (
     <>
-      <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
+      <footer
+        className={cn(
+          "mt-auto border-t border-border bg-background no-print safe-area-bottom",
+          !canUseFieldKit && "public-site-footer",
+        )}
+      >
         {/* 3-column main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
           <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
@@ -657,7 +665,7 @@ export function Footer() {
         </div>
 
         {/* Legal bottom bar */}
-        <div className="border-t border-border/50 dark:border-red-900/10">
+        <div className={cn("border-t border-border/50", canUseFieldKit && "dark:border-red-900/10")}>
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground order-last sm:order-first">

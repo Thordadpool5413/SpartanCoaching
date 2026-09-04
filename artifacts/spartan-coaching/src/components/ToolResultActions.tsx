@@ -73,7 +73,7 @@ export function ToolResultActions({
       data-testid={testId}
     >
       <div>
-        <p className="text-[10px] font-bold tracking-widest text-primary uppercase mb-1">
+        <p className="mb-1 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
           {title}
         </p>
         {description && (

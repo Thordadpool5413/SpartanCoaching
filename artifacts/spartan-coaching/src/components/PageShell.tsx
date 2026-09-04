@@ -50,8 +50,8 @@ export function PageShell({
       className={cn(
         "w-full mx-auto surface-page",
         WIDTH[width],
-        !flushX && "px-4 sm:px-6 lg:px-8",
-        !flushY && "py-6 sm:py-8 lg:py-10",
+        !flushX && "px-5 sm:px-8 lg:px-12",
+        !flushY && "py-10 sm:py-16 lg:py-20",
         className,
       )}
       data-testid={testId}
@@ -83,36 +83,36 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "mb-6 sm:mb-8",
+        "mb-10 sm:mb-16",
         align === "center" && "text-center",
         className,
       )}
     >
       <div
         className={cn(
-          "flex flex-col gap-4",
+          "flex flex-col gap-6",
           align === "left" && "sm:flex-row sm:items-end sm:justify-between",
           align === "center" && "items-center",
         )}
       >
-        <div className={cn("min-w-0 space-y-2", align === "center" && "max-w-2xl")}>
+        <div className={cn("min-w-0 space-y-3", align === "center" && "max-w-3xl")}>
           {kicker && (
             <p
               className={cn(
-                "text-kicker",
+                "text-[13px] font-bold tracking-[0.2em] text-primary uppercase",
                 align === "center" && "justify-center",
               )}
             >
               {kicker}
             </p>
           )}
-          <h1 className="text-h1 font-display font-extrabold text-foreground tracking-tight text-balance">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground tracking-[-0.02em] text-balance">
             <AccentText>{title}</AccentText>
           </h1>
           {description && (
             <div
               className={cn(
-                "text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl",
+                "text-lg sm:text-xl text-muted-foreground font-medium leading-[1.6] max-w-2xl mt-4",
                 align === "center" && "mx-auto",
               )}
             >
@@ -123,7 +123,7 @@ export function PageHeader({
         {actions && (
           <div
             className={cn(
-              "flex flex-col xs:flex-row flex-wrap gap-2 shrink-0 w-full sm:w-auto",
+              "flex flex-col xs:flex-row flex-wrap gap-3 shrink-0 w-full sm:w-auto",
               align === "center" && "justify-center",
               "[&>a]:w-full sm:[&>a]:w-auto [&>button]:w-full sm:[&>button]:w-auto",
             )}

@@ -405,10 +405,10 @@
   }
 }
 
-/* Bottom padding for page content to clear stacked sticky buttons on mobile */
+/* Public pages only need modest clearance for fixed mobile controls. */
 @media (max-width: 767px) {
-  main {
-    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  main.page-persuasion {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1615,6 +1615,22 @@ body {
     text-rendering: geometricPrecision;
   }
 
+  .public-site-footer {
+    --background: 0 0% 100%;
+    --foreground: 228 33% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 33% 8%;
+    --border: 220 9% 72%;
+    --primary: 357 86% 45%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 220 9% 29%;
+    --input: 220 9% 80%;
+    --ring: 357 86% 45%;
+    background: hsl(0 0% 100%);
+    color: hsl(228 33% 8%);
+  }
+
   /* Surface noise — fine grain texture for premium depth */
   .surface-noise {
     position: relative;
@@ -1700,32 +1716,91 @@ body {
     --accent-foreground: 357 86% 45%;
     --input: 220 9% 80%;
     --ring: 357 86% 45%;
+    font-size: 1rem;
+    line-height: 1.65;
+    letter-spacing: -0.005em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /*
-   * Public readability floor. Meaningful public copy must remain readable at
-   * normal browser zoom; the authenticated workspace keeps its denser scale.
-   */
-  .page-persuasion .text-xs {
-    font-size: 0.875rem !important;
-    line-height: 1.5 !important;
+  .page-persuasion :where(h1, h2, h3, h4) {
+    font-kerning: normal;
+    text-wrap: balance;
   }
-  .page-persuasion .text-\[9px\],
-  .page-persuasion .text-\[10px\],
-  .page-persuasion .text-\[11px\] {
-    font-size: 0.875rem !important;
-    line-height: 1.5 !important;
+
+  .page-persuasion h1.font-display {
+    line-height: 1.02;
+    letter-spacing: -0.03em;
   }
-  .page-persuasion .text-sm {
-    line-height: 1.55;
+
+  .page-persuasion h2.font-display {
+    line-height: 1.08;
+    letter-spacing: -0.022em;
   }
+
+  .page-persuasion :where(h3, h4).font-display {
+    line-height: 1.14;
+    letter-spacing: -0.015em;
+  }
+
+  .page-persuasion :where(p, li) {
+    text-wrap: pretty;
+  }
+
+  .page-persuasion .text-kicker {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    letter-spacing: 0.12em;
+  }
+
   .page-persuasion .text-muted-foreground {
     color: hsl(220 9% 29%);
   }
+
   .page-persuasion input,
   .page-persuasion textarea,
-  .page-persuasion select {
+  .page-persuasion select,
+  .page-persuasion [role="combobox"] {
     border-color: hsl(220 9% 62%);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .page-persuasion label {
+    line-height: 1.4;
+  }
+
+  /*
+   * Conversion panels are reused inside both narrow prose rails and wide
+   * marketing pages. Their layout responds to their actual container width,
+   * rather than the viewport, so nested panels never collapse into slivers.
+   */
+  .public-conversion-panel {
+    container-type: inline-size;
+  }
+
+  .public-conversion-layout,
+  .public-conversion-details {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .public-conversion-details {
+    gap: 1rem;
+  }
+
+  @container (min-width: 36rem) {
+    .public-conversion-details {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @container (min-width: 54rem) {
+    .public-conversion-layout {
+      grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+      align-items: center;
+    }
   }
 
   .page-persuasion,

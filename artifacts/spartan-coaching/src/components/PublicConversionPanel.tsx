@@ -49,19 +49,19 @@ export function PublicConversionPanel({
 
   return (
     <section
-      className={cn("mt-14 sm:mt-20", className)}
+      className={cn("public-conversion-panel mt-14 sm:mt-20", className)}
       aria-label="Your next step"
       data-testid={`public-conversion-${source}`}
     >
       <Card className="overflow-hidden border border-primary/20 bg-card shadow-sm">
         <div className="p-6 sm:p-8 lg:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+          <div className="public-conversion-layout">
             <div>
               <p className="text-kicker">A clear next step</p>
               <h2 className="mt-3 text-h2 font-display uppercase tracking-tight text-foreground">
                 Choose the path that matches the <span className="text-primary">work in front of you.</span>
               </h2>
-              <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+              <dl className="public-conversion-details mt-6">
                 <div>
                   <dt className="text-xs font-bold uppercase tracking-wider text-primary">For</dt>
                   <dd className="mt-1 text-sm leading-relaxed text-foreground">{audience}</dd>
@@ -76,7 +76,7 @@ export function PublicConversionPanel({
                 </div>
               </dl>
             </div>
-            <div className="flex flex-col gap-3 lg:items-stretch">
+            <div className="flex flex-col gap-3">
               <Button asChild size="lg" className="font-display uppercase tracking-widest min-h-14 rounded-none">
                 <Link href={primary.href} onClick={() => trackCta(primary.token)}>
                   {primary.label}

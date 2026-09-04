@@ -268,7 +268,7 @@ export default function Services() {
           },
         ].map((s) => (
           <Card key={s.t} className="border border-border/80 bg-card p-5 text-left h-full flex flex-col">
-            <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
+            <p className="mb-1 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
               {s.frame}
             </p>
             <h3 className="text-base font-display font-bold text-foreground mb-2"><AccentText>{s.t}</AccentText></h3>

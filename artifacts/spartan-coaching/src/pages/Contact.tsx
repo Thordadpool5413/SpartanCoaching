@@ -214,7 +214,7 @@ export default function Contact() {
         <FadeIn delay={0.1}>
           {submitted ? (
             <Card className="spacing-card text-center border-2 bg-card shadow-sm" data-testid="card-contact-success">
-              <div className="flex flex-col items-center gap-4 py-10">
+              <div className="flex flex-col items-center gap-6 py-10">
                 <div className="w-16 h-16 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-primary" />
                 </div>
@@ -238,7 +238,7 @@ export default function Contact() {
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wide flex-shrink-0">Inquiring about:</span>
+                    <span className="text-sm font-semibold text-primary uppercase tracking-[0.06em] flex-shrink-0">Inquiring about:</span>
                     <span className="text-sm font-semibold text-foreground truncate">{serviceParam}</span>
                   </div>
                   <button
@@ -278,7 +278,7 @@ export default function Contact() {
                             <span className={cn("text-xs font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
                           )}
                         </div>
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
+                        <span className={cn("max-w-20 text-center text-xs font-semibold uppercase leading-[1.3] tracking-[0.04em]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </div>
                       {i < STEP_LABELS.length - 1 && (
                         <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
@@ -292,7 +292,7 @@ export default function Contact() {
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   onFocusCapture={trackStart}
-                  className="space-y-5"
+                  className="space-y-6"
                 >
                   <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only"><AccentText>Step {step}: {STEP_LABELS[step - 1]}</AccentText></h2>
                   {submitError && (
@@ -312,8 +312,8 @@ export default function Contact() {
 
                   {/* ── STEP 1: About You ── */}
                   {step === 1 && (
-                    <div className="space-y-5" data-testid="section-step-1">
-                      <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-6" data-testid="section-step-1">
+                      <div className="grid sm:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
                           name="name"
@@ -342,7 +342,7 @@ export default function Contact() {
                         />
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid sm:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
                           name="phone"
@@ -400,8 +400,8 @@ export default function Contact() {
 
                   {/* ── STEP 2: Your Situation ── */}
                   {step === 2 && (
-                    <div className="space-y-5" data-testid="section-step-2">
-                      <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-6" data-testid="section-step-2">
+                      <div className="grid sm:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
                           name="census"
@@ -506,7 +506,7 @@ export default function Contact() {
 
                   {/* ── STEP 3: What You Need ── */}
                   {step === 3 && (
-                    <div className="space-y-5" data-testid="section-step-3">
+                    <div className="space-y-6" data-testid="section-step-3">
                       <FormField
                         control={form.control}
                         name="serviceType"

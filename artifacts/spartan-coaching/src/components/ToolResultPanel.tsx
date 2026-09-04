@@ -61,7 +61,7 @@ export function ToolResultPanel({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold tracking-widest text-primary uppercase mb-1">
+          <p className="mb-1 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
             Field output
           </p>
           <h3 className="text-lg font-display font-bold text-foreground tracking-tight"><AccentText>{title}</AccentText></h3>

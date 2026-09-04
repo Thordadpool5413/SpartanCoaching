@@ -29,7 +29,7 @@ function HeroSystemPanel() {
             <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
               The field operating system
             </p>
-            <div className="space-y-0.5 font-display text-3xl uppercase leading-[0.9] text-foreground sm:text-4xl">
+            <div className="space-y-1 font-display text-3xl uppercase leading-none tracking-[-0.015em] text-foreground sm:text-4xl">
               <p>Prepare.</p>
               <p>Practice.</p>
               <p className="text-primary">Execute.</p>
@@ -49,7 +49,7 @@ function HeroSystemPanel() {
               className="absolute inset-0 h-full w-full object-contain p-5 opacity-20"
             />
             <div className="absolute inset-x-0 bottom-0 border-t border-border bg-background p-4 text-center">
-              <p className="font-display text-2xl uppercase leading-none text-primary">Hospice Sales Pro</p>
+              <p className="font-display text-2xl uppercase leading-tight text-primary">Hospice Sales Pro</p>
             </div>
           </div>
         </div>
@@ -107,31 +107,30 @@ export default function Home() {
         <div className="relative z-10 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] xl:gap-16">
             <div className="max-w-2xl text-left">
-              <p className="text-sm font-bold tracking-[0.1em] uppercase text-primary mb-6 flex items-center gap-2">
-                <span className="w-8 h-px bg-primary"></span>
+              <p className="text-xs font-bold tracking-[0.15em] uppercase text-primary mb-8 flex items-center gap-3">
+                <span className="w-10 h-[2px] bg-primary"></span>
                 Hospice Sales Consulting + Hospice Sales Pro
               </p>
               <h1
                 id="home-hero-title"
-                className="text-6xl sm:text-7xl lg:text-8xl font-display font-black tracking-tighter text-foreground uppercase leading-[0.9]"
+                className="text-5xl sm:text-6xl lg:text-[5.5rem] font-display font-black uppercase tracking-[-0.02em] text-foreground leading-[1.02] text-balance"
                 data-testid="text-home-hero-title"
               >
                 Make the next<br/>
-                hospice<br/>
-                <span className="text-primary">conversation</span><br/>
+                hospice <span className="text-primary">conversation</span><br/>
                 count.
               </h1>
-               <p className="mt-8 max-w-xl text-xl text-foreground font-medium leading-relaxed">
+               <p className="mt-8 max-w-xl text-lg sm:text-xl text-muted-foreground font-medium leading-[1.6]">
                 Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
               </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-3">
-                <Button size="lg" asChild className="font-display uppercase tracking-widest min-h-14 rounded-none bg-primary hover:bg-foreground text-primary-foreground border-none text-sm" data-testid="button-hero-consulting">
+              <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none" data-testid="button-hero-consulting">
                   <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
                     Explore consulting
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest min-h-14 rounded-none border-2 border-foreground text-foreground hover:bg-foreground hover:text-background text-sm" data-testid="button-hero-product">
+                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted hover:border-foreground" data-testid="button-hero-product">
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
                     See Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -139,10 +138,10 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm font-bold uppercase tracking-[0.06em] text-foreground">
-                <span className="text-foreground">Built for <span className="text-spartan-red">leaders.</span></span>
-                <span className="text-foreground">Driven by <span className="text-spartan-red">experience.</span></span>
-                <span className="text-foreground">Focused on <span className="text-spartan-red">results.</span></span>
+              <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Built for <span className="text-foreground">leaders</span></span>
+                <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Driven by <span className="text-foreground">experience</span></span>
+                <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Focused on <span className="text-foreground">results</span></span>
               </div>
             </div>
 
@@ -161,7 +160,7 @@ export default function Home() {
                   <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
                     Field standard 01
                   </p>
-                  <p className="mt-1 font-display text-2xl uppercase leading-none text-foreground">
+                  <p className="mt-1 font-display text-2xl uppercase leading-tight text-foreground">
                     Prepared beats <span className="text-spartan-red">improvised.</span>
                   </p>
                 </div>
@@ -174,44 +173,44 @@ export default function Home() {
 
       {/* CAPABILITY STRIP */}
       <section className="border-b border-border bg-card">
-        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-9 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-7">
-          <div className="flex gap-4">
-            <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-12">
+          <div className="flex gap-4 items-start">
+            <ShieldCheck className="w-6 h-6 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Private & Secure</AccentText></p>
-              <p className="text-xs text-muted-foreground mt-1">Your data. Your practice. Always protected.</p>
+              <p className="font-bold text-sm tracking-wide text-foreground"><AccentText>Private & Secure</AccentText></p>
+              <p className="text-[13px] leading-relaxed text-muted-foreground mt-1.5">Your data. Your practice. Always protected.</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <span className="text-4xl font-display font-black text-primary leading-none">
+          <div className="flex gap-4 items-start">
+            <span className="text-3xl font-display font-black text-primary leading-none mt-[-4px]">
               {FIELD_KIT_TOOLS.length}
             </span>
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Field Tools</AccentText></p>
-              <p className="text-xs text-muted-foreground mt-1">Built for the moments that matter most.</p>
+              <p className="font-bold text-sm tracking-wide text-foreground"><AccentText>Field Tools</AccentText></p>
+              <p className="text-[13px] leading-relaxed text-muted-foreground mt-1.5">Built for the moments that matter most.</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <Briefcase className="w-8 h-8 text-primary shrink-0" />
+          <div className="flex gap-4 items-start">
+            <Briefcase className="w-6 h-6 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Spartan Coach</AccentText></p>
-              <p className="text-xs text-muted-foreground mt-1">Direct feedback. Real improvement.</p>
+              <p className="font-bold text-sm tracking-wide text-foreground"><AccentText>Spartan Coach</AccentText></p>
+              <p className="text-[13px] leading-relaxed text-muted-foreground mt-1.5">Direct feedback. Real improvement.</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <CheckCircle className="w-8 h-8 text-primary shrink-0" />
+          <div className="flex gap-4 items-start">
+            <CheckCircle className="w-6 h-6 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-sm uppercase tracking-wide"><AccentText>Saved Work</AccentText></p>
-              <p className="text-xs text-muted-foreground mt-1">Pick up where you left off. Stay ready.</p>
+              <p className="font-bold text-sm tracking-wide text-foreground"><AccentText>Saved Work</AccentText></p>
+              <p className="text-[13px] leading-relaxed text-muted-foreground mt-1.5">Pick up where you left off. Stay ready.</p>
             </div>
           </div>
         </div>
-        <div className="bg-muted py-4 border-t border-border flex items-center justify-center gap-6 px-4 text-center">
-           <p className="font-display font-black text-sm sm:text-base uppercase tracking-[0.2em] text-foreground">
+        <div className="bg-muted py-6 border-t border-border flex items-center justify-center gap-6 px-4 text-center">
+           <p className="font-display font-bold text-sm sm:text-base tracking-[0.1em] text-foreground">
              <span className="sr-only">One Platform. Every Advantage.</span>
              <span aria-hidden="true"><AccentText accent="Every Advantage.">One Platform. Every Advantage.</AccentText></span>
            </p>
-           <p className="font-mono text-xs tracking-wider text-muted-foreground hidden sm:block">
+           <p className="font-mono text-xs tracking-widest text-muted-foreground hidden sm:block">
              www.spartanhospicecoaching.com
            </p>
         </div>
@@ -219,20 +218,20 @@ export default function Home() {
 
       <FieldBriefExperience />
 
-      <section className="relative border-y border-border bg-card py-16 sm:py-24" data-testid="section-stakes">
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <section className="relative border-y border-border bg-card py-24 sm:py-32" data-testid="section-stakes">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <FadeIn>
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-foreground text-background mb-8 rounded-none">
-              <span className="font-display font-black text-2xl">!</span>
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-foreground text-background mb-8 rounded-full">
+              <span className="font-display font-black text-xl">!</span>
             </div>
-            <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">The real problem</p>
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 font-display uppercase tracking-tight" data-testid="text-stakes-title">
+            <p className="text-[13px] font-bold tracking-[0.2em] text-primary uppercase mb-6">The real problem</p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground mb-8 tracking-[-0.02em] leading-tight" data-testid="text-stakes-title">
               The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
             </h2>
-            <p className="text-lg text-muted-foreground font-medium leading-relaxed mb-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-[1.7] mb-12 max-w-2xl mx-auto text-balance">
               Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
             </p>
-            <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-display uppercase tracking-widest font-bold text-foreground hover:text-primary transition-colors border-b-2 border-primary pb-1">
+            <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors border-b-2 border-primary pb-1">
               Read the Spartan Ethos
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
@@ -240,12 +239,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative py-16 sm:py-24" data-testid="section-pillars">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 sm:py-32" data-testid="section-pillars">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="text-center mb-12 sm:mb-16">
-              <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">How Spartan helps</p>
-              <h2 className="text-4xl sm:text-5xl font-display font-black uppercase text-foreground">
+            <div className="text-center mb-16 sm:mb-24">
+              <p className="text-[13px] font-bold tracking-[0.2em] text-primary uppercase mb-6">How Spartan helps</p>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground tracking-[-0.02em]">
                 <span className="text-primary">Two ways</span> to put it to work.
               </h2>
             </div>
@@ -283,30 +282,30 @@ export default function Home() {
               return (
                 <StaggerItem key={p.title}>
                   <Card
-                    className={`h-full p-8 sm:p-10 flex flex-col rounded-none shadow-none border-2 ${p.primary ? "border-foreground" : "border-border"}`}
+                    className={`h-full p-8 sm:p-12 flex flex-col rounded-none shadow-none border-2 ${p.primary ? "border-foreground" : "border-border hover:border-primary/50 transition-colors"}`}
                     data-testid={p.testId}
                   >
-                    <p className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
-                    <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight uppercase">
+                    <p className="text-[13px] font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
+                    <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight">
                       {p.primary ? (
-                        <>Human <span className="text-primary">coaching</span></>
+                        <>Human <span className="text-primary">Coaching</span></>
                       ) : (
-                        <>The tools <span className="text-primary">product</span></>
+                        <>The Tools <span className="text-primary">Product</span></>
                       )}
                     </h3>
-                    <p className="text-base font-medium text-muted-foreground leading-relaxed mb-6">{p.desc}</p>
-                    <ul className="space-y-3 mb-8 flex-1">
+                    <p className="text-base font-medium text-muted-foreground leading-[1.6] mb-8">{p.desc}</p>
+                    <ul className="space-y-4 mb-10 flex-1">
                       {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-3 text-sm font-semibold text-foreground">
-                          <Check className="w-5 h-5 text-primary shrink-0" />
+                        <li key={f} className="flex items-start gap-3 text-[15px] font-semibold text-foreground">
+                          <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                           <span>{f}</span>
                         </li>
                       ))}
                     </ul>
-                    <Button asChild className="font-display uppercase tracking-widest w-full min-h-14 rounded-none border-2" variant={p.primary ? "default" : "outline"}>
+                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.primary ? "default" : "outline"}>
                       <Link href={p.href} onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, p.primary ? "home_consulting" : "home_hospice_sales_pro")}>
                         {p.cta}
-                        <ArrowRight className="ml-2 w-4 h-4" />
+                        <ArrowRight className="ml-2 w-5 h-5" />
                       </Link>
                     </Button>
                   </Card>
@@ -331,24 +330,24 @@ export default function Home() {
             />
             <div className="absolute inset-x-0 bottom-0 h-2 bg-primary" aria-hidden="true" />
           </div>
-          <div className="flex flex-col justify-center px-6 py-14 sm:px-10 lg:px-16 lg:py-20">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          <div className="flex flex-col justify-center px-6 py-16 sm:px-12 lg:px-20 lg:py-24">
+            <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-primary">
               Field-built authority
             </p>
-            <h2 className="mt-5 max-w-3xl font-display text-5xl uppercase leading-[0.92] text-background sm:text-6xl">
+            <h2 className="mt-6 max-w-3xl font-display font-black text-4xl sm:text-5xl lg:text-[4rem] tracking-[-0.02em] leading-[1.05] text-white">
               Built by someone who has <span className="text-primary">carried the number.</span>
             </h2>
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-background/75">
+            <p className="mt-8 max-w-2xl text-lg sm:text-xl font-medium leading-[1.6] text-white/80">
               Nick Lynch built Spartan Coaching from the field: hospice-specific sales, leadership,
               and execution systems shaped by the conversations teams actually have to lead.
             </p>
             <Link
               href="/about"
-              className="mt-8 inline-flex min-h-11 w-fit items-center gap-2 border-b-2 border-primary font-mono text-xs font-bold uppercase tracking-[0.16em] text-background transition-colors hover:text-primary"
+              className="mt-10 inline-flex min-h-11 w-fit items-center gap-2 border-b-2 border-primary text-sm font-bold text-white transition-colors hover:text-primary"
               data-testid="link-founder-story"
             >
               Read the founder story
-              <ArrowRight className="h-4 w-4" aria-hidden />
+              <ArrowRight className="h-5 w-5" aria-hidden />
             </Link>
           </div>
         </div>

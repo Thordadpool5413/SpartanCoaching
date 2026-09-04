@@ -21,7 +21,7 @@ export function ToolWorkGuide({ tool }: { tool: FieldKitTool }) {
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
+          <p className="text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
             Make the result useful
           </p>
           <h2 id="tool-work-guide-heading" className="mt-1 text-base font-bold text-foreground"><AccentText>From input to next field action</AccentText></h2>

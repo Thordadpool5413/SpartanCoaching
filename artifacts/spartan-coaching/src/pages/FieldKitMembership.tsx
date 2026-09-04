@@ -199,7 +199,7 @@ export default function FieldKitMembership() {
         />
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
           <Card className="order-2 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-individual">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Individual · Standard</p>
+            <p className="mb-3 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">Individual · Standard</p>
             <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
               <User className="w-5 h-5" />
             </div>
@@ -231,7 +231,7 @@ export default function FieldKitMembership() {
           </Card>
 
           <Card className="order-1 flex flex-col border-2 border-primary p-6 bg-primary/[0.04] elite-emphasis" data-testid="card-tier-elite">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Elite · recommended</p>
+            <p className="mb-3 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">Elite · recommended</p>
             <div className="w-11 h-11 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-4">
               <Award className="w-5 h-5" />
             </div>
@@ -259,7 +259,7 @@ export default function FieldKitMembership() {
           </Card>
 
           <Card className="order-3 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Teams</p>
+            <p className="mb-3 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-muted-foreground">Teams</p>
             <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
               <Users className="w-5 h-5" />
             </div>
@@ -288,7 +288,7 @@ export default function FieldKitMembership() {
           </Card>
 
           <Card className="flex flex-col border border-border p-6 bg-card" data-testid="card-tier-enterprise">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">With consulting</p>
+            <p className="mb-3 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-muted-foreground">With consulting</p>
             <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
               <Building2 className="w-5 h-5" />
             </div>
