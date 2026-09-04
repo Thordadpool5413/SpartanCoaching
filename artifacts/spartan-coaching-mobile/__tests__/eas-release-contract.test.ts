@@ -10,7 +10,10 @@ describe("iOS release associated-domains contract", () => {
   };
   const packageJson = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf8"),
-  ) as { scripts: Record<string, string> };
+  ) as {
+    scripts: Record<string, string>;
+    devDependencies: Record<string, string>;
+  };
   const verifier = fs.readFileSync(
     path.resolve(__dirname, "../../../scripts/verify-testflight.sh"),
     "utf8",
@@ -20,7 +23,7 @@ describe("iOS release associated-domains contract", () => {
     "utf8",
   );
   const easIgnore = fs.readFileSync(
-    path.resolve(__dirname, "../.easignore"),
+    path.resolve(__dirname, "../../../.easignore"),
     "utf8",
   );
 
@@ -73,6 +76,8 @@ describe("iOS release associated-domains contract", () => {
     expect(metroConfig).not.toContain("watchFolders");
     expect(metroConfig).not.toContain("nodeModulesPaths");
     expect(verifier).toContain("expo export:embed");
+    expect(packageJson.devDependencies["babel-preset-expo"]).toBe("~57.0.10");
+    expect(fs.existsSync(path.resolve(__dirname, "../.easignore"))).toBe(false);
     expect(easIgnore).toContain("**/node_modules/");
     expect(easIgnore).toContain("attached_assets/");
   });

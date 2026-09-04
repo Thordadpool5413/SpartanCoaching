@@ -52,6 +52,7 @@
     "@workspace/spartan-ai-tools": "workspace:*",
     "@workspace/tenant-ids": "workspace:*",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250117",
+    "babel-preset-expo": "~57.0.10",
     "create-launch": "0.3.6",
     "expo": "~57.0.19",
     "expo-asset": "~57.0.16",
