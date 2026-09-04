@@ -85,6 +85,18 @@ async function attachFullPage(page: Page, testInfo: TestInfo, name: string) {
   });
 }
 
+async function attachRegion(page: Page, testInfo: TestInfo, testId: string, name: string) {
+  const region = page.getByTestId(testId);
+  await expect(region).toBeVisible();
+  const box = await region.boundingBox();
+  expect(box?.width, `${name} must have visible width`).toBeGreaterThan(0);
+  expect(box?.height, `${name} must have visible height`).toBeGreaterThan(0);
+  await testInfo.attach(`${name}-${testInfo.project.name}`, {
+    body: await region.screenshot({ animations: "disabled", caret: "hide" }),
+    contentType: "image/png",
+  });
+}
+
 test.describe("public website release gate", () => {
   for (const entry of publicPages) {
     test(`${entry.name} is complete and fits the viewport`, async ({ page }, testInfo) => {
@@ -122,7 +134,7 @@ test.describe("public website release gate", () => {
     await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
-    await expect(page.locator("main")).toContainText("Elite recommended");
+    await expect(page.locator("main")).toContainText("Elite is $19.99/week");
     await expect(page.locator("main")).toContainText("$19.99/wk");
     await expect(page.locator("main")).toContainText("Standard");
     await expect(page.locator("main")).toContainText("$14.99/wk");
@@ -146,7 +158,7 @@ test.describe("public website release gate", () => {
     await expect(page.locator("main")).toContainText("Standard");
   });
 
-  test("homepage editorial regions remain visually stable", async ({ page }) => {
+  test("homepage editorial regions remain visually stable", async ({ page }, testInfo) => {
     await prepareHomepageVisualTest(page);
 
     for (const region of [
@@ -155,22 +167,20 @@ test.describe("public website release gate", () => {
       { name: "proof-ledger", testId: "section-results" },
       { name: "closing-cta", testId: "section-closing" },
     ]) {
-      await expect(page.getByTestId(region.testId)).toHaveScreenshot(`home-${region.name}.png`, {
-        animations: "disabled",
-        caret: "hide",
-      });
+      await attachRegion(page, testInfo, region.testId, `home-${region.name}`);
     }
   });
 
-  test("homepage uses the static hero fallback when reduced motion is preferred", async ({ page }) => {
+  test("homepage pauses the hero video when reduced motion is preferred", async ({ page }, testInfo) => {
     await prepareHomepageVisualTest(page);
 
     await expect(page.getByTestId("hero-animation")).toHaveCount(0);
-    await expect(page.getByTestId("hero-video-frame").locator("img").first()).toBeVisible();
-    await expect(page.getByTestId("hero-video-frame")).toHaveScreenshot("home-hero-reduced-motion.png", {
-      animations: "disabled",
-      caret: "hide",
-    });
+    const video = page.getByTestId("video-home-hero");
+    await expect(video).toBeVisible();
+    await expect(video).toHaveAttribute("poster", /spartan-hospice-coaching-intro-poster\.jpg$/);
+    await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
+    await expect(page.getByText("Motion paused")).toBeVisible();
+    await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
 
   test("homepage role deep links preserve the selected Pathfinder after navigation", async ({ page }) => {
