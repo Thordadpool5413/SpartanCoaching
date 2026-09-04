@@ -53,7 +53,10 @@ function HeroIntroVideo() {
 
   return (
     <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
-      <div className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-foreground shadow-[10px_10px_0_hsl(var(--primary))]">
+      <div
+        className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-foreground shadow-[10px_10px_0_hsl(var(--primary))]"
+        data-testid="hero-video-frame"
+      >
         {videoUnavailable ? (
           <img
             src={HERO_VIDEO_POSTER}
