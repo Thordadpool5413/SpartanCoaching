@@ -345,7 +345,7 @@ function AppLayout() {
 
   if (isWelcome) {
     return (
-      <main className="min-h-screen">
+      <main className="page-persuasion min-h-screen">
         <Router />
       </main>
     );
@@ -382,7 +382,7 @@ function AppLayout() {
             <TrialBanner />
           </Suspense>
         )}
-        <main id="main-content" className="flex-1 bg-background" tabIndex={-1}>
+        <main id="main-content" className="page-persuasion flex-1 bg-background" tabIndex={-1}>
           <Router />
         </main>
         {!isAuthShell && <Footer />}

@@ -11,7 +11,7 @@ import type { EmailPdfPayload } from "@/lib/downloadPdf";
 export default function TerritoryTemplate() {
   const { capture, gateState } = useLeadGate("Territory Template");
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-white text-black print:p-0">
+    <div className="page-persuasion max-w-5xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO />
       <div className="print:hidden">
         <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Territory Template" }]} />

@@ -40,7 +40,7 @@ export default function BrandVideo() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <div className="page-persuasion w-full max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <SEO
         title="Brand Video — Spartan Coaching"
         description="Share the Spartan Coaching brand video with prospects."

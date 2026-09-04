@@ -20,7 +20,7 @@ function destinationFromLocation(): ReturnType<typeof normalizeAppHandoffDestina
 export default function AppLander() {
   const destination = destinationFromLocation();
   return (
-    <div className="w-full flex flex-col min-h-screen bg-background" data-testid="page-app-lander">
+    <div className="page-persuasion w-full flex flex-col min-h-screen bg-background" data-testid="page-app-lander">
       <SEO 
         title="Hospice Sales Pro App | Spartan Coaching"
         description="The field system in your pocket. Hospice Sales Pro brings Command Center, objection handlers, and practice tools to your iPhone."

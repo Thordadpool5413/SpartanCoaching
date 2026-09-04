@@ -44,7 +44,7 @@ export default function FieldKitMembership() {
   const { canUseFieldKit } = useAuth();
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-hospice-sales-pro">
+    <div className="page-persuasion w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-hospice-sales-pro">
       <SEO />
 
       {/* This destination owns choosing and managing access, not tool discovery. */}

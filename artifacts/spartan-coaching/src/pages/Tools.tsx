@@ -174,7 +174,7 @@ export default function Tools() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
+    <div className="page-persuasion w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
       <SEO />
       <SlideUp>
         <div className="max-w-3xl mb-7">

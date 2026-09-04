@@ -117,7 +117,7 @@ export default function Method() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section surface-page">
+    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section surface-page">
       <SEO />
       <BackButton />
 

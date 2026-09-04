@@ -1,6 +1,5 @@
 import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
-import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,78 +17,45 @@ import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
 import founderPhoto from "@assets/nick-photo.jpg";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
-const PUBLIC_BASE = import.meta.env.BASE_URL.endsWith("/")
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
-const HERO_VIDEO_SRC = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro.mp4`;
-const HERO_VIDEO_POSTER = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro-poster.jpg`;
-
-function HeroIntroVideo() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [reduceMotion, setReduceMotion] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-  const [videoUnavailable, setVideoUnavailable] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = (event: MediaQueryListEvent) => setReduceMotion(event.matches);
-    query.addEventListener("change", onChange);
-    return () => query.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (reduceMotion) {
-      video.pause();
-      video.currentTime = 0;
-      return;
-    }
-    void video.play().catch(() => {
-      // The poster remains visible when a browser declines autoplay.
-    });
-  }, [reduceMotion]);
-
+function HeroSystemPanel() {
   return (
     <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
       <div
-        className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-foreground shadow-[10px_10px_0_hsl(var(--primary))]"
+        className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-background shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
       >
-        {videoUnavailable ? (
-          <img
-            src={HERO_VIDEO_POSTER}
-            alt="Spartan Hospice Coaching introduction"
-            width={1280}
-            height={720}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <video
-            ref={videoRef}
-            className="h-full w-full object-cover"
-            autoPlay={!reduceMotion}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={HERO_VIDEO_POSTER}
-            aria-describedby="home-hero-video-caption"
-            onError={() => setVideoUnavailable(true)}
-            data-testid="video-home-hero"
-          >
-            <source src={HERO_VIDEO_SRC} type="video/mp4" />
-          </video>
-        )}
-        {reduceMotion ? (
-          <span className="absolute bottom-3 right-3 bg-background/95 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
-            Motion paused
-          </span>
-        ) : null}
+        <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr]">
+          <div className="flex flex-col justify-between p-4 sm:p-6">
+            <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
+              The field operating system
+            </p>
+            <div className="space-y-0.5 font-display text-3xl uppercase leading-[0.9] text-foreground sm:text-4xl">
+              <p>Prepare.</p>
+              <p>Practice.</p>
+              <p className="text-primary">Execute.</p>
+              <p>Review.</p>
+            </div>
+            <p className="hidden max-w-xs text-sm font-semibold leading-snug text-foreground xl:block">
+              One disciplined rhythm for the conversations that move hospice growth forward.
+            </p>
+          </div>
+          <div className="relative border-l border-border bg-muted">
+            <img
+              src="/spartan-logo-stamp.png"
+              alt=""
+              aria-hidden
+              width={512}
+              height={512}
+              className="absolute inset-0 h-full w-full object-contain p-5 opacity-20"
+            />
+            <div className="absolute inset-x-0 bottom-0 border-t border-border bg-background p-4 text-center">
+              <p className="font-display text-2xl uppercase leading-none text-primary">Hospice Sales Pro</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <figcaption id="home-hero-video-caption" className="sr-only">
-        A short visual introduction to Spartan Hospice Coaching. The video is muted and pauses when reduced motion is preferred.
+      <figcaption className="sr-only">
+        The Spartan field operating system: prepare, practice, execute, and review.
       </figcaption>
     </figure>
   );
@@ -97,7 +63,7 @@ function HeroIntroVideo() {
 
 export default function Home() {
   return (
-    <div className="public-home flex flex-col bg-background text-foreground font-sans">
+    <div className="page-persuasion public-home flex flex-col bg-background text-foreground font-sans">
       <SEO />
       <Helmet>
         <script type="application/ld+json">
@@ -138,10 +104,10 @@ export default function Home() {
 
       {/* ── 1. HERO — SPLIT LAYOUT ── */}
       <section className="relative overflow-hidden border-b border-border bg-background" data-testid="section-hero" aria-labelledby="home-hero-title">
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="relative z-10 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] xl:gap-16">
             <div className="max-w-2xl text-left">
-              <p className="text-xs font-bold tracking-[0.15em] uppercase text-primary mb-6 flex items-center gap-2">
+              <p className="text-sm font-bold tracking-[0.1em] uppercase text-primary mb-6 flex items-center gap-2">
                 <span className="w-8 h-px bg-primary"></span>
                 Hospice Sales Consulting + Hospice Sales Pro
               </p>
@@ -155,7 +121,7 @@ export default function Home() {
                 <span className="text-primary">conversation</span><br/>
                 count.
               </h1>
-              <p className="mt-8 max-w-lg text-lg text-muted-foreground font-medium leading-relaxed">
+               <p className="mt-8 max-w-xl text-xl text-foreground font-medium leading-relaxed">
                 Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-3">
@@ -173,7 +139,7 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm font-bold uppercase tracking-[0.06em] text-foreground">
                 <span className="text-foreground">Built for <span className="text-spartan-red">leaders.</span></span>
                 <span className="text-foreground">Driven by <span className="text-spartan-red">experience.</span></span>
                 <span className="text-foreground">Focused on <span className="text-spartan-red">results.</span></span>
@@ -190,12 +156,12 @@ export default function Home() {
                   className="absolute right-0 top-[calc(9%+8px)] h-px w-[38%] bg-primary"
                   aria-hidden="true"
                 />
-                <HeroIntroVideo />
+                <HeroSystemPanel />
                 <div className="absolute bottom-1 left-0 z-20 border-l-4 border-primary bg-background/95 px-4 py-3">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                  <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
                     Field standard 01
                   </p>
-                  <p className="mt-1 font-display text-xl uppercase leading-none text-foreground">
+                  <p className="mt-1 font-display text-2xl uppercase leading-none text-foreground">
                     Prepared beats <span className="text-spartan-red">improvised.</span>
                   </p>
                 </div>
@@ -208,7 +174,7 @@ export default function Home() {
 
       {/* CAPABILITY STRIP */}
       <section className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-9 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-7">
           <div className="flex gap-4">
             <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
             <div>

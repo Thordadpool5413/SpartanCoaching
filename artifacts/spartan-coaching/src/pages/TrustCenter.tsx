@@ -18,7 +18,7 @@ import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function TrustCenter() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-10" data-testid="page-trust-center">
+    <div className="page-persuasion max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-10" data-testid="page-trust-center">
       <SEO
         title="Trust Center | Spartan Coaching"
         description="How Hospice Sales Pro handles data, AI, billing, consent, and professional boundaries — plain language."

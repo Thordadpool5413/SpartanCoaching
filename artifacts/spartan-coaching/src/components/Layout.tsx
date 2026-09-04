@@ -39,7 +39,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
+        "relative px-3 py-3 text-sm leading-none font-mono font-bold uppercase tracking-[0.08em] transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
         isActive
           ? "text-foreground border-border bg-muted/20"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -58,7 +58,7 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       onClick={onClose}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "px-4 py-4 rounded-none text-xs font-mono uppercase tracking-widest font-bold touch-manipulation min-h-[48px] flex items-center transition-all border-b border-border",
+        "px-4 py-4 rounded-none text-sm font-mono uppercase tracking-[0.08em] font-bold touch-manipulation min-h-[52px] flex items-center transition-all border-b border-border",
         location === href
           ? "text-primary bg-primary/5 border-primary/30 shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
           : "text-foreground bg-transparent border-transparent active:bg-muted/50"
@@ -73,7 +73,7 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
 function MobileNavSection({ title }: { title: string }) {
   return (
     <div className="pt-3 pb-1">
-      <span className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+      <span className="px-4 text-sm font-semibold text-muted-foreground uppercase tracking-[0.08em]">{title}</span>
     </div>
   );
 }
@@ -156,7 +156,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "px-4 py-2 border border-transparent hover:border-border text-xs font-mono font-bold uppercase tracking-widest transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer rounded-none",
+          "px-3 py-3 border border-transparent hover:border-border text-sm leading-none font-mono font-bold uppercase tracking-[0.08em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
           isGroupActive || open
             ? "text-primary border-b-2 border-primary rounded-none"
             : "text-foreground hover:text-foreground"
@@ -238,7 +238,7 @@ export function NavDropdown({ label, items, dataTestId }: {
               onClick={() => setOpen(false)}
             >
               <div className="font-medium">{item.label}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+              <div className="text-sm leading-snug text-muted-foreground mt-1">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -279,10 +279,10 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
+    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top">
+      <div className="public-site-header-inner max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 h-[4.5rem] sm:h-20 md:h-[5.25rem] flex items-center safe-area-x">
         {/* Brand — fixed footprint, never collides with nav */}
-        <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">
+        <div className="public-site-brand shrink-0 flex items-center pr-3 sm:pr-5 xl:pr-7 xl:mr-2 xl:border-r xl:border-border">
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
@@ -301,7 +301,7 @@ export function Header() {
                 <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
                   SPARTAN COACHING
                 </span>
-                <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
+                <span className="hidden md:block text-xs leading-none font-bold uppercase tracking-[0.08em] text-muted-foreground mt-1.5 whitespace-nowrap">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -311,7 +311,7 @@ export function Header() {
 
         {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
+          className="hidden xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-3 2xl:px-6"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -333,16 +333,17 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
+        <div className="public-site-actions flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 xl:pl-5 xl:border-l xl:border-border">
           <AppearanceControls
             compact
-            className="touch-manipulation"
+            className="hidden xl:inline-flex touch-manipulation"
             testId="button-appearance-header"
           />
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden touch-manipulation text-foreground"
+            className="header-utility-control xl:hidden touch-manipulation border border-[#b9bbc1] bg-white !text-[#111522] hover:bg-[#f4f4f5]"
+            style={{ color: "#111522" }}
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -350,24 +351,20 @@ export function Header() {
             <Search className="w-5 h-5" />
           </Button>
           {!isAuthenticated && (
-            <Button
-              size="sm"
-              variant="ghost"
-              asChild
-              className="hidden lg:inline-flex font-semibold !text-foreground hover:!text-primary"
+            <Link
+              href="/login"
+              className="header-login-control hidden xl:inline-flex min-h-11 items-center gap-2 px-3 text-sm font-bold text-[#111522] hover:text-primary"
               data-testid="button-login"
             >
-              <Link href="/login" className="!text-foreground hover:!text-primary">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Link>
-            </Button>
+              <LogIn className="w-4 h-4" />
+              Login
+            </Link>
           )}
           {isAuthenticated ? (
             <Button
               size="sm"
               asChild
-              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              className="hidden xl:inline-flex min-h-11 rounded-none px-4 text-sm font-bold shrink-0"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -378,7 +375,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              className="hidden xl:inline-flex min-h-11 rounded-none px-4 text-sm font-bold shrink-0"
               data-testid="button-book-call"
             >
               <Link href="/contact">Book a strategy call</Link>
@@ -391,11 +388,15 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden touch-manipulation"
+                className="header-utility-control xl:hidden w-auto touch-manipulation gap-2 border border-[#b9bbc1] bg-white px-3 !text-[#111522] hover:bg-[#f4f4f5]"
+                style={{ color: "#111522" }}
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >
                 <Menu className="w-6 h-6" />
+                <span className="text-sm font-mono font-bold uppercase tracking-[0.08em]">
+                  Menu
+                </span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">

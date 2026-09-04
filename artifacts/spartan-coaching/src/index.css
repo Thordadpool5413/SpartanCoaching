@@ -1583,6 +1583,38 @@ body {
       0 12px 40px -16px rgba(0, 0, 0, 0.55);
   }
 
+  /*
+   * Public chrome stays opaque and independent from workspace appearance.
+   * Translucent blur made small navigation text look soft over moving pages.
+   */
+  .public-site-header {
+    --background: 0 0% 100%;
+    --foreground: 228 33% 8%;
+    --muted-foreground: 220 9% 29%;
+    --border: 220 9% 72%;
+    --primary: 357 86% 45%;
+    --primary-foreground: 0 0% 100%;
+    background: hsl(0 0% 100%);
+    color: hsl(228 33% 8%);
+    border-bottom: 1px solid hsl(220 9% 72%);
+    box-shadow: 0 1px 0 hsl(357 86% 45% / 0.12);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .public-site-header .text-foreground,
+  .public-site-header .header-login-control,
+  .public-site-header .header-utility-control {
+    color: hsl(228 33% 8%) !important;
+    opacity: 1 !important;
+  }
+  .public-site-header .text-muted-foreground {
+    color: hsl(220 9% 29%) !important;
+  }
+  .public-site-header a,
+  .public-site-header button {
+    text-rendering: geometricPrecision;
+  }
+
   /* Surface noise — fine grain texture for premium depth */
   .surface-noise {
     position: relative;
@@ -1634,6 +1666,8 @@ body {
     --primary: 357 86% 45%;
     --primary-foreground: 0 0% 100%;
     --ring: 357 86% 45%;
+    --muted-foreground: 220 9% 29%;
+    --border: 220 9% 72%;
   }
   .text-kicker::before {
     content: "";
@@ -1655,17 +1689,43 @@ body {
     --foreground: 228 33% 8%;
     --card: 0 0% 100%;
     --card-foreground: 228 33% 8%;
-    --border: 220 9% 80%;
+    --border: 220 9% 72%;
     --primary: 357 86% 45%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 228 33% 8%;
     --muted: 0 0% 95%;
-    --muted-foreground: 220 8% 38%;
+    --muted-foreground: 220 9% 29%;
     --accent: 0 0% 96%;
     --accent-foreground: 357 86% 45%;
     --input: 220 9% 80%;
     --ring: 357 86% 45%;
+  }
+
+  /*
+   * Public readability floor. Meaningful public copy must remain readable at
+   * normal browser zoom; the authenticated workspace keeps its denser scale.
+   */
+  .page-persuasion .text-xs {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  .page-persuasion .text-\[9px\],
+  .page-persuasion .text-\[10px\],
+  .page-persuasion .text-\[11px\] {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  .page-persuasion .text-sm {
+    line-height: 1.55;
+  }
+  .page-persuasion .text-muted-foreground {
+    color: hsl(220 9% 29%);
+  }
+  .page-persuasion input,
+  .page-persuasion textarea,
+  .page-persuasion select {
+    border-color: hsl(220 9% 62%);
   }
 
   .page-persuasion,

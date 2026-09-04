@@ -11,7 +11,7 @@ import type { EmailPdfPayload } from "@/lib/downloadPdf";
 export default function QuickStartGuide() {
   const { capture, gateState } = useLeadGate("Quick Start Guide");
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
+    <div className="page-persuasion max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO />
       <div className="print:hidden">
         <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Quick Start Guide" }]} />

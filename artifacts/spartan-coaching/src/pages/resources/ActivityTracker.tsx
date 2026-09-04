@@ -73,7 +73,7 @@ function DaySection({ day }: { day: string }) {
 export default function ActivityTracker() {
   const { capture, gateState } = useLeadGate("Weekly Activity Tracker");
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
+    <div className="page-persuasion max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO title="Weekly Activity Tracker | Spartan Coaching" />
       <div className="print:hidden">
         <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Weekly Activity Tracker" }]} />

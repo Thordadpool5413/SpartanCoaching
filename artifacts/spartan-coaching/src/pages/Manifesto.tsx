@@ -16,7 +16,7 @@ function PullQuote({ children }: { children: React.ReactNode }) {
       <SlideUpFade>
         <div className="relative max-w-5xl mx-auto px-6 sm:px-8 text-center py-20">
           <p
-            className="font-display font-black text-white leading-[1.0] tracking-tight"
+            className="font-display font-black text-foreground leading-[1.0] tracking-tight"
             style={{ fontSize: "clamp(2.2rem, 5.5vw, 5rem)" }}
           >
             {children}
@@ -70,7 +70,7 @@ function Pillar({ number, label, title, Icon, dark = false, children }: PillarPr
 
 export default function Manifesto() {
   return (
-    <div className="w-full">
+    <div className="page-persuasion w-full">
       <SEO />
 
       {/* Hero — full viewport, stamp watermark, massive headline */}

@@ -444,7 +444,7 @@ export default function Programs() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">

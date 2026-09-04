@@ -31,7 +31,7 @@ export default function Articles() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="page-persuasion min-h-screen">
         <SEO />
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <Skeleton className="h-10 w-64 mb-4" />
@@ -54,7 +54,7 @@ export default function Articles() {
 
   if (articles.length === 0) {
     return (
-      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
@@ -68,7 +68,7 @@ export default function Articles() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
       
