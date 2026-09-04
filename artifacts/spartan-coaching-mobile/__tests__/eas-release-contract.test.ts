@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-type BuildProfile = { env?: Record<string, string> };
+type BuildProfile = { env?: Record<string, string>; node?: string };
 
 describe("iOS release associated-domains contract", () => {
   const easPath = path.resolve(__dirname, "../eas.json");
@@ -13,6 +13,14 @@ describe("iOS release associated-domains contract", () => {
   ) as { scripts: Record<string, string> };
   const verifier = fs.readFileSync(
     path.resolve(__dirname, "../../../scripts/verify-testflight.sh"),
+    "utf8",
+  );
+  const metroConfig = fs.readFileSync(
+    path.resolve(__dirname, "../metro.config.js"),
+    "utf8",
+  );
+  const easIgnore = fs.readFileSync(
+    path.resolve(__dirname, "../.easignore"),
     "utf8",
   );
 
@@ -56,5 +64,16 @@ describe("iOS release associated-domains contract", () => {
     expect(verifier).not.toContain('if [[ "$PROFILE" == *"-applinks" ]]');
     expect(verifier).toContain("/api/healthz/ai");
     expect(verifier).toContain('v.ok!==true || v.status!=="ready"');
+  });
+
+  it("uses one deterministic Metro and EAS runtime for store builds", () => {
+    expect(eas.build.testflight.node).toBe("24.19.0");
+    expect(eas.build.production.node).toBe("24.19.0");
+    expect(metroConfig).toContain('require("expo/metro-config")');
+    expect(metroConfig).not.toContain("watchFolders");
+    expect(metroConfig).not.toContain("nodeModulesPaths");
+    expect(verifier).toContain("expo export:embed");
+    expect(easIgnore).toContain("**/node_modules/");
+    expect(easIgnore).toContain("attached_assets/");
   });
 });
