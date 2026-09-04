@@ -96,6 +96,18 @@ if (!requestsAssociatedDomains && domains.length) throw new Error("This profile 
 console.log(JSON.stringify({ bundleIdentifier: config.ios.bundleIdentifier, routerOrigin: router[1].origin, associatedDomains: domains }));
 NODE
 
+echo "Building the production iOS embed bundle"
+IOS_BUNDLE_DIR="$(mktemp -d)"
+(cd "$MOBILE" && "${PNPM[@]}" exec expo export:embed \
+  --platform ios \
+  --dev false \
+  --entry-file node_modules/expo-router/entry.js \
+  --bundle-output "$IOS_BUNDLE_DIR/main.jsbundle" \
+  --assets-dest "$IOS_BUNDLE_DIR/assets" \
+  --reset-cache \
+  --minify true)
+test -s "$IOS_BUNDLE_DIR/main.jsbundle"
+
 echo "[8/9] Verify production health and optional AASA"
 echo "Checking production API health"
 if ! HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"; then
