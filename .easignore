@@ -17,6 +17,7 @@
 # Media & design dumps (hundreds of MB; not needed for native build)
 attached_assets/
 *.mp4
+!artifacts/spartan-coaching-mobile/assets/videos/spartan-launch-film.mp4
 *.mov
 *.webm
 SpartanCoaching-*.mp4
