@@ -341,7 +341,7 @@ export function Header() {
         <div className="public-site-actions flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 2xl:pl-5 2xl:border-l 2xl:border-border">
           <AppearanceControls
             compact
-            className="hidden 2xl:inline-flex touch-manipulation"
+            className="hidden xl:inline-flex touch-manipulation"
             testId="button-appearance-header"
           />
           <Button

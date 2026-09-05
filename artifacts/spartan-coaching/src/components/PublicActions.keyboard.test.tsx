@@ -69,4 +69,28 @@ describe("public keyboard actions", () => {
     expect(light.getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText(/active theme/i).parentElement?.getAttribute("aria-live")).toBe("polite");
   });
+
+  it("applies accent and background swatches to the live document", async () => {
+    render(
+      <ThemeProvider>
+        <AppearanceControls />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /change theme colors/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "Use Steel Blue" }));
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.accent).toBe("blue");
+      expect(document.documentElement.style.getPropertyValue("--primary")).toBe("213 80% 42%");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Use Warm Paper" }));
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.bg).toBe("warm");
+      expect(document.documentElement.dataset.themeMode).toBe("light");
+      expect(document.documentElement.style.getPropertyValue("--background")).toBe("40 45% 96%");
+    });
+  });
 });
