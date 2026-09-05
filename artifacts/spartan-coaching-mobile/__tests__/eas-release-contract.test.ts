@@ -80,5 +80,8 @@ describe("iOS release associated-domains contract", () => {
     expect(fs.existsSync(path.resolve(__dirname, "../.easignore"))).toBe(false);
     expect(easIgnore).toContain("**/node_modules/");
     expect(easIgnore).toContain("attached_assets/");
+    expect(easIgnore).toContain(
+      "!artifacts/spartan-coaching-mobile/assets/videos/spartan-launch-film.mp4",
+    );
   });
 });
