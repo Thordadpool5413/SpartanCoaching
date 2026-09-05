@@ -15,19 +15,19 @@ import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { FieldBriefExperience } from "@/components/FieldBriefExperience";
 import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
 import founderPhoto from "@assets/nick-photo.jpg";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
 function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [showMotionPaused, setShowMotionPaused] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handleMotionPreference = (e: MediaQueryListEvent | MediaQueryList) => {
+    
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setShowMotionPaused(e.matches);
       if (videoRef.current) {
         if (e.matches) {
           videoRef.current.pause();
@@ -39,16 +39,19 @@ function HeroSystemPanel() {
       }
     };
 
-    // Initial check
-    handleMotionPreference(mediaQuery);
+    // Check initial state
+    setShowMotionPaused(mediaQuery.matches);
+    if (videoRef.current && mediaQuery.matches) {
+      videoRef.current.pause();
+    }
 
     // Listen for changes
-    mediaQuery.addEventListener("change", handleMotionPreference);
-    return () => mediaQuery.removeEventListener("change", handleMotionPreference);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   return (
-    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10" ref={containerRef}>
+    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
       <div
         className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-background shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
@@ -69,14 +72,16 @@ function HeroSystemPanel() {
           />
         </video>
 
-        {/* Reduced motion indicator */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300" style={{
-          opacity: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 0,
-        }}>
-          <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary bg-background/90 px-4 py-2">
-            Motion paused
-          </p>
-        </div>
+        {/* Reduced motion indicator overlay */}
+        {showMotionPaused && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
+            <div className="bg-background/90 px-4 py-2">
+              <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
+                Motion paused
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr] pointer-events-none">
           <div className="flex flex-col justify-between p-4 sm:p-6">
@@ -128,7 +133,7 @@ export default function Home() {
                 "@type": "ProfessionalService",
                 "@id": `${CANONICAL_ORIGIN}/#organization`,
                 name: "Spartan Coaching",
-                description: "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and me[...]",
+                description: "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and more.",
                 url: CANONICAL_ORIGIN,
                 email: "nick@spartanhospicecoaching.com",
                 founder: {
@@ -178,13 +183,13 @@ export default function Home() {
                 Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none" data-tes[...]
+                <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none">
                   <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
                     Explore consulting
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted hove[...]
+                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted">
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
                     See Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -192,7 +197,7 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground[...]
+              <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Built for <span className="text-foreground">leaders</span></span>
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Driven by <span className="text-foreground">experience</span></span>
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Focused on <span className="text-foreground">results</span></span>
@@ -283,7 +288,7 @@ export default function Home() {
               The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
             </h2>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-[1.7] mb-12 max-w-2xl mx-auto text-balance">
-              Eligible patients miss hospice because the right conversations never happen — a stalled referral, a "not yet" without a response, a family who was never asked. Spartan exists [...]
+              Eligible patients miss hospice because the right conversations never happen — a stalled referral, a "not yet" without a response, a family who was never asked. Spartan exists to close that gap.
             </p>
             <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors border-b-2 border-primary pb-1">
               Read the Spartan Ethos
@@ -356,7 +361,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.prima[...]
+                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.primary ? "default" : "outline"}>
                       <Link href={p.href} onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, p.primary ? "home_consulting" : "home_hospice_sales_pro")}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-5 h-5" />
@@ -446,13 +451,13 @@ export default function Home() {
               Start with the next move that fits your work. We will keep the path clear from there.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground"[...]
+              <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground">
                 <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")}>
                   Book a strategy call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none border-2 border-background text-background hover:bg-backgro[...]
+              <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none border-2 border-background text-background hover:bg-background/10">
                 <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")}>
                   Explore Hospice Sales Pro
                 </Link>
