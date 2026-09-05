@@ -15,16 +15,70 @@ import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { FieldBriefExperience } from "@/components/FieldBriefExperience";
 import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
 import founderPhoto from "@assets/nick-photo.jpg";
+import { useEffect, useRef } from "react";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
+
 function HeroSystemPanel() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleMotionPreference = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (videoRef.current) {
+        if (e.matches) {
+          videoRef.current.pause();
+        } else {
+          videoRef.current.play().catch(() => {
+            // Video autoplay may fail in some browsers; this is acceptable
+          });
+        }
+      }
+    };
+
+    // Initial check
+    handleMotionPreference(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener("change", handleMotionPreference);
+    return () => mediaQuery.removeEventListener("change", handleMotionPreference);
+  }, []);
+
   return (
-    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
+    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10" ref={containerRef}>
       <div
         className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-background shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
       >
-        <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr]">
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          poster="/spartan-hospice-coaching-intro-poster.jpg"
+          muted
+          playsInline
+          preload="none"
+        >
+          <source src="/spartan-hospice-coaching-intro.webm" type="video/webm" />
+          <img
+            src="/spartan-hospice-coaching-intro-poster.jpg"
+            alt="Spartan hospice coaching intro"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </video>
+
+        {/* Reduced motion indicator */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300" style={{
+          opacity: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 0,
+        }}>
+          <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary bg-background/90 px-4 py-2">
+            Motion paused
+          </p>
+        </div>
+
+        <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr] pointer-events-none">
           <div className="flex flex-col justify-between p-4 sm:p-6">
             <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
               The field operating system
@@ -74,7 +128,7 @@ export default function Home() {
                 "@type": "ProfessionalService",
                 "@id": `${CANONICAL_ORIGIN}/#organization`,
                 name: "Spartan Coaching",
-                description: "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.",
+                description: "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and me[...]",
                 url: CANONICAL_ORIGIN,
                 email: "nick@spartanhospicecoaching.com",
                 founder: {
@@ -124,13 +178,13 @@ export default function Home() {
                 Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none" data-testid="button-hero-consulting">
+                <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none" data-tes[...]
                   <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
                     Explore consulting
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted hover:border-foreground" data-testid="button-hero-product">
+                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted hove[...]
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
                     See Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -138,7 +192,7 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+              <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground[...]
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Built for <span className="text-foreground">leaders</span></span>
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Driven by <span className="text-foreground">experience</span></span>
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Focused on <span className="text-foreground">results</span></span>
@@ -229,7 +283,7 @@ export default function Home() {
               The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
             </h2>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-[1.7] mb-12 max-w-2xl mx-auto text-balance">
-              Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
+              Eligible patients miss hospice because the right conversations never happen — a stalled referral, a "not yet" without a response, a family who was never asked. Spartan exists [...]
             </p>
             <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors border-b-2 border-primary pb-1">
               Read the Spartan Ethos
@@ -253,7 +307,7 @@ export default function Home() {
             {[
               {
                 icon: Briefcase,
-                kicker: "Offer A \u00B7 Consulting",
+                kicker: "Offer A · Consulting",
                 title: "HUMAN COACHING",
                 desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
                 features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
@@ -264,13 +318,13 @@ export default function Home() {
               },
               {
                 icon: Wrench,
-                kicker: "Offer B \u00B7 Hospice Sales Pro",
+                kicker: "Offer B · Hospice Sales Pro",
                 title: "THE TOOLS PRODUCT",
                 desc: "What you actually get: daily Command Center, practice tools, plans, calculators, and field resources.",
                 features: [
                   "Sales Command Center",
-                  "Objections \u00B7 role-play \u00B7 email",
-                  "Weekly plan \u00B7 activity \u00B7 ROI",
+                  "Objections · role-play · email",
+                  "Weekly plan · activity · ROI",
                 ],
                 href: "/hospice-sales-pro",
                 cta: "Explore Hospice Sales Pro",
@@ -302,7 +356,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.primary ? "default" : "outline"}>
+                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.prima[...]
                       <Link href={p.href} onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, p.primary ? "home_consulting" : "home_hospice_sales_pro")}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-5 h-5" />
@@ -392,13 +446,13 @@ export default function Home() {
               Start with the next move that fits your work. We will keep the path clear from there.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground" data-testid="button-closing-contact">
+              <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground"[...]
                 <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")}>
                   Book a strategy call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none border-2 border-background text-background hover:bg-background hover:text-foreground" data-testid="button-closing-hospice-sales-pro">
+              <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none border-2 border-background text-background hover:bg-backgro[...]
                 <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")}>
                   Explore Hospice Sales Pro
                 </Link>
