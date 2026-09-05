@@ -49,15 +49,19 @@ describe("Field Guide experience contract", () => {
     expect(rootLayout).toContain('name="tour"');
   });
 
-  it("uses the transparent helmet as the native mark and preserves the distressed logo asset", () => {
+  it("uses the supplied brand film for the accessible native launch experience", () => {
     const stamp = read("components/brand/BrandStamp.tsx");
     const helmet = read("components/brand/HelmetMark.tsx");
     const launch = read("components/LaunchExperience.tsx");
 
     expect(stamp).toContain("brand-stamp.png");
     expect(helmet).toContain("helmet-mark.png");
-    expect(launch).toContain("<HelmetMark");
-    expect(launch).not.toContain("<BrandStamp");
+    expect(launch).toContain("spartan-launch-film.mp4");
+    expect(launch).toContain("useVideoPlayer");
+    expect(launch).toContain('contentFit="contain"');
+    expect(launch).toContain('accessibilityLabel="Skip introduction"');
+    expect(launch).toContain('player.addListener("playToEnd"');
+    expect(launch).toContain("12_000");
   });
 
   it("locks the approved Figma Home target and its native action hierarchy", () => {
