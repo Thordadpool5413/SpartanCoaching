@@ -22,58 +22,102 @@ const CANONICAL_ORIGIN = SITE_ORIGIN;
 function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showMotionPaused, setShowMotionPaused] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    
-    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+
+    const handleChange = (e: MediaQueryListEvent) => {
       setShowMotionPaused(e.matches);
-      if (videoRef.current) {
-        if (e.matches) {
-          videoRef.current.pause();
-        } else {
-          videoRef.current.play().catch(() => {
-            // Video autoplay may fail in some browsers; this is acceptable
-          });
-        }
-      }
     };
 
-    // Check initial state
     setShowMotionPaused(mediaQuery.matches);
-    if (videoRef.current && mediaQuery.matches) {
-      videoRef.current.pause();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
     }
 
-    // Listen for changes
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || videoFailed) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "true");
+    video.playsInline = true;
+
+    if (showMotionPaused) {
+      video.pause();
+      return;
+    }
+
+    const tryPlay = () => {
+      void video.play().catch(() => {
+        // Autoplay can be blocked by browser policy; the poster remains visible.
+      });
+    };
+
+    tryPlay();
+    video.addEventListener("loadeddata", tryPlay);
+    video.addEventListener("canplay", tryPlay);
+    const firstRetry = window.setTimeout(tryPlay, 150);
+    const secondRetry = window.setTimeout(tryPlay, 800);
+
+    return () => {
+      video.removeEventListener("loadeddata", tryPlay);
+      video.removeEventListener("canplay", tryPlay);
+      window.clearTimeout(firstRetry);
+      window.clearTimeout(secondRetry);
+    };
+  }, [showMotionPaused, videoFailed]);
 
   return (
     <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
       <div
-        className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-background shadow-[10px_10px_0_hsl(var(--primary))]"
+        className="hero-video-frame hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-black shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
       >
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          poster="/spartan-hospice-coaching-intro-poster.jpg"
-          muted
-          playsInline
-          preload="none"
-        >
-          <source src="/spartan-hospice-coaching-intro.webm" type="video/webm" />
+        {videoFailed ? (
           <img
-            src="/spartan-hospice-coaching-intro-poster.jpg"
-            alt="Spartan hospice coaching intro"
+            src="/hero-poster.jpg"
+            alt="Spartan Coaching field operating system"
             className="absolute inset-0 h-full w-full object-cover"
           />
-        </video>
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/hero-poster.jpg"
+            className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover"
+            data-testid="hero-video"
+            aria-label="Spartan Coaching brand mark animation"
+            style={{ pointerEvents: "none" }}
+            onError={() => setVideoFailed(true)}
+          >
+            <source src="/hero-video-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+            <source src="/hero-video.mp4" type="video/mp4" />
+            <img
+              src="/hero-poster.jpg"
+              alt="Spartan Coaching field operating system"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </video>
+        )}
 
         {/* Reduced motion indicator overlay */}
-        {showMotionPaused && (
+        {showMotionPaused && !videoFailed && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
             <div className="bg-background/90 px-4 py-2">
               <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
@@ -205,7 +249,7 @@ export default function Home() {
             </div>
 
             <div className="w-full min-w-0 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[34rem] min-h-[24rem] sm:min-h-[30rem] lg:min-h-[32rem] overflow-hidden">
+              <div className="relative w-full max-w-[40rem] min-h-[27rem] sm:min-h-[34rem] lg:min-h-[38rem] xl:max-w-[44rem] overflow-hidden">
                 <div
                   className="absolute right-0 top-[9%] h-px w-[78%] bg-foreground"
                   aria-hidden="true"
