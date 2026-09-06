@@ -14,13 +14,13 @@ export function StreakStrip({ data }: { data: StreakData }) {
   return (
     <View style={styles.shell} accessibilityLabel="Weekly activity">
       <View style={styles.item}>
-        <Feather name="zap" size={16} color={colors.primary} />
+        <Feather name="zap" size={16} color={colors.readablePrimary} />
         <Text style={styles.value}>{data.streakDays ?? 0}</Text>
         <Text style={styles.label}>day streak</Text>
       </View>
       <View style={styles.divider} />
       <View style={styles.item}>
-        <Feather name="check-circle" size={16} color={colors.primary} />
+        <Feather name="check-circle" size={16} color={colors.readablePrimary} />
         <Text style={styles.value}>{data.toolsThisWeek ?? 0}</Text>
         <Text style={styles.label}>this week</Text>
       </View>
@@ -28,7 +28,7 @@ export function StreakStrip({ data }: { data: StreakData }) {
         <>
           <View style={styles.divider} />
           <View style={styles.item}>
-            <Feather name="calendar" size={16} color={colors.primary} />
+            <Feather name="calendar" size={16} color={colors.readablePrimary} />
             <Text numberOfLines={1} style={styles.label}>{data.nextVisitTime}</Text>
           </View>
         </>

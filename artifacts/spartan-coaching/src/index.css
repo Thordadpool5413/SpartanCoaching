@@ -3322,6 +3322,99 @@ html[data-theme-preset="mamba"] .public-home .mamba-gold-action {
   color: var(--mamba-black) !important;
 }
 
+/* Shared public-page readability contract. Several legacy public routes use
+ * gray/red utility classes instead of the semantic theme tokens; on Mamba's
+ * black surface those values are too dim or leave purple as tiny foreground
+ * text. Normalize the readable roles at the page boundary. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-gray-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-zinc-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-slate-"] {
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-red-"] {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion {
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
+  --secondary: 42 98% 57%;
+  --secondary-foreground: 0 0% 10%;
+  --accent: 42 98% 57%;
+  --accent-foreground: 0 0% 10%;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .text-kicker {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .text-kicker::before {
+  background: var(--mamba-gold) !important;
+  box-shadow: 0 0 10px rgb(253 185 39 / .65);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion [class*="text-gray-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion [class*="text-zinc-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion [class*="text-slate-"] {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="light"] main.page-persuasion [class*="text-red-"] {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion {
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
+  --secondary: 42 98% 57%;
+  --secondary-foreground: 0 0% 10%;
+  --accent: 42 98% 57%;
+  --accent-foreground: 0 0% 10%;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-kicker {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-kicker::before {
+  background: var(--mamba-purple) !important;
+  box-shadow: 0 0 10px rgb(85 37 131 / .3);
+}
+
+/* Workspace utility classes need the same protection because tool cards and
+ * command-rail labels are often authored with gray/zinc utilities. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-gray-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-zinc-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-slate-"] {
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium [class*="text-gray-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium [class*="text-zinc-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium [class*="text-slate-"] {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-overline,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-next-top,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-section-heading p,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-mission-header,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-mission-action,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-utility-rail svg,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .command-dashboard-label,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .coach-summary-grid span {
+  color: var(--mamba-gold) !important;
+}
+
 html[data-theme-preset="mamba"] [class*="bg-black/"] {
   background-color: rgb(26 26 26 / .86) !important;
 }

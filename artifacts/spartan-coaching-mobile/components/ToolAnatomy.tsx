@@ -16,7 +16,7 @@ function SectionLabel({ label }: { label: string }) {
     <Text
       style={[
         {
-          color: colors.primary,
+          color: colors.readablePrimary,
           fontSize: 10,
           letterSpacing: 1.4,
           textTransform: "uppercase",
@@ -111,7 +111,7 @@ export function ToolAnatomyRelated({
           accessibilityRole="button"
           accessibilityLabel={item.label}
         >
-          <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
+          <Text style={[{ color: colors.readablePrimary, fontSize: 13 }, font("semibold")]}>
             {item.label}
           </Text>
           {item.kind ? (

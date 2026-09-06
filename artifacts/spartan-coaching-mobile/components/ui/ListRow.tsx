@@ -55,7 +55,7 @@ export function ListRow({
         styles.row,
         {
           backgroundColor: colors.card,
-          borderColor: emphasized ? colors.primary : colors.border,
+          borderColor: emphasized ? colors.readablePrimary : colors.border,
           borderWidth: emphasized ? 1.5 : StyleSheet.hairlineWidth * 2,
           opacity: pressed && onPress ? 0.92 : 1,
           transform: [pressScale(!!(pressed && onPress), reduceMotion, 0.99)],
@@ -71,7 +71,7 @@ export function ListRow({
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         >
-          <Feather name={icon} size={18} color={colors.primary} />
+          <Feather name={icon} size={18} color={colors.readablePrimary} />
         </View>
       ) : null}
       <View style={{ flex: 1, minWidth: 0 }}>

@@ -42,7 +42,7 @@ export function WorkspaceGuide() {
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text
-            style={[styles.kicker, { color: colors.primary }, font("bold")]}
+            style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}
           >
             HOW THE WORKSPACE WORKS
           </Text>
@@ -83,7 +83,7 @@ export function WorkspaceGuide() {
           >
             {step.body}
           </Text>
-          <Feather name="arrow-right" size={18} color={colors.primary} />
+          <Feather name="arrow-right" size={18} color={colors.readablePrimary} />
         </Pressable>
       ))}
     </View>

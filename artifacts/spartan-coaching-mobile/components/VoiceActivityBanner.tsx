@@ -28,6 +28,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     safe: { alignItems: "center", left: 0, position: "absolute", right: 0, top: 0, zIndex: 1000 },
     banner: { alignItems: "center", backgroundColor: colors.foreground, borderRadius: 999, flexDirection: "row", gap: 8, marginTop: 6, paddingHorizontal: 14, paddingVertical: 9 },
     text: { color: colors.background, fontSize: 13, ...font("semibold") },
-    level: { backgroundColor: colors.primary, borderRadius: 999, height: 7, width: 7 },
+    level: { backgroundColor: colors.readablePrimary, borderRadius: 999, height: 7, width: 7 },
   });
 }

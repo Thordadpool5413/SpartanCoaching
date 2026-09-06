@@ -23,7 +23,7 @@ export function StatusChip({ label, role = "neutral", testID }: Props) {
       : role === "trial" || role === "warning"
         ? colors.warning
         : role === "locked" || role === "expired"
-          ? colors.primary
+          ? colors.readablePrimary
           : colors.mutedForeground;
 
   return (
@@ -39,7 +39,7 @@ export function StatusChip({ label, role = "neutral", testID }: Props) {
         },
       ]}
     >
-      <View style={[styles.dot, { backgroundColor: tone || colors.primary }]} />
+      <View style={[styles.dot, { backgroundColor: tone || colors.readablePrimary }]} />
       <Text
         maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
         style={[{ color: colors.foreground, fontSize: 12 }, font("semibold")]}

@@ -25,11 +25,11 @@ export function CitationsBlock({
     <View
       style={[
         styles.box,
-        { borderColor: colors.primary + "40", backgroundColor: colors.primary + "14" },
+        { borderColor: colors.readablePrimary + "40", backgroundColor: colors.primary + "14" },
       ]}
       testID="spartan-citations"
     >
-      <Text style={[styles.kicker, { color: colors.primary }]}>{title}</Text>
+      <Text style={[styles.kicker, { color: colors.readablePrimary }]}>{title}</Text>
       {items.map((c) => (
         <View key={c.id} style={styles.row}>
           <Text style={[styles.itemTitle, { color: colors.foreground }]}>{c.title}</Text>

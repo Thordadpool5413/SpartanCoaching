@@ -14,3 +14,9 @@ Mamba is the default visual preset for fresh web sessions and fresh mobile insta
 **Why:** The requested purple-and-gold identity needs to be visible immediately; leaving Mamba opt-in made the shipped experience continue opening in the old Spartan treatment.
 
 **How to apply:** Keep first-paint bootstrap fallbacks, React defaults, and native appearance hydration aligned on Mamba, while preserving an explicit-choice marker so legacy Spartan storage is migrated only when it was not intentionally selected.
+
+Public route shells can locally reset semantic variables and legacy utility classes can bypass them; theme coverage therefore needs a late, route-wide readability layer that rebinds the shell and normalizes small labels/gray copy, not only component-level token changes.
+
+**Why:** Resources, Tools, and Contact remained low contrast after the palette itself was correct because their shared public wrapper reintroduced red/dim gray and the kicker component read the wrapper's old primary value.
+
+**How to apply:** After any named-theme pass, verify representative public routes at phone width and cover shell-level `text-kicker`, muted/gray utilities, and local `--primary` resets before auditing individual cards.

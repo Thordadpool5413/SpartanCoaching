@@ -128,9 +128,9 @@ export function EmptyState({ title, body, icon = "inbox", variant = "generic", c
         importantForAccessibility="no-hide-descendants"
       >
         {variant !== "generic" ? (
-          <Illustration variant={variant} primary={colors.primary} muted={colors.muted} />
+          <Illustration variant={variant} primary={colors.readablePrimary} muted={colors.muted} />
         ) : (
-          <Feather name={icon} size={22} color={colors.primary} />
+          <Feather name={icon} size={22} color={colors.readablePrimary} />
         )}
       </View>
       <Text

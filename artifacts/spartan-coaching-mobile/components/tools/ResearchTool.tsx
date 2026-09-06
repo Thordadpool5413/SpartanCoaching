@@ -100,7 +100,7 @@ export function ResearchTool() {
                 Web sources
               </Text>
               {sources.slice(0, 5).map((s, i) => (
-                <Text key={i} style={[{ color: colors.primary, fontSize: 12 }, font("regular")]}>
+                <Text key={i} style={[{ color: colors.readablePrimary, fontSize: 12 }, font("regular")]}>
                   • {s.title}
                 </Text>
               ))}

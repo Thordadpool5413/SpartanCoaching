@@ -40,7 +40,7 @@ export function EntitlementBanner({
       ? colors.success
       : role === "trial" || role === "warning"
         ? colors.warning
-        : colors.primary;
+        : colors.readablePrimary;
 
   return (
     <View
@@ -53,7 +53,7 @@ export function EntitlementBanner({
         },
       ]}
     >
-      <Feather name={icon as any} size={14} color={accent || colors.primary} />
+      <Feather name={icon as any} size={14} color={accent || colors.readablePrimary} />
       <Text
         maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
         style={[{ color: colors.foreground, fontSize: 13, flex: 1 }, font("semibold")]}
@@ -67,7 +67,7 @@ export function EntitlementBanner({
           accessibilityLabel={actionLabel}
           hitSlop={8}
         >
-          <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>{actionLabel}</Text>
+          <Text style={[{ color: colors.readablePrimary, fontSize: 13 }, font("bold")]}>{actionLabel}</Text>
         </Pressable>
       ) : null}
     </View>

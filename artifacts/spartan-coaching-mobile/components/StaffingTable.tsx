@@ -23,7 +23,7 @@ export function StaffingTable({ results, staffingRoles, onUpdate, onReset, onAdd
       <Text style={[styles.title, { color: colors.foreground }]}>
         Required Staffing at ADC {results.inputs.targetADC}
       </Text>
-      {onUpdate ? <><Text style={[styles.guidance, { color: colors.mutedForeground }]}>Edit FTE and salary. Every result on this screen recalculates immediately.</Text><View style={styles.actions}><Pressable accessibilityRole="button" onPress={onReset} style={[styles.action, { borderColor: colors.borderStrong }]}><Text style={[styles.actionText, { color: colors.foreground }]}>Reset baseline</Text></Pressable><Pressable accessibilityRole="button" onPress={onAdd} style={[styles.action, { borderColor: colors.borderStrong }]}><Feather name="plus" size={14} color={colors.primary} /><Text style={[styles.actionText, { color: colors.foreground }]}>Add role</Text></Pressable></View></> : null}
+      {onUpdate ? <><Text style={[styles.guidance, { color: colors.mutedForeground }]}>Edit FTE and salary. Every result on this screen recalculates immediately.</Text><View style={styles.actions}><Pressable accessibilityRole="button" onPress={onReset} style={[styles.action, { borderColor: colors.borderStrong }]}><Text style={[styles.actionText, { color: colors.foreground }]}>Reset baseline</Text></Pressable><Pressable accessibilityRole="button" onPress={onAdd} style={[styles.action, { borderColor: colors.borderStrong }]}><Feather name="plus" size={14} color={colors.readablePrimary} /><Text style={[styles.actionText, { color: colors.foreground }]}>Add role</Text></Pressable></View></> : null}
       {!onUpdate ? (
         <View
           style={[styles.headerRow, { borderBottomColor: colors.border }]}
@@ -58,7 +58,7 @@ export function StaffingTable({ results, staffingRoles, onUpdate, onReset, onAdd
           <View style={onUpdate ? styles.editableCost : styles.costCell}>
             {onUpdate ? <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Annual cost</Text> : null}
             <Text style={[styles.cell, styles.bold, { color: colors.foreground }]} testID={`text-staff-cost-${i}`}>{fmtK(r.annualCost)}</Text>
-            {staffingRoles?.[i]?.role.startsWith("Custom role") && onRemove ? <Pressable accessibilityLabel={`Remove ${r.role}`} onPress={() => onRemove(i)}><Feather name="trash-2" size={14} color={colors.primary} /></Pressable> : null}
+            {staffingRoles?.[i]?.role.startsWith("Custom role") && onRemove ? <Pressable accessibilityLabel={`Remove ${r.role}`} onPress={() => onRemove(i)}><Feather name="trash-2" size={14} color={colors.readablePrimary} /></Pressable> : null}
           </View>
         </View>
       ))}

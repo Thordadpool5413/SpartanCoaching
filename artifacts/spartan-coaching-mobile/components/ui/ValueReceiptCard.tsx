@@ -41,7 +41,7 @@ export function ValueReceiptCard({ testID = "value-receipt-card" }: { testID?: s
     >
       <Text
         maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
-        style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}
+        style={[{ color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}
       >
         THIS WEEK · VALUE RECEIPT
       </Text>
@@ -52,12 +52,12 @@ export function ValueReceiptCard({ testID = "value-receipt-card" }: { testID?: s
         What you used
       </Text>
       {loading ? (
-        <ActivityIndicator color={colors.primary} style={{ marginTop: 16 }} />
+        <ActivityIndicator color={colors.readablePrimary} style={{ marginTop: 16 }} />
       ) : (
         <View style={{ marginTop: 12, gap: 8 }}>
           {(data?.highlights ?? ["No activity yet — open Command or a tool"]).map((line) => (
             <View key={line} style={styles.row}>
-              <Feather name="check-circle" size={14} color={colors.success || colors.primary} />
+              <Feather name="check-circle" size={14} color={colors.success || colors.readablePrimary} />
               <Text
                 maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
                 style={[{ color: colors.foreground, fontSize: 13, flex: 1, lineHeight: 18 }, font("regular")]}

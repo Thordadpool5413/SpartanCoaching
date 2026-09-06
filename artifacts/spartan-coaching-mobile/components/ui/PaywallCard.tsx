@@ -75,14 +75,14 @@ export function PaywallCard({
       style={[
         styles.card,
         {
-          borderColor: colors.primary,
+          borderColor: colors.readablePrimary,
           backgroundColor: colors.card,
         },
       ]}
     >
       <Text
         maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
-        style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}
+        style={[{ color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}
       >
         HOSPICE SALES PRO
       </Text>
@@ -105,7 +105,7 @@ export function PaywallCard({
       <View style={{ marginTop: 14, gap: 8 }}>
         {BENEFITS.map((line) => (
           <View key={line} style={styles.benefitRow}>
-            <Feather name="check" size={14} color={colors.success || colors.primary} />
+            <Feather name="check" size={14} color={colors.success || colors.readablePrimary} />
             <Text
               maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
               style={[{ color: colors.foreground, fontSize: 13, flex: 1, lineHeight: 18 }, font("regular")]}

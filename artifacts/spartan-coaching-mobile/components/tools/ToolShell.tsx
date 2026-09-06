@@ -85,8 +85,8 @@ export function ToolShell({
           accessibilityRole="button"
           accessibilityLabel="Back to Tools"
         >
-          <Feather name="chevron-left" size={22} color={colors.primary} />
-          <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Tools</Text>
+          <Feather name="chevron-left" size={22} color={colors.readablePrimary} />
+          <Text style={[{ color: colors.readablePrimary, fontSize: 15 }, font("bold")]}>Tools</Text>
         </Pressable>
         <Text style={[{ color: colors.mutedForeground, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}>
           HOSPICE SALES PRO · {category.toUpperCase()}
@@ -132,7 +132,7 @@ export function ToolShell({
               testID={`tool-workflow-guide-${catalogToolId}`}
             >
               <View style={styles.workflowHeading}>
-                <Text style={[styles.workflowPhase, { color: colors.primary }, font("bold")]}>
+                <Text style={[styles.workflowPhase, { color: colors.readablePrimary }, font("bold")]}>
                   {guide.phase.toUpperCase()}
                 </Text>
                 <Text style={[styles.workflowAudience, { color: colors.mutedForeground }, font("bold")]}>
@@ -163,10 +163,10 @@ export function ToolShell({
                   style={styles.workflowNext}
                   testID={`tool-workflow-next-${catalogToolId}`}
                 >
-                  <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>
+                  <Text style={[{ color: colors.readablePrimary, fontSize: 12 }, font("bold")]}>
                     Next: open {nextTool.title}
                   </Text>
-                  <Feather name="arrow-right" size={15} color={colors.primary} />
+                  <Feather name="arrow-right" size={15} color={colors.readablePrimary} />
                 </Pressable>
               ) : null}
             </View>
@@ -180,13 +180,13 @@ export function ToolShell({
                 { borderColor: colors.border, backgroundColor: colors.card },
               ]}
             >
-              <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 12 }, font("bold")]}>
                 {howOpen ? "Hide how it works" : "How it works"}
               </Text>
               <Feather
                 name={howOpen ? "chevron-up" : "chevron-down"}
                 size={16}
-                color={colors.primary}
+                color={colors.readablePrimary}
               />
             </Pressable>
           )}
@@ -199,7 +199,7 @@ export function ToolShell({
             >
               {whenToUse ? (
                 <>
-                  <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}>
+                  <Text style={[{ color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}>
                     WHEN
                   </Text>
                   <Text
