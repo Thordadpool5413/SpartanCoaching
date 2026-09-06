@@ -2,6 +2,28 @@
 
 Use with `testflight-smoke.md` (functional). This sheet grades **premium feel** against product-craft principles.
 
+## Current session record — 2026-09-06
+
+| Field | Record |
+|---|---|
+| EAS TestFlight build observed | `1.0.0 (42)` · build id `ddc98f36-529a-4499-bda7-7293d857fc2d` |
+| Build commit | `7dac7a397e3bb6b747efc6da1ab66e137f2fd45c` |
+| Device | **Not available in this workspace** |
+| Tester | **Not assigned** |
+| Result | **BLOCKED — no physical iPhone appearance pass completed** |
+
+Automated evidence is available locally (mobile Jest suite and typecheck),
+but it cannot verify TestFlight-only launch, persistence, readability, or
+physical layout. Do not mark the feel rows as passed from that evidence alone.
+
+### Device-only handoff
+
+| Check | Result |
+|---|---|
+| Account and Coach settings both select Mamba | Not run — physical iPhone required |
+| Force-close and relaunch preserves Mamba and dark command styling | Not run — physical iPhone required |
+| Home, Coach, Explore, My Work, Account, and main tool screen have readable selected controls and no clipping | Not run — physical iPhone required |
+
 **Build / commit:** _______________  
 **Device:** _______________  
 **Tester:** _______________ · **Date:** _______________  
@@ -103,7 +125,7 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 
 | Critical fails (F1–F4, F11–F16, F23–F24) | Count: ___ |
 |------------------------------------------|------------|
-| Overall | ☐ Pass for internal beta · ☐ Fail — rework · ☐ Pass for ASC screenshot pack only |
+| Overall | ☐ Pass for internal beta · ☐ Fail — rework · ☐ Pass for ASC screenshot pack only · **Current session: BLOCKED pending physical iPhone pass** |
 
 **Sign-off:** _______________  
 

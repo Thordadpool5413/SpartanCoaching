@@ -2,6 +2,30 @@
 
 Run on a **physical iPhone** after each TestFlight build. Demo account with entitlement preferred.
 
+## Current session record — 2026-09-06
+
+| Field | Record |
+|---|---|
+| EAS TestFlight build observed | `1.0.0 (42)` · build id `ddc98f36-529a-4499-bda7-7293d857fc2d` |
+| Build commit | `7dac7a397e3bb6b747efc6da1ab66e137f2fd45c` |
+| Device | **Not available in this workspace** |
+| Tester | **Not assigned** |
+| Result | **BLOCKED — the TestFlight binary was not installed or launched on a physical iPhone** |
+
+The EAS build is finished and the local release contract is green, but this
+record intentionally does not claim the device-only appearance sign-off.
+Promotion remains blocked until a tester completes the Mamba persistence,
+contrast, clipping, and navigation checks below on the submitted build.
+
+### Device-only handoff
+
+| Check | Result |
+|---|---|
+| Select Mamba from Account settings | Not run — physical iPhone required |
+| Select Mamba from Coach settings | Not run — physical iPhone required |
+| Force-close and relaunch; Mamba persists and dark command styling remains active | Not run — physical iPhone required |
+| Spot-check Home, Coach, Explore, My Work, Account, and the main tool screen | Not run — physical iPhone required |
+
 **Build / commit under test:** _______________  
 **Date / tester:** _______________
 
