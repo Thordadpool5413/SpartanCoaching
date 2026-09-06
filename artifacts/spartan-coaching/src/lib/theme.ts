@@ -233,13 +233,13 @@ const MAMBA_LIGHT_SURFACE: BgPreset = {
   tone: "light",
   bg: "0 0% 83%",
   fg: "0 0% 10%",
-  card: "271 56% 33%",
-  cardFg: "0 0% 83%",
-  muted: "271 38% 18%",
+  card: "0 0% 96%",
+  cardFg: "0 0% 10%",
+  muted: "0 0% 73%",
   mutedFg: "0 0% 10%",
   secondary: "42 98% 57%",
   border: "271 56% 33%",
-  sidebar: "271 56% 24%",
+  sidebar: "0 0% 94%",
 };
 
 const ACCENT_PROPS = [

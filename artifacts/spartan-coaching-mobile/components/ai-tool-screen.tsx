@@ -378,7 +378,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       testID={`ai-tool-${tool.id}`}
     >
       <Pressable accessibilityRole="button" accessibilityLabel="Back to advanced tools" onPress={() => goBackOrReplace("/ai-tools")} style={styles.back}>
-        <Feather name="arrow-left" size={18} color={clinical ? VAULT.accent : colors.primary} />
+        <Feather name="arrow-left" size={18} color={clinical ? VAULT.accent : colors.readablePrimary} />
         <Text style={[styles.backText, clinical && { color: VAULT.accent }]}>{clinical ? VAULT_COPY.backLibrary : "Advanced tools"}</Text>
       </Pressable>
 
@@ -390,7 +390,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <Text style={styles.title}>{experience.title ?? tool.name}</Text>
         <Text style={styles.description}>{experience.promise}</Text>
         <View style={styles.promiseRow}>
-          <Feather name="zap" size={16} color={colors.primary} />
+          <Feather name="zap" size={16} color={colors.readablePrimary} />
           <Text style={styles.promiseText}>Make a few clear choices. Spartan handles the structure and gives you a result you can use.</Text>
         </View>
       </View>
@@ -441,14 +441,14 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       {networkBlocked ? (
         <View accessibilityRole="alert" style={styles.networkCard}>
           <View style={styles.safetyHeading}>
-            <Feather name={isChecking ? "wifi" : "wifi-off"} size={18} color={colors.primary} />
+            <Feather name={isChecking ? "wifi" : "wifi-off"} size={18} color={colors.readablePrimary} />
             <Text style={styles.safetyTitle}>{isChecking ? "Checking secure connection" : "Secure connection required"}</Text>
           </View>
           <Text style={styles.warningText}>Advanced tools run online so protected work is never queued on this device. Existing results can remain visible, but running, exporting, and sharing stay locked until the service is reachable.</Text>
           {!isChecking ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Check secure connection" onPress={() => void refresh()} style={styles.networkAction}>
               <Text style={styles.networkActionText}>Check connection</Text>
-              <Feather name="refresh-cw" size={16} color={colors.primary} />
+              <Feather name="refresh-cw" size={16} color={colors.readablePrimary} />
             </Pressable>
           ) : null}
         </View>
@@ -456,7 +456,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       {tool.safetyWarnings.length ? (
         <View style={styles.safetyCard}>
-          <View style={styles.safetyHeading}><Feather name="shield" size={18} color={clinical ? VAULT.accent : colors.primary} /><Text style={styles.safetyTitle}>Before you use this tool</Text></View>
+          <View style={styles.safetyHeading}><Feather name="shield" size={18} color={clinical ? VAULT.accent : colors.readablePrimary} /><Text style={styles.safetyTitle}>Before you use this tool</Text></View>
           {tool.safetyWarnings.map((warning) => <View key={warning} style={styles.warningRow}><View style={styles.warningDot} /><Text style={styles.warningText}>{warning}</Text></View>)}
         </View>
       ) : null}
@@ -520,13 +520,13 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <>
           <PremiumAiResult output={run.output} watermark={run.watermark} reviewStatus={run.reviewStatus} />
           <View style={styles.resultActions}>
-            <Pressable disabled={busy || networkBlocked} onPress={() => void shareResult()} style={[styles.resultAction, (busy || networkBlocked) && styles.disabled]}><Feather name="share-2" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>{networkBlocked ? "Secure connection required." : "Readable output, not a JSON dump."}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
+            <Pressable disabled={busy || networkBlocked} onPress={() => void shareResult()} style={[styles.resultAction, (busy || networkBlocked) && styles.disabled]}><Feather name="share-2" size={18} color={colors.readablePrimary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>{networkBlocked ? "Secure connection required." : "Readable output, not a JSON dump."}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
             {!clinical ? <View style={styles.savedRow}><Feather name="check-circle" size={17} color={colors.success} /><Text style={styles.savedText}>Saved to your account automatically</Text></View> : <View style={styles.savedRow}><Feather name="clock" size={17} color={VAULT.accent} /><Text style={styles.savedText}>Ephemeral clinical workspace · no run history stored</Text></View>}
           </View>
         </>
       ) : (
         <View style={styles.emptyResult}>
-          <View style={styles.emptyIcon}><Feather name={clinical ? "shield" : "file-text"} size={23} color={clinical ? VAULT.accent : colors.primary} /></View>
+          <View style={styles.emptyIcon}><Feather name={clinical ? "shield" : "file-text"} size={23} color={clinical ? VAULT.accent : colors.readablePrimary} /></View>
           <Text style={styles.emptyTitle}>{clinical ? VAULT_COPY.emptyResult : "A field ready result starts with the context above."}</Text>
           <Text style={styles.emptyBody}>The result will be organized by answer, language, actions, reasoning, evidence, and review requirements when those sections are present.</Text>
         </View>
@@ -552,9 +552,9 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
                   }}
                   style={({ pressed }) => [styles.connectionRow, pressed && styles.pressed]}
                 >
-                  <View style={styles.connectionIcon}><Feather name="git-branch" size={18} color={colors.primary} /></View>
+                  <View style={styles.connectionIcon}><Feather name="git-branch" size={18} color={colors.readablePrimary} /></View>
                   <View style={{ flex: 1 }}><Text style={styles.connectionTitle}>{connection.label}</Text><Text style={styles.connectionBody}>{target.name}</Text></View>
-                  <Feather name="arrow-right" size={18} color={colors.primary} />
+                  <Feather name="arrow-right" size={18} color={colors.readablePrimary} />
                 </Pressable>
               );
             })}
@@ -569,7 +569,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           <View style={styles.historyList}>
             {history.slice(0, 10).map((item) => (
               <Pressable key={item.id} onPress={() => { setRun(item); void Haptics.selectionAsync(); }} style={styles.historyRow}>
-                <View style={styles.historyIcon}><Feather name="clock" size={16} color={colors.primary} /></View>
+                <View style={styles.historyIcon}><Feather name="clock" size={16} color={colors.readablePrimary} /></View>
                 <View style={{ flex: 1 }}><Text style={styles.historyTitle}>{new Date(item.createdAt).toLocaleString()}</Text><Text style={styles.historyBody}>{item.status ?? "completed"}</Text></View>
                 <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
               </Pressable>
@@ -599,10 +599,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     container: { paddingHorizontal: 20, paddingBottom: 70, gap: 16 },
     clinicalContainer: { borderTopWidth: 3, borderTopColor: VAULT.accent },
     back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, alignSelf: "flex-start" },
-    backText: { color: colors.primary, fontSize: 13, ...font("semibold") },
+    backText: { color: colors.readablePrimary, fontSize: 13, ...font("semibold") },
     hero: { gap: 10, paddingBottom: 5 },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-    badge: { color: colors.primary, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 8, letterSpacing: 1, ...font("bold") },
+    badge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 8, letterSpacing: 1, ...font("bold") },
     clinicalBadge: { color: VAULT.accent, borderColor: VAULT.border, backgroundColor: VAULT.surface },
     privateBadge: { color: colors.mutedForeground, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 8, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 34, lineHeight: 39, letterSpacing: -1, ...font("heavy") },
@@ -611,7 +611,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     promiseText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
     workflowCard: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.card, padding: 14, gap: 7 },
     workflowCardHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 7 },
-    workflowBadge: { color: colors.primary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 8, paddingVertical: 4, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
+    workflowBadge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 8, paddingVertical: 4, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
     workflowAudience: { color: colors.mutedForeground, fontSize: 8, letterSpacing: 1, ...font("bold") },
     workflowTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
     workflowCopy: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
@@ -628,12 +628,12 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     jurisdictionState: { color: colors.foreground, fontSize: 15, ...font("bold") },
     jurisdictionNote: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("regular") },
     networkAction: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 9 },
-    networkActionText: { color: colors.primary, fontSize: 11, ...font("bold") },
+    networkActionText: { color: colors.readablePrimary, fontSize: 11, ...font("bold") },
     clinicalGate: { borderWidth: 1, borderLeftWidth: 3, borderLeftColor: VAULT.accent, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 9 },
     confirmRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 10 },
     confirmText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
     workflowHeading: { gap: 6, marginTop: 8 },
-    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 23, lineHeight: 28, letterSpacing: -0.5, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("regular") },
     formCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", padding: 16, gap: 16 },
@@ -647,7 +647,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     choice: { minHeight: 40, justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.background, paddingHorizontal: 12 },
     choiceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
     choiceText: { color: colors.mutedForeground, fontSize: 10, ...font("semibold") },
-    choiceTextSelected: { color: colors.primary },
+    choiceTextSelected: { color: colors.readablePrimary },
     errorCard: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderRadius: 13, backgroundColor: colors.muted, padding: 11 },
     error: { flex: 1, color: colors.destructive, fontSize: 10, lineHeight: 15, ...font("semibold") },
     primaryButton: { minHeight: 58, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18 },

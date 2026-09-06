@@ -163,7 +163,7 @@ export default function MyWorkScreen() {
 
             <Text style={styles.sectionLabel}>CONNECTED WORK</Text>
             {loadingWork ? (
-              <View style={styles.loadingCard}><ActivityIndicator color={colors.primary} /><Text style={styles.downloadEmptyText}>Loading work from web and iPhone…</Text></View>
+              <View style={styles.loadingCard}><ActivityIndicator color={colors.readablePrimary} /><Text style={styles.downloadEmptyText}>Loading work from web and iPhone…</Text></View>
             ) : workError ? (
               <View style={styles.errorCard}>
                 <View style={styles.errorHeader}>
@@ -180,7 +180,7 @@ export default function MyWorkScreen() {
               <WorkRow
                 key={item.id}
                 icon={item.status === "draft" ? "edit-3" : "check-circle"}
-                iconColor={item.status === "draft" ? colors.mutedForeground : colors.primary}
+                iconColor={item.status === "draft" ? colors.mutedForeground : colors.readablePrimary}
                 title={item.title}
                 body={`${item.kind.replaceAll("_", " ")} · ${item.status === "draft" ? "Draft" : "Completed"} · ${new Date(item.updatedAt).toLocaleDateString()}${item.nextAction?.title ? ` · ${item.nextAction.title}` : ""}`}
                 onPress={() => openMemberWork(item)}
@@ -206,7 +206,7 @@ export default function MyWorkScreen() {
               <WorkRow
                 key={item.sourceUrl}
                 icon={item.availability === "unavailable" ? "cloud-off" : item.kind === "audio" ? "headphones" : "file-text"}
-                iconColor={item.availability === "unavailable" ? colors.destructive : colors.primary}
+                iconColor={item.availability === "unavailable" ? colors.destructive : colors.readablePrimary}
                 title={item.title}
                 body={item.availability === "unavailable" ? "Unavailable offline. Reconnect to download." : "Available offline on this iPhone."}
                 onPress={() => openDownload(item)}
@@ -240,7 +240,7 @@ function WorkRow({ icon, iconColor, title, body, onPress }: { icon: React.Compon
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <View style={styles.rowIcon}><Feather name={icon} size={19} color={iconColor || colors.primary} /></View>
+      <View style={styles.rowIcon}><Feather name={icon} size={19} color={iconColor || colors.readablePrimary} /></View>
       <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{title}</Text><Text style={styles.rowBody}>{body}</Text></View>
       <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
     </Pressable>

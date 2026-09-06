@@ -43,7 +43,7 @@ export function OfflineQueueBanner() {
       accessibilityRole="alert"
       accessibilityLabel="Earlier offline requests were removed for privacy."
     >
-      <Feather name="shield" size={16} color={colors.primary} />
+      <Feather name="shield" size={16} color={colors.readablePrimary} />
       <View style={{ flex: 1 }}>
         <Text style={[{ color: colors.foreground, fontSize: 13 }, font("bold")]}>
           Earlier offline requests were removed

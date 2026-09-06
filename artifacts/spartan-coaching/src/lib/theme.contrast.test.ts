@@ -50,6 +50,20 @@ describe("BG_PRESETS contrast contract", () => {
     expect(localStorage.getItem("spartan_theme")).toBe(JSON.stringify("dark"));
   });
 
+  it("uses ink text on silver and light-gray Mamba surfaces", () => {
+    applyAppearance("light", "gold", "soft", "mamba");
+
+    const root = document.documentElement.style;
+    expect(root.getPropertyValue("--background")).toBe("0 0% 83%");
+    expect(root.getPropertyValue("--foreground")).toBe("0 0% 10%");
+    expect(root.getPropertyValue("--card")).toBe("0 0% 96%");
+    expect(root.getPropertyValue("--card-foreground")).toBe("0 0% 10%");
+    expect(root.getPropertyValue("--muted")).toBe("0 0% 73%");
+    expect(root.getPropertyValue("--muted-foreground")).toBe("0 0% 10%");
+    expect(root.getPropertyValue("--sidebar")).toBe("0 0% 94%");
+    expect(root.getPropertyValue("--sidebar-foreground")).toBe("0 0% 10%");
+  });
+
   it("exports midnight as a dark preset", () => {
     const m = getBgPreset("midnight");
     expect(m.tone).toBe("dark");

@@ -217,7 +217,7 @@ export function CalculatorReportActions({
   return (
     <View style={styles.reportActions}>
       <Pressable accessibilityRole="button" accessibilityLabel={saved ? "Report saved" : "Save report"} disabled={saved} onPress={() => void save()} style={({ pressed }) => [styles.actionButton, styles.actionButtonPrimary, pressed && styles.pressed, saved && styles.actionButtonSaved]}>
-        <Feather name={saved ? "check" : "bookmark"} size={18} color="#FFFFFF" />
+        <Feather name={saved ? "check" : "bookmark"} size={18} color={colors.primaryForeground} />
         <Text style={styles.actionButtonPrimaryText}>{saved ? "Saved to My Work" : "Save to My Work"}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Share report" onPress={() => void Share.share({ title, message: report })} style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}>
@@ -285,7 +285,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     actionButtonPrimary: { backgroundColor: colors.primary },
     actionButtonSaved: { backgroundColor: colors.success, borderColor: colors.success },
     actionButtonText: { color: colors.readablePrimary, fontSize: 14, ...font("bold") },
-    actionButtonPrimaryText: { color: "#FFFFFF", fontSize: 14, ...font("bold") },
+    actionButtonPrimaryText: { color: colors.primaryForeground, fontSize: 14, ...font("bold") },
     pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
   });
 }

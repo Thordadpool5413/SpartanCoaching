@@ -16,7 +16,7 @@ export default function ConsultingScheduleScreen() {
   if (!url || failed) {
     return (
       <View style={styles.empty} testID="consulting-schedule-unavailable">
-        <View style={styles.emptyIcon}><Feather name="calendar" size={25} color={colors.primary} /></View>
+        <View style={styles.emptyIcon}><Feather name="calendar" size={25} color={colors.readablePrimary} /></View>
         <Text style={styles.emptyTitle}>Scheduling is temporarily unavailable</Text>
         <Text style={styles.emptyBody}>Your consulting request is still saved. Spartan Coaching will confirm an exact time directly.</Text>
       </View>
@@ -26,7 +26,7 @@ export default function ConsultingScheduleScreen() {
   return (
     <View style={styles.screen} testID="consulting-schedule">
       <View style={styles.notice}>
-        <Feather name="shield" size={16} color={colors.primary} />
+        <Feather name="shield" size={16} color={colors.readablePrimary} />
         <Text style={styles.noticeText}>Choose an exact time through Microsoft Bookings. Do not enter patient PHI.</Text>
       </View>
       <WebView
@@ -40,7 +40,7 @@ export default function ConsultingScheduleScreen() {
         setSupportMultipleWindows={false}
         style={styles.webview}
       />
-      {loading ? <View style={styles.loading}><ActivityIndicator color={colors.primary} /><Text style={styles.loadingText}>Opening secure scheduling…</Text></View> : null}
+      {loading ? <View style={styles.loading}><ActivityIndicator color={colors.readablePrimary} /><Text style={styles.loadingText}>Opening secure scheduling…</Text></View> : null}
     </View>
   );
 }

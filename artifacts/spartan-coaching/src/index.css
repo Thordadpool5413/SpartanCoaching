@@ -8,6 +8,16 @@
   object-position: center 10%;
 }
 
+.brand-helmet-mark {
+  display: inline-block;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background-image: url("/spartan-logo.png");
+  background-repeat: no-repeat;
+  background-position: center -0.2rem;
+  background-size: 250% 250%;
+}
+
 /* Premium workspace language: shared by every authenticated surface. */
 .workspace-premium {
   --workspace-panel: hsl(var(--card));
@@ -21,15 +31,32 @@
   --color-text: hsl(var(--foreground));
   --color-text-muted: hsl(var(--muted-foreground));
   --color-line: hsl(var(--border));
-  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   position: relative;
   isolation: isolate;
-  background: hsl(var(--background));
+  overflow-x: clip;
 }
 
-.brand-backdrop { position: fixed; z-index: -1; inset: 88px 0 0 auto; width: var(--brand-backdrop-width); overflow: hidden; pointer-events: none; }
-.brand-backdrop img { display: block; width: 100%; transform: translateX(42%); opacity: var(--brand-backdrop-opacity); filter: saturate(.8) contrast(1.15); }
+.workspace-premium > .brand-backdrop {
+  position: fixed;
+  z-index: 0;
+  top: 5.75rem;
+  right: clamp(1rem, 4vw, 5rem);
+  width: var(--brand-backdrop-width);
+  pointer-events: none;
+}
+.workspace-premium > .brand-backdrop img {
+  display: block;
+  width: 100%;
+  transform: none;
+  opacity: var(--brand-backdrop-opacity);
+  filter: grayscale(.15) saturate(.75) contrast(1.12);
+}
+.workspace-premium > aside,
+.workspace-premium > div:not(.brand-backdrop) {
+  position: relative;
+  z-index: 1;
+}
 .workspace-footer { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; justify-content: center; min-height: 64px; padding: var(--space-4) var(--space-6); border-top: 1px solid var(--color-line); color: var(--color-text-muted); font-size: var(--font-size-100); }
 .workspace-footer span { color: var(--color-text); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .workspace-footer a { min-height: 44px; display: inline-flex; align-items: center; color: inherit; }
@@ -47,7 +74,11 @@
 .tool-next-step-actions svg { width: 16px; height: 16px; }
 
 @media (max-width: 480px) {
-  .brand-backdrop { width: var(--brand-backdrop-width-small); top: 110px; }
+  .workspace-premium > .brand-backdrop {
+    width: min(var(--brand-backdrop-width-small), 22rem);
+    top: 6.25rem;
+    right: -4rem;
+  }
   .workspace-home { padding: var(--space-4); }
   .workspace-command-hero { grid-template-columns: 1fr; padding: var(--space-6); border-radius: 0; }
   .workspace-command-copy h1 { font-size: clamp(2.35rem, 14vw, 3.25rem); }
@@ -3102,10 +3133,16 @@ html[data-theme-preset="mamba"] .mamba-gold-section .border-border {
   border-color: rgb(85 37 131 / .38) !important;
 }
 
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card,
-html[data-theme-preset="mamba"] main.page-persuasion [class*="bg-card/"] {
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion [class*="bg-card/"] {
   background-color: var(--mamba-purple) !important;
   color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .bg-card,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion [class*="bg-card/"] {
+  background-color: hsl(var(--card)) !important;
+  color: var(--mamba-black) !important;
 }
 
 html[data-theme-preset="mamba"] main.page-persuasion .bg-secondary,
@@ -3114,10 +3151,16 @@ html[data-theme-preset="mamba"] main.page-persuasion [class*="bg-secondary/"] {
   color: var(--mamba-black) !important;
 }
 
-html[data-theme-preset="mamba"] .workspace-premium .bg-card,
-html[data-theme-preset="mamba"] .workspace-premium [class*="bg-card/"] {
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .bg-card,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="bg-card/"] {
   background-color: var(--mamba-purple) !important;
   color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .bg-card,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium [class*="bg-card/"] {
+  background-color: hsl(var(--card)) !important;
+  color: var(--mamba-black) !important;
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .bg-secondary,
@@ -3128,19 +3171,33 @@ html[data-theme-preset="mamba"] .workspace-premium [class*="bg-secondary/"] {
 
 /* Keep Mamba foreground roles distinct from its purple surfaces. Purple is
  * excellent as a fill but fails as small text on black or purple cards. */
-html[data-theme-preset="mamba"] .workspace-premium .text-primary,
-html[data-theme-preset="mamba"] .workspace-premium .text-spartan-red,
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-primary,
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-spartan-red,
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card [class*="text-red-"] {
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card [class*="text-red-"] {
   color: var(--mamba-gold) !important;
 }
 
-html[data-theme-preset="mamba"] .workspace-premium .bg-card .text-foreground,
-html[data-theme-preset="mamba"] .workspace-premium .bg-card .text-muted-foreground,
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-foreground,
-html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-muted-foreground {
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-spartan-red {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .bg-card .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .bg-card .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .bg-card .text-muted-foreground {
   color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .bg-card .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .bg-card .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .bg-card .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .bg-card .text-muted-foreground {
+  color: var(--mamba-black) !important;
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .bg-secondary .text-primary,
@@ -3207,10 +3264,18 @@ html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar {
   border-color: var(--mamba-gold) !important;
 }
 
-html[data-theme-preset="mamba"] .workspace-premium .workspace-sidebar,
-html[data-theme-preset="mamba"] .workspace-premium .workspace-topbar {
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-sidebar,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .workspace-topbar {
   background: linear-gradient(180deg, rgb(85 37 131 / .28), #1A1A1A 22%);
   border-color: var(--mamba-gold);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .workspace-sidebar,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .workspace-topbar {
+  background:
+    linear-gradient(180deg, rgb(85 37 131 / .12), rgb(239 239 239 / .98) 34%),
+    hsl(var(--sidebar));
+  border-color: rgb(85 37 131 / .55);
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-icon,
@@ -3550,4 +3615,82 @@ html[data-theme-preset="mamba"][data-theme-mode="dark"] .resources-premium > div
 html[data-theme-preset="mamba"][data-theme-mode="dark"] .resources-library-dock {
   --primary: 271 56% 33%;
   --primary-foreground: 0 0% 83%;
+}
+
+/* Complete Mamba workspace canvas. Keep the background treatment behind every
+ * authenticated route while preserving fully readable mode-specific surfaces. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium {
+  background:
+    radial-gradient(circle at 86% 12%, rgb(85 37 131 / .34), transparent 29rem),
+    linear-gradient(135deg, #1A1A1A 0%, #21152C 52%, #1A1A1A 100%);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium {
+  background:
+    radial-gradient(circle at 86% 12%, rgb(85 37 131 / .13), transparent 27rem),
+    linear-gradient(135deg, #D4D4D4 0%, #EEEEEE 50%, #D4D4D4 100%);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium > .brand-backdrop img {
+  opacity: .075;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium > .brand-backdrop img {
+  opacity: .065;
+  filter: grayscale(.25) saturate(.7) contrast(1.2);
+}
+
+/* Light Mamba surfaces use ink on silver. Earlier main-only selectors missed
+ * routes mounted on div.page-persuasion and left silver foreground utilities
+ * invisible on gray cards and panels. */
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion [class*="text-gray-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion [class*="text-zinc-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion [class*="text-slate-"],
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .text-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .text-muted-foreground {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .bg-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion .bg-primary *,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .bg-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium .bg-primary * {
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion :is(.bg-muted, [class*="bg-muted/"]),
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium :is(.bg-muted, [class*="bg-muted/"]) {
+  color: var(--mamba-black);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium :is(
+  .workspace-command-hero,
+  .workspace-mission-card,
+  .workspace-utility-rail > a,
+  .workspace-onboarding-strip,
+  .command-flight-plan,
+  .tools-search-dock,
+  .tools-intent-card,
+  .tools-catalog-disclosure,
+  .resources-library-dock,
+  .my-work-filter,
+  .tool-next-step
+) {
+  color: var(--mamba-black);
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .workspace-premium :is(
+  .workspace-overline,
+  .workspace-next-top,
+  .workspace-section-heading p,
+  .workspace-mission-header,
+  .workspace-mission-action,
+  .command-dashboard-label,
+  .coach-summary-grid span,
+  .coach-summary-grid a,
+  .tool-next-step p
+) {
+  color: var(--mamba-purple) !important;
 }

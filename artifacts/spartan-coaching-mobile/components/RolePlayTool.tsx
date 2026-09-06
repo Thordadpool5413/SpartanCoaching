@@ -267,9 +267,9 @@ export function RolePlayTool({
             ]}
           >
             {endingSession ? (
-              <ActivityIndicator color={colors.primary} size="small" />
+              <ActivityIndicator color={colors.readablePrimary} size="small" />
             ) : (
-              <Text style={[{ color: colors.primary, fontSize: 14 }, font("semibold")]}>End</Text>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 14 }, font("semibold")]}>End</Text>
             )}
           </Pressable>
         </View>
@@ -327,7 +327,7 @@ export function RolePlayTool({
                     { backgroundColor: colors.card, borderColor: colors.border },
                   ]}
                 >
-                  <ActivityIndicator color={colors.primary} size="small" />
+                  <ActivityIndicator color={colors.readablePrimary} size="small" />
                 </View>
               </View>
             )}
@@ -337,7 +337,7 @@ export function RolePlayTool({
         {!!roleplayError && (
           <Text
             style={[
-              { color: colors.primary, marginHorizontal: 20, marginBottom: 4, fontSize: 14 },
+              { color: colors.destructive, marginHorizontal: 20, marginBottom: 4, fontSize: 14 },
               font("regular"),
             ]}
           >
@@ -414,13 +414,13 @@ export function RolePlayTool({
               you&apos;re done.
             </Text>
             {!!roleplayError && (
-              <Text style={[{ color: colors.primary, marginBottom: 8, fontSize: 14 }, font("regular")]}>
+              <Text style={[{ color: colors.destructive, marginBottom: 8, fontSize: 14 }, font("regular")]}>
                 {roleplayError}
               </Text>
             )}
             {roleplayLoading ? (
               <View style={styles.loadingWrap}>
-                <ActivityIndicator color={colors.primary} size="large" />
+                <ActivityIndicator color={colors.readablePrimary} size="large" />
                 <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("regular")]}>
                   Starting session…
                 </Text>
@@ -444,7 +444,7 @@ export function RolePlayTool({
                           { backgroundColor: colors.accent ?? colors.muted },
                         ]}
                       >
-                        <Feather name={s.icon} size={22} color={colors.primary} />
+                        <Feather name={s.icon} size={22} color={colors.readablePrimary} />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={[{ color: colors.foreground, fontSize: 16 }, font("semibold")]}>
@@ -491,7 +491,7 @@ export function RolePlayTool({
                         { backgroundColor: colors.accent ?? colors.muted },
                       ]}
                     >
-                      <Feather name="edit-3" size={22} color={colors.primary} />
+                      <Feather name="edit-3" size={22} color={colors.readablePrimary} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[{ color: colors.foreground, fontSize: 16 }, font("semibold")]}>

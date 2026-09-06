@@ -25,7 +25,7 @@ function ValueRow({
   return (
     <View style={styles.valueRow}>
       <View style={styles.valueIcon}>
-            <Feather name={icon} size={18} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
+        <Feather name={icon} size={18} color={colors.readablePrimary} />
       </View>
       <Text style={styles.valueText}>{text}</Text>
     </View>
@@ -48,7 +48,7 @@ export function CoachEliteGate({ isAuthenticated }: CoachEliteGateProps) {
           actionLabel={isAuthenticated ? undefined : "Sign in"}
         />
         <View style={styles.gateBadge}>
-          <Feather name="shield" size={15} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
+          <Feather name="shield" size={15} color={colors.readablePrimary} />
           <Text style={styles.gateBadgeText}>SPARTAN COACHING ELITE</Text>
         </View>
         <Text style={styles.gateTitle}>
@@ -115,7 +115,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       backgroundColor: colors.primaryMuted,
     },
     gateBadgeText: {
-      color: colors.accent === "#FDB927" ? colors.accent : colors.primary,
+      color: colors.readablePrimary,
       fontSize: 10,
       letterSpacing: 1.3,
       ...font("bold"),

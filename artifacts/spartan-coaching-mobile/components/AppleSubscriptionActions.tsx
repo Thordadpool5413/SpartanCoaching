@@ -102,10 +102,10 @@ function ExpoGoAppleSubscriptionActions({
           </Text>
           <View style={{ flexDirection: "row", justifyContent: "center", gap: 18 }}>
             <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} testID="subscription-terms-link">
-              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
             </Pressable>
             <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} testID="subscription-privacy-link">
-              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
             </Pressable>
           </View>
         </>
@@ -305,10 +305,10 @@ function NativeAppleSubscriptionActions({
           />
           <View style={{ flexDirection: "row", justifyContent: "center", gap: 18 }}>
             <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} testID="subscription-terms-link">
-              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
             </Pressable>
             <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} testID="subscription-privacy-link">
-              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
             </Pressable>
           </View>
         </>

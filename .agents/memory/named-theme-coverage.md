@@ -26,3 +26,9 @@ Shared public chrome must define its own card and muted tokens; otherwise a Mamb
 **Why:** The second visual pass exposed blank mobile search/menu controls and purple-on-purple public resource/tool labels even though the main page screenshots looked readable.
 
 **How to apply:** Keep public header tokens isolated from workspace tokens, make phone filter groups wrap instead of clipping, and audit the actual wrapper element used by each route before trusting a selector.
+
+Mamba purple is a dark-mode surface role, not a universal foreground or card color. Light Mamba uses silver/off-white surfaces with ink text; gold is the readable accent on dark or purple fills.
+
+**Why:** Unconditional Mamba card and label overrides caused light mode to render silver text on silver/gray panels while leaving workspace chrome dark, making the saved light setting functionally unreadable.
+
+**How to apply:** Scope Mamba card, sidebar, topbar, and utility overrides by `data-theme-mode`; preserve purple fills for selected/primary states, and pair each surface with its semantic foreground instead of raw purple text.

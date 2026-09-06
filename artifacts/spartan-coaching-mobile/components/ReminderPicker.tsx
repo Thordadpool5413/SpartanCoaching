@@ -117,7 +117,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
   if (scheduledId && scheduledLabel) {
     return (
       <View style={[styles.confirmedRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Feather name="bell" size={16} color={colors.primary} />
+        <Feather name="bell" size={16} color={colors.readablePrimary} />
         <Text style={[styles.confirmedText, { color: colors.foreground, ...font("regular") }]}>
           {contactName ? (
             <>
@@ -189,7 +189,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
             ]}
           >
             {loading === preset.label ? (
-              <ActivityIndicator size="small" color={colors.primary} />
+              <ActivityIndicator size="small" color={colors.readablePrimary} />
             ) : (
               <Text style={[styles.presetBtnText, { color: colors.foreground, ...font("medium") }]}>
                 {preset.label}

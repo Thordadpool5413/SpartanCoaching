@@ -107,7 +107,7 @@ export default function AccessScreen() {
             >
               <View style={styles.offeringTop}>
                 <View style={[styles.icon, { backgroundColor: included ? colors.primaryMuted : colors.muted }]}>
-                  <Feather name={included ? "check" : "lock"} size={18} color={included ? colors.primary : colors.mutedForeground} />
+                  <Feather name={included ? "check" : "lock"} size={18} color={included ? colors.readablePrimary : colors.mutedForeground} />
                 </View>
                 <View style={styles.offeringHeading}>
                   <Text style={styles.offeringTitle}>{offering.title}</Text>
@@ -127,12 +127,12 @@ export default function AccessScreen() {
                 ))}
               </View>
               <View style={styles.metaRow}>
-                <Feather name="wifi-off" size={14} color={colors.primary} />
+                <Feather name="wifi-off" size={14} color={colors.readablePrimary} />
                 <Text style={styles.metaText}>{offering.offline}</Text>
               </View>
               {offering.privacy ? (
                 <View style={styles.metaRow}>
-                  <Feather name="lock" size={14} color={colors.primary} />
+                  <Feather name="lock" size={14} color={colors.readablePrimary} />
                   <Text style={styles.metaText}>{offering.privacy}</Text>
                 </View>
               ) : null}
@@ -161,16 +161,16 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     brandTitle: { color: colors.heroForeground, fontSize: 17, letterSpacing: 0.4, ...font("heavy") },
     brandKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, marginTop: 4, ...font("bold") },
     body: { paddingHorizontal: 20, paddingTop: 28, gap: 14 },
-    kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2.1, ...font("bold") },
+    kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2.1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, ...font("regular") },
     planStrip: { flexDirection: "row", gap: 14, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, borderCurve: "continuous", padding: 16, marginTop: 4 },
     planColumn: { flex: 1, gap: 5 },
     planDivider: { width: StyleSheet.hairlineWidth, backgroundColor: colors.borderStrong },
     planName: { color: colors.foreground, fontSize: 17, ...font("heavy") },
-    planPrice: { color: colors.primary, fontSize: 13, fontVariant: ["tabular-nums"], ...font("bold") },
+    planPrice: { color: colors.readablePrimary, fontSize: 13, fontVariant: ["tabular-nums"], ...font("bold") },
     planBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, ...font("regular") },
-    sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 14, ...font("bold") },
+    sectionLabel: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.8, marginTop: 14, ...font("bold") },
     offering: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingVertical: 19, gap: 11 },
     offeringTop: { flexDirection: "row", alignItems: "center", gap: 12 },
     icon: { width: 42, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },

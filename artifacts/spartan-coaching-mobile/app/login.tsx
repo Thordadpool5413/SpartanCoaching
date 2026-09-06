@@ -83,11 +83,11 @@ export default function LoginScreen() {
           <View style={[styles.brandPanel, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <HelmetMark size={92} />
             <Text style={[styles.brandName, { color: colors.foreground }, font("heavy")]}>SPARTAN COACHING</Text>
-            <Text style={[styles.brandLine, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE FOR HOSPICE GROWTH</Text>
+            <Text style={[styles.brandLine, { color: colors.readablePrimary }, font("bold")]}>FIELD INTELLIGENCE FOR HOSPICE GROWTH</Text>
           </View>
 
           <View style={styles.heading}>
-            <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>MEMBER ACCESS</Text>
+            <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>MEMBER ACCESS</Text>
             <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Return to the work.</Text>
             <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>One private account across your iPhone and the Spartan Coaching website.</Text>
           </View>
@@ -120,7 +120,7 @@ export default function LoginScreen() {
               style={styles.forgot}
               testID="button-forgot-password"
             >
-              <Text style={[styles.forgotText, { color: colors.primary }, font("semibold")]}>Forgot password</Text>
+              <Text style={[styles.forgotText, { color: colors.readablePrimary }, font("semibold")]}>Forgot password</Text>
             </Pressable>
             <SpartanButton
               title="Sign in securely"
@@ -137,7 +137,7 @@ export default function LoginScreen() {
 
           <View style={styles.secondaryActions}>
             <View style={[styles.recoveryCard, { backgroundColor: colors.card, borderColor: colors.borderStrong ?? colors.border }]} testID="company-offboarding-recovery">
-              <Feather name="refresh-cw" size={18} color={colors.primary} />
+              <Feather name="refresh-cw" size={18} color={colors.readablePrimary} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.recoveryTitle, { color: colors.foreground }, font("bold")]}>Company access ended?</Text>
                 <Text style={[styles.recoveryBody, { color: colors.mutedForeground }, font("regular")]}>Choose individual access through Apple, then create the personal account with the same email. Preserved private commitments can reconnect during the 30 day recovery window.</Text>
@@ -150,11 +150,11 @@ export default function LoginScreen() {
               testID="button-choose-membership"
             >
               <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Choose a membership</Text>
-              <Feather name="arrow-right" size={18} color={colors.primary} />
+              <Feather name="arrow-right" size={18} color={colors.readablePrimary} />
             </Pressable>
             <Pressable accessibilityRole="button" onPress={() => router.push("/register" as Href)} style={styles.contactLink} testID="button-create-account">
-              <Text style={[styles.contactText, { color: colors.primary }, font("semibold")]}>Create an account for an existing Apple purchase</Text>
-              <Feather name="chevron-right" size={17} color={colors.primary} />
+              <Text style={[styles.contactText, { color: colors.readablePrimary }, font("semibold")]}>Create an account for an existing Apple purchase</Text>
+              <Feather name="chevron-right" size={17} color={colors.readablePrimary} />
             </Pressable>
             <Pressable accessibilityRole="button" onPress={() => router.push("/(tabs)/contact")} style={styles.contactLink}>
               <Text style={[styles.contactText, { color: colors.mutedForeground }, font("semibold")]}>Company team or consulting access</Text>
@@ -196,6 +196,6 @@ const styles = StyleSheet.create({
   recoveryBody: { fontSize: 11, lineHeight: 17, marginTop: 3 },
   linkButton: { minHeight: 56, borderWidth: 1, borderRadius: 16, paddingHorizontal: 17, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   linkButtonText: { fontSize: 14 },
-  contactLink: { minHeight: 50, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 3 },
-  contactText: { fontSize: 13 },
+  contactLink: { minHeight: 50, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
+  contactText: { flexShrink: 1, textAlign: "center", fontSize: 13, lineHeight: 19 },
 });

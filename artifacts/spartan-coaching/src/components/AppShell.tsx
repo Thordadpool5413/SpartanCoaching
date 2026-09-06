@@ -137,12 +137,10 @@ function SidebarBody({
           className="flex items-center gap-2 min-w-0"
           data-testid="workspace-brand"
         >
-          <img
-            src="/spartan-logo-stamp.png"
-            alt=""
-            className="h-8 w-8 shrink-0 object-contain"
-            width={32}
-            height={32}
+          <span
+            className="brand-helmet-mark h-10 w-10"
+            role="img"
+            aria-label="Spartan Coaching helmet"
           />
           {!collapsed && (
             <div className="min-w-0">

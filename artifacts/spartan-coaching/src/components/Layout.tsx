@@ -286,13 +286,10 @@ export function Header() {
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
               data-testid="link-home"
             >
-              <img
-                src="/spartan-logo-stamp.png"
-                alt=""
-                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-none shrink-0"
-                width={36}
-                height={36}
-                decoding="async"
+              <span
+                className="brand-helmet-mark h-11 w-11 sm:h-12 sm:w-12"
+                role="img"
+                aria-label="Spartan Coaching helmet"
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}

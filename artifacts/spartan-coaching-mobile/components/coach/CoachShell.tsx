@@ -219,9 +219,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       gap: 9,
       marginBottom: 10,
     },
-    redRule: { width: 24, height: 2, backgroundColor: colors.primary },
+    redRule: { width: 24, height: 2, backgroundColor: colors.readablePrimary },
     eliteLabel: {
-      color: colors.primary,
+      color: colors.readablePrimary,
       fontSize: 11,
       letterSpacing: 2.1,
       ...font("bold"),
