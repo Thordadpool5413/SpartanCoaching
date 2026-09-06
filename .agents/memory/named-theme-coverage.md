@@ -20,3 +20,9 @@ Public route shells can locally reset semantic variables and legacy utility clas
 **Why:** Resources, Tools, and Contact remained low contrast after the palette itself was correct because their shared public wrapper reintroduced red/dim gray and the kicker component read the wrapper's old primary value.
 
 **How to apply:** After any named-theme pass, verify representative public routes at phone width and cover shell-level `text-kicker`, muted/gray utilities, and local `--primary` resets before auditing individual cards.
+
+Shared public chrome must define its own card and muted tokens; otherwise a Mamba root card token can paint header controls purple while their inherited foreground disappears. Route-wide guards must target `.page-persuasion` wrappers, not only `main.page-persuasion`, because many public screens use a div shell.
+
+**Why:** The second visual pass exposed blank mobile search/menu controls and purple-on-purple public resource/tool labels even though the main page screenshots looked readable.
+
+**How to apply:** Keep public header tokens isolated from workspace tokens, make phone filter groups wrap instead of clipping, and audit the actual wrapper element used by each route before trusting a selector.

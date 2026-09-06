@@ -94,7 +94,7 @@ export default function AiToolsIndex() {
           <Text
             style={[
               styles.category,
-              { color: vault ? VAULT.accent : colors.primary },
+              { color: vault ? VAULT.accent : colors.readablePrimary },
               font("bold"),
             ]}
           >
@@ -112,7 +112,7 @@ export default function AiToolsIndex() {
           <View style={styles.openRow}>
             <Text
               style={[
-                { color: vault ? VAULT.accent : colors.primary },
+                { color: vault ? VAULT.accent : colors.readablePrimary },
                 font("semibold"),
               ]}
             >
@@ -121,7 +121,7 @@ export default function AiToolsIndex() {
             <Feather
               name="arrow-right"
               size={17}
-              color={vault ? VAULT.accent : colors.primary}
+              color={vault ? VAULT.accent : colors.readablePrimary}
             />
           </View>
         ) : (
@@ -140,8 +140,8 @@ export default function AiToolsIndex() {
       contentContainerStyle={styles.container}
     >
       <Pressable onPress={() => goBackOrReplace("/(tabs)/tools")} style={styles.back} testID="advanced-back">
-        <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
+        <Feather name="arrow-left" size={18} color={colors.readablePrimary} />
+        <Text style={[{ color: colors.readablePrimary }, font("semibold")]}>Tools</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library
@@ -156,13 +156,13 @@ export default function AiToolsIndex() {
         style={[styles.savedButton, { borderColor: colors.border, backgroundColor: colors.card }]}
       >
         <View style={styles.savedButtonCopy}>
-          <Feather name="file-text" size={18} color={colors.primary} />
+          <Feather name="file-text" size={18} color={colors.readablePrimary} />
           <View style={{ flex: 1 }}>
             <Text style={[styles.savedButtonTitle, { color: colors.foreground }, font("bold")]}>Saved outputs</Text>
             <Text style={[styles.savedButtonText, { color: colors.mutedForeground }, font("regular")]}>Review completed work from iPhone or the website.</Text>
           </View>
         </View>
-        <Feather name="chevron-right" size={18} color={colors.primary} />
+        <Feather name="chevron-right" size={18} color={colors.readablePrimary} />
       </Pressable>
       <View
         style={{
@@ -177,14 +177,14 @@ export default function AiToolsIndex() {
           marginBottom: 12,
         }}
       >
-        <Feather name="shield" size={12} color={colors.primary} />
-        <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
+        <Feather name="shield" size={12} color={colors.readablePrimary} />
+        <Text style={[{ color: colors.readablePrimary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
           ELITE TOOLS · HUMAN APPROVAL REQUIRED
         </Text>
       </View>
       {availability === null && (
         <View accessibilityRole="progressbar" style={styles.statusRow}>
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={colors.readablePrimary} />
           <Text style={{ color: colors.mutedForeground }}>
             Loading authorized tools…
           </Text>
@@ -201,7 +201,7 @@ export default function AiToolsIndex() {
             accessibilityLabel="Retry tool catalog"
             onPress={() => void loadCatalog()}
           >
-            <Text style={[{ color: colors.primary }, font("semibold")]}>Retry</Text>
+            <Text style={[{ color: colors.readablePrimary }, font("semibold")]}>Retry</Text>
           </Pressable>
         </View>
       )}
@@ -209,7 +209,7 @@ export default function AiToolsIndex() {
       {fieldFacing.length > 0 && (
         <View style={styles.section} testID="section-ai-field-tools">
           <View style={styles.sectionHead}>
-            <Feather name="zap" size={18} color={colors.primary} />
+            <Feather name="zap" size={18} color={colors.readablePrimary} />
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               Field AI
             </Text>

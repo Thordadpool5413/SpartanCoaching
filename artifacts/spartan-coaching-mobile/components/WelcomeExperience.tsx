@@ -88,7 +88,7 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
             <Text style={styles.exploreTitle}>Explore all {FIELD_KIT_TOOLS.length} field tools</Text>
             <Text style={styles.exploreBody}>Browse tools by Plan, Prepare, Practice, Measure, or Outreach.</Text>
           </View>
-          <Feather name="grid" size={22} color={colors.primary} />
+          <Feather name="grid" size={22} color={colors.readablePrimary} />
         </Pressable>
 
         <Pressable
@@ -97,12 +97,12 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
           style={({ pressed }) => [styles.tourRow, pressed && styles.pressed]}
           testID="button-guided-tour"
         >
-          <View style={styles.tourIcon}><Feather name="compass" size={20} color={colors.primary} /></View>
+          <View style={styles.tourIcon}><Feather name="compass" size={20} color={colors.readablePrimary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.tourTitle}>Take the complete app tour</Text>
             <Text style={styles.tourBody}>Learn every destination, tool family, Library experience, saved work flow, and website connection.</Text>
           </View>
-          <Feather name="chevron-right" size={20} color={colors.primary} />
+          <Feather name="chevron-right" size={20} color={colors.readablePrimary} />
         </Pressable>
 
         <View style={styles.membershipCard}>
@@ -138,11 +138,11 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
           style={({ pressed }) => [styles.consulting, pressed && styles.pressed]}
         >
           <Text style={styles.consultingText}>Need human consulting or company access?</Text>
-          <Feather name="chevron-right" size={18} color={colors.primary} />
+          <Feather name="chevron-right" size={18} color={colors.readablePrimary} />
         </Pressable>
 
         <View style={styles.trust}>
-          <Feather name="lock" size={17} color={colors.primary} />
+          <Feather name="lock" size={17} color={colors.readablePrimary} />
           <Text style={styles.trustText}>No patient PHI. Raw Coach conversations stay private and expire after 90 days.</Text>
         </View>
       </View>
@@ -163,8 +163,8 @@ function ProductPillar({ icon, label, description, route, onPress }: { icon: Rea
       testID={`home-pillar-${label.toLowerCase()}`}
     >
       <View style={styles.productPillarTop}>
-        <View style={styles.productPillarIcon}><Feather name={icon} size={20} color={colors.primary} /></View>
-        <Feather name="arrow-up-right" size={17} color={colors.primary} />
+        <View style={styles.productPillarIcon}><Feather name={icon} size={20} color={colors.readablePrimary} /></View>
+        <Feather name="arrow-up-right" size={17} color={colors.readablePrimary} />
       </View>
       <Text style={styles.productPillarLabel}>{label}</Text>
       <Text style={styles.productPillarDescription}>{description}</Text>
@@ -177,10 +177,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     page: { paddingHorizontal: 24 },
     badge: { alignSelf: "flex-start", marginTop: 16, borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 11, paddingVertical: 7 },
-    badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 0.3, ...font("bold") },
+    badgeText: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 0.3, ...font("bold") },
     title: { color: colors.foreground, fontSize: 40, lineHeight: 46, letterSpacing: -1.5, marginTop: 24, ...font("heavy") },
     body: { color: colors.mutedForeground, fontSize: 16, lineHeight: 23, marginTop: 4, maxWidth: 355, ...font("regular") },
-    sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 26, marginBottom: 10, ...font("bold") },
+    sectionLabel: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, marginTop: 26, marginBottom: 10, ...font("bold") },
     productMap: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
     productPillar: { flexBasis: "47%", flexGrow: 1, minHeight: 118, justifyContent: "space-between", padding: 15, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
     productPillarPressed: { opacity: 0.74, transform: [{ scale: 0.98 }] },
@@ -191,7 +191,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     recommendedCard: { minHeight: 150, flexDirection: "row", alignItems: "center", gap: 14, padding: 18, borderRadius: 22, borderCurve: "continuous", backgroundColor: colors.heroBackground, borderWidth: 1, borderColor: colors.primary },
     recommendedIcon: { width: 50, height: 50, borderRadius: 16, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primary },
     recommendedCopy: { flex: 1, gap: 5 },
-    recommendedEyebrow: { color: colors.primary, fontSize: 8, letterSpacing: 1.5, ...font("bold") },
+    recommendedEyebrow: { color: colors.readablePrimary, fontSize: 8, letterSpacing: 1.5, ...font("bold") },
     recommendedTitle: { color: colors.heroForeground, fontSize: 18, lineHeight: 22, ...font("heavy") },
     recommendedBody: { color: colors.heroMuted, fontSize: 12, lineHeight: 18, ...font("regular") },
     exploreButton: { minHeight: 82, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 14, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong },
@@ -202,18 +202,18 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     tourTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     tourBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     membershipCard: { borderRadius: 22, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 17, marginTop: 24, gap: 13 },
-    membershipEyebrow: { color: colors.primary, fontSize: 9, letterSpacing: 1.5, ...font("bold") },
+    membershipEyebrow: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.5, ...font("bold") },
     planRow: { flexDirection: "row", gap: 13 },
     planCopy: { flex: 1, gap: 3 },
     planDivider: { width: StyleSheet.hairlineWidth, backgroundColor: colors.borderStrong },
     planName: { color: colors.foreground, fontSize: 17, ...font("heavy") },
-    planPrice: { color: colors.primary, fontSize: 12, ...font("bold") },
+    planPrice: { color: colors.readablePrimary, fontSize: 12, ...font("bold") },
     planValue: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 4, ...font("regular") },
     membershipButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.primary, paddingHorizontal: 14 },
      membershipButtonText: { color: colors.primaryForeground, fontSize: 14, textAlign: "center", ...font("bold") },
     purchaseNote: { color: colors.mutedForeground, fontSize: 10, textAlign: "center", ...font("regular") },
     consulting: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, marginTop: 12 },
-    consultingText: { color: colors.primary, fontSize: 12, textAlign: "center", ...font("bold") },
+    consultingText: { color: colors.readablePrimary, fontSize: 12, textAlign: "center", ...font("bold") },
     trust: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderRadius: 16, backgroundColor: colors.primaryMuted, padding: 14 },
     trustText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("medium") },
     pressed: { opacity: 0.7, transform: [{ scale: 0.99 }] },

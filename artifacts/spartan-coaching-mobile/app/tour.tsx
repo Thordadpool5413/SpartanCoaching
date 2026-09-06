@@ -169,7 +169,7 @@ export default function GuidedTourScreen() {
           {STEPS.map((item, index) => <View key={item.kicker} style={[styles.progressSegment, index <= step && styles.progressSegmentActive]} />)}
         </View>
 
-        <View style={styles.stepIcon}><Feather name={current.icon} size={27} color={colors.primary} /></View>
+        <View style={styles.stepIcon}><Feather name={current.icon} size={27} color={colors.readablePrimary} /></View>
         <Text style={styles.kicker}>{current.kicker}</Text>
         <Text style={styles.title}>{current.title}</Text>
         <Text style={styles.body}>{current.body}</Text>
@@ -177,7 +177,7 @@ export default function GuidedTourScreen() {
         <TourExperience step={step} practiceChoice={practiceChoice} onPracticeChoice={setPracticeChoice} selectedPractice={selectedPractice} />
 
         <View style={styles.boundaryRow}>
-          <Feather name="shield" size={17} color={colors.primary} />
+          <Feather name="shield" size={17} color={colors.readablePrimary} />
           <Text style={styles.boundaryText}>Fictional training scenario only. Never enter patient PHI into Spartan Coaching.</Text>
         </View>
       </ScrollView>
@@ -278,7 +278,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
         <Text style={styles.cardKicker}>YOUR COMMITMENT</Text>
         <Text style={styles.cardTitle}>Ask one curiosity question before educating.</Text>
         <Text style={styles.commitmentBody}>This appears in My Work as unfinished work. Reopen it, complete it, or keep it private. Raw Coach conversation content is never visible to company administrators.</Text>
-        <View style={styles.savedStatus}><Feather name="lock" size={15} color={colors.primary} /><Text style={styles.savedText}>Private by default · explicitly share only what you approve</Text></View>
+        <View style={styles.savedStatus}><Feather name="lock" size={15} color={colors.readablePrimary} /><Text style={styles.savedText}>Private by default · explicitly share only what you approve</Text></View>
       </View>
     );
   }
@@ -341,7 +341,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
 function InfoLine({ icon, title, body }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  return <View style={styles.infoLine}><View style={styles.infoIcon}><Feather name={icon} size={17} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
+  return <View style={styles.infoLine}><View style={styles.infoIcon}><Feather name={icon} size={17} color={colors.readablePrimary} /></View><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
 }
 
 function ResultBlock({ number, title, body }: { number: string; title: string; body: string }) {
@@ -362,11 +362,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     progressSegment: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.muted },
     progressSegmentActive: { backgroundColor: colors.primary },
     stepIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center", marginBottom: 20 },
-    kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+    kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2, ...font("bold") },
     title: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, marginTop: 9, ...font("heavy") },
     body: { color: colors.mutedForeground, fontSize: 15, lineHeight: 23, marginTop: 12, ...font("regular") },
     scenarioCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, borderCurve: "continuous", padding: 17, marginTop: 24, gap: 12 },
-    cardKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
+    cardKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
     cardTitle: { color: colors.foreground, fontSize: 20, lineHeight: 25, ...font("heavy") },
     cardBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 8, ...font("regular") },
     infoLine: { flexDirection: "row", alignItems: "flex-start", gap: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 11 },
@@ -374,9 +374,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
     infoBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 3, ...font("regular") },
     planCard: { backgroundColor: colors.heroBackground, borderRadius: 21, borderCurve: "continuous", padding: 18, marginTop: 24, gap: 0 },
-    planKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
+    planKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
     resultBlock: { flexDirection: "row", gap: 12, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(255,255,255,0.16)" },
-    resultNumber: { color: colors.primary, fontSize: 12, ...font("heavy") },
+    resultNumber: { color: colors.readablePrimary, fontSize: 12, ...font("heavy") },
     planInfoTitle: { color: colors.heroForeground, fontSize: 13, ...font("bold") },
     planInfoBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 17, marginTop: 3, ...font("regular") },
     practiceStack: { gap: 9, marginTop: 24 },
@@ -400,7 +400,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     feedbackBadgeText: { color: colors.foreground, fontSize: 8, letterSpacing: 1, ...font("bold") },
     feedbackBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 19, ...font("regular") },
     retryBox: { backgroundColor: colors.primaryMuted, borderRadius: 14, padding: 13 },
-    retryLabel: { color: colors.primary, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
+    retryLabel: { color: colors.readablePrimary, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
     retryText: { color: colors.foreground, fontSize: 11, lineHeight: 17, marginTop: 5, ...font("medium") },
     commitmentCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 21, borderCurve: "continuous", padding: 18, marginTop: 24, gap: 10 },
     commitmentIcon: { width: 46, height: 46, borderRadius: 15, backgroundColor: colors.success, alignItems: "center", justifyContent: "center" },
@@ -408,7 +408,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     savedStatus: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: colors.primaryMuted, borderRadius: 12, padding: 10 },
     savedText: { flex: 1, color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("medium") },
     accessCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 21, borderCurve: "continuous", padding: 17, marginTop: 24 },
-    accessLink: { color: colors.primary, fontSize: 12, marginTop: 14, ...font("bold") },
+    accessLink: { color: colors.readablePrimary, fontSize: 12, marginTop: 14, ...font("bold") },
     boundaryRow: { flexDirection: "row", alignItems: "flex-start", gap: 9, backgroundColor: colors.primaryMuted, borderRadius: 15, padding: 13, marginTop: 15 },
     boundaryText: { color: colors.mutedForeground, flex: 1, fontSize: 10, lineHeight: 16, ...font("medium") },
     footer: { minHeight: 84, paddingHorizontal: 20, paddingTop: 12, backgroundColor: colors.card, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, flexDirection: "row", alignItems: "center", gap: 12 },

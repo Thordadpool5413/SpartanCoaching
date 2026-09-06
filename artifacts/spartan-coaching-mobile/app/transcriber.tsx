@@ -69,7 +69,7 @@ export default function TranscriberScreen() {
         <Text style={styles.title}>Call Transcriber</Text>
         <Text style={styles.subtitle}>Capture a private, deidentified reflection and turn it into text for self coaching.</Text>
         <View style={styles.lockedCard}>
-          <Feather name="mic" size={27} color={colors.primary} />
+          <Feather name="mic" size={27} color={colors.readablePrimary} />
           <Text style={styles.cardTitle}>Voice transcription is included with Elite.</Text>
           <Text style={styles.cardBody}>Preview how it works, then compare Standard and Elite without creating an account first.</Text>
           <SpartanButton title="Compare Elite and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 8 }} />
@@ -85,7 +85,7 @@ export default function TranscriberScreen() {
       <Text style={styles.subtitle}>Record what you remember after a sales conversation. Never record a patient, caregiver, or clinical encounter.</Text>
 
       <View style={styles.safetyCard}>
-        <Feather name="shield" size={18} color={colors.primary} />
+        <Feather name="shield" size={18} color={colors.readablePrimary} />
         <Text style={styles.safetyText}>No patient names, dates, record numbers, contact details, recordings, or other PHI.</Text>
       </View>
 
@@ -109,7 +109,7 @@ export default function TranscriberScreen() {
               <Text style={styles.cardTitle}>Your deidentified reflection</Text>
             </View>
             <Pressable onPress={() => void Clipboard.setStringAsync(transcript)} style={styles.iconButton} accessibilityLabel="Copy transcript">
-              <Feather name="copy" size={18} color={colors.primary} />
+              <Feather name="copy" size={18} color={colors.readablePrimary} />
             </Pressable>
           </View>
           <Text selectable style={styles.transcript}>{transcript}</Text>
@@ -128,7 +128,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { padding: 20, gap: 14, paddingBottom: 42 },
-    kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+    kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2, ...font("bold") },
     title: { color: colors.foreground, fontSize: 34, lineHeight: 39, letterSpacing: -0.9, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, ...font("regular") },
     safetyCard: { flexDirection: "row", gap: 10, borderRadius: 16, backgroundColor: colors.primaryMuted, padding: 14 },
@@ -139,12 +139,12 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     recorderTime: { color: colors.heroMuted, fontSize: 14, fontVariant: ["tabular-nums"], ...font("semibold") },
     transcriptCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 18, gap: 14 },
     transcriptHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    transcriptLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
+    transcriptLabel: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
     transcript: { color: colors.foreground, fontSize: 15, lineHeight: 23, ...font("regular") },
     iconButton: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     actions: { flexDirection: "row", gap: 10 },
     privateNote: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
-    lockedCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.card, padding: 20, gap: 10, marginTop: 10 },
+    lockedCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.readablePrimary, backgroundColor: colors.card, padding: 20, gap: 10, marginTop: 10 },
     cardTitle: { color: colors.foreground, fontSize: 18, lineHeight: 23, ...font("bold") },
     cardBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 20, ...font("regular") },
   });

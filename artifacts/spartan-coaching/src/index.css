@@ -1571,6 +1571,10 @@ body {
   .public-site-header {
     --background: 0 0% 100%;
     --foreground: 228 33% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 33% 8%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 220 9% 29%;
     --muted-foreground: 220 9% 29%;
     --border: 220 9% 72%;
     --primary: 357 86% 45%;
@@ -1590,6 +1594,11 @@ body {
   }
   .public-site-header .text-muted-foreground {
     color: hsl(220 9% 29%) !important;
+  }
+  .public-site-header .header-utility-control {
+    background: hsl(0 0% 100%) !important;
+    border-color: hsl(220 9% 50%) !important;
+    color: hsl(228 33% 8%) !important;
   }
   .public-site-header a,
   .public-site-header button {
@@ -3496,4 +3505,49 @@ html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [clas
 html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-orange-"],
 html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-green-"] {
   color: var(--mamba-gold) !important;
+}
+
+/* Final Mamba contrast guard: primary is the purple surface role, so it
+ * cannot also be used as small foreground copy on a purple card. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion .text-spartan-red,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .text-spartan-red {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .text-kicker,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .text-kicker {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium :is(
+  .workspace-overline,
+  .workspace-next-top,
+  .workspace-section-heading p,
+  .workspace-mission-header,
+  .workspace-mission-action,
+  .workspace-onboarding-strip p,
+  .command-dashboard-icon,
+  .command-dashboard-label,
+  .coach-summary-grid span,
+  .coach-summary-grid a,
+  .tool-next-step p
+) {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium :is(
+  .workspace-principles svg,
+  .workspace-utility-rail svg,
+  .workspace-section-heading svg
+) {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .resources-premium > div:first-of-type,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .resources-library-dock {
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
 }

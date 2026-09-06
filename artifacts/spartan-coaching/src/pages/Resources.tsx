@@ -613,7 +613,7 @@ export default function Resources() {
             />
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" aria-label="Filter resources by type">
+        <div className="mt-4 flex flex-wrap gap-2 pb-1" aria-label="Filter resources by type">
           {["all", "template", "script", "checklist", "guide"].map((category) => (
             <Button
               key={category}

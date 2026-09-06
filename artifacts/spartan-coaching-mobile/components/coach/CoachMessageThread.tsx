@@ -145,11 +145,11 @@ export function CoachMessageThread({
             {message.role === "assistant" ? (
               <View style={styles.messageActions}>
                 <Pressable accessibilityRole="button" accessibilityLabel="Copy coaching brief" onPress={() => void Clipboard.setStringAsync(message.content)} style={styles.messageAction}>
-                  <Feather name="copy" size={15} color={colors.primary} />
+                  <Feather name="copy" size={15} color={colors.readablePrimary} />
                   <Text style={styles.messageActionText}>Copy</Text>
                 </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel="Share or print coaching brief" onPress={() => void Share.share({ title: "Spartan Coach Brief", message: message.content })} style={styles.messageAction}>
-                  <Feather name="share" size={15} color={colors.primary} />
+                  <Feather name="share" size={15} color={colors.readablePrimary} />
                   <Text style={styles.messageActionText}>Share or Print</Text>
                 </Pressable>
               </View>
@@ -164,7 +164,7 @@ export function CoachMessageThread({
               styles.thinkingBubble,
             ]}
           >
-            <ActivityIndicator color={colors.primary} size="small" />
+            <ActivityIndicator color={colors.readablePrimary} size="small" />
             <Text style={styles.thinkingText}>Coach is thinking</Text>
           </View>
         ) : null}
@@ -224,7 +224,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginLeft: 28,
     },
     messageRole: {
-      color: colors.primary,
+      color: colors.readablePrimary,
       fontSize: 9,
       letterSpacing: 1.4,
       marginBottom: 6,
@@ -283,7 +283,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       ...font("regular"),
     },
     inlineLink: {
-      color: colors.primary,
+      color: colors.readablePrimary,
       fontSize: 14,
       marginTop: 8,
       ...font("semibold"),

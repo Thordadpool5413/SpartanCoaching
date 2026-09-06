@@ -112,7 +112,7 @@ function ResultBody({ content }: { content: string }) {
               style={[styles.itemCard, { backgroundColor: colors.background, borderColor: colors.border }]}
             >
               <View style={[styles.itemMarker, { backgroundColor: colors.primaryMuted }]}>
-                <Text style={[styles.itemMarkerText, { color: colors.primary }, font("bold")]}>
+                <Text style={[styles.itemMarkerText, { color: colors.readablePrimary }, font("bold")]}>
                   {block.number ?? "•"}
                 </Text>
               </View>
@@ -191,7 +191,7 @@ export function FieldResultPanel({
         accessibilityState={{ busy: true }}
       >
         <View style={styles.skeletonRow}>
-          <ActivityIndicator color={colors.primary} size="small" />
+            <ActivityIndicator color={colors.readablePrimary} size="small" />
           <Text style={[styles.skeletonText, { color: colors.mutedForeground }, font("regular")]}>
             Building a focused field answer…
           </Text>
@@ -210,7 +210,7 @@ export function FieldResultPanel({
         accessibilityRole="alert"
         accessibilityLiveRegion="assertive"
       >
-        <Text style={[styles.error, { color: colors.primary }, font("regular")]}>{error}</Text>
+        <Text style={[styles.error, { color: colors.readablePrimary }, font("regular")]}>{error}</Text>
       </View>
     );
   }
@@ -240,12 +240,12 @@ export function FieldResultPanel({
       accessibilityLiveRegion="polite"
     >
       <View style={[styles.hero, { backgroundColor: colors.primaryMuted }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD READY</Text>
+        <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>FIELD READY</Text>
         <Text accessibilityRole="header" style={[styles.title, { color: colors.foreground }, font("heavy")]}>
           {title}
         </Text>
         <View style={styles.trustRow}>
-          <Feather name="shield" size={15} color={colors.primary} />
+          <Feather name="shield" size={15} color={colors.readablePrimary} />
           <View style={styles.trustCopy}>
             <Text style={[styles.trustTitle, { color: colors.foreground }, font("semibold")]}>
               Built from your context
