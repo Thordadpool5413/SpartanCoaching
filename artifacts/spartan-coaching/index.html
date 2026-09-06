@@ -96,6 +96,8 @@
             root.style.setProperty('--primary-foreground', preset === 'mamba' ? '0 0% 83%' : '0 0% 100%');
             root.style.setProperty('--accent', preset === 'mamba' ? '42 98% 57%' : mode === 'dark' ? '0 0% 18%' : '0 85% 94%');
             root.style.setProperty('--accent-foreground', preset === 'mamba' ? '0 0% 10%' : root.style.getPropertyValue('--foreground'));
+            root.style.setProperty('--secondary', preset === 'mamba' ? '42 98% 57%' : root.style.getPropertyValue('--muted'));
+            root.style.setProperty('--secondary-foreground', preset === 'mamba' ? '0 0% 10%' : root.style.getPropertyValue('--foreground'));
             root.style.setProperty('--mamba-purple', preset === 'mamba' ? '#552583' : '');
             root.style.setProperty('--mamba-gold', preset === 'mamba' ? '#FDB927' : '');
             root.style.setProperty('--mamba-black', preset === 'mamba' ? '#1A1A1A' : '');

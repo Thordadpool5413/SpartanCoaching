@@ -214,13 +214,13 @@ const MAMBA_DARK_SURFACE: BgPreset = {
   tone: "dark",
   bg: "0 0% 10%",
   fg: "0 0% 83%",
-  card: "0 0% 14%",
+  card: "271 56% 33%",
   cardFg: "0 0% 83%",
-  muted: "0 0% 19%",
+  muted: "271 38% 18%",
   mutedFg: "0 0% 83%",
-  secondary: "271 56% 33%",
-  border: "0 0% 43%",
-  sidebar: "0 0% 7%",
+  secondary: "42 98% 57%",
+  border: "42 98% 57%",
+  sidebar: "271 56% 20%",
 };
 
 const MAMBA_LIGHT_SURFACE: BgPreset = {
@@ -230,13 +230,13 @@ const MAMBA_LIGHT_SURFACE: BgPreset = {
   tone: "light",
   bg: "0 0% 83%",
   fg: "0 0% 10%",
-  card: "0 0% 94%",
-  cardFg: "0 0% 10%",
-  muted: "0 0% 73%",
+  card: "271 56% 33%",
+  cardFg: "0 0% 83%",
+  muted: "271 38% 18%",
   mutedFg: "0 0% 10%",
-  secondary: "271 56% 33%",
-  border: "0 0% 43%",
-  sidebar: "0 0% 80%",
+  secondary: "42 98% 57%",
+  border: "271 56% 33%",
+  sidebar: "271 56% 24%",
 };
 
 const ACCENT_PROPS = [
@@ -415,8 +415,8 @@ export function applyAppearance(
   if (themePreset === "mamba") {
     setVar("--accent", "42 98% 57%");
     setVar("--accent-foreground", "0 0% 10%");
-    setVar("--secondary", "271 56% 33%");
-    setVar("--secondary-foreground", "0 0% 83%");
+    setVar("--secondary", "42 98% 57%");
+    setVar("--secondary-foreground", "0 0% 10%");
   }
   // Destructive always keeps readable on-fill text
   setVar("--destructive-foreground", "0 0% 100%");
