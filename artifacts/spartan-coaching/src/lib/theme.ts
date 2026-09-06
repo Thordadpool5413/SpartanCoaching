@@ -70,6 +70,8 @@ export const THEME_PRESETS: ThemePreset[] = [
   },
 ];
 
+const THEME_PRESET_CHOICE_KEY = "spartan_theme_preset_choice_v1";
+
 export const ACCENT_PRESETS: AccentPreset[] = [
   { key: "red", label: "Spartan Red", swatch: "hsl(0 85% 50%)", primaryLight: "0 85% 48%", primaryDark: "0 85% 58%" },
   { key: "blue", label: "Steel Blue", swatch: "hsl(213 80% 48%)", primaryLight: "213 80% 42%", primaryDark: "213 80% 58%" },
@@ -279,14 +281,25 @@ export function getAccentPreset(accent: AccentKey): AccentPreset {
 }
 
 export function getInitialThemePreset(): ThemePresetKey {
-  if (typeof window === "undefined") return "spartan";
+  if (typeof window === "undefined") return "mamba";
   try {
     const saved = localStorage.getItem("spartan_theme_preset");
+    if (saved === "spartan" && localStorage.getItem(THEME_PRESET_CHOICE_KEY) !== "1") {
+      return "mamba";
+    }
     if (saved === "mamba" || saved === "spartan" || saved === "custom") return saved;
   } catch {
     /* ignore */
   }
-  return "spartan";
+  return "mamba";
+}
+
+export function markThemePresetChosen() {
+  try {
+    localStorage.setItem(THEME_PRESET_CHOICE_KEY, "1");
+  } catch {
+    /* private mode */
+  }
 }
 
 export function modeForBackground(bg: BgKey): ThemeMode {
@@ -294,25 +307,25 @@ export function modeForBackground(bg: BgKey): ThemeMode {
 }
 
 export function getInitialAccent(): AccentKey {
-  if (typeof window === "undefined") return "red";
+  if (typeof window === "undefined") return "gold";
   try {
     const saved = localStorage.getItem("spartan_accent");
     if (saved && ACCENT_PRESETS.some((p) => p.key === saved)) return saved as AccentKey;
   } catch {
     /* ignore */
   }
-  return "red";
+  return "gold";
 }
 
 export function getInitialBackground(): BgKey {
-  if (typeof window === "undefined") return "soft";
+  if (typeof window === "undefined") return "charcoal";
   try {
     const saved = localStorage.getItem("spartan_bg");
     if (saved && BG_PRESETS.some((preset) => preset.key === saved)) return saved as BgKey;
   } catch {
     /* ignore */
   }
-  return "soft";
+  return "charcoal";
 }
 
 export function getInitialMode(): ThemeMode {

@@ -20,6 +20,7 @@ import {
   getInitialThemePreset,
   getInitialMode,
   applyAppearance,
+  markThemePresetChosen,
   modeForBackground,
   defaultBgForMode,
 } from "@/lib/theme";
@@ -44,7 +45,7 @@ let store: ThemeState = {
   mode: "light",
   accent: "red",
   background: "soft",
-  themePreset: "spartan",
+  themePreset: "mamba",
 };
 
 const listeners = new Set<() => void>();
@@ -152,6 +153,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
+    markThemePresetChosen();
     if (themePreset === "mamba") {
       commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
       return;
@@ -204,6 +206,7 @@ export function useTheme(): ThemeContextValue {
   }, []);
 
   const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
+    markThemePresetChosen();
     if (themePreset === "mamba") {
       commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
       return;

@@ -48,11 +48,12 @@ export function SpartanButton({
 
   const bg =
     variant === "primary"
-      ? colors.primary
+      ? colors.accent === "#FDB927" ? colors.accent : colors.primary
       : variant === "outline"
         ? "transparent"
         : "transparent";
   const isMamba = colors.accent === "#FDB927";
+  const primaryText = isMamba ? colors.accentForeground : colors.primaryForeground;
   const borderColor =
     variant === "outline"
       ? isMamba
@@ -62,7 +63,7 @@ export function SpartanButton({
         ? colors.accent
         : "transparent";
   const textColor =
-    variant === "primary" ? colors.primaryForeground : colors.foreground;
+    variant === "primary" ? primaryText : colors.foreground;
 
   return (
     <Pressable
@@ -85,7 +86,7 @@ export function SpartanButton({
           transform: [pressScale(!!pressed && !isDisabled, reduceMotion, 0.97)],
           ...(variant === "primary" && Platform.OS === "ios" && !reduceMotion
             ? {
-                shadowColor: colors.primary,
+                shadowColor: isMamba ? colors.accent : colors.primary,
                 shadowOpacity: 0.18,
                 shadowRadius: 10,
                 shadowOffset: { width: 0, height: 4 },

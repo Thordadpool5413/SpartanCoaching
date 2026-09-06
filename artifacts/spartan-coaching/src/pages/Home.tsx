@@ -266,7 +266,7 @@ export default function Home() {
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted">
+                <Button size="lg" variant="outline" asChild className="mamba-gold-action font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted">
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
                     Preview Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -310,7 +310,7 @@ export default function Home() {
       <HomePathfinder />
 
       {/* CAPABILITY STRIP */}
-      <section className="border-b border-border bg-card">
+      <section className="mamba-gold-section border-b border-border bg-card">
         <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-12">
           <div className="flex gap-4 items-start">
             <ShieldCheck className="w-6 h-6 text-primary shrink-0 mt-0.5" />
@@ -440,7 +440,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <Button asChild className="font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors" variant={p.primary ? "default" : "outline"}>
+                    <Button asChild className={`${!p.primary ? "mamba-gold-action " : ""}font-display font-bold text-[15px] w-full min-h-[3.5rem] rounded-none border-2 hover:bg-primary hover:text-white transition-colors`} variant={p.primary ? "default" : "outline"}>
                       <Link href={p.href} onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, p.primary ? "home_consulting" : "home_hospice_sales_pro")}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-5 h-5" />

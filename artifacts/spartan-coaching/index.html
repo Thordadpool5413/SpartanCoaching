@@ -77,7 +77,8 @@
           var accents = ['red', 'blue', 'green', 'gold', 'purple', 'slate'];
           var accent = savedAccent && accents.indexOf(savedAccent) >= 0 ? savedAccent : 'red';
            var savedPreset = localStorage.getItem('spartan_theme_preset');
-           var preset = savedPreset === 'mamba' || savedPreset === 'custom' ? savedPreset : 'spartan';
+            var presetWasChosen = localStorage.getItem('spartan_theme_preset_choice_v1') === '1';
+            var preset = savedPreset === 'spartan' && !presetWasChosen ? 'mamba' : savedPreset === 'mamba' || savedPreset === 'custom' || savedPreset === 'spartan' ? savedPreset : 'mamba';
           /* Force cache-bust class so new CSS is obvious after deploy */
           root.classList.add('spartan-elite-2026');
           var s = surfaces[bg] || surfaces.soft;

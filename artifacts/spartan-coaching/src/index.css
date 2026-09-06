@@ -3055,6 +3055,68 @@ html[data-theme-preset="mamba"] .public-site-header {
   border-bottom: 3px solid var(--mamba-gold) !important;
 }
 
+html[data-theme-preset="mamba"] .public-site-header [class*="text-primary"],
+html[data-theme-preset="mamba"] .public-site-header .text-primary {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-action {
+  background: var(--mamba-gold) !important;
+  border-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-action:hover,
+html[data-theme-preset="mamba"] .mamba-gold-action:focus-visible {
+  background: var(--mamba-gold) !important;
+  border-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
+  filter: brightness(.94);
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-section {
+  background: var(--mamba-gold) !important;
+  border-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-section .text-foreground,
+html[data-theme-preset="mamba"] .mamba-gold-section .text-muted-foreground {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-section .text-primary {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"] .mamba-gold-section .border-border {
+  border-color: rgb(85 37 131 / .38) !important;
+}
+
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card,
+html[data-theme-preset="mamba"] main.page-persuasion [class*="bg-card/"] {
+  background-color: var(--mamba-purple) !important;
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"] main.page-persuasion .bg-secondary,
+html[data-theme-preset="mamba"] main.page-persuasion [class*="bg-secondary/"] {
+  background-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-card,
+html[data-theme-preset="mamba"] .workspace-premium [class*="bg-card/"] {
+  background-color: var(--mamba-purple) !important;
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-secondary,
+html[data-theme-preset="mamba"] .workspace-premium [class*="bg-secondary/"] {
+  background-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
+}
+
 html[data-theme-preset="mamba"] main.page-persuasion .surface-band {
   background:
     linear-gradient(115deg, rgb(85 37 131 / .96), rgb(26 26 26 / .98) 72%),

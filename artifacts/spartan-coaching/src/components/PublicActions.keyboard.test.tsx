@@ -82,7 +82,7 @@ describe("public keyboard actions", () => {
 
     await waitFor(() => {
       expect(document.documentElement.dataset.accent).toBe("blue");
-      expect(document.documentElement.style.getPropertyValue("--primary")).toBe("213 80% 42%");
+      expect(document.documentElement.style.getPropertyValue("--primary")).toBe("213 80% 58%");
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Use Warm Paper" }));
