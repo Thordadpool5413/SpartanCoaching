@@ -148,7 +148,7 @@ export function CoachShell({
                     ]}
                   >
                     {complete ? (
-                      <Feather name="check" size={14} color="#FFFFFF" />
+                      <Feather name="check" size={14} color={colors.primaryForeground} />
                     ) : (
                       <Text
                         style={[

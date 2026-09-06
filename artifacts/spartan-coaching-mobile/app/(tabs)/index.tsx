@@ -286,12 +286,12 @@ export default function HomeScreen() {
             style={({ pressed }) => [styles.contextNotice, pressed && styles.pressed]}
             testID="home-context-retry"
           >
-            <Feather name="wifi-off" size={17} color={colors.primary} />
+            <Feather name="wifi-off" size={17} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={styles.contextNoticeTitle}>Using what is saved on this iPhone</Text>
               <Text style={styles.contextNoticeBody}>Some account context is unavailable. Tap to retry.</Text>
             </View>
-            <Feather name="refresh-cw" size={17} color={colors.primary} />
+            <Feather name="refresh-cw" size={17} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
           </Pressable>
         ) : null}
 
@@ -303,7 +303,12 @@ export default function HomeScreen() {
           testID={primaryDest.testID}
         >
           <LinearGradient
-            colors={[colors.primary, colors.primaryGradientEnd]}
+            colors={[
+              colors.primary,
+              colors.accent === "#FDB927"
+                ? colors.cardElevated ?? colors.primaryGradientEnd
+                : colors.primaryGradientEnd,
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.primaryCard}
@@ -349,8 +354,8 @@ export default function HomeScreen() {
               style={({ pressed }) => [styles.destinationRow, pressed && styles.pressed]}
               testID={destination.testID}
             >
-              <View style={styles.destinationIcon}>
-                <Feather name={destination.icon} size={20} color={colors.primary} />
+                <View style={styles.destinationIcon}>
+                <Feather name={destination.icon} size={20} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
               </View>
               <View style={styles.destinationCopy}>
                 <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.destinationTitle}>
@@ -380,7 +385,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     page: { paddingHorizontal: 22 },
-    eyebrow: { color: colors.primary, fontSize: 10, letterSpacing: 1.55, marginTop: 28, ...font("bold") },
+    eyebrow: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 10, letterSpacing: 1.55, marginTop: 28, ...font("bold") },
     headline: { color: colors.foreground, fontSize: 36, lineHeight: 41, letterSpacing: -1.25, marginTop: 9, ...font("heavy") },
     intro: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, marginTop: 12, maxWidth: 560, ...font("regular") },
     contextNotice: { minHeight: 52, marginTop: 16, flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 10 },
@@ -401,10 +406,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
      loopBarActive: { backgroundColor: colors.heroForeground },
      loopLabel: { color: colors.heroMuted, fontSize: 9, letterSpacing: 0.8, ...font("bold") },
      loopLabelActive: { color: colors.heroForeground },
-    sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.65, marginTop: 34, marginBottom: 13, ...font("bold") },
+     sectionLabel: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 9, letterSpacing: 1.65, marginTop: 34, marginBottom: 13, ...font("bold") },
     destinationList: { overflow: "hidden", borderRadius: 22, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
     destinationRow: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 13, paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
-    destinationIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+     destinationIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
     destinationCopy: { flex: 1 },
     destinationTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     destinationBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },

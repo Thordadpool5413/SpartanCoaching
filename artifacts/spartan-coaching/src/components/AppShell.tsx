@@ -109,7 +109,7 @@ function NavLinkRow({
       data-testid={testId}
     >
       <Icon className="w-4 h-4 shrink-0" aria-hidden />
-      {!collapsed && <span className="truncate">{label}</span>}
+        {!collapsed && <span className="truncate" title={label}>{label}</span>}
     </Link>
   );
 }
@@ -149,7 +149,7 @@ function SidebarBody({
               <p className="text-[10px] font-bold tracking-widest uppercase text-primary">
                 Hospice Sales Pro
               </p>
-              <p className="text-sm font-bold text-foreground truncate leading-tight">
+              <p className="text-sm font-bold text-foreground truncate leading-tight" title="Workspace">
                 Workspace
               </p>
             </div>
@@ -451,7 +451,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         <div className="text-sm font-semibold text-foreground">
                           {item.label}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2 break-words" title={item.description}>
                           {item.description}
                         </div>
                       </button>
@@ -501,7 +501,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         onClick={() => go(r.path)}
                       >
                         <span className="font-semibold text-foreground">{r.label}</span>
-                        <span className="block text-xs text-muted-foreground truncate">
+                        <span className="block text-xs text-muted-foreground break-words" title={r.path}>
                           {r.path}
                         </span>
                       </button>
@@ -530,7 +530,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           {member && (
             <div className="hidden sm:flex items-center justify-between px-4 lg:px-6 pb-2 -mt-1">
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-[11px] text-muted-foreground break-words" title={`Signed in as ${member.name || member.email}`}>
                 Signed in as{" "}
                 <span className="font-semibold text-foreground">{member.name || member.email}</span>
                 {member.role === "org_admin" || member.role === "platform_admin" ? (

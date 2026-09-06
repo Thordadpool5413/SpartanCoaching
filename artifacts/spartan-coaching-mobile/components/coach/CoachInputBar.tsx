@@ -71,7 +71,17 @@ export function CoachInputBar({
           accessibilityRole="button"
           accessibilityLabel="Send message to Coach"
         >
-          <Feather name="arrow-up" size={21} color="#FFFFFF" />
+          <Feather
+            name="arrow-up"
+            size={21}
+            color={
+              !followUp.trim() || busy
+                ? colors.mutedForeground
+                : colors.accent === "#FDB927"
+                  ? colors.accentForeground
+                  : colors.primaryForeground
+            }
+          />
         </Pressable>
       </View>
       <Text style={styles.coachPrivacyNote}>
@@ -132,11 +142,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       width: 44,
       height: 44,
       borderRadius: 14,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       alignItems: "center",
       justifyContent: "center",
     },
-    disabled: { opacity: 0.4 },
+    disabled: { backgroundColor: colors.muted, opacity: 1 },
     coachPrivacyNote: {
       color: colors.mutedForeground,
       fontSize: 10,

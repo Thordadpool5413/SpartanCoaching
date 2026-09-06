@@ -344,7 +344,7 @@ function WorkLink({ href, icon, title, description, meta }: { href: string; icon
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
         <span className="min-w-0 flex-1">
           <span className="block font-bold">{title}</span>
-          {description ? <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">{description}</span> : null}
+          {description ? <span className="mt-1 block break-words text-sm text-muted-foreground">{description}</span> : null}
           <span className="mt-2 block text-xs font-semibold text-primary">{meta}</span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />

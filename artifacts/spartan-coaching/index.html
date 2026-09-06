@@ -83,7 +83,7 @@
           root.classList.add('spartan-elite-2026');
           var s = surfaces[bg] || surfaces.soft;
            var mode = preset === 'mamba'
-             ? (localStorage.getItem('spartan_theme') === '"dark"' ? 'dark' : 'light')
+             ? (localStorage.getItem('spartan_theme_mode_choice_v1') !== '1' || localStorage.getItem('spartan_theme') === '"dark"' ? 'dark' : 'light')
              : s.tone;
            var mambaSurface = mode === 'dark'
              ? { bg: '0 0% 10%', fg: '0 0% 83%' }

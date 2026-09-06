@@ -13,7 +13,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.accent === "#FDB927" ? colors.accent : colors.primary,
         tabBarInactiveTintColor: colors.tabInactive,
         tabBarHideOnKeyboard: true,
         tabBarLabelStyle: {

@@ -25,7 +25,7 @@ function ValueRow({
   return (
     <View style={styles.valueRow}>
       <View style={styles.valueIcon}>
-        <Feather name={icon} size={18} color={colors.primary} />
+            <Feather name={icon} size={18} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
       </View>
       <Text style={styles.valueText}>{text}</Text>
     </View>
@@ -48,7 +48,7 @@ export function CoachEliteGate({ isAuthenticated }: CoachEliteGateProps) {
           actionLabel={isAuthenticated ? undefined : "Sign in"}
         />
         <View style={styles.gateBadge}>
-          <Feather name="shield" size={15} color={colors.primary} />
+          <Feather name="shield" size={15} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
           <Text style={styles.gateBadgeText}>SPARTAN COACHING ELITE</Text>
         </View>
         <Text style={styles.gateTitle}>
@@ -85,7 +85,7 @@ export function CoachEliteGate({ isAuthenticated }: CoachEliteGateProps) {
           <Text style={styles.primaryButtonText}>
             Compare Elite and subscribe
           </Text>
-          <Feather name="arrow-right" size={19} color="#FFFFFF" />
+          <Feather name="arrow-right" size={19} color={colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground} />
         </Pressable>
         <Text style={styles.gatePrice}>
           Spartan Coaching Elite is $19.99 per week. Cancel anytime.
@@ -115,7 +115,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       backgroundColor: colors.primaryMuted,
     },
     gateBadgeText: {
-      color: colors.primary,
+      color: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       fontSize: 10,
       letterSpacing: 1.3,
       ...font("bold"),
@@ -163,7 +163,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     primaryButton: {
       minHeight: 56,
       borderRadius: 15,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -173,7 +173,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     },
     primaryButtonText: {
       flex: 1,
-      color: "#FFFFFF",
+      color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground,
       fontSize: 16,
       ...font("bold"),
     },

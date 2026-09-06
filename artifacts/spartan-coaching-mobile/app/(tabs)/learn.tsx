@@ -222,7 +222,7 @@ export default function LearnScreen() {
                 accessibilityRole="tab"
                 accessibilityState={{ selected }}
               >
-                <Feather name={tab.icon} size={16} color={selected ? colors.primary : colors.mutedForeground} />
+                <Feather name={tab.icon} size={16} color={selected ? (colors.accent === "#FDB927" ? colors.accent : colors.primary) : colors.mutedForeground} />
                 <Text style={[styles.segmentLabel, { color: selected ? colors.foreground : colors.mutedForeground }, font(selected ? "bold" : "regular")]}>{tab.label}</Text>
               </Pressable>
             );
@@ -233,7 +233,7 @@ export default function LearnScreen() {
       {activeTab === "articles" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
           <LibraryModeIntro icon="file-text" title="Read" body="Open complete field notes in the native reader, capture one useful move, and save selected items for offline use." access="STANDARD" />
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE</Text>
+           <Text style={[styles.sectionEyebrow, { color: colors.accent === "#FDB927" ? colors.accent : colors.primary }, font("bold")]}>FIELD INTELLIGENCE</Text>
           <Text style={[styles.libraryTitle, { color: colors.foreground }, font("heavy")]}>Read less. Use more.</Text>
           {articlesQuery.isLoading ? <Loading /> : null}
           {articlesQuery.error ? (
@@ -485,7 +485,7 @@ function ResourceWorkflowNote({
   };
   return (
     <View style={[styles.resourceWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
-      <Text style={[styles.resourceWorkflowMeta, { color: colors.primary }, font("bold")]}>{workflow.phase.toUpperCase()} · FIELD WORKFLOW</Text>
+       <Text style={[styles.resourceWorkflowMeta, { color: colors.accent === "#FDB927" ? colors.accent : colors.primary }, font("bold")]}>{workflow.phase.toUpperCase()} · FIELD WORKFLOW</Text>
       <Text style={[styles.resourceWorkflowTitle, { color: colors.foreground }, font("bold")]}>Job: {workflow.job}</Text>
       <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Safe use: {workflow.inputHint}</Text>
       <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Expected output: {workflow.outputPreview}</Text>
@@ -493,8 +493,8 @@ function ResourceWorkflowNote({
       <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Review: {workflow.reviewCheckpoint}</Text>
       {nextTool ? (
         <Pressable onPress={openNextTool} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.resourceWorkflowNext}>
-          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
-          <Feather name="arrow-right" size={15} color={colors.primary} />
+           <Text style={[{ color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
+           <Feather name="arrow-right" size={15} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
         </Pressable>
       ) : null}
       <Pressable

@@ -532,11 +532,11 @@ export default function CoachScreen() {
               accessibilityRole="button"
             >
               {busy ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={colors.primaryForeground} />
               ) : (
                 <>
                   <Text style={styles.landingSendText}>Talk with Coach</Text>
-                  <Feather name="arrow-up" size={19} color="#FFFFFF" />
+                  <Feather name="arrow-up" size={19} color={colors.primaryForeground} />
                 </>
               )}
             </Pressable>
@@ -708,7 +708,7 @@ export default function CoachScreen() {
             onPress={goToRehearsal}
           >
             <Text style={styles.primaryButtonText}>Start rehearsal</Text>
-            <Feather name="arrow-right" size={19} color="#FFFFFF" />
+            <Feather name="arrow-right" size={19} color={colors.primaryForeground} />
           </Pressable>
         </View>
       ) : null}
@@ -761,12 +761,12 @@ export default function CoachScreen() {
               ]}
             >
               {busy ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={colors.primaryForeground} />
               ) : (
                 <Feather
                   name={recorderState.isRecording ? "square" : "mic"}
                   size={30}
-                  color="#FFFFFF"
+                  color={colors.primaryForeground}
                 />
               )}
             </Pressable>
@@ -803,13 +803,13 @@ export default function CoachScreen() {
             ]}
           >
             {busy ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <>
                 <Text style={styles.primaryButtonText}>
                   Get private feedback
                 </Text>
-                <Feather name="arrow-up-right" size={19} color="#FFFFFF" />
+              <Feather name="arrow-up-right" size={19} color={colors.primaryForeground} />
               </>
             )}
           </Pressable>
@@ -884,11 +884,11 @@ export default function CoachScreen() {
             ]}
           >
             {busy ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <>
                 <Text style={styles.primaryButtonText}>Save commitment</Text>
-                <Feather name="check" size={20} color="#FFFFFF" />
+              <Feather name="check" size={20} color={colors.primaryForeground} />
               </>
             )}
           </Pressable>
@@ -1077,6 +1077,9 @@ function formatDuration(milliseconds = 0) {
 }
 
 function makeStyles(colors: ReturnType<typeof useColors>) {
+  const accent = colors.accent === "#FDB927" ? colors.accent : colors.primary;
+  const action = colors.accent === "#FDB927" ? colors.accent : colors.primary;
+  const actionText = colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground;
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.background },
     centered: {
@@ -1087,7 +1090,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     },
     section: { paddingBottom: 24 },
     sectionNumber: {
-      color: colors.primary,
+      color: accent,
       fontSize: 11,
       letterSpacing: 2.2,
       ...font("bold"),
@@ -1157,7 +1160,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     primaryButton: {
       minHeight: 56,
       borderRadius: 15,
-      backgroundColor: colors.primary,
+      backgroundColor: action,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -1167,11 +1170,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     },
     primaryButtonText: {
       flex: 1,
-      color: "#FFFFFF",
+      color: actionText,
       fontSize: 16,
       ...font("bold"),
     },
-    disabled: { opacity: 0.4 },
+    disabled: { backgroundColor: colors.muted, opacity: 1 },
     recorderCard: {
       marginTop: 20,
       borderRadius: 22,
@@ -1196,7 +1199,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       borderRadius: 4,
       backgroundColor: colors.borderStrong,
     },
-    recordingDotActive: { backgroundColor: colors.primary },
+    recordingDotActive: { backgroundColor: accent },
     recordingStatus: {
       color: colors.mutedForeground,
       fontSize: 11,
@@ -1207,7 +1210,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       width: 84,
       height: 84,
       borderRadius: 42,
-      backgroundColor: colors.primary,
+      backgroundColor: action,
       alignItems: "center",
       justifyContent: "center",
       marginTop: 18,
@@ -1310,7 +1313,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 12,
     },
     coachHomeBadgeText: {
-      color: colors.primary,
+      color: accent,
       fontSize: 10,
       letterSpacing: 0.8,
       ...font("bold"),
@@ -1343,7 +1346,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 34,
     },
     coachComposerKicker: {
-      color: colors.primary,
+      color: accent,
       fontSize: 9,
       letterSpacing: 1.7,
       ...font("bold"),
@@ -1389,14 +1392,14 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       minHeight: 52,
       borderRadius: 16,
       borderCurve: "continuous",
-      backgroundColor: colors.primary,
+      backgroundColor: action,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
       gap: 9,
       marginTop: 12,
     },
-    landingSendText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+    landingSendText: { color: actionText, fontSize: 15, ...font("bold") },
     guidedRehearsalButton: {
       minHeight: 50,
       flexDirection: "row",
@@ -1407,7 +1410,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     },
     guidedRehearsalText: {
       flex: 1,
-      color: colors.primary,
+      color: accent,
       fontSize: 13,
       ...font("bold"),
     },

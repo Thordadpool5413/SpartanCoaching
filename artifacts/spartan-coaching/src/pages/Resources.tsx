@@ -953,7 +953,7 @@ export default function Resources() {
                       UX_WORKSPACE_IMPROVEMENTS ? (
                         <ExpandableText className="mb-3" lines={3}>{resource.description}</ExpandableText>
                       ) : (
-                        <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">{resource.description}</p>
+                        <p className="mb-3 break-words text-sm text-muted-foreground">{resource.description}</p>
                       )
                     )}
 
@@ -963,13 +963,13 @@ export default function Resources() {
                       return (
                         <div className="mb-3 space-y-2 text-xs leading-5 text-muted-foreground">
                           {arch.whenToUse ? (
-                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
+                            <p className="break-words" data-testid={`resource-when-${resource.id}`}>
                               <span className="font-semibold text-foreground">When: </span>
                               {arch.whenToUse}
                             </p>
                           ) : null}
                           {arch.expectedOutcome ? (
-                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
+                            <p className="break-words" data-testid={`resource-outcome-${resource.id}`}>
                               <span className="font-semibold text-foreground">Outcome: </span>
                               {arch.expectedOutcome}
                             </p>

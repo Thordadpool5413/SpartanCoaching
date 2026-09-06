@@ -222,8 +222,8 @@ export default function AccountScreen() {
             const selected = preference === item.id;
             return (
               <Pressable key={item.id} onPress={() => setPreference(item.id)} style={[styles.appearanceChoice, selected && styles.appearanceSelected]} accessibilityState={{ selected }}>
-                <Feather name={item.icon} size={18} color={selected ? colors.primary : colors.mutedForeground} />
-                <Text style={[styles.appearanceText, selected && { color: colors.primary }]}>{item.label}</Text>
+                <Feather name={item.icon} size={18} color={selected ? (colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground) : colors.mutedForeground} />
+                <Text style={[styles.appearanceText, selected && { color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground }]}>{item.label}</Text>
               </Pressable>
             );
           })}
@@ -239,7 +239,7 @@ export default function AccountScreen() {
           <View style={styles.roleWrap}>
             {ROLES.map((role) => {
               const selected = jobRole === role.id;
-              return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && { color: colors.primary }]}>{role.label}</Text></Pressable>;
+              return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && { color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground }]}>{role.label}</Text></Pressable>;
             })}
           </View>
           <View style={styles.leadershipRow}>
@@ -310,7 +310,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-    kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+     kicker: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
     pageTitle: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, marginTop: 8, ...font("heavy") },
     pageSubtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 9, ...font("regular") },
     heroAction: { minHeight: 96, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 22, backgroundColor: colors.heroBackground, borderRadius: 20, borderCurve: "continuous", padding: 16 },
@@ -333,17 +333,17 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     adminTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     adminBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 28, marginTop: 14, marginBottom: 8, gap: 15 },
-    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+     sectionKicker: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
     appearanceRow: { flexDirection: "row", gap: 8 },
     appearanceChoice: { flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 5, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 15, borderCurve: "continuous" },
-    appearanceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+     appearanceSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primaryMuted },
     appearanceText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
     label: { color: colors.foreground, fontSize: 12, ...font("bold") },
     roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
     roleChip: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card },
-    roleChipSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+     roleChipSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primaryMuted },
     roleText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
     leadershipRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 11 },
     leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },

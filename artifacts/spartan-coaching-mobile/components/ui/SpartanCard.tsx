@@ -44,11 +44,11 @@ export function SpartanCard({
             : isQuiet
               ? colors.card
               : colors.card,
-          borderColor: isEmphasis ? colors.primary : colors.border,
+          borderColor: isEmphasis ? colors.mission : colors.border,
           borderWidth: isEmphasis ? 1.5 : StyleSheet.hairlineWidth * 2,
           ...(Platform.OS === "ios"
             ? {
-                 shadowColor: isEmphasis ? colors.primary : colors.background,
+                 shadowColor: isEmphasis ? colors.mission : colors.background,
                 shadowOpacity: isEmphasis ? 0.28 : isQuiet ? 0.12 : 0.22,
                 shadowRadius: isEmphasis ? 16 : isQuiet ? 6 : 12,
                 shadowOffset: { width: 0, height: isQuiet ? 2 : 6 },

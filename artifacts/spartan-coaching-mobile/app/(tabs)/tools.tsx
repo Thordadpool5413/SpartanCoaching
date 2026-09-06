@@ -345,7 +345,7 @@ function ToolsCatalogScreen() {
 
         {!visibleTools.length && !isSearching && remoteGroups.length === 0 ? (
           <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
-            <Feather name="search" size={24} color={colors.primary} />
+            <Feather name="search" size={24} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
             <Text style={[styles.emptyTitle, { color: colors.foreground }, font("bold")]}>No match for “{filter}”</Text>
             <Text style={[styles.emptyBody, { color: colors.mutedForeground }, font("regular")]}>Try a job such as objection, visit, email, research, or weekly plan.</Text>
             <SpartanButton title="Clear search" variant="outline" onPress={() => setFilter("")} style={{ alignSelf: "stretch", marginTop: 8 }} />
@@ -376,12 +376,12 @@ function ExploreDestination({ icon, title, body, onPress }: { icon: React.Compon
   const colors = useColors();
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.destinationCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.7 : 1 }]}>
-      <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.primary} /></View>
+       <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} /></View>
       <View style={styles.destinationCopy}>
         <Text style={[styles.destinationTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
         <Text style={[styles.destinationBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
       </View>
-      <Feather name="chevron-right" size={19} color={colors.primary} />
+       <Feather name="chevron-right" size={19} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
     </Pressable>
   );
 }
@@ -398,11 +398,11 @@ function ActionRow({ title, subtitle, icon, badge, rightIcon = "chevron-right", 
       accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
       style={({ pressed }) => [styles.actionRow, { backgroundColor: colors.card, borderColor: expanded ? colors.primary : colors.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }]}
     >
-      <View style={[styles.actionIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
+       <View style={[styles.actionIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} /></View>
       <View style={{ flex: 1 }}>
         <View style={styles.actionTitleRow}>
           <Text style={[styles.actionTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
-          {badge ? <Text style={[styles.rowBadge, { color: colors.primary, backgroundColor: colors.primaryMuted }, font("bold")]}>{badge}</Text> : null}
+           {badge ? <Text style={[styles.rowBadge, { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.primaryMuted }, font("bold")]}>{badge}</Text> : null}
         </View>
         {subtitle ? <Text style={[styles.actionBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={2}>{subtitle}</Text> : null}
       </View>

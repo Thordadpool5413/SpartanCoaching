@@ -19,8 +19,10 @@ import {
   getInitialBackground,
   getInitialThemePreset,
   getInitialMode,
+  getInitialModeForPreset,
   applyAppearance,
   markThemePresetChosen,
+  markThemeModeChosen,
   modeForBackground,
   defaultBgForMode,
 } from "@/lib/theme";
@@ -42,9 +44,9 @@ interface ThemeContextValue extends ThemeState {
 
 /** Module store — single source of truth so clicks always work, even if React context hiccups */
 let store: ThemeState = {
-  mode: "light",
-  accent: "red",
-  background: "soft",
+  mode: "dark",
+  accent: "gold",
+  background: "charcoal",
   themePreset: "mamba",
 };
 
@@ -74,7 +76,7 @@ function initStoreFromStorage() {
   const background = getInitialBackground();
   const accent = getInitialAccent();
   const themePreset = getInitialThemePreset();
-  const mode = getInitialMode();
+  const mode = getInitialModeForPreset(themePreset);
   store = { mode, accent, background, themePreset };
   applyAppearance(mode, accent, background, themePreset);
 }
@@ -137,6 +139,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setMode = useCallback((mode: ThemeMode) => {
+    if (store.themePreset === "mamba") markThemeModeChosen();
     const background = store.themePreset === "mamba"
       ? store.background
       : defaultBgForMode(mode, store.background);
@@ -155,6 +158,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
     markThemePresetChosen();
     if (themePreset === "mamba") {
+      markThemeModeChosen();
       commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
       return;
     }
@@ -190,6 +194,7 @@ export function useTheme(): ThemeContextValue {
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const setMode = useCallback((mode: ThemeMode) => {
+    if (store.themePreset === "mamba") markThemeModeChosen();
     const background = store.themePreset === "mamba"
       ? store.background
       : defaultBgForMode(mode, store.background);
@@ -208,6 +213,7 @@ export function useTheme(): ThemeContextValue {
   const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
     markThemePresetChosen();
     if (themePreset === "mamba") {
+      markThemeModeChosen();
       commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
       return;
     }

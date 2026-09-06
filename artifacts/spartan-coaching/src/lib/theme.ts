@@ -71,6 +71,7 @@ export const THEME_PRESETS: ThemePreset[] = [
 ];
 
 const THEME_PRESET_CHOICE_KEY = "spartan_theme_preset_choice_v1";
+const THEME_MODE_CHOICE_KEY = "spartan_theme_mode_choice_v1";
 
 export const ACCENT_PRESETS: AccentPreset[] = [
   { key: "red", label: "Spartan Red", swatch: "hsl(0 85% 50%)", primaryLight: "0 85% 48%", primaryDark: "0 85% 58%" },
@@ -302,6 +303,14 @@ export function markThemePresetChosen() {
   }
 }
 
+export function markThemeModeChosen() {
+  try {
+    localStorage.setItem(THEME_MODE_CHOICE_KEY, "1");
+  } catch {
+    /* private mode */
+  }
+}
+
 export function modeForBackground(bg: BgKey): ThemeMode {
   return getBgPreset(bg).tone;
 }
@@ -341,6 +350,17 @@ export function getInitialMode(): ThemeMode {
     }
   }
   return modeForBackground(getInitialBackground());
+}
+
+export function getInitialModeForPreset(themePreset: ThemePresetKey): ThemeMode {
+  if (themePreset === "mamba" && typeof window !== "undefined") {
+    try {
+      if (localStorage.getItem(THEME_MODE_CHOICE_KEY) !== "1") return "dark";
+    } catch {
+      return "dark";
+    }
+  }
+  return getInitialMode();
 }
 
 function setVar(prop: string, value: string) {

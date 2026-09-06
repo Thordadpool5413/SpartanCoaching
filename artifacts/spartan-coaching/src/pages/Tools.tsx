@@ -335,7 +335,7 @@ export default function Tools() {
                   data-testid={`intent-card-${intent.id}`}
                 >
                   <h3 className="text-base font-bold text-foreground"><AccentText>{intent.title}</AccentText></h3>
-                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground break-words">
                     {intent.description}
                   </p>
                   {intent.destinations[0] ? (

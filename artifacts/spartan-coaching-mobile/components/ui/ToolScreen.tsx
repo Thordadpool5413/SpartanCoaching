@@ -20,6 +20,7 @@ export function ToolScreen({
 }) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const accent = colors.accent === "#FDB927" ? colors.accent : colors.primary;
 
   return (
     <ScrollView
@@ -37,15 +38,15 @@ export function ToolScreen({
       <Text style={[styles.desc, { color: colors.mutedForeground }]}>{tool.description}</Text>
 
       <View style={[styles.howBox, { borderColor: colors.border, backgroundColor: colors.card }]}>
-        <Text style={[styles.howLabel, { color: colors.primary }]}>When</Text>
+        <Text style={[styles.howLabel, { color: accent }]}>When</Text>
         <Text style={[styles.howBody, { color: colors.foreground }]}>{tool.whenToUse}</Text>
-        <Text style={[styles.howLabel, { color: colors.primary, marginTop: 10 }]}>How</Text>
+        <Text style={[styles.howLabel, { color: accent, marginTop: 10 }]}>How</Text>
         {tool.howSteps.map((step, i) => (
           <Text key={i} style={[styles.howBody, { color: colors.mutedForeground }]}>
             {i + 1}. {step}
           </Text>
         ))}
-        <Text style={[styles.howLabel, { color: colors.primary, marginTop: 10 }]}>Why</Text>
+        <Text style={[styles.howLabel, { color: accent, marginTop: 10 }]}>Why</Text>
         <Text style={[styles.howBody, { color: colors.foreground }]}>{tool.why}</Text>
       </View>
 

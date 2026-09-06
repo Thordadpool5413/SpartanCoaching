@@ -3117,6 +3117,37 @@ html[data-theme-preset="mamba"] .workspace-premium [class*="bg-secondary/"] {
   color: var(--mamba-black) !important;
 }
 
+/* Keep Mamba foreground roles distinct from its purple surfaces. Purple is
+ * excellent as a fill but fails as small text on black or purple cards. */
+html[data-theme-preset="mamba"] .workspace-premium .text-primary,
+html[data-theme-preset="mamba"] .workspace-premium .text-spartan-red,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-primary,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-spartan-red,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card [class*="text-red-"] {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-card .text-foreground,
+html[data-theme-preset="mamba"] .workspace-premium .bg-card .text-muted-foreground,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-foreground,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-card .text-muted-foreground {
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-secondary .text-primary,
+html[data-theme-preset="mamba"] .workspace-premium .bg-secondary .text-foreground,
+html[data-theme-preset="mamba"] .workspace-premium .bg-secondary .text-muted-foreground,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-secondary .text-primary,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-secondary .text-foreground,
+html[data-theme-preset="mamba"] main.page-persuasion .bg-secondary .text-muted-foreground {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"] .surface-cta .text-primary,
+html[data-theme-preset="mamba"] [data-testid="section-faq-cta"] .text-primary {
+  color: var(--mamba-gold) !important;
+}
+
 html[data-theme-preset="mamba"] main.page-persuasion .surface-band {
   background:
     linear-gradient(115deg, rgb(85 37 131 / .96), rgb(26 26 26 / .98) 72%),
@@ -3261,6 +3292,34 @@ html[data-theme-preset="mamba"] [class*="border-black"],
 html[data-theme-preset="mamba"] [class*="border-gray-"],
 html[data-theme-preset="mamba"] [class*="border-zinc-"] {
   border-color: hsl(var(--border)) !important;
+}
+
+/* Public Mamba hero copy needs explicit surface-aware ink. The generic
+ * muted/primary utilities are also used by legacy Spartan pages and can
+ * otherwise leave small labels too close to the black hero background. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .public-home .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .public-home .text-foreground {
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .public-home .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .public-home .text-spartan-red {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .public-home .text-muted-foreground,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .public-home .text-foreground {
+  color: var(--mamba-black) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .public-home .text-primary,
+html[data-theme-preset="mamba"][data-theme-mode="light"] .public-home .text-spartan-red {
+  color: var(--mamba-purple) !important;
+}
+
+html[data-theme-preset="mamba"] .public-home .mamba-gold-action {
+  background-color: var(--mamba-gold) !important;
+  color: var(--mamba-black) !important;
 }
 
 html[data-theme-preset="mamba"] [class*="bg-black/"] {

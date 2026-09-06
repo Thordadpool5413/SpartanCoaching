@@ -103,7 +103,7 @@ function EmailOptionCard({ option, index }: { option: EmailOption; index: number
       <Text selectable style={styles.emailBody}>{body}</Text>
       {typeof option.rationale === "string" && option.rationale.trim() ? (
         <View style={styles.coachingNote}>
-          <Feather name="target" size={16} color={colors.primary} />
+          <Feather name="target" size={16} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.emailLabel}>WHY THIS WORKS</Text>
             <Text style={styles.coachingText}>{scalar(option.rationale)}</Text>
@@ -199,7 +199,7 @@ export function PremiumAiResult({ output, watermark, reviewStatus }: { output: u
     <View style={styles.resultStack} testID="premium-ai-result">
       {watermark ? (
         <View style={styles.reviewBanner}>
-          <Feather name="shield" size={18} color={colors.primary} />
+          <Feather name="shield" size={18} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.reviewTitle}>{cleanPresentationText(watermark)}</Text>
             <Text style={styles.reviewBody}>{reviewStatus ? `Review status: ${humanize(reviewStatus)}.` : "Human review is required where indicated before external or clinical use."}</Text>
@@ -211,7 +211,7 @@ export function PremiumAiResult({ output, watermark, reviewStatus }: { output: u
         <View key={key} style={[styles.section, meta.tone === "answer" && styles.answerSection]}>
           <View style={styles.sectionHeader}>
             <View style={[styles.icon, meta.tone === "answer" && styles.answerIcon]}>
-              <Feather name={meta.icon} size={17} color={meta.tone === "answer" ? "#FFFFFF" : colors.primary} />
+              <Feather name={meta.icon} size={17} color={meta.tone === "answer" ? colors.primaryForeground : colors.accent === "#FDB927" ? colors.accent : colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.sectionEyebrow}>{meta.tone === "detail" ? "DETAIL" : meta.title.toUpperCase()}</Text>
@@ -252,24 +252,27 @@ export function formatAiResultForSharing(toolName: string, output: unknown, wate
 }
 
 function makeStyles(colors: ReturnType<typeof useColors>) {
+  const accent = colors.accent === "#FDB927" ? colors.accent : colors.primary;
+  const action = colors.accent === "#FDB927" ? colors.accent : colors.primary;
+  const actionText = colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground;
   return StyleSheet.create({
     resultStack: { gap: 14 },
     singleResult: { borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, padding: 16 },
-    reviewBanner: { flexDirection: "row", alignItems: "flex-start", gap: 10, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.primary, padding: 13 },
+    reviewBanner: { flexDirection: "row", alignItems: "flex-start", gap: 10, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: accent, padding: 13 },
     reviewTitle: { color: colors.foreground, fontSize: 12, lineHeight: 17, ...font("bold") },
     reviewBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 2, ...font("regular") },
     section: { borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 15, gap: 12 },
-    answerSection: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+    answerSection: { borderColor: accent, backgroundColor: colors.primaryMuted },
     sectionHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
     icon: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     answerIcon: { backgroundColor: colors.primary },
-    sectionEyebrow: { color: colors.primary, fontSize: 8, letterSpacing: 1.3, ...font("bold") },
+    sectionEyebrow: { color: accent, fontSize: 8, letterSpacing: 1.3, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 16, lineHeight: 20, marginTop: 2, ...font("heavy") },
     valueText: { color: colors.foreground, fontSize: 14, lineHeight: 21, ...font("regular") },
     emptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
     bulletStack: { gap: 8 },
     bulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 9 },
-    bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, marginTop: 7 },
+    bullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: accent, marginTop: 7 },
     bulletText: { flex: 1, color: colors.foreground, fontSize: 13, lineHeight: 19, ...font("regular") },
     objectStack: { gap: 12 },
     subCard: { borderRadius: 14, borderCurve: "continuous", backgroundColor: colors.background, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 12 },
@@ -277,9 +280,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     emailStack: { gap: 14 },
     emailCard: { borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.background, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong, padding: 14, gap: 13 },
     emailHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
-    emailNumber: { width: 34, height: 34, borderRadius: 12, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-     emailNumberText: { color: colors.primaryForeground, fontSize: 13, ...font("bold") },
-    emailEyebrow: { color: colors.primary, fontSize: 8, letterSpacing: 1.25, ...font("bold") },
+    emailNumber: { width: 34, height: 34, borderRadius: 12, backgroundColor: action, alignItems: "center", justifyContent: "center" },
+     emailNumberText: { color: actionText, fontSize: 13, ...font("bold") },
+    emailEyebrow: { color: accent, fontSize: 8, letterSpacing: 1.25, ...font("bold") },
     emailTitle: { color: colors.foreground, fontSize: 15, lineHeight: 19, marginTop: 2, ...font("bold") },
     emailSubject: { borderRadius: 13, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 12, gap: 5 },
     emailLabel: { color: colors.mutedForeground, fontSize: 8, letterSpacing: 1.15, ...font("bold") },
@@ -287,9 +290,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     emailBody: { color: colors.foreground, fontSize: 14, lineHeight: 22, ...font("regular") },
     coachingNote: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 12 },
     coachingText: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 4, ...font("regular") },
-    copyButton: { minHeight: 48, borderRadius: 14, backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+    copyButton: { minHeight: 48, borderRadius: 14, backgroundColor: action, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
     copyButtonPressed: { opacity: 0.82 },
-     copyButtonText: { color: colors.primaryForeground, fontSize: 12, ...font("bold") },
+     copyButtonText: { color: actionText, fontSize: 12, ...font("bold") },
     childLabel: { color: colors.mutedForeground, fontSize: 9, letterSpacing: 0.7, textTransform: "uppercase", marginBottom: 5, ...font("bold") },
   });
 }

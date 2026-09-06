@@ -165,12 +165,18 @@ export function CoachSettingsPanel({
                             : "target"
                   }
                   size={19}
-                  color={appearance === choice ? colors.primaryForeground : colors.foreground}
+                  color={appearance === choice
+                    ? colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground
+                    : colors.foreground}
                 />
                 <Text
                   style={[
                     styles.appearanceText,
-                    appearance === choice && { color: colors.primaryForeground },
+                    appearance === choice && {
+                      color: colors.accent === "#FDB927"
+                        ? colors.accentForeground
+                        : colors.primaryForeground,
+                    },
                   ]}
                 >
                   {choice[0].toUpperCase() + choice.slice(1)}
@@ -201,7 +207,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       borderBottomColor: colors.border,
     },
     sheetKicker: {
-      color: colors.primary,
+      color: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       fontSize: 10,
       letterSpacing: 1.6,
       ...font("bold"),
@@ -244,7 +250,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       ...font("regular"),
     },
     settingsLabel: {
-      color: colors.primary,
+      color: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       fontSize: 10,
       letterSpacing: 1.6,
       marginTop: 22,
@@ -307,7 +313,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       gap: 7,
     },
     appearanceChoiceSelected: {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primary,
       borderColor: colors.primary,
     },
     appearanceText: { color: colors.foreground, fontSize: 12, ...font("semibold") },
