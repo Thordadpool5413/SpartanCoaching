@@ -1,4 +1,4 @@
-import { radius as tokenRadius, elevation } from "@workspace/design-tokens";
+import { elevation, mambaDark as mambaBase, radius as tokenRadius } from "@workspace/design-tokens";
 
 /**
  * Spartan Coaching mobile appearance.
@@ -86,9 +86,19 @@ const light = {
   imageWash: "rgba(17, 19, 21, 0.52)",
 };
 
+const mamba = {
+  ...mambaBase,
+  bronze: "#6E6E6E",
+  mission: "#FDB927",
+  time: "#D4D4D4",
+  signal: "rgba(85, 37, 131, 0.34)",
+  imageWash: "rgba(26, 26, 26, 0.58)",
+};
+
 const colors = {
   light,
   dark,
+  mamba,
   radius: tokenRadius.lg,
   elevation,
 };

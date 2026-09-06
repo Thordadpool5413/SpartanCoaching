@@ -143,7 +143,7 @@ export function CoachSettingsPanel({
 
           <Text style={styles.settingsLabel}>APPEARANCE</Text>
           <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as const).map((choice) => (
+            {(["system", "light", "dark", "mamba"] as const).map((choice) => (
               <Pressable
                 key={choice}
                 onPress={() => void onAppearance(choice)}
@@ -156,11 +156,13 @@ export function CoachSettingsPanel({
               >
                 <Feather
                   name={
-                    choice === "system"
+                      choice === "system"
                       ? "smartphone"
-                      : choice === "light"
+                        : choice === "light"
                         ? "sun"
-                        : "moon"
+                          : choice === "dark"
+                            ? "moon"
+                            : "target"
                   }
                   size={19}
                   color={appearance === choice ? "#FFFFFF" : colors.foreground}

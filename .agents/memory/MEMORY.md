@@ -9,3 +9,4 @@
 - [Paid campaign attribution](paid-campaign-attribution.md) — warm-audience attribution uses only allow-listed UTM tokens and never carries ad or visitor prose into analytics.
 - [Spartan web visual modes](spartan-web-visual-modes.md) — public pages use paper/ink/red; authenticated tools use a complete dark command scope, not inherited public tokens.
 - [Expo 57 monorepo constraints](expo57-monorepo.md) — align root peer contexts, avoid direct React Navigation imports, and clear Expo tokens for session login.
+- [Shared token declarations](shared-token-declarations.md) — rebuild composite token declarations when adding exports consumed by another workspace package.

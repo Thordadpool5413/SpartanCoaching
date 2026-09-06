@@ -14,10 +14,13 @@ describe("Elite iOS experience contract", () => {
     expect(config.expo.userInterfaceStyle).toBe("automatic");
     expect(paletteSource).toContain('const dark = {');
     expect(paletteSource).toContain('const light = {');
+    expect(paletteSource).toContain('const mamba = {');
+    expect(paletteSource).toContain('mission: "#FDB927"');
     expect(paletteSource).toContain('background: "#07111F"');
     expect(paletteSource).toContain('background: "#FCFAF6"');
     expect(paletteSource).not.toContain('background: "#171513"');
-    expect(appearanceSource).toContain('export type AppearancePreference = "system" | "light" | "dark"');
+    expect(appearanceSource).toContain('export type AppearancePreference = "system" | "light" | "dark" | "mamba"');
+    expect(appearanceSource).toContain('stored === "mamba"');
     expect(appearanceSource).toContain("Appearance.setColorScheme");
     expect(rootLayout).toContain("<AppearanceProvider>");
   });

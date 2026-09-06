@@ -39,6 +39,7 @@ const APPEARANCES: Array<{ id: AppearancePreference; label: string; icon: React.
   { id: "system", label: "System", icon: "smartphone" },
   { id: "light", label: "Light", icon: "sun" },
   { id: "dark", label: "Dark", icon: "moon" },
+  { id: "mamba", label: "Mamba", icon: "target" },
 ];
 
 export default function AccountScreen() {

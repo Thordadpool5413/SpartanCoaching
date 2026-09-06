@@ -6,6 +6,9 @@ import { describe, it, expect } from "vitest";
 import {
   BG_PRESETS,
   ACCENT_PRESETS,
+  MAMBA_COLORS,
+  THEME_PRESETS,
+  applyAppearance,
   getBgPreset,
   modeForBackground,
   type BgKey,
@@ -21,6 +24,28 @@ function lightness(hslComponents: string): number {
 }
 
 describe("BG_PRESETS contrast contract", () => {
+  it("exposes the complete Mamba Mentality palette as a named preset", () => {
+    expect(THEME_PRESETS.find((preset) => preset.key === "mamba")?.label).toBe("Mamba Mentality");
+    expect(MAMBA_COLORS).toEqual({
+      purple: "#552583",
+      gold: "#FDB927",
+      black: "#1A1A1A",
+      gray: "#6E6E6E",
+      silver: "#D4D4D4",
+    });
+  });
+
+  it("applies and persists the named Mamba preset across the document", () => {
+    applyAppearance("dark", "gold", "charcoal", "mamba");
+
+    expect(document.documentElement.dataset.themePreset).toBe("mamba");
+    expect(document.documentElement.dataset.themeMode).toBe("dark");
+    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("42 98% 57%");
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe("271 56% 33%");
+    expect(localStorage.getItem("spartan_theme_preset")).toBe("mamba");
+    expect(localStorage.getItem("spartan_theme")).toBe(JSON.stringify("dark"));
+  });
+
   it("exports midnight as a dark preset", () => {
     const m = getBgPreset("midnight");
     expect(m.tone).toBe("dark");

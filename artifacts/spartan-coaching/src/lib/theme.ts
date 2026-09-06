@@ -1,5 +1,6 @@
 export type ThemeMode = "light" | "dark";
 export type AccentKey = "red" | "blue" | "green" | "gold" | "purple" | "slate";
+export type ThemePresetKey = "spartan" | "mamba" | "custom";
 export type BgKey =
   | "default"
   | "soft"
@@ -38,6 +39,36 @@ export interface BgPreset {
   border: string;
   sidebar: string;
 }
+
+export interface ThemePreset {
+  key: ThemePresetKey;
+  label: string;
+  description: string;
+  swatches: readonly string[];
+}
+
+export const MAMBA_COLORS = {
+  purple: "#552583",
+  gold: "#FDB927",
+  black: "#1A1A1A",
+  gray: "#6E6E6E",
+  silver: "#D4D4D4",
+} as const;
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    key: "spartan",
+    label: "Spartan",
+    description: "Paper, ink, and Spartan red.",
+    swatches: ["#B6192A", "#FCFAF6", "#081424"],
+  },
+  {
+    key: "mamba",
+    label: "Mamba Mentality",
+    description: "Focus, discipline, relentless execution.",
+    swatches: [MAMBA_COLORS.purple, MAMBA_COLORS.gold, MAMBA_COLORS.black, MAMBA_COLORS.silver],
+  },
+];
 
 export const ACCENT_PRESETS: AccentPreset[] = [
   { key: "red", label: "Spartan Red", swatch: "hsl(0 85% 50%)", primaryLight: "0 85% 48%", primaryDark: "0 85% 58%" },
@@ -176,6 +207,38 @@ export const BG_PRESETS: BgPreset[] = [
   },
 ];
 
+const MAMBA_DARK_SURFACE: BgPreset = {
+  key: "charcoal",
+  label: "Mamba Black",
+  swatch: MAMBA_COLORS.black,
+  tone: "dark",
+  bg: "0 0% 10%",
+  fg: "0 0% 83%",
+  card: "0 0% 14%",
+  cardFg: "0 0% 83%",
+  muted: "0 0% 19%",
+  mutedFg: "0 0% 83%",
+  secondary: "271 56% 33%",
+  border: "0 0% 43%",
+  sidebar: "0 0% 7%",
+};
+
+const MAMBA_LIGHT_SURFACE: BgPreset = {
+  key: "soft",
+  label: "Mamba Silver",
+  swatch: MAMBA_COLORS.silver,
+  tone: "light",
+  bg: "0 0% 83%",
+  fg: "0 0% 10%",
+  card: "0 0% 94%",
+  cardFg: "0 0% 10%",
+  muted: "0 0% 73%",
+  mutedFg: "0 0% 10%",
+  secondary: "271 56% 33%",
+  border: "0 0% 43%",
+  sidebar: "0 0% 80%",
+};
+
 const ACCENT_PROPS = [
   "--primary",
   "--primary-foreground",
@@ -215,6 +278,17 @@ export function getAccentPreset(accent: AccentKey): AccentPreset {
   return ACCENT_PRESETS.find((p) => p.key === accent) ?? ACCENT_PRESETS[0];
 }
 
+export function getInitialThemePreset(): ThemePresetKey {
+  if (typeof window === "undefined") return "spartan";
+  try {
+    const saved = localStorage.getItem("spartan_theme_preset");
+    if (saved === "mamba" || saved === "spartan" || saved === "custom") return saved;
+  } catch {
+    /* ignore */
+  }
+  return "spartan";
+}
+
 export function modeForBackground(bg: BgKey): ThemeMode {
   return getBgPreset(bg).tone;
 }
@@ -242,6 +316,17 @@ export function getInitialBackground(): BgKey {
 }
 
 export function getInitialMode(): ThemeMode {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("spartan_theme");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed === "light" || parsed === "dark") return parsed;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
   return modeForBackground(getInitialBackground());
 }
 
@@ -253,14 +338,23 @@ function setVar(prop: string, value: string) {
  * Apply theme to the live document. Safe to call outside React.
  * Sets data attributes (for CSS), CSS variables, dark class, and body color.
  */
-export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: BgKey): void {
+export function applyAppearance(
+  mode: ThemeMode,
+  accent: AccentKey,
+  background: BgKey,
+  themePreset: ThemePresetKey = "spartan",
+): void {
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
   const body = document.body;
-  const surface = getBgPreset(background);
+  const surface = themePreset === "mamba"
+    ? mode === "dark"
+      ? MAMBA_DARK_SURFACE
+      : MAMBA_LIGHT_SURFACE
+    : getBgPreset(background);
   const accentPreset = getAccentPreset(accent);
-  const effectiveMode: ThemeMode = surface.tone; // surface owns contrast
+  const effectiveMode: ThemeMode = themePreset === "mamba" ? mode : surface.tone;
 
   // 1) Mode class
   root.classList.toggle("dark", effectiveMode === "dark");
@@ -270,6 +364,7 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   root.dataset.themeMode = effectiveMode;
   root.dataset.bg = background;
   root.dataset.accent = accent;
+  root.dataset.themePreset = themePreset;
 
   // 3) Surface CSS variables (drive Tailwind tokens)
   setVar("--background", surface.bg);
@@ -291,12 +386,18 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   setVar("--sidebar-border", surface.border);
 
   // 4) Accent / brand — primary-foreground always contrasts with primary fill
-  const primary = effectiveMode === "dark" ? accentPreset.primaryDark : accentPreset.primaryLight;
+  const primary = themePreset === "mamba"
+    ? "42 98% 57%"
+    : effectiveMode === "dark"
+      ? accentPreset.primaryDark
+      : accentPreset.primaryLight;
   const [ph, ps] = primary.split(" ");
   setVar("--primary", primary);
   // Gold is light on dark surfaces → dark label; otherwise white on brand color
   const primaryOnAccent =
-    accent === "gold" || accent === "green" ? (effectiveMode === "dark" ? "0 0% 8%" : "0 0% 100%") : "0 0% 100%";
+    themePreset === "mamba" || accent === "gold" || accent === "green"
+      ? "0 0% 10%"
+      : "0 0% 100%";
   setVar("--primary-foreground", primaryOnAccent);
   setVar("--ring", primary);
   setVar("--sidebar-primary", primary);
@@ -308,6 +409,12 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   } else {
     setVar("--accent", `${ph} ${ps} 18%`);
     setVar("--accent-foreground", surface.fg);
+  }
+  if (themePreset === "mamba") {
+    setVar("--accent", "271 56% 33%");
+    setVar("--accent-foreground", "0 0% 83%");
+    setVar("--secondary", "271 56% 33%");
+    setVar("--secondary-foreground", "0 0% 83%");
   }
   // Destructive always keeps readable on-fill text
   setVar("--destructive-foreground", "0 0% 100%");
@@ -333,8 +440,8 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   // Semantic status tokens (shared by badges / trial chips)
   setVar("--success", effectiveMode === "dark" ? "142 70% 45%" : "142 65% 32%");
   setVar("--success-foreground", effectiveMode === "dark" ? "140 30% 96%" : "0 0% 100%");
-  setVar("--warning", effectiveMode === "dark" ? "38 92% 55%" : "32 90% 42%");
-  setVar("--warning-foreground", effectiveMode === "dark" ? "40 30% 10%" : "0 0% 100%");
+  setVar("--warning", themePreset === "mamba" ? "42 98% 57%" : effectiveMode === "dark" ? "38 92% 55%" : "32 90% 42%");
+  setVar("--warning-foreground", themePreset === "mamba" ? "0 0% 10%" : effectiveMode === "dark" ? "40 30% 10%" : "0 0% 100%");
   root.style.setProperty("color-scheme", effectiveMode);
 
   // 6) Persist
@@ -342,9 +449,10 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
     localStorage.setItem("spartan_theme", JSON.stringify(effectiveMode));
     localStorage.setItem("spartan_bg", background);
     localStorage.setItem("spartan_accent", accent);
+    localStorage.setItem("spartan_theme_preset", themePreset);
     localStorage.setItem(
       "spartan_theme_sync",
-      JSON.stringify({ mode: effectiveMode, accent, background, t: Date.now() }),
+      JSON.stringify({ mode: effectiveMode, accent, background, themePreset, t: Date.now() }),
     );
   } catch {
     /* private mode */
@@ -354,7 +462,7 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   try {
     window.dispatchEvent(
       new CustomEvent("spartan-theme-change", {
-        detail: { mode: effectiveMode, accent, background },
+        detail: { mode: effectiveMode, accent, background, themePreset },
       }),
     );
   } catch {
@@ -373,12 +481,12 @@ export const BG_SURFACE_PROPS = SURFACE_PROPS;
 export function applyBackground(bg: BgKey): ThemeMode {
   const accent = getInitialAccent();
   const tone = modeForBackground(bg);
-  applyAppearance(tone, accent, bg);
+  applyAppearance(tone, accent, bg, getInitialThemePreset());
   return tone;
 }
 export function applyAccent(accent: AccentKey, mode: ThemeMode) {
   const bg = getInitialBackground();
-  applyAppearance(mode, accent, bg);
+  applyAppearance(mode, accent, bg, getInitialThemePreset());
 }
 export function clearAccentVars() {
   for (const p of ACCENT_PROPS) document.documentElement.style.removeProperty(p);

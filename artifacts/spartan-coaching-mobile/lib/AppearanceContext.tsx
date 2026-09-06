@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Appearance } from "react-native";
 
-export type AppearancePreference = "system" | "light" | "dark";
+export type AppearancePreference = "system" | "light" | "dark" | "mamba";
 
 type AppearanceContextValue = {
   preference: AppearancePreference;
@@ -17,7 +17,9 @@ const AppearanceContext = createContext<AppearanceContextValue>({
 });
 
 function applyPreference(preference: AppearancePreference) {
-  Appearance.setColorScheme(preference === "system" ? "unspecified" : preference);
+  Appearance.setColorScheme(
+    preference === "system" ? "unspecified" : preference === "mamba" ? "dark" : preference,
+  );
 }
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
@@ -27,7 +29,8 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     let active = true;
     void AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (!active) return;
-      const next: AppearancePreference = stored === "light" || stored === "dark" ? stored : "system";
+       const next: AppearancePreference =
+         stored === "light" || stored === "dark" || stored === "mamba" ? stored : "system";
       setPreferenceState(next);
       applyPreference(next);
     });

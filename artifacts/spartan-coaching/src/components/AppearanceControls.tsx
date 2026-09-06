@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { Moon, Sun, Palette, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
-import { ACCENT_PRESETS, BG_PRESETS, type AccentKey, type BgKey } from "@/lib/theme";
+import {
+  ACCENT_PRESETS,
+  BG_PRESETS,
+  THEME_PRESETS,
+  type AccentKey,
+  type BgKey,
+  type ThemePresetKey,
+} from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 interface AppearanceControlsProps {
@@ -51,6 +58,49 @@ function SwatchButton({
   );
 }
 
+function ThemePresetButton({
+  label,
+  description,
+  swatches,
+  selected,
+  onSelect,
+  testId,
+}: {
+  label: string;
+  description: string;
+  swatches: readonly string[];
+  selected: boolean;
+  onSelect: () => void;
+  testId: string;
+}) {
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={onSelect}
+      aria-label={`Use ${label} theme`}
+      aria-pressed={selected}
+      data-testid={testId}
+      className={cn(
+        "flex min-h-16 flex-1 items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        selected ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-muted",
+      )}
+    >
+      <span className="flex h-9 w-9 shrink-0 overflow-hidden rounded-md border border-black/20 shadow-sm" aria-hidden>
+        {swatches.map((swatch) => (
+          <span key={swatch} className="h-full flex-1" style={{ backgroundColor: swatch }} />
+        ))}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs font-bold text-foreground">{label}</span>
+        <span className="mt-0.5 block text-[10px] leading-tight text-muted-foreground">{description}</span>
+      </span>
+      {selected && <Check className="ml-auto h-4 w-4 shrink-0 text-primary" strokeWidth={3} />}
+    </button>
+  );
+}
+
 export function AppearancePanel({
   className,
   onDone,
@@ -58,7 +108,7 @@ export function AppearancePanel({
   className?: string;
   onDone?: () => void;
 }) {
-  const { mode, accent, background, setMode, setAccent, setBackground } = useTheme();
+  const { mode, accent, background, themePreset, setMode, setAccent, setBackground, setThemePreset } = useTheme();
   const lightBgs = BG_PRESETS.filter((p) => p.tone === "light");
   // Midnight Navy first — product default for dark surfaces
   const darkBgs = [
@@ -67,6 +117,7 @@ export function AppearancePanel({
   ];
   const activeBg = BG_PRESETS.find((p) => p.key === background);
   const activeAccent = ACCENT_PRESETS.find((p) => p.key === accent);
+  const activePreset = THEME_PRESETS.find((p) => p.key === themePreset);
 
   return (
     <div
@@ -75,6 +126,25 @@ export function AppearancePanel({
       // Keep pointer events inside the panel
       onPointerDown={(e) => e.stopPropagation()}
     >
+      <div>
+        <p id="appearance-preset-label" className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Brand preset
+        </p>
+        <div className="flex flex-col gap-2" role="group" aria-labelledby="appearance-preset-label">
+          {THEME_PRESETS.map((preset) => (
+            <ThemePresetButton
+              key={preset.key}
+              label={preset.label}
+              description={preset.description}
+              swatches={preset.swatches}
+              selected={themePreset === preset.key}
+              onSelect={() => setThemePreset(preset.key as ThemePresetKey)}
+              testId={`button-theme-${preset.key}`}
+            />
+          ))}
+        </div>
+      </div>
+
       <div>
         <p id="appearance-mode-label" className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2.5">
           Mode
@@ -174,6 +244,8 @@ export function AppearancePanel({
           Active theme
         </p>
         <p className="font-semibold text-foreground mt-0.5">
+          {activePreset?.label ?? "Custom"}
+          {" · "}
           {mode === "light" ? "Light" : "Dark"}
           {" · "}
           {activeBg?.label ?? background}
@@ -203,7 +275,7 @@ export function AppearanceControls({
   className,
   testId = "button-appearance",
 }: AppearanceControlsProps) {
-  const { mode, background } = useTheme();
+  const { mode, background, themePreset } = useTheme();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -258,8 +330,9 @@ export function AppearanceControls({
     };
   }, [open]);
 
-  const activeSwatch =
-    BG_PRESETS.find((p) => p.key === background)?.swatch ?? "hsl(0 0% 7%)";
+  const activeSwatch = themePreset === "mamba"
+    ? "linear-gradient(135deg, #552583 0 38%, #FDB927 38% 64%, #1A1A1A 64% 82%, #D4D4D4 82%)"
+    : BG_PRESETS.find((p) => p.key === background)?.swatch ?? "hsl(0 0% 7%)";
 
   return (
     <div className={cn("relative", className)} ref={rootRef}>
@@ -283,11 +356,11 @@ export function AppearanceControls({
         {!compact && <span>Theme</span>}
         <span
           className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-background"
-          style={{ backgroundColor: activeSwatch }}
+          style={{ background: activeSwatch }}
           aria-hidden
         />
         <span className="sr-only">
-          {mode === "dark" ? "Dark" : "Light"} theme — open color picker
+          {themePreset === "mamba" ? "Mamba Mentality" : mode === "dark" ? "Dark" : "Light"} theme — open color picker
         </span>
       </Button>
 

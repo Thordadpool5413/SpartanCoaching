@@ -100,6 +100,81 @@ export const spartanLight = {
   overlay: "rgba(8, 12, 22, 0.5)",
 } as const;
 
+/**
+ * Mamba Mentality palette — focused gold and purple over disciplined black,
+ * with silver ink reserved for readable type and light editorial surfaces.
+ * The named theme uses the same semantic roles on web and mobile.
+ */
+export const mambaDark = {
+  text: "#D4D4D4",
+  tint: "#FDB927",
+  background: "#1A1A1A",
+  foreground: "#D4D4D4",
+  card: "#242424",
+  cardElevated: "#303030",
+  cardForeground: "#D4D4D4",
+  primary: "#FDB927",
+  primaryForeground: "#1A1A1A",
+  primaryMuted: "rgba(253, 185, 39, 0.16)",
+  secondary: "#552583",
+  secondaryForeground: "#D4D4D4",
+  muted: "#303030",
+  mutedForeground: "#D4D4D4",
+  accent: "#552583",
+  accentForeground: "#D4D4D4",
+  destructive: "#D13B4A",
+  destructiveForeground: "#FFFFFF",
+  border: "rgba(212, 212, 212, 0.22)",
+  borderStrong: "rgba(212, 212, 212, 0.42)",
+  input: "#242424",
+  heroBackground: "#1A1A1A",
+  heroForeground: "#D4D4D4",
+  heroMuted: "#D4D4D4",
+  heroBadgeBg: "rgba(85, 37, 131, 0.32)",
+  heroBadgeBorder: "rgba(253, 185, 39, 0.56)",
+  heroBadgeText: "#D4D4D4",
+  success: "#55C795",
+  warning: "#FDB927",
+  tabBar: "#1A1A1A",
+  tabInactive: "#6E6E6E",
+  overlay: "rgba(0, 0, 0, 0.78)",
+} as const;
+
+export const mambaLight = {
+  text: "#1A1A1A",
+  tint: "#FDB927",
+  background: "#D4D4D4",
+  foreground: "#1A1A1A",
+  card: "#EEEEEE",
+  cardElevated: "#F7F7F7",
+  cardForeground: "#1A1A1A",
+  primary: "#FDB927",
+  primaryForeground: "#1A1A1A",
+  primaryMuted: "rgba(253, 185, 39, 0.22)",
+  secondary: "#552583",
+  secondaryForeground: "#D4D4D4",
+  muted: "#B8B8B8",
+  mutedForeground: "#1A1A1A",
+  accent: "#552583",
+  accentForeground: "#D4D4D4",
+  destructive: "#B82036",
+  destructiveForeground: "#FFFFFF",
+  border: "rgba(26, 26, 26, 0.24)",
+  borderStrong: "rgba(26, 26, 26, 0.42)",
+  input: "#F7F7F7",
+  heroBackground: "#1A1A1A",
+  heroForeground: "#D4D4D4",
+  heroMuted: "#D4D4D4",
+  heroBadgeBg: "rgba(85, 37, 131, 0.12)",
+  heroBadgeBorder: "rgba(85, 37, 131, 0.42)",
+  heroBadgeText: "#552583",
+  success: "#2F7654",
+  warning: "#8A5B12",
+  tabBar: "#D4D4D4",
+  tabInactive: "#6E6E6E",
+  overlay: "rgba(26, 26, 26, 0.48)",
+} as const;
+
 export type SpartanColorPalette = typeof spartanDark;
 
 export const radius = {
