@@ -62,6 +62,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.mission,
     },
     identity: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10, minHeight: 48 },
     identityCopy: { flex: 1, justifyContent: "center", gap: 1 },
@@ -76,7 +78,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       justifyContent: "center",
     },
     textAction: { minHeight: 44, justifyContent: "center", paddingHorizontal: 4 },
-    textActionLabel: { color: colors.primary, fontSize: 15, ...font("bold") },
+    textActionLabel: { color: colors.mission, fontSize: 15, ...font("bold") },
     pressed: { opacity: 0.58 },
   });
 }

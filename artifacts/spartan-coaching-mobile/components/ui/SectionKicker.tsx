@@ -7,7 +7,7 @@ import { font } from "@/lib/typography";
 export function SectionKicker({ children }: { children: string }) {
   const colors = useColors();
   return (
-    <Text style={[styles.kicker, { color: colors.primary }]} accessibilityRole="text">
+    <Text style={[styles.kicker, { color: colors.mission }]} accessibilityRole="text">
       {"━  "}
       {children}
     </Text>

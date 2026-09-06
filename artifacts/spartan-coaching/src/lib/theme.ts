@@ -420,6 +420,10 @@ export function applyAppearance(
   }
   // Destructive always keeps readable on-fill text
   setVar("--destructive-foreground", "0 0% 100%");
+  setVar("--mamba-purple", themePreset === "mamba" ? MAMBA_COLORS.purple : "");
+  setVar("--mamba-gold", themePreset === "mamba" ? MAMBA_COLORS.gold : "");
+  setVar("--mamba-black", themePreset === "mamba" ? MAMBA_COLORS.black : "");
+  setVar("--mamba-silver", themePreset === "mamba" ? MAMBA_COLORS.silver : "");
 
   // 5) Hard paint html/body/#root so first paint matches surface (FOUC-safe)
   const bgColor = `hsl(${surface.bg})`;

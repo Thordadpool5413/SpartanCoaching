@@ -61,7 +61,7 @@ export function SpartanCard({
       {isEmphasis ? (
         <View
           pointerEvents="none"
-          style={[styles.topRail, { backgroundColor: colors.primary }]}
+           style={[styles.topRail, { backgroundColor: colors.mission }]}
         />
       ) : null}
       {children}

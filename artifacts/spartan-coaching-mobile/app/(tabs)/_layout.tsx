@@ -29,7 +29,7 @@ export default function TabLayout() {
           paddingTop: 4,
           backgroundColor: colors.tabBar,
           borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: colors.borderStrong,
+           borderTopColor: colors.mission,
           elevation: 0,
         },
       }}

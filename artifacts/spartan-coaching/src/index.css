@@ -3045,6 +3045,36 @@ html[data-theme-preset="mamba"] main [data-testid="section-faq-cta"] * {
   border-color: rgb(253 185 39 / .42);
 }
 
+/* Make the Mamba pair visible across public page sections, not only in the
+ * theme picker: purple carries the surface and gold carries the rule. */
+html[data-theme-preset="mamba"] main.page-persuasion {
+  border-top: 3px solid var(--mamba-gold);
+}
+
+html[data-theme-preset="mamba"] .public-site-header {
+  border-bottom: 3px solid var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band {
+  background:
+    linear-gradient(115deg, rgb(85 37 131 / .96), rgb(26 26 26 / .98) 72%),
+    hsl(var(--card)) !important;
+  border-color: var(--mamba-gold) !important;
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band h1,
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band h2,
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band h3,
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band p {
+  color: var(--mamba-silver);
+}
+
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band [class*="text-red-"],
+html[data-theme-preset="mamba"] main.page-persuasion .surface-band [class*="text-primary"] {
+  color: var(--mamba-gold) !important;
+}
+
 html[data-theme-preset="mamba"] .workspace-premium .workspace-command-hero,
 html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-card,
 html[data-theme-preset="mamba"] .workspace-premium .workspace-utility-rail > a,
@@ -3072,12 +3102,29 @@ html[data-theme-preset="mamba"] .workspace-premium .my-work-filter {
 html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-1,
 html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar {
   background: linear-gradient(110deg, hsl(var(--secondary) / .86), hsl(var(--card)) 66%) !important;
+  border-color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-sidebar,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-topbar {
+  background: linear-gradient(180deg, rgb(85 37 131 / .28), #1A1A1A 22%);
+  border-color: var(--mamba-gold);
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-icon,
 html[data-theme-preset="mamba"] .workspace-premium .workspace-primary-action,
 html[data-theme-preset="mamba"] .workspace-premium .command-dashboard-icon {
   color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-primary-action,
+html[data-theme-preset="mamba"] .workspace-premium .command-dashboard-icon {
+  border-color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-strip,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-next-card {
+  box-shadow: inset 4px 0 0 var(--mamba-gold), 0 24px 70px rgb(0 0 0 / .28);
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .text-white,

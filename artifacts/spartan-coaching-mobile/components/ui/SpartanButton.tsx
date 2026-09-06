@@ -52,8 +52,15 @@ export function SpartanButton({
       : variant === "outline"
         ? "transparent"
         : "transparent";
+  const isMamba = colors.accent === "#FDB927";
   const borderColor =
-    variant === "outline" ? colors.borderStrong ?? colors.border : "transparent";
+    variant === "outline"
+      ? isMamba
+        ? colors.accent
+        : colors.borderStrong ?? colors.border
+      : isMamba
+        ? colors.accent
+        : "transparent";
   const textColor =
     variant === "primary" ? colors.primaryForeground : colors.foreground;
 
@@ -73,7 +80,7 @@ export function SpartanButton({
         {
           backgroundColor: bg,
           borderColor,
-          borderWidth: variant === "outline" ? 2 : 0,
+          borderWidth: variant === "outline" ? 2 : isMamba ? 1.5 : 0,
           opacity: isDisabled ? 0.55 : pressed ? 0.9 : 1,
           transform: [pressScale(!!pressed && !isDisabled, reduceMotion, 0.97)],
           ...(variant === "primary" && Platform.OS === "ios" && !reduceMotion
