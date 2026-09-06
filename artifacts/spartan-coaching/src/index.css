@@ -3418,3 +3418,82 @@ html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium .coac
 html[data-theme-preset="mamba"] [class*="bg-black/"] {
   background-color: rgb(26 26 26 / .86) !important;
 }
+
+/* Some public routes are mounted directly on the application-level
+ * main.page-persuasion element, so descendant-only legacy bridges do not
+ * catch their red/blue/purple utility classes. Keep all small accent copy
+ * readable on Mamba's dark surfaces and keep legacy red fills on-brand. */
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-red-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="from-red-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="via-red-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="to-red-"] {
+  background-color: var(--mamba-purple) !important;
+  background-image: none !important;
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-red-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-blue-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-indigo-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-violet-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-purple-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-orange-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="text-green-"] {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-blue-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-indigo-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-violet-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-purple-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-orange-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="bg-green-"] {
+  background-color: rgb(85 37 131 / .16) !important;
+  background-image: none !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-blue-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-indigo-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-violet-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-purple-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-orange-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion [class*="border-green-"] {
+  border-color: rgb(253 185 39 / .55) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion button.bg-primary,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion a.bg-primary {
+  background-color: var(--mamba-purple) !important;
+  color: var(--mamba-silver) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-label,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-manifesto-number,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-tour-tab-number,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-panel-icon,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-pathfinder-icon,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-pathfinder-check,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-next-move span,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-artifact-eyebrow,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-artifact-footer {
+  color: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-label::before,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-panel-icon,
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-pathfinder-icon {
+  border-color: rgb(253 185 39 / .55) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] main.page-persuasion .field-brief-label::before {
+  background: var(--mamba-gold) !important;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-blue-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-indigo-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-violet-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-purple-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-orange-"],
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .workspace-premium [class*="text-green-"] {
+  color: var(--mamba-gold) !important;
+}

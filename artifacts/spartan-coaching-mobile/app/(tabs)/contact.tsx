@@ -248,7 +248,7 @@ export default function ConsultingScreen() {
         </View>
 
         <View style={styles.separationCard}>
-          <Feather name="info" size={18} color={colors.primary} />
+          <Feather name="info" size={18} color={colors.readablePrimary} />
           <Text style={styles.separationText}>Consulting is not included in Standard or Elite and is not purchased through Apple. Any engagement begins only after scope and commercial terms are agreed separately.</Text>
         </View>
 
@@ -305,7 +305,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     recentTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
     recentBody: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, marginTop: 2, ...font("regular") },
     clearConfirmation: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 8, ...font("bold") },
+    sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, marginTop: 8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 24, lineHeight: 29, letterSpacing: -0.5, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
     serviceList: { gap: 0 },
@@ -318,9 +318,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     serviceBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, ...font("regular") },
     windowRow: { flexDirection: "row", gap: 8 },
     windowButton: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 14, borderCurve: "continuous" },
-    windowButtonSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+    windowButtonSelected: { borderColor: colors.readablePrimary, backgroundColor: colors.primaryMuted },
     windowText: { color: colors.mutedForeground, fontSize: 12, ...font("semibold") },
-    windowTextSelected: { color: colors.primary },
+    windowTextSelected: { color: colors.readablePrimary },
     fieldGroup: { gap: 7 },
     label: { color: colors.foreground, fontSize: 13, ...font("bold") },
     textarea: { minHeight: 140, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, color: colors.foreground, borderRadius: 16, borderCurve: "continuous", padding: 14, fontSize: 15, lineHeight: 21, ...font("regular") },
@@ -333,7 +333,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     pressed: { opacity: 0.8, transform: [{ scale: 0.995 }] },
     confirmation: { flex: 1, justifyContent: "center", paddingHorizontal: 26, gap: 14 },
     successIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: colors.success, alignItems: "center", justifyContent: "center" },
-    confirmationKicker: { color: colors.primary, fontSize: 9, letterSpacing: 2, ...font("bold") },
+    confirmationKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 2, ...font("bold") },
     confirmationTitle: { color: colors.foreground, fontSize: 31, lineHeight: 36, ...font("heavy") },
     confirmationBody: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, ...font("regular") },
     confirmationCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", paddingHorizontal: 14, paddingVertical: 6 },

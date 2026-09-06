@@ -80,7 +80,7 @@ export default function AccountScreen() {
   );
 
   if (isLoading) {
-    return <View style={[styles.center, { paddingTop: topPad }]}><ActivityIndicator color={colors.primary} /></View>;
+    return <View style={[styles.center, { paddingTop: topPad }]}><ActivityIndicator color={colors.readablePrimary} /></View>;
   }
 
   if (!isAuthenticated || !user) {
@@ -99,7 +99,7 @@ export default function AccountScreen() {
 
         <SpartanButton title="Compare memberships and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 18 }} />
         <SpartanButton title="Sign in" variant="outline" onPress={() => router.push("/login" as any)} style={{ marginTop: 10 }} />
-        <Pressable onPress={() => router.push("/(tabs)/contact" as any)} style={styles.simpleLink}><Text style={styles.simpleLinkText}>Company access or human consulting</Text><Feather name="chevron-right" size={17} color={colors.primary} /></Pressable>
+        <Pressable onPress={() => router.push("/(tabs)/contact" as any)} style={styles.simpleLink}><Text style={styles.simpleLinkText}>Company access or human consulting</Text><Feather name="chevron-right" size={17} color={colors.readablePrimary} /></Pressable>
       </ScrollView>
     );
   }
@@ -210,7 +210,7 @@ export default function AccountScreen() {
         <Pressable onPress={() => router.push("/admin" as any)} style={styles.adminCard} testID="account-admin-hero">
           <View style={styles.adminIcon}><Feather name="shield" size={20} color={colors.primaryForeground} /></View>
           <View style={{ flex: 1 }}><Text style={styles.adminTitle}>Organization Admin</Text><Text style={styles.adminBody}>Manage seats, members, invitations, roles, adoption, and explicitly shared information. Private Coach content is never exposed here.</Text></View>
-          <Feather name="chevron-right" size={20} color={colors.primary} />
+          <Feather name="chevron-right" size={20} color={colors.readablePrimary} />
         </Pressable>
       ) : null}
 
@@ -297,7 +297,7 @@ export default function AccountScreen() {
 function InfoRow({ icon, title, body }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  return <View style={styles.infoRow}><View style={styles.infoIcon}><Feather name={icon} size={17} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
+  return <View style={styles.infoRow}><View style={styles.infoIcon}><Feather name={icon} size={17} color={colors.readablePrimary} /></View><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
 }
 
 function LinkRow({ label, onPress }: { label: string; onPress: () => void }) {
@@ -310,7 +310,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-     kicker: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+     kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2, ...font("bold") },
     pageTitle: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, marginTop: 8, ...font("heavy") },
     pageSubtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 9, ...font("regular") },
     heroAction: { minHeight: 96, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 22, backgroundColor: colors.heroBackground, borderRadius: 20, borderCurve: "continuous", padding: 16 },
@@ -318,7 +318,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     heroActionTitle: { color: colors.heroForeground, fontSize: 16, ...font("bold") },
     heroActionBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     simpleLink: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
-    simpleLinkText: { color: colors.primary, fontSize: 13, ...font("bold") },
+    simpleLinkText: { color: colors.readablePrimary, fontSize: 13, ...font("bold") },
     identityRow: { flexDirection: "row", alignItems: "center", gap: 14, marginTop: 18, marginBottom: 26 },
     avatar: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     avatarText: { color: colors.primaryForeground, fontSize: 18, ...font("heavy") },
@@ -328,12 +328,12 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     cardKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     membershipTitle: { color: colors.heroForeground, fontSize: 25, lineHeight: 30, marginTop: 5, ...font("heavy") },
     membershipBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 17, marginTop: 5, ...font("regular") },
-    adminCard: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.primary, borderRadius: 18, borderCurve: "continuous", padding: 15, marginBottom: 18 },
+    adminCard: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.readablePrimary, borderRadius: 18, borderCurve: "continuous", padding: 15, marginBottom: 18 },
     adminIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     adminTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     adminBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 28, marginTop: 14, marginBottom: 8, gap: 15 },
-     sectionKicker: { color: colors.accent === "#FDB927" ? colors.accent : colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+     sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
     appearanceRow: { flexDirection: "row", gap: 8 },
@@ -348,7 +348,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     leadershipRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 11 },
     leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     input: { minHeight: 64, color: colors.foreground, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", padding: 12, fontSize: 13, lineHeight: 18, ...font("regular") },
-    profileMessage: { color: colors.primary, fontSize: 11, ...font("semibold") },
+    profileMessage: { color: colors.readablePrimary, fontSize: 11, ...font("semibold") },
     infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 13, paddingVertical: 13 },
     infoIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },

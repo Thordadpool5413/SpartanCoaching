@@ -128,7 +128,7 @@ export default function AdminScreen() {
   if (!isPlatform && !isOrgAdmin) {
     return (
       <View style={styles.centered}>
-        <Feather name="lock" size={28} color={colors.primary} />
+        <Feather name="lock" size={28} color={colors.readablePrimary} />
         <Text style={styles.emptyTitle}>Administrator access required</Text>
         <Text style={styles.emptyBody}>This workspace only appears after an authorized organization or platform administrator role is active.</Text>
         <SpartanButton title="Back to Account" onPress={() => router.back()} style={{ marginTop: 18, alignSelf: "stretch" }} />
@@ -171,7 +171,7 @@ export default function AdminScreen() {
       style={styles.screen}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} tintColor={colors.primary} onRefresh={() => { setRefreshing(true); void load(true); }} />}
+      refreshControl={<RefreshControl refreshing={refreshing} tintColor={colors.readablePrimary} onRefresh={() => { setRefreshing(true); void load(true); }} />}
       showsVerticalScrollIndicator={false}
       testID="screen-admin"
     >
@@ -190,7 +190,7 @@ export default function AdminScreen() {
         </View>
       </View>
 
-      {loading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 30 }} /> : null}
+      {loading ? <ActivityIndicator color={colors.readablePrimary} style={{ marginTop: 30 }} /> : null}
       {error ? <View style={styles.errorCard}><Text selectable style={styles.errorText}>{error}</Text><SpartanButton title="Try again" variant="outline" onPress={() => void load()} style={{ marginTop: 12 }} /></View> : null}
 
       {platform ? <PlatformOverview data={platform} styles={styles} colors={colors} /> : null}
@@ -396,7 +396,7 @@ function PlatformOverview({ data, styles, colors }: { data: PlatformData; styles
       <Metric label="Uses · 7 days" value={String(data.metrics.toolUsesLast7Days)} styles={styles} />
     </View>
     <SectionTitle eyebrow="ACCESS DESK" title="Requests needing review" styles={styles} />
-    <View style={styles.list}>{pending.length ? pending.slice(0, 8).map((item) => <View key={item.id} style={styles.auditRow}><View style={[styles.avatar, { backgroundColor: colors.primaryMuted }]}><Feather name="user-plus" size={17} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={styles.rowTitle}>{item.name}</Text><Text style={styles.rowBody}>{item.companyName || item.email} · {item.type}</Text></View><Text style={styles.pending}>Pending</Text></View>) : <Text style={styles.emptyInline}>No access requests are waiting.</Text>}</View>
+    <View style={styles.list}>{pending.length ? pending.slice(0, 8).map((item) => <View key={item.id} style={styles.auditRow}><View style={[styles.avatar, { backgroundColor: colors.primaryMuted }]}><Feather name="user-plus" size={17} color={colors.readablePrimary} /></View><View style={{ flex: 1 }}><Text style={styles.rowTitle}>{item.name}</Text><Text style={styles.rowBody}>{item.companyName || item.email} · {item.type}</Text></View><Text style={styles.pending}>Pending</Text></View>) : <Text style={styles.emptyInline}>No access requests are waiting.</Text>}</View>
     <SectionTitle eyebrow="CLIENTS" title="Organizations" styles={styles} />
     <View style={styles.list}>{data.organizations.slice(0, 12).map((item) => <View key={item.id} style={styles.auditRow}><View style={styles.avatar}><Text style={styles.avatarText}>{initials(item.name)}</Text></View><View style={{ flex: 1 }}><Text style={styles.rowTitle}>{item.name}</Text><Text style={styles.rowBody}>{item.memberCount || 0} members · {item.type}</Text></View><Text style={styles.status}>{item.status}</Text></View>)}</View>
   </>;
@@ -433,7 +433,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     kicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2.1, ...font("bold") },
     title: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.9, ...font("heavy") },
     subtitle: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, ...font("regular") },
-    privacyCard: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, padding: 15 },
+    privacyCard: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.readablePrimary, backgroundColor: colors.primaryMuted, padding: 15 },
     privacyIcon: { width: 43, height: 43, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     privacyTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     privacyBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 4, ...font("regular") },
@@ -446,7 +446,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     contractLabel: { color: colors.mutedForeground, fontSize: 11, ...font("medium") },
     contractValue: { color: colors.foreground, fontSize: 11, textTransform: "capitalize", ...font("bold") },
     sectionHeading: { marginTop: 12, gap: 4 },
-    sectionEyebrow: { color: colors.primary, fontSize: 9, letterSpacing: 1.9, ...font("bold") },
+    sectionEyebrow: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.9, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 23, letterSpacing: -0.5, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("regular") },
     panel: { backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", padding: 16, gap: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong },
@@ -466,14 +466,14 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     rowBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 2, ...font("regular") },
     rowMeta: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, marginTop: 2, ...font("regular") },
     roleTag: { color: colors.mutedForeground, backgroundColor: colors.muted, borderRadius: 999, paddingHorizontal: 6, paddingVertical: 2, fontSize: 7, letterSpacing: 0.7, ...font("bold") },
-    roleTagAdmin: { color: colors.primary, backgroundColor: colors.primaryMuted },
-    controls: { borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", padding: 16, gap: 12 },
+    roleTagAdmin: { color: colors.readablePrimary, backgroundColor: colors.primaryMuted },
+    controls: { borderWidth: 1, borderColor: colors.readablePrimary, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", padding: 16, gap: 12 },
     choiceRow: { flexDirection: "row", gap: 8 },
     choiceWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
     choice: { minHeight: 40, justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card, paddingHorizontal: 12, maxWidth: "100%" },
     choiceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
     choiceText: { color: colors.mutedForeground, fontSize: 10, ...font("semibold") },
-    choiceTextSelected: { color: colors.primary },
+    choiceTextSelected: { color: colors.readablePrimary },
     staticChip: { minHeight: 34, justifyContent: "center", borderRadius: 17, backgroundColor: colors.muted, paddingHorizontal: 10 },
     staticChipText: { color: colors.foreground, fontSize: 10, ...font("semibold") },
     dangerRow: { flexDirection: "row", gap: 10, alignItems: "center", marginTop: 4 },
@@ -483,7 +483,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     usageRow: { gap: 6 },
     usageLine: { flexDirection: "row", justifyContent: "space-between", gap: 10 },
     usageName: { flex: 1, color: colors.foreground, fontSize: 11, ...font("semibold") },
-    usageCount: { color: colors.primary, fontSize: 11, fontVariant: ["tabular-nums"], ...font("bold") },
+    usageCount: { color: colors.readablePrimary, fontSize: 11, fontVariant: ["tabular-nums"], ...font("bold") },
     usageTrack: { height: 6, backgroundColor: colors.muted, borderRadius: 3, overflow: "hidden" },
     usageFill: { height: 6, borderRadius: 3 },
     trendCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 12 },
@@ -503,7 +503,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     auditRow: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 11, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     auditDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
     pending: { color: colors.warning, fontSize: 10, ...font("bold") },
-    status: { color: colors.primary, fontSize: 10, textTransform: "capitalize", ...font("bold") },
+    status: { color: colors.readablePrimary, fontSize: 10, textTransform: "capitalize", ...font("bold") },
     emptyInline: { color: colors.mutedForeground, padding: 16, fontSize: 11, lineHeight: 17, ...font("regular") },
     errorCard: { backgroundColor: colors.card, borderRadius: 18, padding: 16, marginTop: 8 },
     errorText: { color: colors.destructive, fontSize: 12, lineHeight: 18, ...font("regular") },

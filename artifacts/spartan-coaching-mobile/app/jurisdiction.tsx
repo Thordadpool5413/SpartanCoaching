@@ -79,11 +79,11 @@ export default function JurisdictionScreen() {
 
       <View style={styles.body}>
         <View style={styles.guardrail}>
-          <Feather name="shield" size={19} color={colors.primary} />
+          <Feather name="shield" size={19} color={colors.readablePrimary} />
           <Text style={styles.guardrailText}>This screen is for jurisdiction preferences only. Do not enter patient names, dates, record numbers, contact information, or any other PHI.</Text>
         </View>
 
-        {loading ? <ActivityIndicator color={colors.primary} style={{ marginVertical: 28 }} /> : (
+        {loading ? <ActivityIndicator color={colors.readablePrimary} style={{ marginVertical: 28 }} /> : (
           <>
             <Text style={styles.sectionKicker}>STATE</Text>
             <Text style={styles.sectionTitle}>Where do you primarily work?</Text>
@@ -96,7 +96,7 @@ export default function JurisdictionScreen() {
               style={styles.selector}
             >
               <Text style={[styles.selectorText, !state && styles.selectorPlaceholder]}>{state || "Choose a state"}</Text>
-              <Feather name={statePickerOpen ? "chevron-up" : "chevron-down"} size={19} color={colors.primary} />
+              <Feather name={statePickerOpen ? "chevron-up" : "chevron-down"} size={19} color={colors.readablePrimary} />
             </Pressable>
             {statePickerOpen ? (
               <View style={styles.stateList} accessibilityRole="radiogroup">
@@ -116,7 +116,7 @@ export default function JurisdictionScreen() {
                       style={[styles.stateRow, selected && styles.stateRowSelected]}
                     >
                       <Text style={[styles.stateText, selected && styles.stateTextSelected]}>{option.state}</Text>
-                      {selected ? <Feather name="check" size={17} color={colors.primary} /> : null}
+                      {selected ? <Feather name="check" size={17} color={colors.readablePrimary} /> : null}
                     </Pressable>
                   );
                 })}
@@ -127,7 +127,7 @@ export default function JurisdictionScreen() {
             <Text style={styles.sectionTitle}>Assigned from the current CMS map.</Text>
             <Text style={styles.sectionBody}>The app assigns the Home Health and Hospice MAC for the selected state. Members cannot create a mismatched jurisdiction.</Text>
             <View style={styles.macCard}>
-              <View style={styles.macIcon}><Feather name="map-pin" size={19} color={colors.primary} /></View>
+              <View style={styles.macIcon}><Feather name="map-pin" size={19} color={colors.readablePrimary} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.macLabel}>{jurisdiction ? jurisdiction.label : "Choose a state to see the assigned MAC"}</Text>
                 {jurisdiction ? <Text style={styles.macContractor}>CMS Home Health and Hospice jurisdiction</Text> : null}
@@ -135,7 +135,7 @@ export default function JurisdictionScreen() {
             </View>
 
             <View style={styles.reviewCard}>
-              <Feather name="check-circle" size={18} color={colors.primary} />
+              <Feather name="check-circle" size={18} color={colors.readablePrimary} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.reviewTitle}>Context is not approval.</Text>
                 <Text style={styles.reviewBody}>Spartan Coaching must still use current approved sources. Clinical guidance requires the appropriate medical director and compliance review. Regulatory and operational guidance requires compliance review.</Text>
@@ -165,7 +165,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     body: { paddingHorizontal: 20, paddingTop: 24, gap: 13 },
     guardrail: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: colors.primaryMuted, borderRadius: 16, borderCurve: "continuous", padding: 14 },
     guardrailText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("medium") },
-    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, marginTop: 8, ...font("bold") },
+    sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.7, marginTop: 8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("regular") },
     selector: { minHeight: 56, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 16, borderCurve: "continuous", paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
@@ -175,7 +175,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     stateRow: { minHeight: 47, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     stateRowSelected: { backgroundColor: colors.primaryMuted },
     stateText: { color: colors.foreground, fontSize: 13, ...font("medium") },
-    stateTextSelected: { color: colors.primary, ...font("bold") },
+    stateTextSelected: { color: colors.readablePrimary, ...font("bold") },
     macCard: { minHeight: 74, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 17, borderCurve: "continuous", padding: 14, flexDirection: "row", alignItems: "center", gap: 12 },
     macIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     macLabel: { color: colors.foreground, fontSize: 13, lineHeight: 18, ...font("bold") },
@@ -185,6 +185,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     reviewBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     message: { color: colors.destructive, fontSize: 11, lineHeight: 17, ...font("semibold") },
     backButton: { minHeight: 46, alignItems: "center", justifyContent: "center" },
-    backText: { color: colors.primary, fontSize: 12, ...font("bold") },
+    backText: { color: colors.readablePrimary, fontSize: 12, ...font("bold") },
   });
 }

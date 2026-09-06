@@ -56,7 +56,7 @@ export default function MethodGuideScreen() {
       {section === "drills" ? <Drills styles={styles} colors={colors} /> : null}
       {section === "quiz" ? <Quiz styles={styles} colors={colors} /> : null}
       {section === "manifesto" ? <Manifesto styles={styles} /> : null}
-      <View style={styles.boundary}><Feather name="shield" size={17} color={colors.primary} /><Text style={styles.boundaryText}>Never enter patient PHI. Clinical education is general guidance and requires appropriate medical director or compliance approval.</Text></View>
+      <View style={styles.boundary}><Feather name="shield" size={17} color={colors.readablePrimary} /><Text style={styles.boundaryText}>Never enter patient PHI. Clinical education is general guidance and requires appropriate medical director or compliance approval.</Text></View>
     </ScrollView>
   );
 }
@@ -79,7 +79,7 @@ function Method({ styles }: { styles: ReturnType<typeof makeStyles> }) {
 
 function Drills({ styles, colors }: { styles: ReturnType<typeof makeStyles>; colors: ReturnType<typeof useColors> }) {
   const [completed, setCompleted] = useState<number[]>([]);
-  return <View style={styles.stack}>{DRILLS.map((drill, index) => { const done = completed.includes(index); return <Pressable key={drill.title} onPress={() => { void Haptics.selectionAsync(); setCompleted((items) => done ? items.filter((item) => item !== index) : [...items, index]); }} style={styles.card} accessibilityState={{ checked: done }}><View style={[styles.check, done && { backgroundColor: colors.success, borderColor: colors.success }]}><Feather name={done ? "check" : "play"} size={16} color={done ? "#FFFFFF" : colors.primary} /></View><View style={styles.cardCopy}><Text style={styles.cardTitle}>{drill.title}</Text><Text style={styles.cardBody}>{drill.body}</Text><Text style={styles.cardAction}>{done ? "Completed" : "Tap when practiced"}</Text></View></Pressable>; })}</View>;
+  return <View style={styles.stack}>{DRILLS.map((drill, index) => { const done = completed.includes(index); return <Pressable key={drill.title} onPress={() => { void Haptics.selectionAsync(); setCompleted((items) => done ? items.filter((item) => item !== index) : [...items, index]); }} style={styles.card} accessibilityState={{ checked: done }}><View style={[styles.check, done && { backgroundColor: colors.success, borderColor: colors.success }]}><Feather name={done ? "check" : "play"} size={16} color={done ? "#FFFFFF" : colors.readablePrimary} /></View><View style={styles.cardCopy}><Text style={styles.cardTitle}>{drill.title}</Text><Text style={styles.cardBody}>{drill.body}</Text><Text style={styles.cardAction}>{done ? "Completed" : "Tap when practiced"}</Text></View></Pressable>; })}</View>;
 }
 
 function Quiz({ styles, colors }: { styles: ReturnType<typeof makeStyles>; colors: ReturnType<typeof useColors> }) {
@@ -96,25 +96,25 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     content: { padding: 20, gap: 16 },
     hero: { flexDirection: "row", alignItems: "center", gap: 15, backgroundColor: colors.heroBackground, borderRadius: 24, padding: 18 },
-    kicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    kicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     title: { color: colors.heroForeground, fontSize: 23, lineHeight: 28, letterSpacing: -0.45, marginTop: 4, ...font("heavy") },
     intro: { color: colors.mutedForeground, fontSize: 15, lineHeight: 23, ...font("regular") },
     stack: { gap: 12 },
     card: { flexDirection: "row", alignItems: "flex-start", gap: 13, backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong, padding: 17 },
-    number: { color: colors.primary, fontSize: 12, letterSpacing: 1.2, ...font("bold") },
+    number: { color: colors.readablePrimary, fontSize: 12, letterSpacing: 1.2, ...font("bold") },
     cardCopy: { flex: 1 },
     cardTitle: { color: colors.foreground, fontSize: 18, lineHeight: 23, ...font("heavy") },
     cardBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 20, marginTop: 5, ...font("regular") },
-    cardAction: { color: colors.primary, fontSize: 11, marginTop: 10, ...font("bold") },
-    check: { width: 34, height: 34, borderRadius: 11, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    cardAction: { color: colors.readablePrimary, fontSize: 11, marginTop: 10, ...font("bold") },
+    check: { width: 34, height: 34, borderRadius: 11, borderWidth: 1, borderColor: colors.readablePrimary, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     quizCard: { backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong, padding: 17 },
-    quizNumber: { color: colors.primary, fontSize: 9, letterSpacing: 1.5, marginBottom: 8, ...font("bold") },
+    quizNumber: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.5, marginBottom: 8, ...font("bold") },
     option: { minHeight: 50, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, borderRadius: 14, borderWidth: 1, paddingHorizontal: 13, backgroundColor: colors.background },
     optionText: { color: colors.foreground, flex: 1, fontSize: 13, lineHeight: 18, ...font("medium") },
     feedback: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 10, ...font("semibold") },
-    manifesto: { borderTopWidth: 1, borderTopColor: colors.primary },
+    manifesto: { borderTopWidth: 1, borderTopColor: colors.readablePrimary },
     manifestoRow: { flexDirection: "row", gap: 14, paddingVertical: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
-    manifestoNumber: { color: colors.primary, fontSize: 10, letterSpacing: 1.2, ...font("bold") },
+    manifestoNumber: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.2, ...font("bold") },
     manifestoText: { color: colors.foreground, flex: 1, fontSize: 17, lineHeight: 25, ...font("semibold") },
     boundary: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: colors.primaryMuted, borderRadius: 16, padding: 14 },
     boundaryText: { color: colors.mutedForeground, flex: 1, fontSize: 11, lineHeight: 17, ...font("regular") },

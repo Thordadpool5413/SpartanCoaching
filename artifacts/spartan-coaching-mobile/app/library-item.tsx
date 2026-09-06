@@ -133,7 +133,7 @@ export default function LibraryItemScreen() {
     <View style={styles.screen} testID="screen-library-item">
       <Stack.Screen options={{ title: kind === "audio" ? "Listen" : "Library" }} />
       <View style={styles.contextBar}>
-        <View style={styles.contextIcon}><Feather name={kind === "audio" ? "headphones" : "book-open"} size={18} color={colors.primary} /></View>
+        <View style={styles.contextIcon}><Feather name={kind === "audio" ? "headphones" : "book-open"} size={18} color={colors.readablePrimary} /></View>
         <View style={{ flex: 1 }}>
           <Text style={styles.kicker}>{kind === "audio" ? "SPARTAN AUDIO" : "IN-APP READER"}</Text>
           <Text style={styles.title} numberOfLines={2}>{title}</Text>
@@ -146,7 +146,7 @@ export default function LibraryItemScreen() {
             disabled={downloadBusy}
             style={styles.downloadButton}
           >
-            {downloadBusy ? <ActivityIndicator color={colors.primary} /> : <Feather name={isOfflineAvailable ? "check-circle" : "download"} size={19} color={colors.primary} />}
+            {downloadBusy ? <ActivityIndicator color={colors.readablePrimary} /> : <Feather name={isOfflineAvailable ? "check-circle" : "download"} size={19} color={colors.readablePrimary} />}
           </Pressable>
         ) : null}
       </View>
@@ -175,7 +175,7 @@ export default function LibraryItemScreen() {
         />
       ) : (
         <View style={styles.empty}>
-          <Feather name="alert-circle" size={30} color={colors.primary} />
+          <Feather name="alert-circle" size={30} color={colors.readablePrimary} />
           <Text style={styles.emptyTitle}>This item is not available yet.</Text>
           <Text style={styles.emptyBody}>The publisher has not attached a secure in-app file.</Text>
         </View>
@@ -205,7 +205,7 @@ function NativeArticleReader({
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  if (loading) return <View style={styles.empty}><ActivityIndicator color={colors.primary} /><Text style={styles.emptyBody}>Preparing the native field note…</Text></View>;
+  if (loading) return <View style={styles.empty}><ActivityIndicator color={colors.readablePrimary} /><Text style={styles.emptyBody}>Preparing the native field note…</Text></View>;
   if (documentUrl && !content) return <DocumentReader title={title} url={documentUrl} />;
 
   const paragraphs = content && content.trim() !== description.trim()
@@ -228,7 +228,7 @@ function NativeArticleReader({
 
       {failed ? (
         <View style={styles.articleUnavailable}>
-          <Feather name="wifi-off" size={20} color={colors.primary} />
+          <Feather name="wifi-off" size={20} color={colors.readablePrimary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.articleUnavailableTitle}>The latest copy could not refresh</Text>
             <Text style={styles.articleUnavailableBody}>The field briefing above remains available. Reopen it when your secure connection returns to check for an expanded edition.</Text>
@@ -238,7 +238,7 @@ function NativeArticleReader({
 
       <Text style={styles.articleSectionTitle}>Take it into the field</Text>
       <View style={styles.articlePrompt}>
-        <Feather name="message-square" size={19} color={colors.primary} />
+        <Feather name="message-square" size={19} color={colors.readablePrimary} />
         <Text style={styles.articlePromptText}>What is the one useful question or next step this idea should change in your next conversation?</Text>
       </View>
 
@@ -249,12 +249,12 @@ function NativeArticleReader({
           style={styles.sourceButton}
         >
           <Text style={styles.sourceButtonText}>View the original source</Text>
-          <Feather name="arrow-up-right" size={18} color={colors.primary} />
+          <Feather name="arrow-up-right" size={18} color={colors.readablePrimary} />
         </Pressable>
       ) : null}
 
       <View style={styles.articleTrust}>
-        <Feather name="shield" size={17} color={colors.primary} />
+        <Feather name="shield" size={17} color={colors.readablePrimary} />
         <Text style={styles.articleTrustText}>Educational guidance only. Never enter patient PHI. Clinical decisions require the appropriate medical director or compliance approval.</Text>
       </View>
     </ScrollView>
@@ -304,13 +304,13 @@ function NativeResourceReader({
         </Pressable>
       ) : (
         <View style={styles.articleUnavailable}>
-          <Feather name="book-open" size={20} color={colors.primary} />
+          <Feather name="book-open" size={20} color={colors.readablePrimary} />
           <View style={{ flex: 1 }}><Text style={styles.articleUnavailableTitle}>Use the resource overview</Text><Text style={styles.articleUnavailableBody}>The practical guidance above is available now. No separate attachment is required to use it.</Text></View>
         </View>
       )}
 
       <View style={styles.articleTrust}>
-        <Feather name="shield" size={17} color={colors.primary} />
+        <Feather name="shield" size={17} color={colors.readablePrimary} />
         <Text style={styles.articleTrustText}>Use only deidentified information. Clinical education is general guidance and requires appropriate medical director or compliance approval.</Text>
       </View>
     </ScrollView>
@@ -357,10 +357,10 @@ function DocumentReader({ title, url }: { title: string; url: string }) {
         style={{ flex: 1, backgroundColor: colors.card }}
         testID="library-native-reader"
       />
-      {loading ? <View style={styles.readerOverlay}><ActivityIndicator color={colors.primary} /><Text style={styles.readerStatus}>Opening inside Spartan Coaching…</Text></View> : null}
+      {loading ? <View style={styles.readerOverlay}><ActivityIndicator color={colors.readablePrimary} /><Text style={styles.readerStatus}>Opening inside Spartan Coaching…</Text></View> : null}
       {failed ? (
         <View style={styles.readerOverlay}>
-          <Feather name="wifi-off" size={28} color={colors.primary} />
+          <Feather name="wifi-off" size={28} color={colors.readablePrimary} />
           <Text style={styles.emptyTitle}>This resource could not load.</Text>
           <Text style={styles.emptyBody}>Check your secure connection, then try again.</Text>
           <Pressable style={styles.retry} onPress={() => setReloadKey((value) => value + 1)}><Text style={styles.retryText}>Try again</Text></Pressable>
@@ -395,7 +395,7 @@ function AudioReader({ title, description, url, bottom }: { title: string; descr
           <Pressable accessibilityLabel="Forward 15 seconds" onPress={() => void player.seekTo(Math.min(status.duration || status.currentTime + 15, status.currentTime + 15))} style={styles.secondaryControl}><Feather name="rotate-cw" size={20} color={colors.foreground} /></Pressable>
         </View>
       </View>
-      <View style={styles.offlineNote}><Feather name="smartphone" size={18} color={colors.primary} /><Text style={styles.offlineText}>Playback stays inside the Spartan Coaching app.</Text></View>
+      <View style={styles.offlineNote}><Feather name="smartphone" size={18} color={colors.readablePrimary} /><Text style={styles.offlineText}>Playback stays inside the Spartan Coaching app.</Text></View>
     </View>
   );
 }
@@ -408,7 +408,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     downloadButton: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     offlineBanner: { minHeight: 34, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, backgroundColor: colors.primaryMuted },
     offlineBannerText: { color: colors.success, fontSize: 10, ...font("bold") },
-    kicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
+    kicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
     title: { color: colors.foreground, fontSize: 15, lineHeight: 20, marginTop: 2, ...font("bold") },
     reader: { flex: 1, backgroundColor: colors.card },
     readerOverlay: { ...StyleSheet.absoluteFill, backgroundColor: colors.background, alignItems: "center", justifyContent: "center", padding: 28, gap: 10 },
@@ -435,7 +435,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     offlineText: { color: colors.mutedForeground, fontSize: 12, ...font("medium") },
     articleBody: { paddingHorizontal: 24, paddingTop: 30 },
     articleBadge: { alignSelf: "flex-start", borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 10, paddingVertical: 7 },
-    articleBadgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1.3, ...font("bold") },
+    articleBadgeText: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.3, ...font("bold") },
     articleTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, marginTop: 18, ...font("heavy") },
     articleLead: { color: colors.mutedForeground, fontSize: 16, lineHeight: 25, marginTop: 13, ...font("regular") },
     articleRule: { width: 42, height: 3, borderRadius: 2, backgroundColor: colors.primary, marginTop: 28, marginBottom: 24 },
@@ -447,11 +447,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     articlePrompt: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 17, marginTop: 12 },
     articlePromptText: { flex: 1, color: colors.foreground, fontSize: 14, lineHeight: 21, ...font("semibold") },
     sourceButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 17, borderWidth: 1, borderColor: colors.primary, marginTop: 24 },
-    sourceButtonText: { color: colors.primary, fontSize: 14, ...font("bold") },
+    sourceButtonText: { color: colors.readablePrimary, fontSize: 14, ...font("bold") },
     articleTrust: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: colors.primaryMuted, borderRadius: 16, padding: 15, marginTop: 20 },
     articleTrustText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("medium") },
     resourceDetail: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, paddingVertical: 15 },
-    resourceDetailLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
+    resourceDetailLabel: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
     resourceDetailValue: { color: colors.foreground, fontSize: 15, lineHeight: 22, marginTop: 6, ...font("medium") },
     openDocumentButton: { minHeight: 82, flexDirection: "row", alignItems: "center", gap: 12, borderRadius: 20, backgroundColor: colors.primary, padding: 15, marginTop: 22 },
     openDocumentIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.16)", alignItems: "center", justifyContent: "center" },

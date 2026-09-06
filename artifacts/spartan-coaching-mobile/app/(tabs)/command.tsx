@@ -162,7 +162,7 @@ export default function CommandHubScreen() {
 
       {todayLoading && !today ? (
         <View style={{ paddingVertical: 32, alignItems: "center" }}>
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={colors.readablePrimary} />
           <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 10 }, font("regular")]}>
             Loading your field plan…
           </Text>
@@ -289,8 +289,8 @@ export default function CommandHubScreen() {
         style={{ marginTop: 8, minHeight: 44, justifyContent: "center", flexDirection: "row", alignItems: "center", gap: 6 }}
         testID="link-full-workflow"
       >
-        <Text style={[{ color: colors.primary, fontSize: 14 }, font("bold")]}>Full day workflow</Text>
-        <Feather name="arrow-right" size={16} color={colors.primary} />
+        <Text style={[{ color: colors.readablePrimary, fontSize: 14 }, font("bold")]}>Full day workflow</Text>
+        <Feather name="arrow-right" size={16} color={colors.readablePrimary} />
       </Pressable>
 
       {calls.length > 1 ? (

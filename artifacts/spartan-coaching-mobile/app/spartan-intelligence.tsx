@@ -106,11 +106,11 @@ export default function SpartanIntelligenceScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 48 }]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Back to Tools" onPress={() => router.back()} style={styles.back}>
-          <Feather name="arrow-left" size={18} color={colors.primary} />
-          <Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Tools</Text>
+          <Feather name="arrow-left" size={18} color={colors.readablePrimary} />
+          <Text style={[styles.backText, { color: colors.readablePrimary }, font("bold")]}>Tools</Text>
         </Pressable>
         <View style={styles.hero}>
-          <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
+          <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Walk in prepared. Walk out with movement.</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES data turned into decisions, conversations, and next actions.</Text>
         </View>
@@ -232,13 +232,13 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingTop: insets.top + 18, paddingBottom: insets.bottom + 40 }]}>
-        <Pressable onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={18} color={colors.primary} /><Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Tools</Text></Pressable>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
+        <Pressable onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={18} color={colors.readablePrimary} /><Text style={[styles.backText, { color: colors.readablePrimary }, font("bold")]}>Tools</Text></Pressable>
+        <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
         <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the account before you enter the room.</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Verify the public provider record, then build a focused meeting brief grounded in your relationship.</Text>
 
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
-          <Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>CMS POLICY NAVIGATOR</Text>
+          <Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>CMS POLICY NAVIGATOR</Text>
           <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Prepare the explanation before the conversation.</Text>
           <Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>Choose a topic. Get plain language, a field ready talk track, review points, and visible source status.</Text>
           <View style={styles.stageWrap}>{policyTopics.map((item) => <Pressable key={item.value} onPress={() => { setPolicyTopic(item.value); setPolicyBrief(null); }} style={[styles.stage, { backgroundColor: policyTopic === item.value ? colors.primary : colors.background, borderColor: policyTopic === item.value ? colors.primary : colors.border }]}><Text style={[styles.stageText, { color: policyTopic === item.value ? colors.primaryForeground : colors.foreground }, font("semibold")]}>{item.label}</Text></Pressable>)}</View>
@@ -247,7 +247,7 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
-          <Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>LIVE CMS MARKET EXPLORER</Text>
+          <Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>LIVE CMS MARKET EXPLORER</Text>
           <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>See the enrolled hospice landscape.</Text>
           <Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>Search official CMS hospice enrollment data by state and city. Use it for market orientation, not performance claims.</Text>
           <View style={styles.fieldRow}><View style={{ width: 92 }}><Field label="State" value={marketState} onChangeText={(value) => setMarketState(value.toUpperCase().slice(0, 2))} placeholder="FL" colors={colors} /></View><View style={{ flex: 1 }}><Field label="City" value={marketCity} onChangeText={setMarketCity} placeholder="Optional" colors={colors} /></View></View>

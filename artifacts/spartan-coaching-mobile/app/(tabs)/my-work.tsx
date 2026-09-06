@@ -126,7 +126,7 @@ export default function MyWorkScreen() {
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
-            <Feather name="lock" size={23} color={colors.primary} />
+            <Feather name="lock" size={23} color={colors.readablePrimary} />
             <Text style={styles.emptyTitle}>Membership protects your work</Text>
             <Text style={styles.emptyBody}>Choose Standard or Elite to save plans, downloads, and commitments across sessions.</Text>
             <Pressable style={styles.primaryButton} onPress={() => router.push("/membership" as never)}>
@@ -149,13 +149,13 @@ export default function MyWorkScreen() {
                 <View style={styles.commitmentCard}>
                   <View style={styles.cardTop}>
                     <Text style={styles.privateLabel}>PRIVATE COACHING COMMITMENT</Text>
-                    <Feather name="lock" size={16} color={colors.primary} />
+                    <Feather name="lock" size={16} color={colors.readablePrimary} />
                   </View>
                   <Text style={styles.commitmentTitle}>{commitment}</Text>
                   <Text style={styles.commitmentBody}>Return to Coach when you are ready to review the outcome or set the next commitment.</Text>
                   <Pressable style={styles.commitmentAction} onPress={() => router.push("/(tabs)/coach" as never)} accessibilityRole="button">
                     <Text style={styles.commitmentActionText}>Open Coach</Text>
-                    <Feather name="arrow-right" size={17} color={colors.primary} />
+                    <Feather name="arrow-right" size={17} color={colors.readablePrimary} />
                   </Pressable>
                 </View>
               </>
@@ -227,7 +227,7 @@ function SavedReportRow({ report, onDelete }: { report: SavedCalculatorReport; o
   const route = report.kind === "activity" ? "/activity-calculator" : report.kind === "roi" ? "/roi-calculator" : report.kind === "rep-cost" ? "/rep-cost-calculator" : "/staffing";
   return <View style={styles.savedReport}>
     <Pressable accessibilityRole="button" accessibilityLabel={`Reopen ${report.title}`} onPress={() => router.push(route as never)} style={({ pressed }) => [styles.savedReportMain, pressed && styles.pressed]}>
-      <View style={styles.rowIcon}><Feather name="bar-chart-2" size={19} color={colors.primary} /></View>
+              <View style={styles.rowIcon}><Feather name="bar-chart-2" size={19} color={colors.readablePrimary} /></View>
       <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{report.title}</Text><Text style={styles.rowBody} numberOfLines={2}>{report.summary}</Text><Text style={styles.reportDate}>{new Date(report.createdAt).toLocaleDateString()}</Text></View>
       <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
     </Pressable>
@@ -252,26 +252,26 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     page: { paddingHorizontal: 22 },
     badge: { alignSelf: "flex-start", marginTop: 16, borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 11, paddingVertical: 7 },
-    badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1, ...font("bold") },
+    badgeText: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.3, marginTop: 22, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 5, ...font("regular") },
-    sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 36, marginBottom: 14, ...font("bold") },
+    sectionLabel: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.8, marginTop: 36, marginBottom: 14, ...font("bold") },
     sectionHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    openLibrary: { color: colors.primary, fontSize: 11, marginTop: 20, ...font("bold") },
+    openLibrary: { color: colors.readablePrimary, fontSize: 11, marginTop: 20, ...font("bold") },
     commitmentCard: { minHeight: 150, borderRadius: 22, borderCurve: "continuous", backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.borderStrong, padding: 18 },
     cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    privateLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
+    privateLabel: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
     commitmentTitle: { color: colors.foreground, fontSize: 19, lineHeight: 24, marginTop: 20, ...font("heavy") },
     commitmentBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 5, ...font("regular") },
     commitmentAction: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, marginTop: 14 },
-    commitmentActionText: { color: colors.primary, fontSize: 13, ...font("bold") },
+    commitmentActionText: { color: colors.readablePrimary, fontSize: 13, ...font("bold") },
     row: { minHeight: 94, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 15, marginBottom: 12 },
     rowIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
     rowTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     rowBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     savedReport: { flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
     savedReportMain: { flex: 1, minHeight: 92, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
-    reportDate: { color: colors.primary, fontSize: 9, marginTop: 5, ...font("bold") },
+    reportDate: { color: colors.readablePrimary, fontSize: 9, marginTop: 5, ...font("bold") },
     deleteReport: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
     downloadEmpty: { minHeight: 92, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
     loadingCard: { minHeight: 92, flexDirection: "row", gap: 10, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },

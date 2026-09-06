@@ -220,10 +220,10 @@ export default function ResourceWorkScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {loading ? (
-          <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
+          <ActivityIndicator color={colors.readablePrimary} style={{ marginTop: 40 }} />
         ) : (
           <>
-            <Text style={[{ color: colors.primary, fontSize: 11, letterSpacing: 1 }, font("bold")]}>
+            <Text style={[{ color: colors.readablePrimary, fontSize: 11, letterSpacing: 1 }, font("bold")]}>
               INTERACTIVE RESOURCE
             </Text>
             <Text style={[{ color: colors.foreground, fontSize: 22, marginTop: 6 }, font("heavy")]}>
@@ -250,7 +250,7 @@ export default function ResourceWorkScreen() {
               accessibilityLabel="Weekly plan completion checklist"
               testID="resource-work-completion-checklist"
             >
-              <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>
+              <Text style={[{ color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>
                 PREPARE · COMPLETE THE JOB
               </Text>
               <Text style={[{ color: colors.foreground, fontSize: 14, marginTop: 5 }, font("bold")]}>
@@ -262,7 +262,7 @@ export default function ResourceWorkScreen() {
                 "On Friday, mark the win kept, moved, or blocked before planning again.",
               ].map((step, index) => (
                 <Text key={step} style={[styles.checklistStep, { color: colors.mutedForeground }, font("regular")]}>
-                  <Text style={[{ color: colors.primary }, font("bold")]}>{index + 1}. </Text>
+                  <Text style={[{ color: colors.readablePrimary }, font("bold")]}>{index + 1}. </Text>
                   {step}
                 </Text>
               ))}
@@ -317,7 +317,7 @@ export default function ResourceWorkScreen() {
             />
 
             {message ? (
-              <Text style={[{ color: colors.primary, marginTop: 12, fontSize: 13 }, font("semibold")]}>
+              <Text style={[{ color: colors.readablePrimary, marginTop: 12, fontSize: 13 }, font("semibold")]}>
                 {message}
               </Text>
             ) : null}
@@ -333,7 +333,7 @@ export default function ResourceWorkScreen() {
                   style={styles.retry}
                   testID="button-retry-resource-work"
                 >
-                  <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Retry connection</Text>
+                  <Text style={[{ color: colors.readablePrimary, fontSize: 13 }, font("bold")]}>Retry connection</Text>
                 </Pressable>
               </View>
             ) : null}
@@ -356,13 +356,13 @@ export default function ResourceWorkScreen() {
                   styles.btn,
                   {
                     borderWidth: 1.5,
-                    borderColor: colors.primary,
+                    borderColor: colors.readablePrimary,
                     backgroundColor: "transparent",
                   },
                 ]}
                 testID="button-complete-resource-work"
               >
-                <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>
+                <Text style={[{ color: colors.readablePrimary, fontSize: 15 }, font("bold")]}>
                   Mark complete
                 </Text>
               </Pressable>
@@ -375,7 +375,7 @@ export default function ResourceWorkScreen() {
                 testID="button-resource-work-next-action"
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Next: open Sales Command Center</Text>
+                  <Text style={[{ color: colors.readablePrimary, fontSize: 13 }, font("bold")]}>Next: open Sales Command Center</Text>
                   <Text style={[{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }, font("regular")]}>
                     Start with Monday’s first priority account and confirm the next step.
                   </Text>

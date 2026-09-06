@@ -248,7 +248,7 @@ export default function LearnScreen() {
                 accessibilityRole="link"
               >
                 <View style={styles.featureHeader}>
-                  <View style={[styles.featureIcon, { backgroundColor: colors.primaryMuted }]}><Feather name="file-text" size={22} color={colors.primary} /></View>
+                  <View style={[styles.featureIcon, { backgroundColor: colors.primaryMuted }]}><Feather name="file-text" size={22} color={colors.readablePrimary} /></View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.featureTitle, { color: colors.foreground }, font("heavy")]}>{featured.title}</Text>
                     <Text style={[styles.featureBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={4}>{featured.description}</Text>
@@ -262,7 +262,7 @@ export default function LearnScreen() {
 
               {remainingArticles.length > 0 ? (
                 <View style={{ marginTop: 26 }}>
-                  <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LATEST</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>LATEST</Text>
                   {remainingArticles.map((article) => (
                     <LibraryRow
                       key={article.id}
@@ -284,7 +284,7 @@ export default function LearnScreen() {
 
           {!search ? (
             <View style={{ marginTop: 26 }}>
-              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>THE SPARTAN METHOD</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>THE SPARTAN METHOD</Text>
               {METHOD_LINKS.map((item) => (
                 <LibraryRow
                   key={item.path}
@@ -303,7 +303,7 @@ export default function LearnScreen() {
       {activeTab === "podcasts" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
           <LibraryModeIntro icon="headphones" title="Listen" body="Play complete audio briefings without leaving Spartan Coaching. Only episodes with working audio appear here." access="STANDARD" />
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LISTEN IN THE FIELD</Text>
+            <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>LISTEN IN THE FIELD</Text>
           <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Briefings worth the drive</Text>
           <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Practical conversations for the route between accounts.</Text>
           {podcastsQuery.isLoading ? <Loading /> : null}
@@ -326,7 +326,7 @@ export default function LearnScreen() {
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
           <LibraryModeIntro icon="folder" title="Use" body="Open approved field resources and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
-            <Feather name="shield" size={20} color={colors.primary} />
+            <Feather name="shield" size={20} color={colors.readablePrimary} />
             <View style={{ flex: 1 }}>
               <Text style={[styles.safetyTitle, { color: colors.foreground }, font("bold")]}>Keep every resource deidentified</Text>
               <Text style={[styles.safetyBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient names, dates of birth, medical record numbers, or other patient identifiers.</Text>
@@ -343,7 +343,7 @@ export default function LearnScreen() {
 
           {canUseFieldKit ? (
             <View style={{ marginTop: 24 }} testID="provider-resource-library">
-              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>YOUR ORGANIZATION</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>YOUR ORGANIZATION</Text>
               {providerQuery.isLoading ? <Loading compact /> : null}
               {!providerQuery.isLoading && providerItems.length === 0 ? <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>No private organization resources have been published.</Text> : null}
               {providerItems.map((item) => (
@@ -362,7 +362,7 @@ export default function LearnScreen() {
           ) : null}
 
           <View style={{ marginTop: 24 }}>
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>{(resourcesQuery.data?.ownershipLabel || "HOSPICE SALES PRO CORE").toUpperCase()}</Text>
+            <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>{(resourcesQuery.data?.ownershipLabel || "HOSPICE SALES PRO CORE").toUpperCase()}</Text>
             {resourcesQuery.isLoading ? <Loading /> : null}
             {resourcesQuery.error ? <EmptyState icon="alert-circle" title="Could not load resources" ctaTitle="Retry" onCta={() => void resourcesQuery.refetch()} /> : null}
             {!resourcesQuery.isLoading && !resourcesQuery.error && resources.length === 0 ? <EmptyState icon="folder" title="No resources yet" body="Published resources will appear here." ctaTitle={UX_WORKSPACE_IMPROVEMENTS ? "Open Tools" : undefined} onCta={UX_WORKSPACE_IMPROVEMENTS ? () => router.push("/(tabs)/tools") : undefined} /> : null}
@@ -425,7 +425,7 @@ function LibraryModeIntro({ icon, title, body, access }: { icon: React.Component
 
 function Loading({ compact = false }: { compact?: boolean }) {
   const colors = useColors();
-  return <View style={{ paddingVertical: compact ? 18 : 44, alignItems: "center" }}><ActivityIndicator color={colors.primary} /></View>;
+  return <View style={{ paddingVertical: compact ? 18 : 44, alignItems: "center" }}><ActivityIndicator color={colors.readablePrimary} /></View>;
 }
 
 function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: string; subtitle?: string; meta?: string; icon: React.ComponentProps<typeof Feather>["name"]; onPress?: () => void; testID?: string }) {
@@ -438,9 +438,9 @@ function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: s
       accessibilityRole={onPress ? "button" : "text"}
       style={({ pressed }) => [styles.row, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.9 : 1 }]}
     >
-      <View style={[styles.rowIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
+      <View style={[styles.rowIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.readablePrimary} /></View>
       <View style={{ flex: 1 }}>
-        {meta ? <Text style={[styles.rowMeta, { color: colors.primary }, font("bold")]}>{meta.toUpperCase()}</Text> : null}
+        {meta ? <Text style={[styles.rowMeta, { color: colors.readablePrimary }, font("bold")]}>{meta.toUpperCase()}</Text> : null}
         <Text style={[styles.rowTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
         {subtitle ? <Text style={[styles.rowBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={3}>{subtitle}</Text> : null}
       </View>

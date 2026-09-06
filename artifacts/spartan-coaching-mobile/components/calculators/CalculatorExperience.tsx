@@ -184,13 +184,13 @@ export function DecisionBrief({
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.brief}>
-      <View style={styles.briefHeader}><Feather name="compass" size={20} color={colors.primary} /><Text style={styles.briefTitle}>{title}</Text></View>
+      <View style={styles.briefHeader}><Feather name="compass" size={20} color={colors.readablePrimary} /><Text style={styles.briefTitle}>{title}</Text></View>
       <Text style={styles.briefBody}>{interpretation}</Text>
       <Text style={styles.nextLabel}>NEXT DECISIONS</Text>
       {actions.map((action, index) => (
         <View key={`${index}:${action}`} style={styles.actionLine}><Text style={styles.actionNumber}>{String(index + 1).padStart(2, "0")}</Text><Text style={styles.actionText}>{action}</Text></View>
       ))}
-      <View style={styles.caution}><Feather name="shield" size={15} color={colors.primary} /><Text style={styles.cautionText}>{caution}</Text></View>
+      <View style={styles.caution}><Feather name="shield" size={15} color={colors.readablePrimary} /><Text style={styles.cautionText}>{caution}</Text></View>
     </View>
   );
 }
@@ -221,7 +221,7 @@ export function CalculatorReportActions({
         <Text style={styles.actionButtonPrimaryText}>{saved ? "Saved to My Work" : "Save to My Work"}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Share report" onPress={() => void Share.share({ title, message: report })} style={({ pressed }) => [styles.actionButton, pressed && styles.pressed]}>
-        <Feather name="share" size={18} color={colors.primary} />
+        <Feather name="share" size={18} color={colors.readablePrimary} />
         <Text style={styles.actionButtonText}>Share report</Text>
       </Pressable>
     </View>
@@ -233,13 +233,13 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     hero: { backgroundColor: colors.heroBackground, borderRadius: 28, borderCurve: "continuous", padding: 22, overflow: "hidden" },
     heroTop: { flexDirection: "row", alignItems: "center", gap: 10 },
     heroIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-    heroEyebrow: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, ...font("bold") },
+    heroEyebrow: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.8, ...font("bold") },
     heroTitle: { color: colors.heroForeground, fontSize: 30, lineHeight: 35, letterSpacing: -0.8, marginTop: 22, ...font("heavy") },
     heroBody: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, marginTop: 9, ...font("regular") },
     heroRule: { height: 1, backgroundColor: "rgba(255,255,255,0.16)", marginTop: 20 },
     heroBoundary: { color: colors.heroMuted, fontSize: 10, lineHeight: 15, marginTop: 12, ...font("medium") },
     section: { marginTop: 28 },
-    sectionEyebrow: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, ...font("bold") },
+    sectionEyebrow: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 23, lineHeight: 28, letterSpacing: -0.5, marginTop: 6, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 5, ...font("regular") },
     sectionCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 22, borderCurve: "continuous", padding: 18, marginTop: 14 },
@@ -274,17 +274,17 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     briefHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
     briefTitle: { color: colors.foreground, fontSize: 18, ...font("heavy") },
     briefBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 20, marginTop: 10, ...font("regular") },
-    nextLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, marginTop: 20, marginBottom: 5, ...font("bold") },
+    nextLabel: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.6, marginTop: 20, marginBottom: 5, ...font("bold") },
     actionLine: { flexDirection: "row", gap: 11, paddingVertical: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
-    actionNumber: { color: colors.primary, fontSize: 10, ...font("heavy") },
+    actionNumber: { color: colors.readablePrimary, fontSize: 10, ...font("heavy") },
     actionText: { flex: 1, color: colors.foreground, fontSize: 12, lineHeight: 18, ...font("semibold") },
     caution: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: colors.primaryMuted, borderRadius: 14, padding: 12, marginTop: 10 },
     cautionText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 16, ...font("regular") },
     reportActions: { gap: 10, marginTop: 18 },
-    actionButton: { minHeight: 54, borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
+    actionButton: { minHeight: 54, borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: colors.readablePrimary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
     actionButtonPrimary: { backgroundColor: colors.primary },
     actionButtonSaved: { backgroundColor: colors.success, borderColor: colors.success },
-    actionButtonText: { color: colors.primary, fontSize: 14, ...font("bold") },
+    actionButtonText: { color: colors.readablePrimary, fontSize: 14, ...font("bold") },
     actionButtonPrimaryText: { color: "#FFFFFF", fontSize: 14, ...font("bold") },
     pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
   });

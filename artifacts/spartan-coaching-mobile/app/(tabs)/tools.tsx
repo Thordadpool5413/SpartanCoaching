@@ -226,7 +226,7 @@ function ToolsCatalogScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <BrandBackdrop />
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
+        <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
         <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the job in front of you, then open the right workspace. Library and My Work stay separate so nothing feels buried.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -265,10 +265,10 @@ function ToolsCatalogScreen() {
 
         {q.length >= 2 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
+            <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>SEARCH RESULTS</Text>
             {isSearching && remoteGroups.length === 0 ? (
               <View style={[styles.searchStateContainer, { borderColor: colors.border }]}>
-                <ActivityIndicator color={colors.primary} />
+                <ActivityIndicator color={colors.readablePrimary} />
                 <Text style={[styles.searchStateText, { color: colors.mutedForeground }, font("regular")]}>Searching library and tools...</Text>
               </View>
             ) : searchError ? (
@@ -276,7 +276,7 @@ function ToolsCatalogScreen() {
                 <Feather name="alert-circle" size={20} color={colors.destructive} />
                 <Text style={[styles.searchStateText, { color: colors.destructive }, font("regular")]}>Search unavailable.</Text>
                 <Pressable onPress={() => setRetryCount(c => c + 1)} style={styles.retryButton} accessibilityRole="button" accessibilityLabel="Retry search">
-                  <Text style={[styles.retryText, { color: colors.primary }, font("bold")]}>Retry</Text>
+                  <Text style={[styles.retryText, { color: colors.readablePrimary }, font("bold")]}>Retry</Text>
                 </Pressable>
               </View>
             ) : remoteGroups.length > 0 ? (
@@ -296,7 +296,7 @@ function ToolsCatalogScreen() {
         <View style={{ marginTop: q ? 0 : 4 }} testID="complete-tool-directory">
           <View style={styles.directoryHeading}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.readablePrimary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
               <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{category === "All" ? `All ${FIELD_KIT_TOOLS.length} tools` : `${category} tools`}</Text>
               <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Every tool is visible here. Choose a job, understand when to use it, and open the native iPhone experience.</Text>
             </View>
@@ -427,23 +427,23 @@ function NativeCatalogWorkflow({
   const colors = useColors();
   return (
     <View style={[styles.catalogWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
-      <Text style={[styles.catalogWorkflowMeta, { color: colors.primary }, font("bold")]}>{guide.phase.toUpperCase()} · FOR {guide.audience.toUpperCase()}</Text>
+            <Text style={[styles.catalogWorkflowMeta, { color: colors.readablePrimary }, font("bold")]}>{guide.phase.toUpperCase()} · FOR {guide.audience.toUpperCase()}</Text>
 
       <View style={styles.workflowAttributes}>
         <View style={styles.workflowAttribute}>
-          <Feather name="edit-3" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Feather name="edit-3" size={14} color={colors.readablePrimary} style={styles.workflowIcon} />
           <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Safe input:</Text> {guide.inputHint}</Text>
         </View>
         <View style={styles.workflowAttribute}>
-          <Feather name="file-text" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Feather name="file-text" size={14} color={colors.readablePrimary} style={styles.workflowIcon} />
           <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Output:</Text> {guide.outputPreview}</Text>
         </View>
         <View style={styles.workflowAttribute}>
-          <Feather name="save" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Feather name="save" size={14} color={colors.readablePrimary} style={styles.workflowIcon} />
           <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Saved:</Text> {guide.persistence}</Text>
         </View>
         <View style={styles.workflowAttribute}>
-          <Feather name="check-circle" size={14} color={colors.primary} style={styles.workflowIcon} />
+          <Feather name="check-circle" size={14} color={colors.readablePrimary} style={styles.workflowIcon} />
           <Text style={[styles.workflowText, { color: colors.foreground }, font("regular")]}><Text style={font("bold")}>Review:</Text> {guide.reviewCheckpoint}</Text>
         </View>
       </View>
@@ -455,8 +455,8 @@ function NativeCatalogWorkflow({
         />
         {nextTool ? (
           <Pressable onPress={() => onOpenTool(nextTool)} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.catalogWorkflowNext}>
-            <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Next step: {nextTool.title}</Text>
-            <Feather name="arrow-right" size={16} color={colors.primary} />
+            <Text style={[{ color: colors.readablePrimary, fontSize: 13 }, font("bold")]}>Next step: {nextTool.title}</Text>
+            <Feather name="arrow-right" size={16} color={colors.readablePrimary} />
           </Pressable>
         ) : null}
       </View>

@@ -454,7 +454,7 @@ export default function CoachScreen() {
   if (authLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={colors.readablePrimary} />
       </View>
     );
   }
@@ -507,7 +507,7 @@ export default function CoachScreen() {
                   testID={`coach-starter-${index + 1}`}
                 >
                   <Text style={styles.coachStarterText}>{starter}</Text>
-                  <Feather name="arrow-up-right" size={16} color={colors.primary} />
+                  <Feather name="arrow-up-right" size={16} color={colors.readablePrimary} />
                 </Pressable>
               ))}
             </View>
@@ -550,11 +550,11 @@ export default function CoachScreen() {
               style={styles.guidedRehearsalButton}
               testID="coach-begin-preparation"
             >
-              <Feather name="mic" size={18} color={colors.primary} />
+              <Feather name="mic" size={18} color={colors.readablePrimary} />
               <Text style={styles.guidedRehearsalText}>
                 Use guided voice rehearsal
               </Text>
-              <Feather name="chevron-right" size={18} color={colors.primary} />
+              <Feather name="chevron-right" size={18} color={colors.readablePrimary} />
             </Pressable>
           </View>
 
@@ -1472,7 +1472,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       borderBottomColor: colors.border,
     },
     sheetKicker: {
-      color: colors.primary,
+      color: colors.readablePrimary,
       fontSize: 10,
       letterSpacing: 1.6,
       ...font("bold"),

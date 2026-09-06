@@ -775,7 +775,7 @@ export default function SalesWorkflowScreen() {
                       ]}
                       testID={`schedule-pick-account-${account.id}`}
                     >
-                      <Text style={{ color: colors.primary, fontWeight: "800", width: 22 }}>
+                      <Text style={{ color: colors.readablePrimary, fontWeight: "800", width: 22 }}>
                         {selected ? "✓" : "○"}
                       </Text>
                       <View style={{ flex: 1 }}>
@@ -886,7 +886,7 @@ export default function SalesWorkflowScreen() {
             testID="input-account-search"
           />
           {loading && accounts.length === 0 ? (
-            <ActivityIndicator color={colors.primary} />
+            <ActivityIndicator color={colors.readablePrimary} />
           ) : filteredAccounts.length === 0 ? (
             <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>
               No accounts yet. Schedule a call to create the first ledger row.
@@ -909,7 +909,7 @@ export default function SalesWorkflowScreen() {
                     {accountListSubtitle(account)}
                   </Text>
                 </View>
-                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 12 }}>Schedule</Text>
+                <Text style={{ color: colors.readablePrimary, fontWeight: "700", fontSize: 12 }}>Schedule</Text>
               </Pressable>
             ))
           )}
@@ -983,7 +983,7 @@ export default function SalesWorkflowScreen() {
                       {csvPreview.rows.length} rows · {csvPreview.headers.length} columns
                     </Text>
                     {csvPreview.formulaCells.length > 0 ? (
-                      <Text style={{ color: colors.primary, marginTop: 6, fontSize: 12 }}>
+                      <Text style={{ color: colors.readablePrimary, marginTop: 6, fontSize: 12 }}>
                         {csvPreview.formulaCells.length} formula-like cells must be removed before
                         import.
                       </Text>
@@ -1068,7 +1068,7 @@ export default function SalesWorkflowScreen() {
           </View>
         ) : null}
 
-        {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
+        {!!error && <Text style={[styles.error, { color: colors.readablePrimary }]}>{error}</Text>}
 
         {roleplaySession && (
           <View
@@ -1235,7 +1235,7 @@ export default function SalesWorkflowScreen() {
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked }}
                   >
-                    <Text style={{ color: colors.primary, fontWeight: "800", width: 22 }}>
+                    <Text style={{ color: colors.readablePrimary, fontWeight: "800", width: 22 }}>
                       {checked ? "✓" : "○"}
                     </Text>
                     <View style={{ flex: 1 }}>
@@ -1294,7 +1294,7 @@ export default function SalesWorkflowScreen() {
         )}
 
         {loading ? (
-          <ActivityIndicator color={colors.primary} style={{ marginTop: 30 }} />
+          <ActivityIndicator color={colors.readablePrimary} style={{ marginTop: 30 }} />
         ) : data.calls.length === 0 ? (
           <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>No calls scheduled</Text>
@@ -1311,7 +1311,7 @@ export default function SalesWorkflowScreen() {
                 </Text>
                 {plan?.status === "draft" && (
                   <Pressable disabled={saving} onPress={() => buildPlan(plan)} style={[styles.secondary, { borderColor: colors.primary }]}>
-                    <Text style={{ color: colors.primary, fontWeight: "700" }}>Build connected plan</Text>
+                    <Text style={{ color: colors.readablePrimary, fontWeight: "700" }}>Build connected plan</Text>
                   </Pressable>
                 )}
                 {canStartWorkflowRoleplay(plan) && (
@@ -1328,9 +1328,9 @@ export default function SalesWorkflowScreen() {
                     testID={`button-start-roleplay-${plan!.id}`}
                   >
                     {roleplayBusy && !roleplaySession ? (
-                      <ActivityIndicator color={colors.primary} />
+                      <ActivityIndicator color={colors.readablePrimary} />
                     ) : (
-                      <Text style={{ color: colors.primary, fontWeight: "700" }}>
+                      <Text style={{ color: colors.readablePrimary, fontWeight: "700" }}>
                         Practice conversation
                       </Text>
                     )}
@@ -1355,9 +1355,9 @@ export default function SalesWorkflowScreen() {
                       style={[styles.secondary, { borderColor: colors.primary, opacity: draftingCallId === call.id ? 0.6 : 1 }]}
                     >
                       {draftingCallId === call.id ? (
-                        <ActivityIndicator color={colors.primary} />
+                        <ActivityIndicator color={colors.readablePrimary} />
                       ) : (
-                        <Text style={{ color: colors.primary, fontWeight: "700" }}>Draft debrief with AI</Text>
+                        <Text style={{ color: colors.readablePrimary, fontWeight: "700" }}>Draft debrief with AI</Text>
                       )}
                     </Pressable>
                     {draftMetaByCall[call.id] && (
@@ -1382,7 +1382,7 @@ export default function SalesWorkflowScreen() {
                           </Text>
                         ))}
                         {draftMetaByCall[call.id].flags.length > 0 && (
-                          <Text style={{ color: colors.primary, fontSize: 12, marginTop: 6, lineHeight: 17 }}>
+                          <Text style={{ color: colors.readablePrimary, fontSize: 12, marginTop: 6, lineHeight: 17 }}>
                             Review flags: {draftMetaByCall[call.id].flags.join(" · ")}
                           </Text>
                         )}
