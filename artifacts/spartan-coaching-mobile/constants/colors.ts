@@ -90,7 +90,12 @@ const light = {
 
 const mamba = {
   ...mambaBase,
-  primaryGradientEnd: "#552583",
+  primary: "#552583",
+  primaryForeground: "#D4D4D4",
+  primaryMuted: "rgba(85, 37, 131, 0.32)",
+  accent: "#FDB927",
+  accentForeground: "#1A1A1A",
+  primaryGradientEnd: "#FDB927",
   bronze: "#6E6E6E",
   mission: "#FDB927",
   time: "#D4D4D4",

@@ -40,8 +40,8 @@ describe("BG_PRESETS contrast contract", () => {
 
     expect(document.documentElement.dataset.themePreset).toBe("mamba");
     expect(document.documentElement.dataset.themeMode).toBe("dark");
-    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("42 98% 57%");
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe("271 56% 33%");
+    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("271 56% 33%");
+    expect(document.documentElement.style.getPropertyValue("--accent")).toBe("42 98% 57%");
     expect(localStorage.getItem("spartan_theme_preset")).toBe("mamba");
     expect(localStorage.getItem("spartan_theme")).toBe(JSON.stringify("dark"));
   });

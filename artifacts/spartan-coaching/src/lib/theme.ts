@@ -387,7 +387,7 @@ export function applyAppearance(
 
   // 4) Accent / brand — primary-foreground always contrasts with primary fill
   const primary = themePreset === "mamba"
-    ? "42 98% 57%"
+    ? "271 56% 33%"
     : effectiveMode === "dark"
       ? accentPreset.primaryDark
       : accentPreset.primaryLight;
@@ -395,8 +395,10 @@ export function applyAppearance(
   setVar("--primary", primary);
   // Gold is light on dark surfaces → dark label; otherwise white on brand color
   const primaryOnAccent =
-    themePreset === "mamba" || accent === "gold" || accent === "green"
-      ? "0 0% 10%"
+    themePreset === "mamba"
+      ? "0 0% 83%"
+      : accent === "gold" || accent === "green"
+        ? "0 0% 10%"
       : "0 0% 100%";
   setVar("--primary-foreground", primaryOnAccent);
   setVar("--ring", primary);
@@ -411,8 +413,8 @@ export function applyAppearance(
     setVar("--accent-foreground", surface.fg);
   }
   if (themePreset === "mamba") {
-    setVar("--accent", "271 56% 33%");
-    setVar("--accent-foreground", "0 0% 83%");
+    setVar("--accent", "42 98% 57%");
+    setVar("--accent-foreground", "0 0% 10%");
     setVar("--secondary", "271 56% 33%");
     setVar("--secondary-foreground", "0 0% 83%");
   }

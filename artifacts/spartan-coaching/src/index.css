@@ -2880,20 +2880,21 @@ html[data-theme-preset="mamba"] .workspace-premium {
   --muted-foreground: 0 0% 83%;
   --secondary: 271 56% 33%;
   --secondary-foreground: 0 0% 83%;
-  --accent: 271 56% 33%;
-  --accent-foreground: 0 0% 83%;
+  --accent: 42 98% 57%;
+  --accent-foreground: 0 0% 10%;
   --border: 0 0% 43%;
   --input: 0 0% 43%;
   --sidebar: 0 0% 7%;
   --sidebar-foreground: 0 0% 83%;
   --sidebar-border: 0 0% 43%;
-  --primary: 42 98% 57%;
-  --primary-foreground: 0 0% 10%;
-  --ring: 42 98% 57%;
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
+  --ring: 271 56% 33%;
   --color-bg: #1A1A1A;
   --color-surface: #242424;
   --color-surface-raised: #303030;
-  --color-primary: #FDB927;
+  --color-primary: #552583;
+  --color-accent: #FDB927;
   --color-text: #D4D4D4;
   --color-text-muted: #D4D4D4;
   --color-line: #6E6E6E;
@@ -2963,9 +2964,9 @@ html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar {
 
 html[data-theme-preset="mamba"] .workspace-premium .resources-premium > div:first-of-type,
 html[data-theme-preset="mamba"] .workspace-premium .resources-premium .shadcn-card {
-  --primary: 42 98% 57%;
-  --primary-foreground: 0 0% 10%;
-  --ring: 42 98% 57%;
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
+  --ring: 271 56% 33%;
   --input: 0 0% 43%;
   --border: 0 0% 43%;
   --muted-foreground: 0 0% 83%;
@@ -3104,16 +3105,16 @@ html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion {
   --card: 0 0% 94%;
   --card-foreground: 0 0% 10%;
   --border: 0 0% 43%;
-  --primary: 42 98% 57%;
-  --primary-foreground: 0 0% 10%;
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
   --secondary: 271 56% 33%;
   --secondary-foreground: 0 0% 83%;
   --muted: 0 0% 73%;
   --muted-foreground: 0 0% 10%;
-  --accent: 271 56% 33%;
-  --accent-foreground: 0 0% 83%;
+  --accent: 42 98% 57%;
+  --accent-foreground: 0 0% 10%;
   --input: 0 0% 43%;
-  --ring: 42 98% 57%;
+  --ring: 271 56% 33%;
 }
 
 html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion {
@@ -3122,16 +3123,16 @@ html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion {
   --card: 0 0% 14%;
   --card-foreground: 0 0% 83%;
   --border: 0 0% 43%;
-  --primary: 42 98% 57%;
-  --primary-foreground: 0 0% 10%;
+  --primary: 271 56% 33%;
+  --primary-foreground: 0 0% 83%;
   --secondary: 271 56% 33%;
   --secondary-foreground: 0 0% 83%;
   --muted: 0 0% 19%;
   --muted-foreground: 0 0% 83%;
-  --accent: 271 56% 33%;
-  --accent-foreground: 0 0% 83%;
+  --accent: 42 98% 57%;
+  --accent-foreground: 0 0% 10%;
   --input: 0 0% 43%;
-  --ring: 42 98% 57%;
+  --ring: 271 56% 33%;
 }
 
 html[data-theme-preset="mamba"] .bg-spartan-gradient,

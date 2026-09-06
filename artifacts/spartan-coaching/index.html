@@ -92,10 +92,10 @@
           root.style.colorScheme = mode;
           root.style.setProperty('--background', s.bg);
           root.style.setProperty('--foreground', s.fg);
-           root.style.setProperty('--primary', preset === 'mamba' ? '42 98% 57%' : mode === 'dark' ? '0 85% 58%' : '0 85% 48%');
-           root.style.setProperty('--primary-foreground', preset === 'mamba' ? '0 0% 10%' : '0 0% 100%');
-           root.style.setProperty('--accent', preset === 'mamba' ? '271 56% 33%' : mode === 'dark' ? '0 0% 18%' : '0 85% 94%');
-           root.style.setProperty('--accent-foreground', preset === 'mamba' ? '0 0% 83%' : root.style.getPropertyValue('--foreground'));
+            root.style.setProperty('--primary', preset === 'mamba' ? '271 56% 33%' : mode === 'dark' ? '0 85% 58%' : '0 85% 48%');
+            root.style.setProperty('--primary-foreground', preset === 'mamba' ? '0 0% 83%' : '0 0% 100%');
+            root.style.setProperty('--accent', preset === 'mamba' ? '42 98% 57%' : mode === 'dark' ? '0 0% 18%' : '0 85% 94%');
+            root.style.setProperty('--accent-foreground', preset === 'mamba' ? '0 0% 10%' : root.style.getPropertyValue('--foreground'));
           root.style.backgroundColor = 'hsl(' + s.bg + ')';
           root.style.color = 'hsl(' + s.fg + ')';
           root.dataset.themeMode = mode;
