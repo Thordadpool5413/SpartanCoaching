@@ -10,6 +10,8 @@ describe("Elite iOS experience contract", () => {
     const paletteSource = read("constants/colors.ts");
     const appearanceSource = read("lib/AppearanceContext.tsx");
     const rootLayout = read("app/_layout.tsx");
+    const coachSettings = read("components/coach/CoachSettingsPanel.tsx");
+    const account = read("app/(tabs)/account.tsx");
 
     expect(config.expo.userInterfaceStyle).toBe("automatic");
     expect(paletteSource).toContain('const dark = {');
@@ -23,6 +25,9 @@ describe("Elite iOS experience contract", () => {
     expect(appearanceSource).toContain('stored === "mamba"');
     expect(appearanceSource).toContain("Appearance.setColorScheme");
     expect(rootLayout).toContain("<AppearanceProvider>");
+    expect(coachSettings).toContain("color={colors.primaryForeground}");
+    expect(coachSettings).not.toContain('color="#FFFFFF"');
+    expect(account).toContain("color={colors.primaryForeground}");
   });
 
   it("uses five clear destinations and lets visitors understand the app before purchase", () => {

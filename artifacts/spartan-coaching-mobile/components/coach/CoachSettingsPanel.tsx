@@ -133,7 +133,7 @@ export function CoachSettingsPanel({
                   </Text>
                   {preference.responseStyle === responseStyle ? (
                     <View style={styles.selectedCheck}>
-                      <Feather name="check" size={14} color="#FFFFFF" />
+                      <Feather name="check" size={14} color={colors.primaryForeground} />
                     </View>
                   ) : null}
                 </Pressable>
@@ -165,12 +165,12 @@ export function CoachSettingsPanel({
                             : "target"
                   }
                   size={19}
-                  color={appearance === choice ? "#FFFFFF" : colors.foreground}
+                  color={appearance === choice ? colors.primaryForeground : colors.foreground}
                 />
                 <Text
                   style={[
                     styles.appearanceText,
-                    appearance === choice && styles.appearanceTextSelected,
+                    appearance === choice && { color: colors.primaryForeground },
                   ]}
                 >
                   {choice[0].toUpperCase() + choice.slice(1)}
@@ -311,7 +311,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       borderColor: colors.primary,
     },
     appearanceText: { color: colors.foreground, fontSize: 12, ...font("semibold") },
-    appearanceTextSelected: { color: "#FFFFFF" },
     privacyBar: {
       flexDirection: "row",
       alignItems: "flex-start",

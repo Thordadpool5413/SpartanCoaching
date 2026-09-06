@@ -92,7 +92,7 @@ export default function AccountScreen() {
         <Text style={styles.pageSubtitle}>You can tour the system and purchase through Apple before creating a Spartan account. Signing in connects membership, saved work, commitments, and preferences across your devices.</Text>
 
         <Pressable onPress={() => router.push("/access" as any)} style={styles.heroAction} accessibilityRole="button">
-          <View style={styles.heroIcon}><Feather name="grid" size={22} color="#FFFFFF" /></View>
+          <View style={styles.heroIcon}><Feather name="grid" size={22} color={colors.primaryForeground} /></View>
           <View style={{ flex: 1 }}><Text style={styles.heroActionTitle}>See everything in Spartan Coaching</Text><Text style={styles.heroActionBody}>Understand every destination and access level before you commit.</Text></View>
           <Feather name="chevron-right" size={20} color="#FFFFFF" />
         </Pressable>
@@ -208,7 +208,7 @@ export default function AccountScreen() {
 
       {isAdmin ? (
         <Pressable onPress={() => router.push("/admin" as any)} style={styles.adminCard} testID="account-admin-hero">
-          <View style={styles.adminIcon}><Feather name="shield" size={20} color="#FFFFFF" /></View>
+          <View style={styles.adminIcon}><Feather name="shield" size={20} color={colors.primaryForeground} /></View>
           <View style={{ flex: 1 }}><Text style={styles.adminTitle}>Organization Admin</Text><Text style={styles.adminBody}>Manage seats, members, invitations, roles, adoption, and explicitly shared information. Private Coach content is never exposed here.</Text></View>
           <Feather name="chevron-right" size={20} color={colors.primary} />
         </Pressable>
