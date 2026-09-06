@@ -501,7 +501,7 @@ function ResourceWorkflowNote({
         onPress={() => applyResourceWithSpartan({ title: resourceTitle, description: resourceDescription, whenToUse, expectedOutcome })}
         accessibilityRole="button"
         accessibilityLabel={`Apply ${resourceTitle} with Spartan`}
-        style={styles.resourceAiAction}
+        style={[styles.resourceAiAction, { backgroundColor: colors.primary }]}
       >
         <Feather name="zap" size={15} color="#FFFFFF" />
         <Text style={[styles.resourceAiActionText, font("bold")]}>Apply with Spartan</Text>

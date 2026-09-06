@@ -18,6 +18,7 @@ describe("Elite iOS experience contract", () => {
     expect(paletteSource).toContain('const light = {');
     expect(paletteSource).toContain('const mamba = {');
     expect(paletteSource).toContain('mission: "#FDB927"');
+    expect(paletteSource).toContain('primaryGradientEnd: "#552583"');
     expect(paletteSource).toContain('background: "#07111F"');
     expect(paletteSource).toContain('background: "#FCFAF6"');
     expect(paletteSource).not.toContain('background: "#171513"');

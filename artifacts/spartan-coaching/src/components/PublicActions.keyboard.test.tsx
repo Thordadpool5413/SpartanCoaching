@@ -93,4 +93,24 @@ describe("public keyboard actions", () => {
       expect(document.documentElement.style.getPropertyValue("--background")).toBe("40 45% 96%");
     });
   });
+
+  it("applies the Mamba brand preset through the real picker", async () => {
+    render(
+      <ThemeProvider>
+        <AppearanceControls />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /change theme colors/i }));
+    const mamba = await screen.findByRole("button", { name: "Use Mamba Mentality theme" });
+    fireEvent.click(mamba);
+
+    await waitFor(() => {
+      expect(mamba.getAttribute("aria-pressed")).toBe("true");
+      expect(document.documentElement.dataset.themePreset).toBe("mamba");
+      expect(document.documentElement.style.getPropertyValue("--primary")).toBe("42 98% 57%");
+      expect(document.documentElement.style.getPropertyValue("--accent")).toBe("271 56% 33%");
+      expect(localStorage.getItem("spartan_theme_preset")).toBe("mamba");
+    });
+  });
 });

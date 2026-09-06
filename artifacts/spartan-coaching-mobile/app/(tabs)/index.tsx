@@ -303,7 +303,7 @@ export default function HomeScreen() {
           testID={primaryDest.testID}
         >
           <LinearGradient
-            colors={[colors.primary, "#7E1022"]}
+            colors={[colors.primary, colors.primaryGradientEnd]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.primaryCard}

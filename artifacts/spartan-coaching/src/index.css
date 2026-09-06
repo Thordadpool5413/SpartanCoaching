@@ -2845,6 +2845,42 @@ html[data-theme-preset="mamba"][data-theme-mode="light"] [data-testid="section-h
   color: hsl(var(--primary)) !important;
 }
 
+html[data-theme-preset="mamba"] .bg-spartan-gradient {
+  background: linear-gradient(135deg, #552583 0%, #6f35a0 42%, #FDB927 100%) !important;
+}
+
+html[data-theme-preset="mamba"] .bg-spartan-gradient-subtle {
+  background: linear-gradient(135deg, rgb(85 37 131 / .22), rgb(253 185 39 / .12)) !important;
+}
+
+html[data-theme-preset="mamba"] .text-gradient-primary {
+  background: linear-gradient(120deg, #FDB927 0%, #D4D4D4 50%, #552583 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent !important;
+}
+
+html[data-theme-preset="mamba"] .text-spartan-red,
+html[data-theme-preset="mamba"] .page-persuasion [class*="text-red-"] {
+  color: #FDB927 !important;
+}
+
+html[data-theme-preset="mamba"] .page-persuasion [class*="border-red-"] {
+  border-color: #FDB927 !important;
+}
+
+html[data-theme-preset="mamba"] .page-persuasion [class*="bg-red-"],
+html[data-theme-preset="mamba"] .page-persuasion [class*="from-red-"] {
+  background-color: #FDB927 !important;
+  background-image: none !important;
+  color: #1A1A1A !important;
+}
+
+html[data-theme-preset="mamba"] .page-persuasion [class*="bg-red-"] *,
+html[data-theme-preset="mamba"] .page-persuasion [class*="from-red-"] * {
+  color: #1A1A1A !important;
+}
+
 html[data-theme-preset="mamba"] .workspace-premium {
   --workspace-panel: #1A1A1A;
   --workspace-panel-raised: #242424;
@@ -2911,6 +2947,36 @@ html[data-theme-preset="mamba"] .workspace-premium .resources-library-dock,
 html[data-theme-preset="mamba"] .workspace-premium .my-work-filter {
   background: #303030;
   border-color: #6E6E6E;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-topbar input,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-command-hero,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-next-card,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-card,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-utility-rail > a,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-strip,
+html[data-theme-preset="mamba"] .workspace-premium .command-dashboard-card,
+html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar,
+html[data-theme-preset="mamba"] .workspace-premium .command-flight-plan,
+html[data-theme-preset="mamba"] .workspace-premium .command-flight-step,
+html[data-theme-preset="mamba"] .workspace-premium .tools-search-dock,
+html[data-theme-preset="mamba"] .workspace-premium .tools-search-dock input,
+html[data-theme-preset="mamba"] .workspace-premium .tools-intent-card,
+html[data-theme-preset="mamba"] .workspace-premium .tools-catalog-disclosure,
+html[data-theme-preset="mamba"] .workspace-premium .resources-premium > div:first-of-type,
+html[data-theme-preset="mamba"] .workspace-premium .resources-library-dock,
+html[data-theme-preset="mamba"] .workspace-premium .resources-premium .shadcn-card,
+html[data-theme-preset="mamba"] .workspace-premium .coach-premium > div:first-of-type,
+html[data-theme-preset="mamba"] .workspace-premium .my-work-premium .my-work-hero,
+html[data-theme-preset="mamba"] .workspace-premium .my-work-premium .shadcn-card {
+  background: #242424 !important;
+  background-color: #242424 !important;
+  border-color: #6E6E6E !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-1,
+html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar {
+  background: linear-gradient(110deg, rgb(85 37 131 / .38), #242424 58%) !important;
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .resources-premium > div:first-of-type,

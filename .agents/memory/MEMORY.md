@@ -10,3 +10,4 @@
 - [Spartan web visual modes](spartan-web-visual-modes.md) — public pages use paper/ink/red; authenticated tools use a complete dark command scope, not inherited public tokens.
 - [Expo 57 monorepo constraints](expo57-monorepo.md) — align root peer contexts, avoid direct React Navigation imports, and clear Expo tokens for session login.
 - [Shared token declarations](shared-token-declarations.md) — rebuild composite token declarations when adding exports consumed by another workspace package.
+- [Named theme coverage](named-theme-coverage.md) — semantic palette tokens do not retheme surfaces that still hard-code brand gradients or colors.

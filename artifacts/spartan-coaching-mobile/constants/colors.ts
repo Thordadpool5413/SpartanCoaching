@@ -15,6 +15,7 @@ const dark = {
   cardElevated: "#13243A",
   cardForeground: "#FAF7F1",
   primary: "#F34D59",
+  primaryGradientEnd: "#7E1022",
   primaryForeground: "#FFFFFF",
   primaryMuted: "rgba(243, 77, 89, 0.14)",
   secondary: "#14263B",
@@ -55,6 +56,7 @@ const light = {
   cardElevated: "#FFFDF9",
   cardForeground: "#081424",
   primary: "#B6192A",
+  primaryGradientEnd: "#7E1022",
   primaryForeground: "#FFFFFF",
   primaryMuted: "rgba(182, 25, 42, 0.08)",
   secondary: "#F3EEE6",
@@ -88,6 +90,7 @@ const light = {
 
 const mamba = {
   ...mambaBase,
+  primaryGradientEnd: "#552583",
   bronze: "#6E6E6E",
   mission: "#FDB927",
   time: "#D4D4D4",
