@@ -10,7 +10,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, useColorScheme } from "react-native";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -21,7 +21,7 @@ import { trackMobileEvent } from "@/lib/analytics";
 import { fetchClientConfig } from "@/lib/clientConfig";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
-import { AppearanceProvider } from "@/lib/AppearanceContext";
+import { AppearanceProvider, useAppearancePreference } from "@/lib/AppearanceContext";
 import { LaunchExperience } from "@/components/LaunchExperience";
 import { CoachSessionProvider } from "@/lib/CoachSessionContext";
 import { VoiceActivityBanner } from "@/components/VoiceActivityBanner";
@@ -91,7 +91,6 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [launchVisible, setLaunchVisible] = useState(true);
   const completeLaunch = useCallback(() => setLaunchVisible(false), []);
   const [fontsLoaded, fontError] = useFonts(
@@ -126,7 +125,7 @@ export default function RootLayout() {
                 <AppOpenTracker />
                 <DeepLinkRouter />
                 <ActivationCeremony />
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <NativeChrome />
                 <GestureHandlerRootView style={{ flex: 1 }}>
                   <KeyboardProvider>
                     <VoiceActivityBanner />
@@ -141,4 +140,9 @@ export default function RootLayout() {
       </SafeAreaProvider>
     </AppearanceProvider>
   );
+}
+
+function NativeChrome() {
+  const { effectiveScheme } = useAppearancePreference();
+  return <StatusBar style={effectiveScheme === "dark" ? "light" : "dark"} />;
 }

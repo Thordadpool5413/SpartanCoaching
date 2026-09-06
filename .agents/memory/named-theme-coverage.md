@@ -7,4 +7,4 @@ Named themes must cover both semantic tokens and the brand utilities/components 
 
 **Why:** A theme can successfully persist and update CSS variables while still looking unchanged if high-visibility surfaces continue to use literal brand colors.
 
-**How to apply:** Add a real picker interaction test plus surface-level overrides or dynamic palette inputs for public pages, authenticated workspace cards, and mobile hero/resource actions.
+**How to apply:** Add a real picker interaction test, rebind any page wrapper that locally resets token variables, and use dynamic palette inputs for workspace cards, native chrome, and mobile hero/resource actions.

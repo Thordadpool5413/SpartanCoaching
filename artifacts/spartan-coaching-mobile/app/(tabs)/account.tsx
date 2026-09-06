@@ -94,7 +94,7 @@ export default function AccountScreen() {
         <Pressable onPress={() => router.push("/access" as any)} style={styles.heroAction} accessibilityRole="button">
           <View style={styles.heroIcon}><Feather name="grid" size={22} color={colors.primaryForeground} /></View>
           <View style={{ flex: 1 }}><Text style={styles.heroActionTitle}>See everything in Spartan Coaching</Text><Text style={styles.heroActionBody}>Understand every destination and access level before you commit.</Text></View>
-          <Feather name="chevron-right" size={20} color="#FFFFFF" />
+           <Feather name="chevron-right" size={20} color={colors.primaryForeground} />
         </Pressable>
 
         <SpartanButton title="Compare memberships and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 18 }} />

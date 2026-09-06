@@ -300,12 +300,12 @@ function ToolsCatalogScreen() {
               <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{category === "All" ? `All ${FIELD_KIT_TOOLS.length} tools` : `${category} tools`}</Text>
               <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Every tool is visible here. Choose a job, understand when to use it, and open the native iPhone experience.</Text>
             </View>
-            <View style={[styles.countBadge, { backgroundColor: colors.primary }]}><Text style={[styles.countNumber, font("heavy")]}>{visibleTools.length}</Text><Text style={[styles.countLabel, font("bold")]}>VISIBLE</Text></View>
+             <View style={[styles.countBadge, { backgroundColor: colors.primary }]}><Text style={[styles.countNumber, { color: colors.primaryForeground }, font("heavy")]}>{visibleTools.length}</Text><Text style={[styles.countLabel, { color: colors.primaryForeground }, font("bold")]}>VISIBLE</Text></View>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>
             {(["All", ...FIELD_KIT_CATEGORIES] as const).map((item) => {
               const active = category === item;
-              return <Pressable key={item} accessibilityRole="radio" accessibilityState={{ checked: active }} onPress={() => setCategory(item)} style={[styles.categoryChip, { backgroundColor: active ? colors.primary : colors.card, borderColor: active ? colors.primary : colors.borderStrong }]}><Text style={[styles.categoryLabel, { color: active ? "#FFFFFF" : colors.foreground }, font(active ? "bold" : "semibold")]}>{item}</Text></Pressable>;
+              return <Pressable key={item} accessibilityRole="radio" accessibilityState={{ checked: active }} onPress={() => setCategory(item)} style={[styles.categoryChip, { backgroundColor: active ? colors.primary : colors.card, borderColor: active ? colors.primary : colors.borderStrong }]}><Text style={[styles.categoryLabel, { color: active ? colors.primaryForeground : colors.foreground }, font(active ? "bold" : "semibold")]}>{item}</Text></Pressable>;
             })}
           </ScrollView>
           {toolGroups.map((group) => (
@@ -484,8 +484,8 @@ const styles = StyleSheet.create({
   destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   directoryHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   countBadge: { width: 60, height: 60, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
-  countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },
-  countLabel: { color: "rgba(255,255,255,0.78)", fontSize: 7, letterSpacing: 1.1 },
+   countNumber: { fontSize: 21, lineHeight: 23 },
+   countLabel: { fontSize: 7, letterSpacing: 1.1 },
   categoryRail: { gap: 8, paddingVertical: 6, paddingRight: 12, marginBottom: 12 },
   categoryChip: { minHeight: 44, justifyContent: "center", borderWidth: 1, borderRadius: 999, paddingHorizontal: 16 },
   categoryLabel: { fontSize: 12 },

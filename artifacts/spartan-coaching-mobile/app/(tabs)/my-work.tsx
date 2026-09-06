@@ -131,7 +131,7 @@ export default function MyWorkScreen() {
             <Text style={styles.emptyBody}>Choose Standard or Elite to save plans, downloads, and commitments across sessions.</Text>
             <Pressable style={styles.primaryButton} onPress={() => router.push("/membership" as never)}>
               <Text style={styles.primaryText}>Compare memberships</Text>
-              <Feather name="arrow-right" size={19} color="#FFFFFF" />
+               <Feather name="arrow-right" size={19} color={colors.primaryForeground} />
             </Pressable>
           </View>
         ) : (
@@ -286,7 +286,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     emptyTitle: { color: colors.foreground, fontSize: 20, marginTop: 16, ...font("heavy") },
     emptyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 6, ...font("regular") },
     primaryButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, borderRadius: 17, backgroundColor: colors.primary, marginTop: 18 },
-    primaryText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+     primaryText: { color: colors.primaryForeground, fontSize: 15, ...font("bold") },
     pressed: { opacity: 0.68 },
   });
 }

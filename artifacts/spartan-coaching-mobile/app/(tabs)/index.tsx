@@ -312,14 +312,14 @@ export default function HomeScreen() {
               <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.primaryKicker}>
                 RECOMMENDED NEXT MOVE
               </Text>
-              <Feather name="arrow-up-right" size={21} color="#FFFFFF" />
+               <Feather name="arrow-up-right" size={21} color={colors.heroForeground} />
             </View>
 
             <FieldLoopTreatment currentStage={nextMoveDecision.stage} styles={styles} />
 
             <View style={{ marginTop: 20 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <Feather name={primaryDest.icon} size={18} color="rgba(255,255,255,0.9)" />
+                <Feather name={primaryDest.icon} size={18} color={colors.heroForeground} />
                 <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.primaryTitle}>
                   {primaryDest.title}
                 </Text>
@@ -328,7 +328,7 @@ export default function HomeScreen() {
                 {primaryDest.description}
               </Text>
               <View style={styles.whyBox}>
-                 <Feather name="info" size={14} color="rgba(255,255,255,0.7)" />
+                  <Feather name="info" size={14} color={colors.heroMuted} />
                  <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.whyText}>
                    {nextMoveDecision.why}
                  </Text>
@@ -389,18 +389,18 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     primaryWrap: { marginTop: 24, borderRadius: 24, borderCurve: "continuous", shadowColor: colors.primary, shadowOpacity: 0.28, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } },
     primaryCard: { minHeight: 242, borderRadius: 24, borderCurve: "continuous", padding: 22, overflow: "hidden" },
     primaryTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    primaryIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.15)" },
-    primaryKicker: { color: "rgba(255,255,255,0.72)", fontSize: 9, letterSpacing: 1.7, ...font("bold") },
-    primaryTitle: { color: "#FFFFFF", fontSize: 27, lineHeight: 31, letterSpacing: -0.65, marginTop: 7, ...font("heavy") },
-    primaryBody: { color: "rgba(255,255,255,0.78)", fontSize: 13, lineHeight: 19, marginTop: 8, maxWidth: 470, ...font("regular") },
-    whyBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, marginTop: 16, backgroundColor: "rgba(0,0,0,0.15)", padding: 12, borderRadius: 12, borderCurve: "continuous" },
-    whyText: { color: "rgba(255,255,255,0.85)", fontSize: 12, lineHeight: 17, flex: 1, ...font("regular") },
+     primaryIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+     primaryKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
+     primaryTitle: { color: colors.heroForeground, fontSize: 27, lineHeight: 31, letterSpacing: -0.65, marginTop: 7, ...font("heavy") },
+     primaryBody: { color: colors.heroMuted, fontSize: 13, lineHeight: 19, marginTop: 8, maxWidth: 470, ...font("regular") },
+     whyBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, marginTop: 16, backgroundColor: colors.overlay, padding: 12, borderRadius: 12, borderCurve: "continuous" },
+     whyText: { color: colors.heroForeground, fontSize: 12, lineHeight: 17, flex: 1, ...font("regular") },
     loopContainer: { flexDirection: "row", gap: 6, marginTop: 28, marginBottom: 12 },
     loopStep: { flex: 1, gap: 6 },
-    loopBar: { height: 4, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 2 },
-    loopBarActive: { backgroundColor: "#FFFFFF" },
-    loopLabel: { color: "rgba(255,255,255,0.5)", fontSize: 9, letterSpacing: 0.8, ...font("bold") },
-    loopLabelActive: { color: "#FFFFFF" },
+     loopBar: { height: 4, backgroundColor: colors.border, borderRadius: 2 },
+     loopBarActive: { backgroundColor: colors.heroForeground },
+     loopLabel: { color: colors.heroMuted, fontSize: 9, letterSpacing: 0.8, ...font("bold") },
+     loopLabelActive: { color: colors.heroForeground },
     sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.65, marginTop: 34, marginBottom: 13, ...font("bold") },
     destinationList: { overflow: "hidden", borderRadius: 22, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
     destinationRow: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 13, paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },

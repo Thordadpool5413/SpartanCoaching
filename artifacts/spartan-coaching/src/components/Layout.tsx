@@ -347,8 +347,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="header-utility-control 2xl:hidden touch-manipulation border border-[#b9bbc1] bg-white !text-[#111522] hover:bg-[#f4f4f5]"
-            style={{ color: "#111522" }}
+             className="header-utility-control 2xl:hidden touch-manipulation border border-border bg-card text-card-foreground hover:bg-muted"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -358,7 +357,7 @@ export function Header() {
           {!isAuthenticated && (
             <Link
               href="/login"
-              className="header-login-control hidden 2xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-[#111522] hover:text-primary"
+               className="header-login-control hidden 2xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-foreground hover:text-primary"
               data-testid="button-login"
             >
               <LogIn className="w-4 h-4" />
@@ -391,8 +390,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-[#b9bbc1] bg-white px-3 !text-[#111522] hover:bg-[#f4f4f5]"
-                style={{ color: "#111522" }}
+                 className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-border bg-card px-3 text-card-foreground hover:bg-muted"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >

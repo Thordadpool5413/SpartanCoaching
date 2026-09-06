@@ -18,9 +18,11 @@ export function SignaturePad({ onSignatureChange, width = 400, height = 150 }: S
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#ffffff";
+     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-card").trim() || "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#111827";
+     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim()
+       ? `hsl(${getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim()})`
+       : "#111827";
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -74,9 +76,11 @@ export function SignaturePad({ onSignatureChange, width = 400, height = 150 }: S
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#ffffff";
+     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--theme-card").trim() || "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "#111827";
+     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim()
+       ? `hsl(${getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim()})`
+       : "#111827";
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -86,7 +90,7 @@ export function SignaturePad({ onSignatureChange, width = 400, height = 150 }: S
 
   return (
     <div className="space-y-2">
-      <div className="relative border rounded-md overflow-hidden bg-white" style={{ touchAction: "none" }}>
+       <div className="relative border rounded-md overflow-hidden bg-card" style={{ touchAction: "none" }}>
         <canvas
           ref={canvasRef}
           width={width}

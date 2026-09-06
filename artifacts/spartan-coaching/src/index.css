@@ -10,41 +10,22 @@
 
 /* Premium workspace language: shared by every authenticated surface. */
 .workspace-premium {
-  --workspace-panel: hsl(221 42% 10%);
-  --workspace-panel-raised: hsl(220 38% 13%);
-  --workspace-line: hsl(219 27% 23%);
-  --workspace-soft: hsl(216 22% 72%);
-  --background: 222 56% 5%;
-  --foreground: 210 30% 98%;
-  --card: 221 42% 10%;
-  --card-foreground: 210 30% 98%;
-  --card-border: 219 27% 23%;
-  --popover: 220 38% 13%;
-  --popover-foreground: 210 30% 98%;
-  --popover-border: 219 27% 23%;
-  --muted: 221 38% 15%;
-  --muted-foreground: 216 22% 72%;
-  --secondary: 221 38% 15%;
-  --secondary-foreground: 210 30% 98%;
-  --accent: 221 38% 18%;
-  --accent-foreground: 210 30% 98%;
-  --border: 219 27% 23%;
-  --input: 219 27% 23%;
-  --sidebar: 223 56% 6%;
-  --sidebar-foreground: 210 30% 98%;
-  --sidebar-border: 219 27% 23%;
-  --color-bg: hsl(222 56% 5%);
-  --color-surface: hsl(221 42% 10%);
-  --color-surface-raised: hsl(220 38% 13%);
+  --workspace-panel: hsl(var(--card));
+  --workspace-panel-raised: hsl(var(--secondary));
+  --workspace-line: hsl(var(--border));
+  --workspace-soft: hsl(var(--muted-foreground));
+  --color-bg: hsl(var(--background));
+  --color-surface: hsl(var(--card));
+  --color-surface-raised: hsl(var(--secondary));
   --color-primary: hsl(var(--primary));
-  --color-text: hsl(210 30% 98%);
-  --color-text-muted: hsl(216 22% 72%);
-  --color-line: hsl(219 27% 23%);
-  background-color: hsl(222 56% 5%);
+  --color-text: hsl(var(--foreground));
+  --color-text-muted: hsl(var(--muted-foreground));
+  --color-line: hsl(var(--border));
+  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   position: relative;
   isolation: isolate;
-  background: hsl(222 56% 5%);
+  background: hsl(var(--background));
 }
 
 .brand-backdrop { position: fixed; z-index: -1; inset: 88px 0 0 auto; width: var(--brand-backdrop-width); overflow: hidden; pointer-events: none; }
@@ -84,24 +65,24 @@
 }
 
 .workspace-premium .workspace-sidebar {
-  background: hsl(223 56% 6%);
+  background: hsl(var(--sidebar));
   box-shadow: 18px 0 60px rgb(0 0 0 / .22);
 }
 
 .workspace-premium .workspace-topbar {
-  background: hsl(223 56% 6% / .92);
+  background: hsl(var(--background) / .92);
   box-shadow: 0 12px 38px rgb(0 0 0 / .2);
 }
 
 .workspace-premium .workspace-topbar input {
   border-radius: 0;
-  background: hsl(221 39% 11%);
-  border-color: hsl(219 28% 23%);
+  background: hsl(var(--input));
+  border-color: hsl(var(--border));
 }
 
 .workspace-premium .shadcn-card {
   border-radius: 0;
-  border-color: hsl(219 27% 22%);
+  border-color: hsl(var(--border));
   box-shadow: 0 18px 45px rgb(0 0 0 / .16);
 }
 
@@ -2846,7 +2827,8 @@ html[data-theme-preset="mamba"][data-theme-mode="light"] [data-testid="section-h
 }
 
 html[data-theme-preset="mamba"] .bg-spartan-gradient {
-  background: linear-gradient(135deg, #552583 0%, #6f35a0 42%, #FDB927 100%) !important;
+  background: linear-gradient(135deg, #552583 0%, #6f35a0 45%, #FDB927 100%) !important;
+  color: #D4D4D4 !important;
 }
 
 html[data-theme-preset="mamba"] .bg-spartan-gradient-subtle {
@@ -2862,7 +2844,7 @@ html[data-theme-preset="mamba"] .text-gradient-primary {
 
 html[data-theme-preset="mamba"] .text-spartan-red,
 html[data-theme-preset="mamba"] .page-persuasion [class*="text-red-"] {
-  color: #FDB927 !important;
+  color: hsl(var(--primary)) !important;
 }
 
 html[data-theme-preset="mamba"] .page-persuasion [class*="border-red-"] {
@@ -2915,9 +2897,9 @@ html[data-theme-preset="mamba"] .workspace-premium {
   --color-text: #D4D4D4;
   --color-text-muted: #D4D4D4;
   --color-line: #6E6E6E;
-  background: #1A1A1A;
-  background-color: #1A1A1A;
-  color: #D4D4D4;
+  background: hsl(var(--background));
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 html[data-theme-preset="mamba"] .workspace-premium .workspace-sidebar,
@@ -2987,4 +2969,190 @@ html[data-theme-preset="mamba"] .workspace-premium .resources-premium .shadcn-ca
   --input: 0 0% 43%;
   --border: 0 0% 43%;
   --muted-foreground: 0 0% 83%;
+}
+
+/*
+ * Mamba semantic bridge.
+ *
+ * Public pages predate the appearance system and still carry literal red,
+ * paper, and white utility classes. Keep those pages visually authored while
+ * routing their brand roles through the active Mamba tokens.
+ */
+html[data-theme-preset="mamba"] main .page-persuasion,
+html[data-theme-preset="mamba"] main .surface-band {
+  color: hsl(var(--foreground));
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion .bg-white,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-gray-50,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-gray-100,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-slate-50,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-zinc-50 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion [class*="bg-red-"],
+html[data-theme-preset="mamba"] main .page-persuasion [class*="from-red-"],
+html[data-theme-preset="mamba"] main .page-persuasion [class*="via-red-"],
+html[data-theme-preset="mamba"] main .page-persuasion [class*="to-red-"] {
+  background-color: hsl(var(--primary)) !important;
+  background-image: none !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion [class*="border-red-"],
+html[data-theme-preset="mamba"] main .surface-band [class*="border-red-"] {
+  border-color: hsl(var(--primary)) !important;
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion [class*="text-red-"],
+html[data-theme-preset="mamba"] main .surface-band [class*="text-red-"],
+html[data-theme-preset="mamba"] main .page-persuasion [class*="text-[#e8291e]"],
+html[data-theme-preset="mamba"] main .page-persuasion [class*="text-[#C8102E]"] {
+  color: hsl(var(--primary)) !important;
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion .text-white,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/90,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/80,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/75,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/70,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/60,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/55,
+html[data-theme-preset="mamba"] main .page-persuasion .text-white\/50 {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] main .page-persuasion [class*="bg-red-"] .text-white,
+html[data-theme-preset="mamba"] main .page-persuasion [class*="from-red-"] .text-white,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-primary .text-white,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-primary .text-white\/80,
+html[data-theme-preset="mamba"] main .page-persuasion .bg-primary .text-white\/70 {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] main .surface-cta,
+html[data-theme-preset="mamba"] main [data-testid="section-faq-cta"] {
+  background: linear-gradient(135deg, #552583 0%, #552583 52%, #FDB927 150%) !important;
+  border-color: #FDB927 !important;
+  color: #D4D4D4 !important;
+}
+
+html[data-theme-preset="mamba"] main .surface-cta *,
+html[data-theme-preset="mamba"] main [data-testid="section-faq-cta"] * {
+  border-color: rgb(253 185 39 / .42);
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-command-hero,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-card,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-utility-rail > a,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-strip,
+html[data-theme-preset="mamba"] .workspace-premium .command-flight-plan,
+html[data-theme-preset="mamba"] .workspace-premium .tools-search-dock,
+html[data-theme-preset="mamba"] .workspace-premium .tools-intent-card,
+html[data-theme-preset="mamba"] .workspace-premium .tools-catalog-disclosure,
+html[data-theme-preset="mamba"] .workspace-premium .resources-premium > div:first-of-type,
+html[data-theme-preset="mamba"] .workspace-premium .coach-premium > div:first-of-type,
+html[data-theme-preset="mamba"] .workspace-premium .my-work-premium .my-work-hero {
+  background-color: hsl(var(--card)) !important;
+  background-image: none;
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-next-card,
+html[data-theme-preset="mamba"] .workspace-premium .command-flight-step,
+html[data-theme-preset="mamba"] .workspace-premium .resources-library-dock,
+html[data-theme-preset="mamba"] .workspace-premium .my-work-filter {
+  background-color: hsl(var(--secondary)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-mission-1,
+html[data-theme-preset="mamba"] .workspace-premium .command-focus-bar {
+  background: linear-gradient(110deg, hsl(var(--secondary) / .86), hsl(var(--card)) 66%) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .workspace-onboarding-icon,
+html[data-theme-preset="mamba"] .workspace-premium .workspace-primary-action,
+html[data-theme-preset="mamba"] .workspace-premium .command-dashboard-icon {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .text-white,
+html[data-theme-preset="mamba"] .workspace-premium .text-white\/90,
+html[data-theme-preset="mamba"] .workspace-premium .text-white\/80,
+html[data-theme-preset="mamba"] .workspace-premium .text-white\/70 {
+  color: hsl(var(--foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-primary,
+html[data-theme-preset="mamba"] .workspace-premium button.bg-primary,
+html[data-theme-preset="mamba"] .workspace-premium a.bg-primary {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+html[data-theme-preset="mamba"] .workspace-premium .bg-primary *,
+html[data-theme-preset="mamba"] .workspace-premium button.bg-primary *,
+html[data-theme-preset="mamba"] .workspace-premium a.bg-primary * {
+  color: inherit;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="light"] .page-persuasion {
+  --background: 0 0% 83%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 94%;
+  --card-foreground: 0 0% 10%;
+  --border: 0 0% 43%;
+  --primary: 42 98% 57%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 271 56% 33%;
+  --secondary-foreground: 0 0% 83%;
+  --muted: 0 0% 73%;
+  --muted-foreground: 0 0% 10%;
+  --accent: 271 56% 33%;
+  --accent-foreground: 0 0% 83%;
+  --input: 0 0% 43%;
+  --ring: 42 98% 57%;
+}
+
+html[data-theme-preset="mamba"][data-theme-mode="dark"] .page-persuasion {
+  --background: 0 0% 10%;
+  --foreground: 0 0% 83%;
+  --card: 0 0% 14%;
+  --card-foreground: 0 0% 83%;
+  --border: 0 0% 43%;
+  --primary: 42 98% 57%;
+  --primary-foreground: 0 0% 10%;
+  --secondary: 271 56% 33%;
+  --secondary-foreground: 0 0% 83%;
+  --muted: 0 0% 19%;
+  --muted-foreground: 0 0% 83%;
+  --accent: 271 56% 33%;
+  --accent-foreground: 0 0% 83%;
+  --input: 0 0% 43%;
+  --ring: 42 98% 57%;
+}
+
+html[data-theme-preset="mamba"] .bg-spartan-gradient,
+html[data-theme-preset="mamba"] .bg-spartan-gradient-subtle,
+html[data-theme-preset="mamba"] .bg-spartan-gradient-radial {
+  border-color: hsl(var(--primary) / .5);
+}
+
+html[data-theme-preset="mamba"] .bg-spartan-gradient .text-white,
+html[data-theme-preset="mamba"] .bg-spartan-gradient .text-white\/90,
+html[data-theme-preset="mamba"] .bg-spartan-gradient .text-white\/80,
+html[data-theme-preset="mamba"] .bg-spartan-gradient .text-white\/70 {
+  color: #D4D4D4 !important;
+}
+
+html[data-theme-preset="mamba"] [class*="border-black"],
+html[data-theme-preset="mamba"] [class*="border-gray-"],
+html[data-theme-preset="mamba"] [class*="border-zinc-"] {
+  border-color: hsl(var(--border)) !important;
+}
+
+html[data-theme-preset="mamba"] [class*="bg-black/"] {
+  background-color: rgb(26 26 26 / .86) !important;
 }

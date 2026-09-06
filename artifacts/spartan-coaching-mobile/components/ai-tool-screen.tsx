@@ -494,7 +494,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           {busy ? (
             <View accessibilityRole="progressbar" accessibilityLiveRegion="polite" style={{ alignItems: "center", gap: 6 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                <ActivityIndicator color="#FFFFFF" />
+                 <ActivityIndicator color={colors.primaryForeground} />
                 <Text style={styles.primaryButtonText}>{experience.progressStages[progressStage]}</Text>
               </View>
               <Text style={[styles.primaryButtonText, { fontSize: 11, opacity: 0.82 }]}>
@@ -504,7 +504,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           ) : (
             <>
               <Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text>
-              <Feather name="arrow-right" size={20} color="#FFFFFF" />
+               <Feather name="arrow-right" size={20} color={colors.primaryForeground} />
             </>
           )}
         </Pressable>
@@ -651,7 +651,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     errorCard: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderRadius: 13, backgroundColor: colors.muted, padding: 11 },
     error: { flex: 1, color: colors.destructive, fontSize: 10, lineHeight: 15, ...font("semibold") },
     primaryButton: { minHeight: 58, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18 },
-    primaryButtonText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+     primaryButtonText: { color: colors.primaryForeground, fontSize: 15, ...font("bold") },
     disabled: { opacity: 0.45 },
     skeletonCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 18, borderCurve: "continuous", padding: 16, gap: 10 },
     skeletonLine: { height: 12, borderRadius: 6, backgroundColor: colors.muted },

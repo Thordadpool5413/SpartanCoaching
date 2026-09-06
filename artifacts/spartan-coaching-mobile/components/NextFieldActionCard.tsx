@@ -52,7 +52,7 @@ export function NextFieldActionCard({
         testID={`${testID ?? `next-field-action-${action.toolId}`}-button`}
       >
         <Text style={styles.buttonText}>{action.label}</Text>
-        <Feather name="arrow-right" size={18} color="#FFFFFF" />
+         <Feather name="arrow-right" size={18} color={colors.primaryForeground} />
       </Pressable>
       <Text style={styles.note}>{action.persistenceNote}</Text>
     </View>
@@ -93,7 +93,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       alignItems: "center",
       justifyContent: "space-between",
     },
-    buttonText: { color: "#FFFFFF", fontSize: 13, ...font("bold") },
+     buttonText: { color: colors.primaryForeground, fontSize: 13, ...font("bold") },
     note: {
       color: colors.mutedForeground,
       fontSize: 10,

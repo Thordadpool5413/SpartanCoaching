@@ -48,7 +48,7 @@ export function SpartanCard({
           borderWidth: isEmphasis ? 1.5 : StyleSheet.hairlineWidth * 2,
           ...(Platform.OS === "ios"
             ? {
-                shadowColor: isEmphasis ? colors.primary : "#000",
+                 shadowColor: isEmphasis ? colors.primary : colors.background,
                 shadowOpacity: isEmphasis ? 0.28 : isQuiet ? 0.12 : 0.22,
                 shadowRadius: isEmphasis ? 16 : isQuiet ? 6 : 12,
                 shadowOffset: { width: 0, height: isQuiet ? 2 : 6 },

@@ -69,13 +69,13 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
           style={({ pressed }) => [styles.recommendedCard, pressed && styles.pressed]}
           testID="home-recommended-plan"
         >
-          <View style={styles.recommendedIcon}><Feather name="target" size={23} color="#FFFFFF" /></View>
+           <View style={styles.recommendedIcon}><Feather name="target" size={23} color={colors.primaryForeground} /></View>
           <View style={styles.recommendedCopy}>
             <Text style={styles.recommendedEyebrow}>PREPARE FOR THE ROOM</Text>
             <Text style={styles.recommendedTitle}>Plan the next conversation</Text>
             <Text style={styles.recommendedBody}>Set the purpose, likely resistance, talking points, and one clear next move.</Text>
           </View>
-          <Feather name="arrow-up-right" size={21} color="#FFFFFF" />
+           <Feather name="arrow-up-right" size={21} color={colors.heroForeground} />
         </Pressable>
 
         <Pressable
@@ -127,7 +127,7 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
             testID="button-choose-membership"
           >
             <Text style={styles.membershipButtonText}>Compare and subscribe through Apple</Text>
-            <Feather name="arrow-right" size={19} color="#FFFFFF" />
+             <Feather name="arrow-right" size={19} color={colors.primaryForeground} />
           </Pressable>
           <Text style={styles.purchaseNote}>{signedIn ? "Purchase securely through Apple." : "No Spartan account is required before Apple purchase."}</Text>
         </View>
@@ -210,7 +210,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     planPrice: { color: colors.primary, fontSize: 12, ...font("bold") },
     planValue: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 4, ...font("regular") },
     membershipButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.primary, paddingHorizontal: 14 },
-    membershipButtonText: { color: "#FFFFFF", fontSize: 14, textAlign: "center", ...font("bold") },
+     membershipButtonText: { color: colors.primaryForeground, fontSize: 14, textAlign: "center", ...font("bold") },
     purchaseNote: { color: colors.mutedForeground, fontSize: 10, textAlign: "center", ...font("regular") },
     consulting: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, marginTop: 12 },
     consultingText: { color: colors.primary, fontSize: 12, textAlign: "center", ...font("bold") },

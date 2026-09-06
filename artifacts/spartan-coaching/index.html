@@ -76,19 +76,32 @@
           var savedAccent = localStorage.getItem('spartan_accent');
           var accents = ['red', 'blue', 'green', 'gold', 'purple', 'slate'];
           var accent = savedAccent && accents.indexOf(savedAccent) >= 0 ? savedAccent : 'red';
+           var savedPreset = localStorage.getItem('spartan_theme_preset');
+           var preset = savedPreset === 'mamba' || savedPreset === 'custom' ? savedPreset : 'spartan';
           /* Force cache-bust class so new CSS is obvious after deploy */
           root.classList.add('spartan-elite-2026');
           var s = surfaces[bg] || surfaces.soft;
-          var mode = s.tone;
+           var mode = preset === 'mamba'
+             ? (localStorage.getItem('spartan_theme') === '"dark"' ? 'dark' : 'light')
+             : s.tone;
+           var mambaSurface = mode === 'dark'
+             ? { bg: '0 0% 10%', fg: '0 0% 83%' }
+             : { bg: '0 0% 83%', fg: '0 0% 10%' };
+           if (preset === 'mamba') s = mambaSurface;
           root.classList.toggle('dark', mode === 'dark');
           root.style.colorScheme = mode;
           root.style.setProperty('--background', s.bg);
           root.style.setProperty('--foreground', s.fg);
+           root.style.setProperty('--primary', preset === 'mamba' ? '42 98% 57%' : mode === 'dark' ? '0 85% 58%' : '0 85% 48%');
+           root.style.setProperty('--primary-foreground', preset === 'mamba' ? '0 0% 10%' : '0 0% 100%');
+           root.style.setProperty('--accent', preset === 'mamba' ? '271 56% 33%' : mode === 'dark' ? '0 0% 18%' : '0 85% 94%');
+           root.style.setProperty('--accent-foreground', preset === 'mamba' ? '0 0% 83%' : root.style.getPropertyValue('--foreground'));
           root.style.backgroundColor = 'hsl(' + s.bg + ')';
           root.style.color = 'hsl(' + s.fg + ')';
           root.dataset.themeMode = mode;
           root.dataset.bg = bg;
           root.dataset.accent = accent;
+           root.dataset.themePreset = preset;
         } catch (e) { /* private mode */ }
       })();
     </script>

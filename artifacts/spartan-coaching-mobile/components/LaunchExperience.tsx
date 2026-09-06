@@ -4,11 +4,13 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { font } from "@/lib/typography";
+import { useColors } from "@/hooks/useColors";
 
 const launchFilm = require("@/assets/videos/spartan-launch-film.mp4");
 
 export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
   const { reduceMotion } = useAccessibilityPrefs();
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(1)).current;
   const finishing = useRef(false);
@@ -53,7 +55,7 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
     <Animated.View
       accessibilityViewIsModal
       pointerEvents="auto"
-      style={[styles.root, { opacity }]}
+       style={[styles.root, { opacity, backgroundColor: colors.heroBackground }]}
       testID="launch-experience"
     >
       <VideoView
@@ -72,11 +74,11 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
           hitSlop={12}
           onPress={finish}
           style={({ pressed }) => [
-            styles.skip,
-            { top: insets.top + 10, opacity: pressed ? 0.72 : 1 },
+             styles.skip,
+             { top: insets.top + 10, opacity: pressed ? 0.72 : 1, backgroundColor: colors.overlay, borderColor: colors.borderStrong },
           ]}
         >
-          <Text style={styles.skipText}>SKIP</Text>
+           <Text style={[styles.skipText, { color: colors.heroForeground }]}>SKIP</Text>
         </Pressable>
       </View>
     </Animated.View>
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
   root: {
     ...StyleSheet.absoluteFill,
     zIndex: 1000,
-    backgroundColor: "#FFFFFF",
+     backgroundColor: "#1A1A1A",
   },
   skip: {
     position: "absolute",
@@ -97,12 +99,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: "rgba(7, 17, 31, 0.88)",
+     backgroundColor: "rgba(26, 26, 26, 0.88)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.28)",
+     borderColor: "rgba(212, 212, 212, 0.28)",
   },
   skipText: {
-    color: "#FFFFFF",
+     color: "#D4D4D4",
     fontSize: 11,
     letterSpacing: 1.4,
     ...font("bold"),

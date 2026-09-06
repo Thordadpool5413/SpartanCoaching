@@ -116,7 +116,7 @@ function EmailOptionCard({ option, index }: { option: EmailOption; index: number
         onPress={() => void copyEmail()}
         style={({ pressed }) => [styles.copyButton, pressed && styles.copyButtonPressed]}
       >
-        <Feather name={copied ? "check" : "copy"} size={16} color="#FFFFFF" />
+         <Feather name={copied ? "check" : "copy"} size={16} color={colors.primaryForeground} />
         <Text style={styles.copyButtonText}>{copied ? "Copied" : "Copy email"}</Text>
       </Pressable>
     </View>
@@ -278,7 +278,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     emailCard: { borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.background, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong, padding: 14, gap: 13 },
     emailHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
     emailNumber: { width: 34, height: 34, borderRadius: 12, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-    emailNumberText: { color: "#FFFFFF", fontSize: 13, ...font("bold") },
+     emailNumberText: { color: colors.primaryForeground, fontSize: 13, ...font("bold") },
     emailEyebrow: { color: colors.primary, fontSize: 8, letterSpacing: 1.25, ...font("bold") },
     emailTitle: { color: colors.foreground, fontSize: 15, lineHeight: 19, marginTop: 2, ...font("bold") },
     emailSubject: { borderRadius: 13, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 12, gap: 5 },
@@ -289,7 +289,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     coachingText: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 4, ...font("regular") },
     copyButton: { minHeight: 48, borderRadius: 14, backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
     copyButtonPressed: { opacity: 0.82 },
-    copyButtonText: { color: "#FFFFFF", fontSize: 12, ...font("bold") },
+     copyButtonText: { color: colors.primaryForeground, fontSize: 12, ...font("bold") },
     childLabel: { color: colors.mutedForeground, fontSize: 9, letterSpacing: 0.7, textTransform: "uppercase", marginBottom: 5, ...font("bold") },
   });
 }

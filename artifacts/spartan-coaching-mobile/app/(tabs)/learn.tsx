@@ -417,7 +417,7 @@ function LibraryModeIntro({ icon, title, body, access }: { icon: React.Component
   const colors = useColors();
   return (
     <View style={[styles.modeIntro, { backgroundColor: colors.heroBackground }]} testID={`library-mode-${title.toLowerCase()}`}>
-      <View style={[styles.modeIcon, { backgroundColor: colors.primary }]}><Feather name={icon} size={19} color="#FFFFFF" /></View>
+       <View style={[styles.modeIcon, { backgroundColor: colors.primary }]}><Feather name={icon} size={19} color={colors.primaryForeground} /></View>
       <View style={{ flex: 1 }}><View style={styles.modeTitleRow}><Text style={[styles.modeTitle, { color: colors.heroForeground }, font("heavy")]}>{title}</Text><Text style={[styles.modeAccess, { color: colors.heroMuted }, font("bold")]}>{access}</Text></View><Text style={[styles.modeBody, { color: colors.heroMuted }, font("regular")]}>{body}</Text></View>
     </View>
   );
@@ -503,9 +503,9 @@ function ResourceWorkflowNote({
         accessibilityLabel={`Apply ${resourceTitle} with Spartan`}
         style={[styles.resourceAiAction, { backgroundColor: colors.primary }]}
       >
-        <Feather name="zap" size={15} color="#FFFFFF" />
-        <Text style={[styles.resourceAiActionText, font("bold")]}>Apply with Spartan</Text>
-        <Feather name="arrow-right" size={15} color="#FFFFFF" />
+         <Feather name="zap" size={15} color={colors.primaryForeground} />
+         <Text style={[styles.resourceAiActionText, { color: colors.primaryForeground }, font("bold")]}>Apply with Spartan</Text>
+         <Feather name="arrow-right" size={15} color={colors.primaryForeground} />
       </Pressable>
     </View>
   );
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   resourceWorkflowBody: { fontSize: 10, lineHeight: 15, marginTop: 5 },
   resourceWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
   resourceAiAction: { minHeight: 44, marginTop: 10, borderRadius: 13, backgroundColor: "#C8102E", paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  resourceAiActionText: { color: "#FFFFFF", fontSize: 12 },
+   resourceAiActionText: { fontSize: 12 },
   modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
   modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },

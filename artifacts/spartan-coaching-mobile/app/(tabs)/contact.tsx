@@ -136,7 +136,7 @@ export default function ConsultingScreen() {
     return (
       <View style={[styles.screen, { paddingTop: topPad }]} testID="consulting-confirmation">
         <View style={styles.confirmation}>
-          <View style={styles.successIcon}><Feather name="check" size={28} color="#FFFFFF" /></View>
+           <View style={styles.successIcon}><Feather name="check" size={28} color={colors.primaryForeground} /></View>
           <Text style={styles.confirmationKicker}>REQUEST RECEIVED</Text>
           <Text style={styles.confirmationTitle}>The next conversation is now in motion.</Text>
           <Text style={styles.confirmationBody}>
@@ -172,7 +172,7 @@ export default function ConsultingScreen() {
       <View style={styles.content}>
         {confirmation ? (
           <View style={styles.recentCard} testID="consulting-saved-confirmation">
-            <View style={styles.recentIcon}><Feather name="check" size={18} color="#FFFFFF" /></View>
+             <View style={styles.recentIcon}><Feather name="check" size={18} color={colors.primaryForeground} /></View>
             <View style={{ flex: 1 }}><Text style={styles.recentTitle}>Request received</Text><Text style={styles.recentBody}>{confirmation.service} · {confirmation.availability} · {new Date(confirmation.submittedAt).toLocaleDateString()}</Text></View>
             <Pressable accessibilityRole="button" accessibilityLabel="Clear consulting confirmation" onPress={() => void clearConsultingConfirmation().then(() => setConfirmation(null))} style={styles.clearConfirmation}><Feather name="x" size={17} color={colors.mutedForeground} /></Pressable>
           </View>
@@ -198,7 +198,7 @@ export default function ConsultingScreen() {
                 ]}
               >
                 <View style={[styles.serviceIcon, selected && styles.serviceIconSelected]}>
-                  <Feather name={service.icon} size={20} color={selected ? "#FFFFFF" : colors.primary} />
+                   <Feather name={service.icon} size={20} color={selected ? colors.primaryForeground : colors.primary} />
                 </View>
                 <View style={styles.serviceCopy}>
                   <Text style={styles.serviceTitle}>{service.title}</Text>
@@ -259,7 +259,7 @@ export default function ConsultingScreen() {
           onPress={submit}
           style={({ pressed }) => [styles.submit, (!isValid || loading) && styles.disabled, pressed && isValid && styles.pressed]}
         >
-          {loading ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.submitText}>Request the conversation</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
+           {loading ? <ActivityIndicator color={colors.primaryForeground} /> : <><Text style={styles.submitText}>Request the conversation</Text><Feather name="arrow-right" size={20} color={colors.primaryForeground} /></>}
         </Pressable>
       </View>
     </KeyboardAwareScrollViewCompat>
@@ -328,7 +328,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     separationText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
     error: { color: colors.destructive, fontSize: 12, lineHeight: 18, ...font("semibold") },
     submit: { minHeight: 58, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.primary },
-    submitText: { color: "#FFFFFF", fontSize: 16, ...font("bold") },
+     submitText: { color: colors.primaryForeground, fontSize: 16, ...font("bold") },
     disabled: { opacity: 0.42 },
     pressed: { opacity: 0.8, transform: [{ scale: 0.995 }] },
     confirmation: { flex: 1, justifyContent: "center", paddingHorizontal: 26, gap: 14 },

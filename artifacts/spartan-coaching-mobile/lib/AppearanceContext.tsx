@@ -1,11 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Appearance } from "react-native";
+import { Appearance, useColorScheme } from "react-native";
 
 export type AppearancePreference = "system" | "light" | "dark" | "mamba";
 
 type AppearanceContextValue = {
   preference: AppearancePreference;
+  effectiveScheme: "light" | "dark";
+  hydrated: boolean;
   setPreference: (preference: AppearancePreference) => Promise<void>;
 };
 
@@ -13,6 +15,8 @@ const STORAGE_KEY = "spartan.appearance.preference.v1";
 
 const AppearanceContext = createContext<AppearanceContextValue>({
   preference: "system",
+  effectiveScheme: "light",
+  hydrated: false,
   setPreference: async () => undefined,
 });
 
@@ -24,6 +28,8 @@ function applyPreference(preference: AppearancePreference) {
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
   const [preference, setPreferenceState] = useState<AppearancePreference>("system");
+  const [hydrated, setHydrated] = useState(false);
+  const systemScheme = useColorScheme();
 
   useEffect(() => {
     let active = true;
@@ -33,6 +39,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
          stored === "light" || stored === "dark" || stored === "mamba" ? stored : "system";
       setPreferenceState(next);
       applyPreference(next);
+      setHydrated(true);
     });
     return () => {
       active = false;
@@ -46,8 +53,23 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     else await AsyncStorage.setItem(STORAGE_KEY, next);
   }, []);
 
-  const value = useMemo(() => ({ preference, setPreference }), [preference, setPreference]);
-  return <AppearanceContext.Provider value={value}>{children}</AppearanceContext.Provider>;
+  const effectiveScheme: "light" | "dark" =
+    preference === "mamba" || preference === "dark"
+      ? "dark"
+      : preference === "light"
+        ? "light"
+        : systemScheme === "dark"
+          ? "dark"
+          : "light";
+  const value = useMemo(
+    () => ({ preference, effectiveScheme, hydrated, setPreference }),
+    [preference, effectiveScheme, hydrated, setPreference],
+  );
+  return (
+    <AppearanceContext.Provider value={value}>
+      {children}
+    </AppearanceContext.Provider>
+  );
 }
 
 export function useAppearancePreference() {
