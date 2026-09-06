@@ -10,6 +10,16 @@ import {
   type SafeProductMetadata,
 } from "@workspace/field-kit-catalog";
 
+type ProjectAnalyticsData = Record<string, string | number | boolean>;
+
+declare global {
+  interface Window {
+    umami?: {
+      track(name: string, data?: ProjectAnalyticsData): void;
+    };
+  }
+}
+
 const QUEUE_KEY = "hsp_analytics_queue_v1";
 const DEDUPE_KEY = "hsp_analytics_dedupe_v1";
 const MAX_QUEUE = 40;
@@ -36,6 +46,53 @@ function writeJson(key: string, value: unknown): void {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // ignore quota
+  }
+}
+
+function token(value: string): string | null {
+  return /^[a-z0-9_]{1,49}$/.test(value) ? value : null;
+}
+
+/**
+ * Forward the existing privacy-safe event vocabulary to Replit-hosted
+ * analytics. The injected tracker is optional, so this must never affect the
+ * product event queue or user interactions.
+ */
+export function trackProjectEvent(
+  eventType: string,
+  eventName: string,
+  safeMeta: string | null,
+): void {
+  if (typeof window === "undefined" || !window.umami) return;
+
+  const name = token(eventType) ?? "project_event";
+  const data: ProjectAnalyticsData = {};
+  const action = token(eventName);
+
+  if (action) data.action = action;
+
+  if (safeMeta) {
+    try {
+      const parsed = JSON.parse(safeMeta) as Record<string, unknown>;
+      for (const [key, value] of Object.entries(parsed)) {
+        if (
+          typeof value === "string" ||
+          typeof value === "number" ||
+          typeof value === "boolean"
+        ) {
+          data[key] = value;
+        }
+      }
+    } catch {
+      // The server-safe metadata was already validated; never let analytics
+      // parsing affect the user flow.
+    }
+  }
+
+  try {
+    window.umami.track(name, data);
+  } catch {
+    // Analytics must never break the app.
   }
 }
 
@@ -100,6 +157,7 @@ export async function flushAnalyticsQueue(): Promise<void> {
 export function trackEvent(eventType: string, eventName: string, metadata?: string | SafeProductMetadata | null) {
   const safeMeta = sanitizeAnalyticsMetadata(metadata ?? null);
   if (shouldDedupe(eventType, eventName, safeMeta)) return;
+  trackProjectEvent(eventType, eventName, safeMeta);
 
   const evt: QueuedEvent = {
     eventType,
