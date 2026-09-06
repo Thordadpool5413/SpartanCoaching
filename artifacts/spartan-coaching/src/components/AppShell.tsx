@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { AppearanceControls } from "@/components/AppearanceControls";
-import { BrandBackdrop } from "@/components/BrandBackdrop";
 import {
   primaryWorkspaceNav,
   utilityWorkspaceNav,
@@ -130,35 +129,39 @@ function SidebarBody({
 
   return (
     <div className="flex flex-col h-full">
-      <div className={cn("px-3 py-4 border-b border-border/60", collapsed && "px-2")}>
+      <div className={cn("px-4 py-5 border-b border-border/60", collapsed && "px-3")}>
         <Link
           href="/portal"
           onClick={onNavigate}
-          className="flex items-center gap-2 min-w-0"
+          className="flex items-center gap-3 min-w-0 group"
           data-testid="workspace-brand"
         >
-          <span
-            className="brand-helmet-mark h-10 w-10"
-            role="img"
-            aria-label="Spartan Coaching helmet"
-          />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+            <span
+              className="brand-helmet-mark h-8 w-8"
+              role="img"
+              aria-label="Spartan Coaching helmet"
+            />
+          </div>
           {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-primary">
+            <div className="min-w-0 flex flex-col justify-center">
+              <p className="text-[9px] font-extrabold tracking-widest uppercase text-primary mb-0.5">
                 Hospice Sales Pro
               </p>
-              <p className="text-sm font-bold text-foreground truncate leading-tight" title="Workspace">
+              <p className="text-sm font-bold text-foreground truncate leading-none">
                 Workspace
               </p>
             </div>
           )}
         </Link>
         {!collapsed && (
-          <p className="mt-2 text-[11px] text-muted-foreground leading-snug">
-            {canUseFieldKit
-              ? organization?.name || "Member workspace"
-              : "Account · subscribe to unlock live tools"}
-          </p>
+          <div className="mt-4 px-1">
+            <p className="text-[10px] text-muted-foreground leading-snug font-medium">
+              {canUseFieldKit
+                ? organization?.name || "Member workspace"
+                : "Account · subscribe to unlock live tools"}
+            </p>
+          </div>
         )}
       </div>
 
@@ -346,7 +349,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
-      <BrandBackdrop />
       {/* Desktop sidebar */}
       <aside
         className={cn(

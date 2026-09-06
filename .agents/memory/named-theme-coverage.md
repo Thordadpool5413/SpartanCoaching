@@ -32,3 +32,9 @@ Mamba purple is a dark-mode surface role, not a universal foreground or card col
 **Why:** Unconditional Mamba card and label overrides caused light mode to render silver text on silver/gray panels while leaving workspace chrome dark, making the saved light setting functionally unreadable.
 
 **How to apply:** Scope Mamba card, sidebar, topbar, and utility overrides by `data-theme-mode`; preserve purple fills for selected/primary states, and pair each surface with its semantic foreground instead of raw purple text.
+
+Authenticated routes that reuse a public presentation wrapper must reassert workspace semantic foregrounds at the `.workspace-premium` boundary.
+
+**Why:** A public muted-copy rule remained more specific than the base theme utility and made Explore descriptions unreadable even though the dark Mamba tokens were correct.
+
+**How to apply:** When a route can render under both public and authenticated shells, inspect computed styles in both contexts and keep the workspace correction scoped under `.workspace-premium`.

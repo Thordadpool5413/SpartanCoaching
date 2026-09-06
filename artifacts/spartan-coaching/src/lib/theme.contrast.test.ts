@@ -54,12 +54,12 @@ describe("BG_PRESETS contrast contract", () => {
     applyAppearance("light", "gold", "soft", "mamba");
 
     const root = document.documentElement.style;
-    expect(root.getPropertyValue("--background")).toBe("0 0% 83%");
+    expect(root.getPropertyValue("--background")).toBe("0 0% 96%");
     expect(root.getPropertyValue("--foreground")).toBe("0 0% 10%");
-    expect(root.getPropertyValue("--card")).toBe("0 0% 96%");
+    expect(root.getPropertyValue("--card")).toBe("0 0% 100%");
     expect(root.getPropertyValue("--card-foreground")).toBe("0 0% 10%");
-    expect(root.getPropertyValue("--muted")).toBe("0 0% 73%");
-    expect(root.getPropertyValue("--muted-foreground")).toBe("0 0% 10%");
+    expect(root.getPropertyValue("--muted")).toBe("0 0% 90%");
+    expect(root.getPropertyValue("--muted-foreground")).toBe("0 0% 43%");
     expect(root.getPropertyValue("--sidebar")).toBe("0 0% 94%");
     expect(root.getPropertyValue("--sidebar-foreground")).toBe("0 0% 10%");
   });

@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { BrandBackdrop } from "./BrandBackdrop";
 import { WorkspaceGuide } from "./WorkspaceGuide";
 import { ExpandableText } from "./ui/ExpandableText";
 
@@ -9,11 +8,9 @@ const source = (relative: string) =>
   readFileSync(new URL(relative, import.meta.url), "utf8");
 
 describe("REQ-UX-001 core workspace actions", () => {
-  it("renders the decorative backdrop without exposing duplicate brand text", () => {
-    render(<BrandBackdrop />);
-    const backdrop = screen.getByTestId("brand-backdrop");
-    expect(backdrop.getAttribute("aria-hidden")).toBe("true");
-    expect(backdrop.querySelector("img")?.getAttribute("alt")).toBe("");
+  it("keeps workspace branding contained instead of rendering a full-page backdrop", () => {
+    expect(source("./AppShell.tsx")).not.toMatch(/BrandBackdrop|brand-backdrop/);
+    expect(source("./AppShell.tsx")).toContain('data-testid="workspace-brand"');
   });
 
   it.each([

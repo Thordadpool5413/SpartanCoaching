@@ -22,9 +22,6 @@
   --font-size-300: 1rem;
   --font-size-400: 1.25rem;
   --font-size-500: clamp(2rem, 4vw, 3.75rem);
-  --brand-backdrop-opacity: 0.05;
-  --brand-backdrop-width: min(34vw, 32.5rem);
-  --brand-backdrop-width-small: 72vw;
 }
 
 @media (prefers-reduced-motion: reduce) {
