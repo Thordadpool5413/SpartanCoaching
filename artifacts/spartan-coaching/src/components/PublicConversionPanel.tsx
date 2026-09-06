@@ -18,6 +18,7 @@ type PublicConversionPanelProps = {
   audience: string;
   promise: string;
   evidence: string;
+  nextStep?: string;
   primary: PublicAction;
   secondary?: PublicAction;
   showOfferPaths?: boolean;
@@ -34,6 +35,7 @@ export function PublicConversionPanel({
   audience,
   promise,
   evidence,
+  nextStep = "Follow the primary action above. The next page will keep access, timing, and any information needed explicit.",
   primary,
   secondary,
   showOfferPaths = false,
@@ -93,6 +95,10 @@ export function PublicConversionPanel({
               <p className="text-center text-xs leading-relaxed text-muted-foreground">
                 {PRICING_FACTS.consultingSeparate}
               </p>
+              <div className="public-conversion-next-step">
+                <p className="text-kicker">What happens next</p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground">{nextStep}</p>
+              </div>
             </div>
           </div>
 

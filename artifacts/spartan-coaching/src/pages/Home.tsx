@@ -12,7 +12,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
-import { FieldBriefExperience } from "@/components/FieldBriefExperience";
+import { FieldBriefExperience, Pathfinder } from "@/components/FieldBriefExperience";
 import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
 import founderPhoto from "@assets/nick-photo.jpg";
 import { useEffect, useRef, useState } from "react";
@@ -164,6 +164,39 @@ function HeroSystemPanel() {
   );
 }
 
+function HomePathfinder() {
+  return (
+    <section
+      id="homepage-pathfinder"
+      className="border-b border-border bg-muted py-12 sm:py-16"
+      aria-labelledby="homepage-pathfinder-title"
+      data-testid="section-homepage-pathfinder"
+    >
+      <div className="mx-auto grid max-w-7xl items-start gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 lg:px-8">
+        <div className="max-w-xl">
+          <p className="text-kicker">Choose your next move</p>
+          <h2
+            id="homepage-pathfinder-title"
+            className="mt-4 text-3xl font-display font-black tracking-tight text-foreground sm:text-5xl"
+          >
+            Start with the work in front of <span className="text-primary">you.</span>
+          </h2>
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">
+            The right Spartan path depends on your responsibility today. Choose the closest brief and
+            get a specific next step—no account required.
+          </p>
+          <div className="mt-8 grid gap-3 border-t border-border pt-5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground sm:grid-cols-3 lg:grid-cols-1">
+            <span><span className="text-primary">01</span> Identify the work</span>
+            <span><span className="text-primary">02</span> See the fit</span>
+            <span><span className="text-primary">03</span> Take the next step</span>
+          </div>
+        </div>
+        <Pathfinder />
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <div className="page-persuasion public-home flex flex-col bg-background text-foreground font-sans">
@@ -228,14 +261,14 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none">
-                  <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
-                    Explore consulting
+                  <Link href="#homepage-pathfinder" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_pathfinder")}>
+                    Find your Spartan path
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted">
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
-                    See Hospice Sales Pro
+                    Preview Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
@@ -273,6 +306,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <HomePathfinder />
 
       {/* CAPABILITY STRIP */}
       <section className="border-b border-border bg-card">
@@ -319,7 +354,7 @@ export default function Home() {
         </div>
       </section>
 
-      <FieldBriefExperience />
+      <FieldBriefExperience includePathfinder={false} />
 
       <section className="relative border-y border-border bg-card py-24 sm:py-32" data-testid="section-stakes">
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">

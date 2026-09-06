@@ -206,6 +206,7 @@ export default function Contact() {
           audience="Hospice professionals and provider leaders deciding whether coaching, a program, or team access fits."
           promise="A prepared discovery conversation with the service context kept with the request."
           evidence="A human review and scheduling options within one business day; no PHI is requested."
+          nextStep="Complete the three short steps below. Nick reviews your context and sends scheduling options within one business day."
           primary={{ label: "Complete the request below", href: "#contact-form", token: "complete_request" }}
           secondary={{ label: "Review data practices", href: "/trust", token: "trust_center" }}
           className="mb-10"

@@ -428,6 +428,7 @@ export default function FieldKitMembership() {
         audience="Individual hospice sales professionals who need daily field preparation, practice, and planning tools."
         promise="Use the same permitted Hospice Sales Pro account on web and iPhone, with live tools after subscription."
         evidence={`${PRICING_FACTS.previewNote} ${PRICING_FACTS.individualBillingNote}`}
+        nextStep="Create an account to begin the existing access flow, or request team/evaluation access if your organization needs a reviewed path."
         primary={{ label: "Create account for Hospice Sales Pro", href: "/register", token: "create_account" }}
         secondary={{ label: "Request team or evaluation access", href: "/request-access", token: "team_access" }}
       />

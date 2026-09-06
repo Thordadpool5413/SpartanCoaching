@@ -192,7 +192,7 @@ function trackPublicAction(token: string) {
   trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, `home:${token}`);
 }
 
-function Pathfinder() {
+export function Pathfinder() {
   const [selectedId, setSelectedId] = useState<PathfinderOption["id"]>(() => {
     const role = new URLSearchParams(window.location.search).get("role");
     return role === "team" || role === "combined" ? role : "field";
@@ -453,7 +453,7 @@ function FieldBriefTour() {
   );
 }
 
-export function FieldBriefExperience() {
+export function FieldBriefExperience({ includePathfinder = true }: { includePathfinder?: boolean }) {
   return (
     <section
       className="field-brief-section"
@@ -475,17 +475,19 @@ export function FieldBriefExperience() {
           </p>
         </div>
 
-        <div className="field-brief-main-grid">
-          <div className="field-brief-route field-brief-route-full">
-            <p className="field-brief-label">Start with the work in front of you</p>
-            <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground"><AccentText>Find the right Spartan path in under a minute.</AccentText></h3>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              No generic funnel. Choose the role closest to your current responsibility and get a
-              specific next step with clear expectations.
-            </p>
-            <Pathfinder />
+        {includePathfinder ? (
+          <div className="field-brief-main-grid">
+            <div className="field-brief-route field-brief-route-full">
+              <p className="field-brief-label">Start with the work in front of you</p>
+              <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground"><AccentText>Find the right Spartan path in under a minute.</AccentText></h3>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                No generic funnel. Choose the role closest to your current responsibility and get a
+                specific next step with clear expectations.
+              </p>
+              <Pathfinder />
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <FieldBriefTour />
       </div>

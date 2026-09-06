@@ -29,9 +29,9 @@ describe("consulting and workspace coexistence", () => {
     expect(workspace).toContain("/tools/sales-workflow");
   });
 
-  it("routes the homepage consulting exploration to services", () => {
+  it("routes the homepage choice to the pathfinder and keeps consulting available", () => {
     const home = read("../pages/Home.tsx");
-    expect(home).toMatch(/href=\"\/services\"[\s\S]{0,300}Explore consulting/);
+    expect(home).toMatch(/href=\"#homepage-pathfinder\"[\s\S]{0,300}Find your Spartan path/);
     expect(home).toContain("View consulting services");
   });
 });

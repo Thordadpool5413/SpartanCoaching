@@ -553,6 +553,7 @@ export default function RequestAccess() {
         audience="Hospice companies seeking contracted seats or visitors applying for an arranged evaluation."
         promise="A personally reviewed access path with clear evaluation timing and an explicit next step."
         evidence={`${PRICING_FACTS.evaluationNote} ${PRICING_FACTS.teamNote}`}
+        nextStep="Submit the form above. Nick reviews each request within one business day, then sends the appropriate secure setup or evaluation instructions."
         primary={{ label: "Submit an access request above", href: "#request-access-form", token: "complete_request" }}
         secondary={{ label: "Choose individual Hospice Sales Pro", href: "/hospice-sales-pro", token: "individual_path" }}
       />

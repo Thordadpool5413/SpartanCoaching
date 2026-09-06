@@ -715,6 +715,7 @@ export default function Services() {
         audience="Hospice reps, sales leaders, and provider organizations with a specific execution or growth problem."
         promise="A scoped engagement with live coaching, practical deliverables, and a next-step plan."
         evidence="Services are organized by role and delivery format; the first conversation confirms fit before scope is set."
+        nextStep="Choose a service path and submit the short discovery form. Nick reviews the context and sends scheduling options within one business day."
         primary={{ label: "Book a strategy call", href: "/contact?service=Consulting", token: "strategy_call" }}
         secondary={{ label: "See structured programs", href: "/programs", token: "programs" }}
       />

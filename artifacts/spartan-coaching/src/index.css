@@ -1790,6 +1790,12 @@ body {
     gap: 1rem;
   }
 
+  .public-conversion-next-step {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid hsl(var(--primary) / 0.35);
+  }
+
   @container (min-width: 36rem) {
     .public-conversion-details {
       grid-template-columns: repeat(3, minmax(0, 1fr));
