@@ -43,7 +43,6 @@ import {
   type UniversalSearchHit,
 } from "@/lib/universalSearchClient";
 import { recordPersonalizationEvent } from "@/lib/personalizationClient";
-import "@/styles/workspace.css";
 
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
