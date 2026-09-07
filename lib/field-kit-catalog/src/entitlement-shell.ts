@@ -9,6 +9,7 @@ export type EntitlementShellId =
   | "active"
   | "active_canceling"
   | "platform_active"
+  | "reviewer_active"
   | "company_active"
   | "comp_active"
   | "expired"
@@ -74,6 +75,7 @@ export function resolveEntitlementShell(input: EntitlementShellInput): Entitleme
   if (status === "trial") return "trial";
 
   if (status === "active" || input.fieldKitAllowed) {
+    if (plan === "reviewer_elite") return "reviewer_active";
     if (type === "company") return "company_active";
     if (plan === "comp") return "comp_active";
     if (input.cancelAtPeriodEnd) return "active_canceling";
@@ -147,6 +149,23 @@ export function entitlementShellCopy(
         restoreNote:
           "Sign in with this same platform account on web or iPhone to continue with the same access.",
         benefits: PLATFORM_BENEFITS,
+      };
+    case "reviewer_active":
+      return {
+        id,
+        chip: "App Review · Elite access · no charge",
+        title: "Apple reviewer access active",
+        body: "All Standard and Elite features are unlocked for App Store review. This account is not billed.",
+        primaryCta: "Open Portal",
+        secondaryCta: "Open Coach",
+        restoreNote:
+          "Use these same reviewer credentials on iPhone and web. Restore Purchases remains available in the iPhone Account screen for testing.",
+        benefits: [
+          "Private Spartan Coach and Elite workflows",
+          "Command Center and every field tool",
+          "Saves and checklist synced web ↔ iPhone",
+          "No customer subscription or billing",
+        ],
       };
     case "company_active":
       return {
