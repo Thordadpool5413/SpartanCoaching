@@ -54,6 +54,24 @@ describe("entitlement shell (craft Phase 4)", () => {
     ).toBe("active_canceling");
   });
 
+  it("maps the Apple reviewer to non-billed Elite review access", () => {
+    const id = resolveEntitlementShell({
+      isAuthenticated: true,
+      orgStatus: "active",
+      orgType: "personal",
+      billingPlan: "reviewer_elite",
+      hasPaidSubscription: false,
+      fieldKitAllowed: true,
+    });
+    const copy = entitlementShellCopy(id);
+
+    expect(id).toBe("reviewer_active");
+    expect(copy.chip).toContain("Elite access");
+    expect(copy.body).toContain("not billed");
+    expect(copy.restoreNote).toContain("Restore Purchases");
+    expect(`${copy.title} ${copy.body}`).not.toMatch(/\$14\.99|manage billing|subscription active/i);
+  });
+
   it("maps company seat", () => {
     expect(
       resolveEntitlementShell({
@@ -88,6 +106,7 @@ describe("entitlement shell (craft Phase 4)", () => {
       "trial",
       "active",
       "platform_active",
+      "reviewer_active",
       "expired",
       "suspended",
       "locked",
