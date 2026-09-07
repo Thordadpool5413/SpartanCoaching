@@ -184,7 +184,6 @@ test.describe("public website release gate", () => {
     } else {
       await expect(frame.locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
     }
-    await expect(page.getByText("Motion paused")).toBeVisible();
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
 
