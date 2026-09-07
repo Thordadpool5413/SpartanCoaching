@@ -99,7 +99,7 @@ function NavLinkRow({
         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors min-h-11",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
-          ? "bg-primary/15 text-primary"
+          ? "bg-accent/80 text-accent-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
         collapsed && "justify-center px-2",
       )}
@@ -129,34 +129,31 @@ function SidebarBody({
 
   return (
     <div className="flex flex-col h-full">
-      <div className={cn("px-4 py-5 border-b border-border/60", collapsed && "px-3")}>
+      <div className={cn("workspace-brand-zone border-b border-border/60", collapsed && "is-collapsed")}>
         <Link
           href="/portal"
           onClick={onNavigate}
-          className="flex items-center gap-3 min-w-0 group"
+          className="workspace-brand-link group"
           data-testid="workspace-brand"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
-            <span
-              className="brand-helmet-mark h-8 w-8"
-              role="img"
-              aria-label="Spartan Coaching helmet"
+          {collapsed ? (
+            <img
+              src="/spartan-logo.png"
+              alt="Spartan Coaching"
+              className="workspace-brand-mark"
             />
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 flex flex-col justify-center">
-              <p className="text-[9px] font-extrabold tracking-widest uppercase text-primary mb-0.5">
-                Hospice Sales Pro
-              </p>
-              <p className="text-sm font-bold text-foreground truncate leading-none">
-                Workspace
-              </p>
-            </div>
+          ) : (
+            <img
+              src="/spartan-logo.jpg"
+              alt="Spartan Coaching — Expert Hospice Sales Training"
+              className="workspace-brand-lockup"
+            />
           )}
         </Link>
         {!collapsed && (
-          <div className="mt-4 px-1">
-            <p className="text-[10px] text-muted-foreground leading-snug font-medium">
+          <div className="workspace-brand-context">
+            <p className="workspace-brand-product">Hospice Sales Pro</p>
+            <p className="workspace-brand-account">
               {canUseFieldKit
                 ? organization?.name || "Member workspace"
                 : "Account · subscribe to unlock live tools"}
@@ -345,28 +342,28 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="workspace-premium flex min-h-screen bg-background text-foreground"
+      className="workspace-premium flex min-h-screen text-foreground"
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "workspace-sidebar hidden md:flex flex-col border-r border-border/80 bg-card/40 shrink-0 transition-[width] duration-200",
-          collapsed ? "w-[4.25rem]" : "w-60 lg:w-64",
+          "workspace-sidebar hidden md:flex flex-col shrink-0 transition-[width] duration-200",
+          collapsed ? "w-[4.75rem]" : "w-[17rem]",
         )}
         data-testid="workspace-sidebar"
       >
         <SidebarBody collapsed={collapsed} />
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="workspace-frame flex-1 flex flex-col min-w-0">
         {/* Top bar */}
         <header
-          className="workspace-topbar sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md safe-area-top"
+          className="workspace-topbar sticky top-0 z-40 safe-area-top"
           data-testid="workspace-topbar"
         >
-          <div className="flex items-center gap-2 sm:gap-3 h-14 px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center gap-2 sm:gap-3 h-16 px-3 sm:px-4 lg:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -379,13 +376,18 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-[min(100vw,20rem)]">
+              <SheetContent side="left" className="workspace-mobile-sheet p-0 w-[min(100vw,20rem)]">
                 <SheetHeader className="sr-only">
                   <SheetTitle>Workspace menu</SheetTitle>
                 </SheetHeader>
                 <SidebarBody onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
+
+            <Link href="/portal" className="workspace-mobile-brand md:hidden" aria-label="Spartan Coaching workspace home">
+              <img src="/spartan-logo.png" alt="" aria-hidden />
+              <span><strong>Spartan</strong><small>Hospice Sales Pro</small></span>
+            </Link>
 
             <Button
               variant="ghost"
@@ -550,7 +552,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </header>
 
-        <main id="main-content" className="flex-1 min-w-0" tabIndex={-1}>
+        <main id="main-content" className="workspace-main flex-1 min-w-0" tabIndex={-1}>
           {children}
         </main>
         <footer className="workspace-footer" aria-label="Workspace footer">

@@ -145,7 +145,7 @@ export default function Tools() {
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
             <p className="text-xs text-muted-foreground leading-relaxed mb-2">
-              <span className="font-semibold uppercase tracking-wide text-primary">
+              <span className="font-semibold uppercase tracking-wide text-highlight">
                 {getToolWorkGuide(tool).phase}
               </span>
               {" · "}
@@ -190,7 +190,7 @@ export default function Tools() {
 
       {UX_WORKSPACE_IMPROVEMENTS ? (
         <Card className="mb-8 border border-border/80 bg-card p-5" data-testid="tools-how-to-choose">
-          <p className="text-xs font-black uppercase tracking-widest text-primary">How to choose</p>
+          <p className="text-xs font-black uppercase tracking-widest text-highlight">How to choose</p>
           <h2 className="mt-1 text-xl font-black text-foreground"><AccentText>Start with the result you need</AccentText></h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Search the situation, choose the best-matched workspace, complete its primary action, then save or continue the result in My Work. If you are unsure, start with Command or ask Coach.</p>
           <div className="mt-4 flex flex-wrap gap-2"><Button asChild><Link href="/tools/sales-workflow">Open Command</Link></Button><Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div>
@@ -206,7 +206,7 @@ export default function Tools() {
           ].map(({ icon: Icon, title, body, href, action, testId }) => (
             <Card key={title} className="flex h-full flex-col border border-primary/20 bg-primary/[0.04] p-5">
               <div className="flex items-start gap-3">
-                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground"><Icon className="h-5 w-5" /></div>
+                <div className="rounded-xl bg-accent p-2.5 text-accent-foreground"><Icon className="h-5 w-5" /></div>
                 <div><p className="font-black text-foreground">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p></div>
               </div>
               <Button asChild variant="outline" className="mt-4 min-h-11 font-bold">
@@ -234,16 +234,16 @@ export default function Tools() {
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Live generation on field tools
+                      <span className="text-highlight font-bold">✓</span> Live generation on field tools
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
+                      <span className="text-highlight font-bold">✓</span> Command Center for today’s visits
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                      <span className="text-highlight font-bold">✓</span> Saves synced to iPhone
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
+                      <span className="text-highlight font-bold">✓</span> Cancel anytime · same seat
                     </li>
                   </ul>
                 </div>
@@ -273,7 +273,7 @@ export default function Tools() {
       {showCatalogGate && (
         <SlideUp delay={0.08}>
           <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+            <p className="text-xs font-bold tracking-widest text-highlight uppercase mb-3">
               Sample output — Objection Handler
             </p>
             <p className="text-sm text-muted-foreground mb-2">
@@ -314,14 +314,14 @@ export default function Tools() {
           <section className="tools-intent-map mb-12" data-testid="tools-intent-map">
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
-                <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
+                <p className="text-xs font-bold tracking-widest text-highlight uppercase mb-1">
                   Start with the job
                 </p>
                 <h2 className="text-h2 text-foreground"><AccentText>Professional entry points</AccentText></h2>
               </div>
               <Link
                 href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
-                className="text-sm font-semibold text-primary hover:underline"
+                className="text-sm font-semibold text-highlight hover:underline"
                 data-testid="link-field-resources-from-tools"
               >
                   Templates & guides →
@@ -339,7 +339,7 @@ export default function Tools() {
                     {intent.description}
                   </p>
                   {intent.destinations[0] ? (
-                    <Link href={intent.destinations[0].webPath} className="mt-4 inline-flex min-h-10 items-center text-sm font-bold text-primary hover:underline">
+                    <Link href={intent.destinations[0].webPath} className="mt-4 inline-flex min-h-10 items-center text-sm font-bold text-highlight hover:underline">
                       {intent.destinations[0].label}<ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   ) : null}
@@ -361,7 +361,7 @@ export default function Tools() {
         <Card className="tools-catalog-disclosure border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-bold tracking-widest text-primary uppercase">Full workspace</p>
+              <p className="text-xs font-bold tracking-widest text-highlight uppercase">Full workspace</p>
               <h2 className="mt-1 text-xl font-display font-bold text-foreground"><AccentText>Know the tool you want?</AccentText></h2>
               <p className="mt-1 text-sm text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
             </div>
@@ -395,14 +395,14 @@ export default function Tools() {
             const locked = showCatalogGate && !command.public;
             return (
               <section data-testid="tools-hero-command">
-                <Card className="border border-primary/40 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 sm:p-8 shadow-elite-red overflow-hidden relative">
+                <Card className="border border-primary/40 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 sm:p-8 shadow-xl shadow-primary/10 overflow-hidden relative">
                   <div className="relative flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
                     <div className="flex gap-4 min-w-0">
-                      <div className="p-3.5 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30 shrink-0">
+                      <div className="p-3.5 rounded-2xl bg-accent text-accent-foreground shadow-md shadow-primary/30 shrink-0">
                         {TOOL_ICONS["sales-workflow"] ?? <Calculator className="w-8 h-8" />}
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
+                        <p className="text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-highlight">
                           Next action spine · same as iPhone Command
                         </p>
                         <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>{command.title}</AccentText></h2>

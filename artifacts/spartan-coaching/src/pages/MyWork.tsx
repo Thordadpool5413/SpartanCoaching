@@ -268,20 +268,20 @@ export default function MyWork() {
           <section className="grid gap-4 md:grid-cols-2">
             <Link href="/my-work/elite-outputs" className="block">
               <Card className="h-full border-primary/25 p-6 transition hover:border-primary hover:shadow-md">
-                <Shield className="h-6 w-6 text-primary" />
+                <Shield className="h-6 w-6 text-highlight" />
                 <h2 className="mt-4 text-xl font-black"><AccentText>Saved Elite outputs</AccentText></h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">Review completed advanced, nonclinical tool results and reopen the tool that created them.</p>
-                <span className="mt-5 inline-flex items-center text-sm font-bold text-primary">Open Elite outputs <ArrowRight className="ml-2 h-4 w-4" /></span>
+                <span className="mt-5 inline-flex items-center text-sm font-bold text-highlight">Open Elite outputs <ArrowRight className="ml-2 h-4 w-4" /></span>
               </Card>
             </Link>
             <Link href="/portal/coach" className="block">
               <Card className="h-full p-6 transition hover:border-primary hover:shadow-md">
-                <Target className="h-6 w-6 text-primary" />
+                <Target className="h-6 w-6 text-highlight" />
                 <h2 className="mt-4 text-xl font-black"><AccentText>Current commitment</AccentText></h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {continuity?.commitment?.value || "Open Coach and make one clear commitment for the next field action."}
                 </p>
-                <span className="mt-5 inline-flex items-center text-sm font-bold text-primary">Open Coach <ArrowRight className="ml-2 h-4 w-4" /></span>
+                <span className="mt-5 inline-flex items-center text-sm font-bold text-highlight">Open Coach <ArrowRight className="ml-2 h-4 w-4" /></span>
               </Card>
             </Link>
           </section>
@@ -315,7 +315,7 @@ export default function MyWork() {
 
           {savedCount === 0 ? (
             <Card className="p-10 text-center">
-              <CheckCircle2 className="mx-auto h-8 w-8 text-primary" />
+              <CheckCircle2 className="mx-auto h-8 w-8 text-highlight" />
               <h2 className="mt-4 text-xl font-black"><AccentText>Your next piece of work starts in Tools</AccentText></h2>
               <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">Build a plan, run a calculator, use an interactive resource, or complete an Elite tool. Saved continuity returns here.</p>
               <Button asChild className="mt-5"><Link href="/tools">Open Tools</Link></Button>
@@ -341,11 +341,11 @@ function WorkLink({ href, icon, title, description, meta }: { href: string; icon
   return (
     <Link href={href} className="block">
       <Card className="flex h-full min-h-28 items-center gap-4 p-5 transition hover:border-primary hover:shadow-sm">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent-foreground">{icon}</span>
         <span className="min-w-0 flex-1">
           <span className="block font-bold">{title}</span>
           {description ? <span className="mt-1 block break-words text-sm text-muted-foreground">{description}</span> : null}
-          <span className="mt-2 block text-xs font-semibold text-primary">{meta}</span>
+          <span className="mt-2 block text-xs font-semibold text-highlight">{meta}</span>
         </span>
         <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
       </Card>
