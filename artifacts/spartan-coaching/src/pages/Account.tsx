@@ -20,7 +20,7 @@ import {
 } from "@/lib/billingClient";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
-import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
+import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, REVIEWER_ELITE_PLAN } from "@workspace/field-kit-catalog";
 import { AccountDayZero } from "@/components/AccountDayZero";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { platformAccountCopy } from "@/lib/accountAccessCopy";
@@ -187,9 +187,11 @@ export default function Account() {
   const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
   const billingPlan = billingOrg?.billingPlan || org?.billingPlan;
   const billingProvider = billingOrg?.billingProvider || org?.billingProvider;
-  const isElite = billingPlan === "individual_weekly_elite" || billingPlan === "corporate_contract_elite";
+  const isReviewer = billingPlan === REVIEWER_ELITE_PLAN || billingProvider === "reviewer";
+  const isElite = isReviewer || billingPlan === "individual_weekly_elite" || billingPlan === "corporate_contract_elite";
   const hasAppleSubscription = billingProvider === "apple";
   const hasPaidSub =
+    !isReviewer &&
     Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription || hasAppleSubscription) &&
     (billingOrg?.billingStatus === "active" ||
       billingOrg?.billingStatus === "trialing" ||
@@ -206,6 +208,7 @@ export default function Account() {
     isPersonal &&
     !isPlatform &&
     !isComp &&
+    !isReviewer &&
     !hasPaidSub &&
     (org?.status === "trial" ||
       org?.status === "expired" ||
@@ -214,6 +217,7 @@ export default function Account() {
       !org?.status);
   const canPortal =
     !isPlatform &&
+    !isReviewer &&
     (Boolean(billing?.canOpenPortal) ||
       Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer));
 
@@ -221,6 +225,8 @@ export default function Account() {
   const statusLabel =
     isPlatform
       ? platformCopy.statusLabel
+      : isReviewer
+        ? "App Review · Elite access · no charge"
       : org?.status === "trial"
       ? "Hospice Sales Pro · evaluation"
       : org?.status === "active"
@@ -240,6 +246,8 @@ export default function Account() {
   const membershipBlurb =
     isPlatform
       ? platformCopy.membershipBlurb
+      : isReviewer
+        ? "All Standard and Elite features are unlocked for App Store review. This account is not billed."
       : org?.status === "trial"
       ? "You are on a timed evaluation. Choose Standard or Elite before the window ends. Both individual memberships can be canceled anytime."
       : org?.status === "active" && hasPaidSub
@@ -312,7 +320,7 @@ export default function Account() {
           hoursRemaining: fieldKit?.hoursRemaining,
         }}
         onPrimary={() => {
-          if (isPlatform) setLocation("/portal");
+          if (isPlatform || isReviewer) setLocation("/portal");
           else if (canCheckout) void (selectedPlan === "elite_weekly" ? startEliteCheckout() : startCheckout());
           else if (canPortal) void openPortal();
           else setLocation("/portal");
@@ -333,7 +341,7 @@ export default function Account() {
           )}
           {isCompany && <Badge variant="outline">Team / company</Badge>}
           {isPersonal && <Badge variant="outline">Individual</Badge>}
-          {hasPaidSub && !isPlatform && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
+          {hasPaidSub && !isPlatform && !isReviewer && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
@@ -341,7 +349,9 @@ export default function Account() {
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
           {isPlatform
             ? platformCopy.crossSurface
-            : "One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone."}
+            : isReviewer
+              ? "Use these same reviewer credentials on iPhone and web. Restore Purchases remains available in the iPhone Account screen for testing."
+              : "One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone."}
         </p>
         <AppHandoffPanel
           compact
@@ -350,7 +360,9 @@ export default function Account() {
           description={
             isPlatform
               ? platformCopy.appHandoff
-              : "Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
+              : isReviewer
+                ? "Sign in on iPhone with this reviewer account to test Elite access and Restore Purchases."
+                : "Open your Account in Hospice Sales Pro to restore an App Store purchase or manage iPhone access. Web billing stays managed here."
           }
         />
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
@@ -391,6 +403,8 @@ export default function Account() {
               <dd className="font-semibold">
                 {isPlatform
                   ? platformCopy.billingLabel
+                  : isReviewer
+                    ? "Reviewer access · no charge"
                   : isComp
                   ? "Complimentary (no card on file)"
                   : hasPaidSub
@@ -422,18 +436,20 @@ export default function Account() {
           id="subscribe"
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            {isPlatform ? (
+            {isPlatform || isReviewer ? (
               <CheckCircle className="w-4 h-4 text-primary" />
             ) : (
               <CreditCard className="w-4 h-4 text-primary" />
             )}
             {isPlatform
               ? platformCopy.billingHeading
+              : isReviewer
+                ? "App Review access"
               : canCheckout
                 ? "Start Hospice Sales Pro"
                 : "Hospice Sales Pro & billing"}
           </div>
-          {isPersonal && !isPlatform && (
+          {isPersonal && !isPlatform && !isReviewer && (
             <div className="space-y-3">
               {canCheckout ? (
                 <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Choose an individual membership">
@@ -498,13 +514,15 @@ export default function Account() {
           )}
           {isPlatform ? (
             <p className="text-sm text-muted-foreground">{platformCopy.notBilled}</p>
+          ) : isReviewer ? (
+            <p className="text-sm text-muted-foreground">All Elite features are enabled for Apple review. No subscription or payment method is attached.</p>
           ) : billingLoading ? (
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading billing…
             </p>
           ) : (
             <>
-              {isPersonal && !isPlatform && (
+              {isPersonal && !isPlatform && !isReviewer && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {hasAppleSubscription
                     ? "This membership was purchased through Apple. Manage it from Account in the iPhone app. Your access works on both web and iPhone."
@@ -557,7 +575,7 @@ export default function Account() {
                     )}
                   </Button>
                 )}
-                {!canCheckout && !canPortal && isPersonal && !isPlatform && (
+                {!canCheckout && !canPortal && isPersonal && !isPlatform && !isReviewer && (
                   <p className="text-sm text-muted-foreground">
                     {billing?.configured === false || !billing?.individualWeeklyPriceConfigured
                       ? "Self-serve billing is not fully configured yet. Contact Nick to continue as a client."
@@ -595,7 +613,7 @@ export default function Account() {
               <Link href="/contact?service=Hospice+Sales+Pro+Debrief">Book a debrief</Link>
             </Button>
           )}
-          {!isPlatform && (
+          {!isPlatform && !isReviewer && (
             <Button asChild variant="outline" className="font-bold">
               <Link href="/hospice-sales-pro">View plans</Link>
             </Button>
@@ -610,6 +628,8 @@ export default function Account() {
         <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
           {isPlatform ? (
             <>{platformCopy.legalNote}</>
+          ) : isReviewer ? (
+            <>Apple reviewer access is non-billed and exists only for App Store review.</>
           ) : (
             <>
               Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
@@ -628,7 +648,7 @@ export default function Account() {
       </Card>
 
       {/* ── Active subscriber confirmation card ── */}
-      {canUseFieldKit && hasPaidSub && (
+      {canUseFieldKit && (hasPaidSub || isReviewer) && (
         <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-membership">
           <div>
             <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your Hospice Sales Pro</p>
