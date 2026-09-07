@@ -57,59 +57,93 @@
           keys.forEach(function(k) { caches.delete(k); });
         });
       }
-      // Apply saved theme BEFORE React — must match lib/theme.ts presets
+      // Apply the complete selected brand contract before React paints.
       (function () {
         try {
           var root = document.documentElement;
-          var surfaces = {
-            default:  { tone: 'dark',  bg: '0 0% 7%',     fg: '0 0% 97%' },
-            soft:     { tone: 'light', bg: '210 25% 98%', fg: '222 30% 10%' },
-            warm:     { tone: 'light', bg: '40 45% 96%',  fg: '25 35% 10%' },
-            cool:     { tone: 'light', bg: '200 35% 96%', fg: '210 35% 10%' },
-            ink:      { tone: 'dark',  bg: '0 0% 0%',     fg: '0 0% 98%' },
-            midnight: { tone: 'dark',  bg: '222 48% 9%',  fg: '214 40% 97%' },
-            charcoal: { tone: 'dark',  bg: '0 0% 18%',    fg: '0 0% 98%' },
-            forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 25% 97%' }
+          var read = function (key, fallback) {
+            var raw = localStorage.getItem(key);
+            if (raw == null) return fallback || "";
+            try { return JSON.parse(raw); } catch (_) { return raw; }
           };
-          var savedBg = localStorage.getItem('spartan_bg');
-          var bg = savedBg && surfaces[savedBg] ? savedBg : 'soft';
-          var savedAccent = localStorage.getItem('spartan_accent');
-          var accents = ['red', 'blue', 'green', 'gold', 'purple', 'slate'];
-          var accent = savedAccent && accents.indexOf(savedAccent) >= 0 ? savedAccent : 'red';
-           var savedPreset = localStorage.getItem('spartan_theme_preset');
-            var presetWasChosen = localStorage.getItem('spartan_theme_preset_choice_v1') === '1';
-            var preset = savedPreset === 'spartan' && !presetWasChosen ? 'mamba' : savedPreset === 'mamba' || savedPreset === 'custom' || savedPreset === 'spartan' ? savedPreset : 'mamba';
-          /* Force cache-bust class so new CSS is obvious after deploy */
-          root.classList.add('spartan-elite-2026');
-          var s = surfaces[bg] || surfaces.soft;
-           var mode = preset === 'mamba'
-             ? (localStorage.getItem('spartan_theme_mode_choice_v1') !== '1' || localStorage.getItem('spartan_theme') === '"dark"' ? 'dark' : 'light')
-             : s.tone;
-           var mambaSurface = mode === 'dark'
-             ? { bg: '0 0% 10%', fg: '0 0% 83%' }
-             : { bg: '0 0% 83%', fg: '0 0% 10%' };
-           if (preset === 'mamba') s = mambaSurface;
-          root.classList.toggle('dark', mode === 'dark');
+          var presetChosen = read("spartan_theme_preset_choice_v1") === "1";
+          var storedPreset = read("spartan_theme_preset");
+          var preset = presetChosen && (storedPreset === "spartan" || storedPreset === "mamba")
+            ? storedPreset : "mamba";
+          var modeChosen = read("spartan_theme_mode_choice_v1") === "1";
+          var storedMode = read("spartan_theme");
+          var mode = storedMode === "light" || storedMode === "dark"
+            ? preset === "mamba" && !modeChosen ? "dark" : storedMode
+            : preset === "mamba" ? "dark" : "light";
+          var isMamba = preset === "mamba";
+          var dark = mode === "dark";
+          var surface = isMamba
+            ? dark
+              ? ["0 0% 8%", "0 0% 96%", "0 0% 11%", "0 0% 96%", "0 0% 16%", "0 0% 67%", "0 0% 20%", "0 0% 9%"]
+              : ["0 0% 96%", "0 0% 10%", "0 0% 100%", "0 0% 10%", "0 0% 90%", "0 0% 43%", "0 0% 43%", "0 0% 94%"]
+            : dark
+              ? ["217 64% 7%", "40 33% 96%", "216 49% 11%", "40 33% 96%", "216 35% 15%", "215 18% 76%", "215 24% 25%", "218 67% 6%"]
+              : ["38 33% 97%", "217 64% 9%", "40 35% 99%", "217 64% 9%", "36 18% 92%", "216 20% 30%", "216 16% 76%", "40 25% 95%"];
+          var primary = isMamba
+            ? dark ? "42 98% 57%" : "271 56% 33%"
+            : dark ? "357 82% 58%" : "357 78% 40%";
+          var primaryForeground = isMamba
+            ? dark ? "0 0% 10%" : "0 0% 100%"
+            : "0 0% 100%";
+          var secondary = isMamba
+            ? dark ? "271 56% 28%" : "42 98% 57%"
+            : dark ? "216 30% 18%" : "216 24% 90%";
+          var secondaryForeground = isMamba
+            ? dark ? "0 0% 96%" : "0 0% 10%" : surface[1];
+          var accent = isMamba
+            ? dark ? "271 56% 28%" : "42 98% 57%"
+            : dark ? "357 48% 20%" : "357 62% 93%";
+          var accentForeground = isMamba
+            ? dark ? "0 0% 96%" : "0 0% 10%"
+            : dark ? "40 33% 96%" : "357 78% 34%";
+          var set = function (name, value) { root.style.setProperty(name, value); };
+
+          root.classList.toggle("dark", dark);
+          root.classList.toggle("light", !dark);
           root.style.colorScheme = mode;
-          root.style.setProperty('--background', s.bg);
-          root.style.setProperty('--foreground', s.fg);
-            root.style.setProperty('--primary', preset === 'mamba' ? '271 56% 33%' : mode === 'dark' ? '0 85% 58%' : '0 85% 48%');
-            root.style.setProperty('--primary-foreground', preset === 'mamba' ? '0 0% 83%' : '0 0% 100%');
-            root.style.setProperty('--accent', preset === 'mamba' ? '42 98% 57%' : mode === 'dark' ? '0 0% 18%' : '0 85% 94%');
-            root.style.setProperty('--accent-foreground', preset === 'mamba' ? '0 0% 10%' : root.style.getPropertyValue('--foreground'));
-            root.style.setProperty('--secondary', preset === 'mamba' ? '42 98% 57%' : root.style.getPropertyValue('--muted'));
-            root.style.setProperty('--secondary-foreground', preset === 'mamba' ? '0 0% 10%' : root.style.getPropertyValue('--foreground'));
-            root.style.setProperty('--mamba-purple', preset === 'mamba' ? '#552583' : '');
-            root.style.setProperty('--mamba-gold', preset === 'mamba' ? '#FDB927' : '');
-            root.style.setProperty('--mamba-black', preset === 'mamba' ? '#1A1A1A' : '');
-            root.style.setProperty('--mamba-silver', preset === 'mamba' ? '#D4D4D4' : '');
-          root.style.backgroundColor = 'hsl(' + s.bg + ')';
-          root.style.color = 'hsl(' + s.fg + ')';
           root.dataset.themeMode = mode;
-          root.dataset.bg = bg;
-          root.dataset.accent = accent;
-           root.dataset.themePreset = preset;
-        } catch (e) { /* private mode */ }
+          root.dataset.themePreset = preset;
+          root.dataset.accent = isMamba ? "gold" : "red";
+          root.dataset.bg = dark ? isMamba ? "charcoal" : "midnight" : "soft";
+          set("--background", surface[0]);
+          set("--foreground", surface[1]);
+          set("--card", surface[2]);
+          set("--card-foreground", surface[3]);
+          set("--popover", surface[2]);
+          set("--popover-foreground", surface[3]);
+          set("--muted", surface[4]);
+          set("--muted-foreground", surface[5]);
+          set("--border", surface[6]);
+          set("--input", surface[6]);
+          set("--sidebar", surface[7]);
+          set("--sidebar-foreground", surface[1]);
+          set("--sidebar-border", surface[6]);
+          set("--primary", primary);
+          set("--primary-foreground", primaryForeground);
+          set("--secondary", secondary);
+          set("--secondary-foreground", secondaryForeground);
+          set("--accent", accent);
+          set("--accent-foreground", accentForeground);
+          set("--ring", primary);
+          set("--brand-command", isMamba ? "271 56% 33%" : "357 78% 40%");
+          set("--brand-precision", isMamba ? "42 98% 57%" : "38 82% 50%");
+          if (isMamba) {
+            set("--mamba-purple", "#552583");
+            set("--mamba-gold", "#FDB927");
+            set("--mamba-black", "#1A1A1A");
+            set("--mamba-silver", "#D4D4D4");
+          } else {
+            ["--mamba-purple", "--mamba-gold", "--mamba-black", "--mamba-silver"]
+              .forEach(function (name) { root.style.removeProperty(name); });
+          }
+          root.style.backgroundColor = "hsl(" + surface[0] + ")";
+          root.style.color = "hsl(" + surface[1] + ")";
+        } catch (_) { /* local storage may be unavailable */ }
       })();
     </script>
     <div id="root"></div>

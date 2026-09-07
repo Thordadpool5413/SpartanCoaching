@@ -242,6 +242,52 @@ const MAMBA_LIGHT_SURFACE: BgPreset = {
   sidebar: "0 0% 94%",
 };
 
+const SPARTAN_LIGHT_SURFACE: BgPreset = {
+  key: "soft",
+  label: "Spartan Paper",
+  swatch: "#FCFAF6",
+  tone: "light",
+  bg: "38 33% 97%",
+  fg: "217 64% 9%",
+  card: "40 35% 99%",
+  cardFg: "217 64% 9%",
+  muted: "36 18% 92%",
+  mutedFg: "216 20% 30%",
+  secondary: "216 24% 90%",
+  border: "216 16% 76%",
+  sidebar: "40 25% 95%",
+};
+
+const SPARTAN_DARK_SURFACE: BgPreset = {
+  key: "midnight",
+  label: "Spartan Night",
+  swatch: "#081424",
+  tone: "dark",
+  bg: "217 64% 7%",
+  fg: "40 33% 96%",
+  card: "216 49% 11%",
+  cardFg: "40 33% 96%",
+  muted: "216 35% 15%",
+  mutedFg: "215 18% 76%",
+  secondary: "216 30% 18%",
+  border: "215 24% 25%",
+  sidebar: "218 67% 6%",
+};
+
+export function resolveThemeSurface(
+  themePreset: ThemePresetKey,
+  mode: ThemeMode,
+  background: BgKey,
+): BgPreset {
+  if (themePreset === "mamba") {
+    return mode === "dark" ? MAMBA_DARK_SURFACE : MAMBA_LIGHT_SURFACE;
+  }
+  if (themePreset === "spartan") {
+    return mode === "dark" ? SPARTAN_DARK_SURFACE : SPARTAN_LIGHT_SURFACE;
+  }
+  return getBgPreset(background);
+}
+
 const ACCENT_PROPS = [
   "--primary",
   "--primary-foreground",
@@ -381,13 +427,9 @@ export function applyAppearance(
 
   const root = document.documentElement;
   const body = document.body;
-  const surface = themePreset === "mamba"
-    ? mode === "dark"
-      ? MAMBA_DARK_SURFACE
-      : MAMBA_LIGHT_SURFACE
-    : getBgPreset(background);
+  const surface = resolveThemeSurface(themePreset, mode, background);
   const accentPreset = getAccentPreset(accent);
-  const effectiveMode: ThemeMode = themePreset === "mamba" ? mode : surface.tone;
+  const effectiveMode: ThemeMode = themePreset === "custom" ? surface.tone : mode;
 
   // 1) Mode class
   root.classList.toggle("dark", effectiveMode === "dark");
@@ -420,16 +462,18 @@ export function applyAppearance(
 
   // 4) Accent / brand — primary-foreground always contrasts with primary fill
   const primary = themePreset === "mamba"
-    ? "271 56% 33%"
-    : effectiveMode === "dark"
-      ? accentPreset.primaryDark
-      : accentPreset.primaryLight;
+    ? effectiveMode === "dark" ? "42 98% 57%" : "271 56% 33%"
+    : themePreset === "spartan"
+      ? effectiveMode === "dark" ? "357 82% 58%" : "357 78% 40%"
+      : effectiveMode === "dark"
+        ? accentPreset.primaryDark
+        : accentPreset.primaryLight;
   const [ph, ps] = primary.split(" ");
   setVar("--primary", primary);
   // Gold is light on dark surfaces → dark label; otherwise white on brand color
   const primaryOnAccent =
     themePreset === "mamba"
-      ? "0 0% 83%"
+      ? effectiveMode === "dark" ? "0 0% 10%" : "0 0% 100%"
       : accent === "gold" || accent === "green"
         ? "0 0% 10%"
       : "0 0% 100%";
@@ -446,17 +490,33 @@ export function applyAppearance(
     setVar("--accent-foreground", surface.fg);
   }
   if (themePreset === "mamba") {
-    setVar("--accent", "42 98% 57%");
-    setVar("--accent-foreground", "0 0% 10%");
-    setVar("--secondary", "42 98% 57%");
-    setVar("--secondary-foreground", "0 0% 10%");
+    setVar("--accent", effectiveMode === "dark" ? "271 56% 28%" : "42 98% 57%");
+    setVar("--accent-foreground", effectiveMode === "dark" ? "0 0% 96%" : "0 0% 10%");
+    setVar("--secondary", effectiveMode === "dark" ? "271 56% 28%" : "42 98% 57%");
+    setVar("--secondary-foreground", effectiveMode === "dark" ? "0 0% 96%" : "0 0% 10%");
+  } else if (themePreset === "spartan") {
+    setVar("--accent", effectiveMode === "dark" ? "357 48% 20%" : "357 62% 93%");
+    setVar("--accent-foreground", effectiveMode === "dark" ? "40 33% 96%" : "357 78% 34%");
+    setVar("--secondary", surface.secondary);
+    setVar("--secondary-foreground", surface.fg);
   }
   // Destructive always keeps readable on-fill text
   setVar("--destructive-foreground", "0 0% 100%");
-  setVar("--mamba-purple", themePreset === "mamba" ? MAMBA_COLORS.purple : "");
-  setVar("--mamba-gold", themePreset === "mamba" ? MAMBA_COLORS.gold : "");
-  setVar("--mamba-black", themePreset === "mamba" ? MAMBA_COLORS.black : "");
-  setVar("--mamba-silver", themePreset === "mamba" ? MAMBA_COLORS.silver : "");
+  if (themePreset === "mamba") {
+    setVar("--mamba-purple", MAMBA_COLORS.purple);
+    setVar("--mamba-gold", MAMBA_COLORS.gold);
+    setVar("--mamba-black", MAMBA_COLORS.black);
+    setVar("--mamba-silver", MAMBA_COLORS.silver);
+    setVar("--brand-command", "271 56% 33%");
+    setVar("--brand-precision", "42 98% 57%");
+  } else {
+    root.style.removeProperty("--mamba-purple");
+    root.style.removeProperty("--mamba-gold");
+    root.style.removeProperty("--mamba-black");
+    root.style.removeProperty("--mamba-silver");
+    setVar("--brand-command", "357 78% 40%");
+    setVar("--brand-precision", "38 82% 50%");
+  }
 
   // 5) Hard paint html/body/#root so first paint matches surface (FOUC-safe)
   const bgColor = `hsl(${surface.bg})`;

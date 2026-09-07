@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Briefcase, Wrench, CheckCircle, ShieldCheck, MapPinned, UserCheck, Check } from "lucide-react";
+import { ArrowRight, Briefcase, Wrench, CheckCircle, ShieldCheck, MapPinned, UserCheck, Check, Play, RefreshCw } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
@@ -19,19 +19,20 @@ import { useEffect, useRef, useState } from "react";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
-function HeroSystemPanel() {
+export function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [showMotionPaused, setShowMotionPaused] = useState(false);
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [videoState, setVideoState] = useState<"loading" | "playing" | "blocked" | "paused" | "error">("loading");
+  const [playbackSeconds, setPlaybackSeconds] = useState(0);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const handleChange = (e: MediaQueryListEvent) => {
-      setShowMotionPaused(e.matches);
+      setReducedMotion(e.matches);
     };
 
-    setShowMotionPaused(mediaQuery.matches);
+    setReducedMotion(mediaQuery.matches);
 
     if (typeof mediaQuery.addEventListener === "function") {
       mediaQuery.addEventListener("change", handleChange);
@@ -44,7 +45,7 @@ function HeroSystemPanel() {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || videoFailed) return;
+    if (!video || videoState === "error") return;
 
     video.muted = true;
     video.defaultMuted = true;
@@ -54,30 +55,43 @@ function HeroSystemPanel() {
     video.setAttribute("webkit-playsinline", "true");
     video.playsInline = true;
 
-    if (showMotionPaused) {
+    if (reducedMotion) {
       video.pause();
+      setVideoState("paused");
       return;
     }
 
-    const tryPlay = () => {
-      void video.play().catch(() => {
-        // Autoplay can be blocked by browser policy; the poster remains visible.
-      });
+    const tryPlay = async () => {
+      try {
+        await video.play();
+      } catch {
+        setVideoState("blocked");
+      }
     };
 
-    tryPlay();
-    video.addEventListener("loadeddata", tryPlay);
-    video.addEventListener("canplay", tryPlay);
-    const firstRetry = window.setTimeout(tryPlay, 150);
-    const secondRetry = window.setTimeout(tryPlay, 800);
+    void tryPlay();
+    const blockedTimer = window.setTimeout(() => {
+      if (video.paused || video.currentTime === 0) setVideoState("blocked");
+    }, 2500);
 
     return () => {
-      video.removeEventListener("loadeddata", tryPlay);
-      video.removeEventListener("canplay", tryPlay);
-      window.clearTimeout(firstRetry);
-      window.clearTimeout(secondRetry);
+      window.clearTimeout(blockedTimer);
     };
-  }, [showMotionPaused, videoFailed]);
+  }, [reducedMotion, videoState === "error"]);
+
+  const startPlayback = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (videoState === "error") {
+      setVideoState("loading");
+      video.load();
+    }
+    try {
+      await video.play();
+    } catch {
+      setVideoState("blocked");
+    }
+  };
 
   return (
     <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10">
@@ -85,47 +99,40 @@ function HeroSystemPanel() {
         className="hero-video-frame hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-black shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
       >
-        {videoFailed ? (
+        {videoState === "error" && (
           <img
             src="/hero-poster.jpg"
             alt="Spartan Coaching field operating system"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 z-10 h-full w-full object-cover"
           />
-        ) : (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/hero-poster.jpg"
-            className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover"
-            data-testid="hero-video"
-            aria-label="Spartan Coaching brand mark animation"
-            style={{ pointerEvents: "none" }}
-            onError={() => setVideoFailed(true)}
-          >
-            <source src="/hero-video-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
-            <source src="/hero-video.mp4" type="video/mp4" />
-            <img
-              src="/hero-poster.jpg"
-              alt="Spartan Coaching field operating system"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </video>
         )}
-
-        {/* Reduced motion indicator overlay */}
-        {showMotionPaused && !videoFailed && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
-            <div className="bg-background/90 px-4 py-2">
-              <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary">
-                Motion paused
-              </p>
-            </div>
-          </div>
-        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/hero-poster.jpg"
+          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover"
+          data-testid="hero-video"
+          data-playback-state={videoState}
+          data-playback-seconds={playbackSeconds.toFixed(1)}
+          aria-label="Spartan Coaching field system in motion"
+          style={{ pointerEvents: "none", visibility: videoState === "error" ? "hidden" : "visible" }}
+          onLoadStart={() => setVideoState("loading")}
+          onPlaying={() => setVideoState("playing")}
+          onPause={() => {
+            if (!reducedMotion && videoRef.current?.currentTime) setVideoState("paused");
+          }}
+          onTimeUpdate={(event) => setPlaybackSeconds(event.currentTarget.currentTime)}
+          onError={() => setVideoState("error")}
+        >
+          <source src="/hero-video-mobile.webm" media="(max-width: 767px)" type="video/webm" />
+          <source src="/hero-video.webm" type="video/webm" />
+          <source src="/hero-video-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
 
         <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr] pointer-events-none">
           <div className="flex flex-col justify-between p-4 sm:p-6">
@@ -155,6 +162,30 @@ function HeroSystemPanel() {
               <p className="font-display text-2xl uppercase leading-tight text-primary">Hospice Sales Pro</p>
             </div>
           </div>
+        </div>
+        <div
+          className="absolute bottom-3 left-3 z-20 flex items-center gap-2 rounded-md border border-white/25 bg-black/70 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md"
+          data-testid="hero-video-status"
+          data-state={videoState}
+          aria-live="polite"
+        >
+          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-amber-300"} />
+          {videoState === "playing" && "Field film playing"}
+          {videoState === "loading" && "Loading field film"}
+          {videoState === "paused" && (reducedMotion ? "Motion paused by preference" : "Field film paused")}
+          {videoState === "blocked" && "Playback needs permission"}
+          {videoState === "error" && "Field film unavailable"}
+          {videoState !== "playing" && (
+            <button
+              type="button"
+              onClick={() => void startPlayback()}
+              className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white/30 bg-white/10 px-2 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              data-testid="button-hero-video-play"
+            >
+              {videoState === "error" ? <RefreshCw className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+              {videoState === "error" ? "Retry" : "Play"}
+            </button>
+          )}
         </div>
       </div>
       <figcaption className="sr-only">

@@ -40,14 +40,40 @@ describe("BG_PRESETS contrast contract", () => {
 
     expect(document.documentElement.dataset.themePreset).toBe("mamba");
     expect(document.documentElement.dataset.themeMode).toBe("dark");
-    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("271 56% 33%");
-    expect(document.documentElement.style.getPropertyValue("--accent")).toBe("42 98% 57%");
-    expect(document.documentElement.style.getPropertyValue("--secondary")).toBe("42 98% 57%");
-    expect(document.documentElement.style.getPropertyValue("--secondary-foreground")).toBe("0 0% 10%");
+    expect(document.documentElement.style.getPropertyValue("--primary")).toBe("42 98% 57%");
+    expect(document.documentElement.style.getPropertyValue("--primary-foreground")).toBe("0 0% 10%");
+    expect(document.documentElement.style.getPropertyValue("--secondary")).toBe("271 56% 28%");
+    expect(document.documentElement.style.getPropertyValue("--secondary-foreground")).toBe("0 0% 96%");
     expect(document.documentElement.style.getPropertyValue("--mamba-purple")).toBe("#552583");
     expect(document.documentElement.style.getPropertyValue("--mamba-gold")).toBe("#FDB927");
     expect(localStorage.getItem("spartan_theme_preset")).toBe("mamba");
     expect(localStorage.getItem("spartan_theme")).toBe(JSON.stringify("dark"));
+  });
+
+  it("clears every Mamba-only variable when Spartan is restored", () => {
+    applyAppearance("dark", "gold", "charcoal", "mamba");
+    applyAppearance("dark", "red", "midnight", "spartan");
+
+    const root = document.documentElement;
+    expect(root.dataset.themePreset).toBe("spartan");
+    expect(root.style.getPropertyValue("--primary")).toBe("357 82% 58%");
+    expect(root.style.getPropertyValue("--background")).toBe("217 64% 7%");
+    for (const variable of ["--mamba-purple", "--mamba-gold", "--mamba-black", "--mamba-silver"]) {
+      expect(root.style.getPropertyValue(variable)).toBe("");
+    }
+  });
+
+  it("survives Spartan → Mamba → Spartan and Mamba light → dark → light round trips", () => {
+    applyAppearance("light", "red", "soft", "spartan");
+    const spartanLight = document.documentElement.style.cssText;
+    applyAppearance("light", "gold", "soft", "mamba");
+    const mambaLight = document.documentElement.style.cssText;
+    applyAppearance("dark", "gold", "charcoal", "mamba");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe("0 0% 8%");
+    applyAppearance("light", "gold", "soft", "mamba");
+    expect(document.documentElement.style.cssText).toBe(mambaLight);
+    applyAppearance("light", "red", "soft", "spartan");
+    expect(document.documentElement.style.cssText).toBe(spartanLight);
   });
 
   it("uses ink text on silver and light-gray Mamba surfaces", () => {

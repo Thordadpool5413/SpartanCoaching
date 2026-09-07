@@ -2754,6 +2754,13 @@ body {
   }
 }
 
+/*
+ * Retired theme bridge and workspace-v2 rules.
+ * Kept temporarily for change-history context, but excluded from the cascade.
+ * The canonical brand tokens live in lib/theme.ts and the workspace now owns
+ * its styles in styles/workspace.css.
+ */
+@media not all {
 /* Mamba Mentality — named palette for public and authenticated surfaces. */
 html[data-theme-preset="mamba"][data-theme-mode="light"] [data-testid="section-hero"] .text-primary,
 html[data-theme-preset="mamba"][data-theme-mode="light"] [data-testid="section-hero"] .text-spartan-red {
@@ -4596,4 +4603,5 @@ html[data-theme-preset="mamba"] .workspace-premium [data-testid="page-tools"] .s
 html[data-theme-preset="mamba"] .workspace-premium [data-testid="tools-catalog-disclosure"] {
   background:
     linear-gradient(105deg, hsl(var(--workspace-purple) / .15), hsl(var(--card) / .94) 62%) !important;
+}
 }

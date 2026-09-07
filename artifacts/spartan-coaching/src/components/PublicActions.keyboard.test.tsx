@@ -70,7 +70,7 @@ describe("public keyboard actions", () => {
     expect(screen.getByText(/active theme/i).parentElement?.getAttribute("aria-live")).toBe("polite");
   });
 
-  it("applies accent and background swatches to the live document", async () => {
+  it("keeps Spartan and Mamba isolated through a picker round trip", async () => {
     render(
       <ThemeProvider>
         <AppearanceControls />
@@ -78,19 +78,20 @@ describe("public keyboard actions", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /change theme colors/i }));
-    fireEvent.click(await screen.findByRole("button", { name: "Use Steel Blue" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Use Spartan theme" }));
 
     await waitFor(() => {
-      expect(document.documentElement.dataset.accent).toBe("blue");
-      expect(document.documentElement.style.getPropertyValue("--primary")).toBe("213 80% 58%");
+      expect(document.documentElement.dataset.themePreset).toBe("spartan");
+      expect(document.documentElement.style.getPropertyValue("--mamba-purple")).toBe("");
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Use Warm Paper" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use Mamba Mentality theme" }));
+    await waitFor(() => expect(document.documentElement.style.getPropertyValue("--mamba-purple")).toBe("#552583"));
 
+    fireEvent.click(screen.getByRole("button", { name: "Use Spartan theme" }));
     await waitFor(() => {
-      expect(document.documentElement.dataset.bg).toBe("warm");
-      expect(document.documentElement.dataset.themeMode).toBe("light");
-      expect(document.documentElement.style.getPropertyValue("--background")).toBe("40 45% 96%");
+      expect(document.documentElement.dataset.themePreset).toBe("spartan");
+      expect(document.documentElement.style.getPropertyValue("--mamba-purple")).toBe("");
     });
   });
 
@@ -108,8 +109,9 @@ describe("public keyboard actions", () => {
     await waitFor(() => {
       expect(mamba.getAttribute("aria-pressed")).toBe("true");
       expect(document.documentElement.dataset.themePreset).toBe("mamba");
-       expect(document.documentElement.style.getPropertyValue("--primary")).toBe("271 56% 33%");
-       expect(document.documentElement.style.getPropertyValue("--accent")).toBe("42 98% 57%");
+      const expectedPrimary = document.documentElement.dataset.themeMode === "dark" ? "42 98% 57%" : "271 56% 33%";
+      expect(document.documentElement.style.getPropertyValue("--primary")).toBe(expectedPrimary);
+      expect(document.documentElement.style.getPropertyValue("--mamba-gold")).toBe("#FDB927");
       expect(localStorage.getItem("spartan_theme_preset")).toBe("mamba");
     });
   });

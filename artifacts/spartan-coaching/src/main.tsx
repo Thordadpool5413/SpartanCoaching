@@ -3,6 +3,7 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import App from "./App";
 import { ThemeProvider } from "@/context/ThemeContext";
 import "./index.css";
+import "./styles/theme-surfaces.css";
 
 class RootErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };

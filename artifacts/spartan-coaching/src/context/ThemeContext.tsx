@@ -18,7 +18,6 @@ import {
   getInitialAccent,
   getInitialBackground,
   getInitialThemePreset,
-  getInitialMode,
   getInitialModeForPreset,
   applyAppearance,
   markThemePresetChosen,
@@ -139,10 +138,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setMode = useCallback((mode: ThemeMode) => {
-    if (store.themePreset === "mamba") markThemeModeChosen();
-    const background = store.themePreset === "mamba"
-      ? store.background
-      : defaultBgForMode(mode, store.background);
+    if (store.themePreset !== "custom") markThemeModeChosen();
+    const background = store.themePreset === "custom"
+      ? defaultBgForMode(mode, store.background)
+      : mode === "light" ? "soft" : "midnight";
     commit({ mode, accent: store.accent, background, themePreset: store.themePreset });
   }, []);
 
@@ -157,13 +156,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
     markThemePresetChosen();
-    if (themePreset === "mamba") {
-      markThemeModeChosen();
-      commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
+    const mode = store.mode;
+    if (themePreset === "spartan") {
+      commit({ mode, accent: "red", background: mode === "light" ? "soft" : "midnight", themePreset });
       return;
     }
-    if (themePreset === "spartan") {
-      commit({ mode: "light", accent: "red", background: "soft", themePreset });
+    if (themePreset === "mamba") {
+      commit({ mode, accent: "gold", background: mode === "light" ? "soft" : "charcoal", themePreset });
       return;
     }
     commit({ ...store, themePreset: "custom" });
@@ -190,56 +189,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
-  // Always prefer live store so UI never goes stale
-  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-
-  const setMode = useCallback((mode: ThemeMode) => {
-    if (store.themePreset === "mamba") markThemeModeChosen();
-    const background = store.themePreset === "mamba"
-      ? store.background
-      : defaultBgForMode(mode, store.background);
-    commit({ mode, accent: store.accent, background, themePreset: store.themePreset });
-  }, []);
-
-  const setAccent = useCallback((accent: AccentKey) => {
-    commit({ mode: store.mode, accent, background: store.background, themePreset: "custom" });
-  }, []);
-
-  const setBackground = useCallback((background: BgKey) => {
-    const mode = modeForBackground(background);
-    commit({ mode, accent: store.accent, background, themePreset: "custom" });
-  }, []);
-
-  const setThemePreset = useCallback((themePreset: ThemePresetKey) => {
-    markThemePresetChosen();
-    if (themePreset === "mamba") {
-      markThemeModeChosen();
-      commit({ mode: "dark", accent: "gold", background: "charcoal", themePreset });
-      return;
-    }
-    if (themePreset === "spartan") {
-      commit({ mode: "light", accent: "red", background: "soft", themePreset });
-      return;
-    }
-    commit({ ...store, themePreset: "custom" });
-  }, []);
-
-  const toggleMode = useCallback(() => {
-    setMode(store.mode === "dark" ? "light" : "dark");
-  }, [setMode]);
-
-  // Merge context (if any) with store-backed setters that always work
-  return {
-    mode: state.mode,
-    accent: state.accent,
-    background: state.background,
-    themePreset: state.themePreset,
-    setMode: ctx?.setMode ?? setMode,
-    setAccent: ctx?.setAccent ?? setAccent,
-    setBackground: ctx?.setBackground ?? setBackground,
-    setThemePreset: ctx?.setThemePreset ?? setThemePreset,
-    toggleMode: ctx?.toggleMode ?? toggleMode,
-  };
+  if (!ctx) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+  return ctx;
 }
 
 // Re-export for convenience
