@@ -20,6 +20,7 @@ export type MembershipTier = "none" | "standard" | "elite" | "organization";
 
 export const COMPANY_STANDARD_PLAN = "corporate_contract" as const;
 export const COMPANY_ELITE_PLAN = "corporate_contract_elite" as const;
+export const REVIEWER_ELITE_PLAN = "reviewer_elite" as const;
 
 export function hasContractedOrganizationAdminAccess(input: {
   memberRole?: string | null;
@@ -47,7 +48,10 @@ export function resolveMembershipTier(input: {
   if (input.organizationType === "company") {
     return "organization";
   }
-  if (input.billingPlan === ELITE_WEEKLY_PLAN.billingPlan) return "elite";
+  if (
+    input.billingPlan === ELITE_WEEKLY_PLAN.billingPlan ||
+    input.billingPlan === REVIEWER_ELITE_PLAN
+  ) return "elite";
   if (input.billingPlan === STANDARD_WEEKLY_PLAN.billingPlan || input.billingPlan === "comp") {
     return "standard";
   }
@@ -62,7 +66,8 @@ export function hasEliteMembership(input: {
   if (input.memberRole === "platform_admin") return true;
   return (
     input.billingPlan === ELITE_WEEKLY_PLAN.billingPlan ||
-    input.billingPlan === COMPANY_ELITE_PLAN
+    input.billingPlan === COMPANY_ELITE_PLAN ||
+    input.billingPlan === REVIEWER_ELITE_PLAN
   );
 }
 
