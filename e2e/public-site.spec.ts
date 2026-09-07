@@ -179,10 +179,10 @@ test.describe("public website release gate", () => {
     await expect(frame.locator("video, img").first()).toBeVisible();
     const video = frame.locator("video");
     if (await video.count()) {
-      await expect(video).toHaveAttribute("poster", /spartan-hospice-coaching-intro-poster\.jpg$/);
+      await expect(video).toHaveAttribute("poster", /hero-poster\.jpg$/);
       await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
     } else {
-      await expect(frame.locator("img")).toHaveAttribute("src", /spartan-hospice-coaching-intro-poster\.jpg$/);
+      await expect(frame.locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
     }
     await expect(page.getByText("Motion paused")).toBeVisible();
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
