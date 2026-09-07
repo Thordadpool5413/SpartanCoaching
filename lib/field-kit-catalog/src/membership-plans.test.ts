@@ -3,6 +3,7 @@ import {
   COMPANY_ELITE_PLAN,
   COMPANY_STANDARD_PLAN,
   ELITE_WEEKLY_PLAN,
+  REVIEWER_ELITE_PLAN,
   STANDARD_WEEKLY_PLAN,
   canUseDeidentifiedClinical,
   canUsePhiClinical,
@@ -33,6 +34,8 @@ describe("membership plans", () => {
     expect(hasStandardMembership({ organizationType: "company", billingPlan: COMPANY_STANDARD_PLAN })).toBe(true);
     expect(hasEliteMembership({ organizationType: "company", billingPlan: COMPANY_STANDARD_PLAN })).toBe(false);
     expect(hasEliteMembership({ organizationType: "company", billingPlan: COMPANY_ELITE_PLAN })).toBe(true);
+    expect(resolveMembershipTier({ billingPlan: REVIEWER_ELITE_PLAN, organizationType: "personal", memberRole: "member" })).toBe("elite");
+    expect(hasEliteMembership({ billingPlan: REVIEWER_ELITE_PLAN, organizationType: "personal", memberRole: "member" })).toBe(true);
   });
 
   it("limits deidentified clinical tools to Elite or explicitly approved organizations", () => {
