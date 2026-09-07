@@ -40,6 +40,7 @@ import {
   inquiries,
 } from "@workspace/db";
 import { db } from "../db";
+import { REVIEWER_ELITE_PLAN } from "@workspace/field-kit-catalog";
 import { generateToken, hashToken, hashPassword, verifyPassword, safeEqualString } from "../auth/crypto";
 import {
   COOKIE_NAME,
@@ -3140,13 +3141,33 @@ export function registerAuthRoutes(app: Express): void {
       if (existing) {
         await db
           .update(clientMembers)
-          .set({ passwordHash, status: "active", name: REVIEWER_NAME })
+          .set({
+            passwordHash,
+            status: "active",
+            name: REVIEWER_NAME,
+            title: "App Reviewer",
+            role: "member",
+            termsAcceptedAt: existing.termsAcceptedAt ?? new Date(),
+          })
           .where(eq(clientMembers.id, existing.id));
         await invalidateMemberSessions(existing.id);
 
         await db
           .update(clientOrganizations)
-          .set({ status: "active", trialEndsAt: null })
+          .set({
+            name: REVIEWER_ORG,
+            type: "personal",
+            seatLimit: 1,
+            status: "active",
+            pipelineStatus: "won",
+            trialEndsAt: null,
+            activatedAt: new Date(),
+            billingPlan: REVIEWER_ELITE_PLAN,
+            billingStatus: "active",
+            billingProvider: "reviewer",
+            cancelAtPeriodEnd: false,
+            currentPeriodEnd: null,
+          })
           .where(eq(clientOrganizations.id, existing.organizationId));
 
         await addOrgTimeline(
@@ -3168,7 +3189,10 @@ export function registerAuthRoutes(app: Express): void {
             pipelineStatus: "won",
             trialEndsAt: null,
             activatedAt: new Date(),
-            notes: "Permanent test account for Apple App Store reviewers. Do not expire or delete.",
+            billingPlan: REVIEWER_ELITE_PLAN,
+            billingStatus: "active",
+            billingProvider: "reviewer",
+            notes: "Permanent Elite test account for Apple App Store reviewers. Do not expire or delete.",
           })
           .returning();
 
