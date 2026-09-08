@@ -3,6 +3,7 @@ import { Pressable, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
+import { requireGeneratedText } from "@/lib/generatedResponse";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
@@ -47,7 +48,7 @@ export function EmailTool() {
         },
         { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
-      setResult(data.template);
+      setResult(requireGeneratedText(data, ["template"]));
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
