@@ -117,7 +117,7 @@ export default function LibraryItemScreen() {
         instruction: "Turn this resource into a concise, deidentified, field-ready asset for the next professional conversation. Never request or include PHI.",
       },
     });
-    void trackProductOutcome("resource_ai_apply", { resourceId: String(articleId || downloadKey || title), platform: "ios" });
+    void trackProductOutcome("tool_completion", { toolId: "content-generator", source: "library", resourceId: String(articleId || downloadKey || title), platform: "ios" });
     router.push("/ai-tools/content-generator");
   };
 
