@@ -4,6 +4,7 @@ import { impactLight, notifySuccess } from "@/lib/iosProductQuality";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { useColors } from "@/hooks/useColors";
 import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
+import { requireGeneratedText } from "@/lib/generatedResponse";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
@@ -64,7 +65,7 @@ export function ObjectionTool() {
         { objection },
         { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
-      setResult(data.response);
+      setResult(requireGeneratedText(data, ["response"]));
       setCitations(data.citations || []);
       void notifySuccess(reduceMotion);
     } catch (e: unknown) {

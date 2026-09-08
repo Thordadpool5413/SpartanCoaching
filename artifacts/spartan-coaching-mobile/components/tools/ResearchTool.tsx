@@ -3,6 +3,7 @@ import { Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
+import { requireGeneratedText } from "@/lib/generatedResponse";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
@@ -41,8 +42,7 @@ export function ResearchTool() {
         { query, useGrounding: true },
         { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
-      const text = data.text || "";
-      setResult(text);
+      setResult(requireGeneratedText(data, ["text"], "The research service did not return a supported answer. Please try again."));
       setSources(data.sources || []);
       setCitations(data.spartanCitations || []);
     } catch (e: unknown) {

@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useMemo, useState } from "react";
@@ -11,6 +11,7 @@ import { apiGet, getWebSiteUrl } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { downloadLibraryItem, getDownloadedLibraryItem, removeDownloadedLibraryItem, saveTextLibraryItem, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { trackProductOutcome } from "@/lib/analytics";
+import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 
 type Kind = "article" | "audio" | "resource";
 
@@ -104,6 +105,22 @@ export default function LibraryItemScreen() {
   const resolvedDocumentUrl = safeUrl(article?.pdfUrl || undefined) || activeUrl;
   const isOfflineAvailable = Boolean(downloaded && downloaded.availability !== "unavailable");
 
+  const applyWithAi = () => {
+    stageAiToolHandoff({
+      sourceToolId: "content-recommender",
+      targetToolId: "content-generator",
+      output: {
+        selectedResource: title,
+        description: resolvedDescription,
+        whenToUse: one(params.whenToUse),
+        expectedOutcome: one(params.expectedOutcome),
+        instruction: "Turn this resource into a concise, deidentified, field-ready asset for the next professional conversation. Never request or include PHI.",
+      },
+    });
+    void trackProductOutcome("tool_completion", { toolId: "content-generator", source: "library", resourceId: String(articleId || downloadKey || title), platform: "ios" });
+    router.push("/ai-tools/content-generator");
+  };
+
   const toggleDownload = async () => {
     if (!downloadKey || Platform.OS === "web" || downloadBusy) return;
     setDownloadBusy(true);
@@ -138,6 +155,15 @@ export default function LibraryItemScreen() {
           <Text style={styles.kicker}>{kind === "audio" ? "SPARTAN AUDIO" : "IN-APP READER"}</Text>
           <Text style={styles.title} numberOfLines={2}>{title}</Text>
         </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Use this resource with Spartan AI"
+          onPress={applyWithAi}
+          style={styles.aiButton}
+          testID="library-apply-with-ai"
+        >
+          <Feather name="zap" size={18} color="#FFFFFF" />
+        </Pressable>
         {downloadKey && (url || articleContent || (kind === "article" && resolvedDescription)) && Platform.OS !== "web" ? (
           <Pressable
             accessibilityRole="button"
@@ -406,6 +432,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     contextBar: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, backgroundColor: colors.card },
     contextIcon: { width: 40, height: 40, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     downloadButton: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    aiButton: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     offlineBanner: { minHeight: 34, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, backgroundColor: colors.primaryMuted },
     offlineBannerText: { color: colors.success, fontSize: 10, ...font("bold") },
     kicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },

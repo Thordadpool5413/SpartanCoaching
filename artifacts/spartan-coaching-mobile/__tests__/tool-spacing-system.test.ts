@@ -16,9 +16,10 @@ describe("shared tool spacing system", () => {
 
   test("uses generous spacing inside field ready results", () => {
     const source = read("../components/FieldResultPanel.tsx");
-    expect(source).toContain("resultBody: { padding: 22, gap: 16 }");
-    expect(source).toContain("paragraph: { fontSize: 15, lineHeight: 24 }");
-    expect(source).toContain("padding: 15");
+    expect(source).toContain("resultBody: { paddingHorizontal: 22, paddingVertical: 26, gap: 20 }");
+    expect(source).toContain("paragraph: { fontSize: 15, lineHeight: 25 }");
+    expect(source).toContain("paddingHorizontal: 16");
+    expect(source).toContain("paddingVertical: 17");
   });
 
   test("separates supporting tool sections", () => {
