@@ -3,6 +3,7 @@ import { Text, TextInput } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { AI_REQUEST_TIMEOUT_MS, apiPost } from "@/lib/api";
+import { requireGeneratedText } from "@/lib/generatedResponse";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
@@ -38,7 +39,7 @@ export function PlaybookTool() {
         { scenario, desiredOutcomes: desiredOutcomes || undefined },
         { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
       );
-      setResult(data.playbook);
+      setResult(requireGeneratedText(data, ["playbook"]));
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
