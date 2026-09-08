@@ -37,6 +37,7 @@ type CalculatorInputs = {
   workingDaysPerMonth: number;
   callsPerReferral: number;
   conversionRate: number;
+  netContributionPerAdmission: number;
 };
 
 type CommissionTier = {
@@ -57,6 +58,7 @@ const initialInputs: CalculatorInputs = {
   workingDaysPerMonth: 20,
   callsPerReferral: 8,
   conversionRate: 70,
+  netContributionPerAdmission: 5000,
 };
 
 const initialTiers: CommissionTier[] = [
@@ -81,6 +83,9 @@ const decimal = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(
     Number.isFinite(value) ? value : 0,
   );
+
+const admissions = (value: number | null) =>
+  value == null ? "Enter contribution" : whole(value);
 
 function InputField({
   label,
@@ -178,7 +183,7 @@ export default function RepCostCalculator() {
     sections: [
       {
         heading: "Unit Economics",
-        body: `Total annual rep cost: ${money(result.totalRepCost)}\nCost per sales call: ${money(result.costPerCall)}\nCost per referral: ${money(result.costPerReferral)}\nCost per admitted patient: ${money(result.costPerAdmit)}`,
+        body: `Fixed rep cost: ${money(result.fixedCost)} annually / ${money(result.monthlyFixedCost)} monthly\nTotal modeled rep cost: ${money(result.totalRepCost)} annually\nNet contribution per admission: ${money(inputs.netContributionPerAdmission)}\nBreak-even admissions: ${admissions(result.monthlyBreakEvenAdmissions)} monthly / ${admissions(result.annualBreakEvenAdmissions)} annually\nContribution after rep cost: ${money(result.monthlyContributionAfterRepCost)} monthly / ${money(result.annualContributionAfterRepCost)} annually\nCost per sales call: ${money(result.costPerCall)}\nCost per referral: ${money(result.costPerReferral)}\nCost per admitted patient: ${money(result.costPerAdmit)}`,
       },
       {
         heading: "Activity and Conversion",
@@ -224,6 +229,13 @@ export default function RepCostCalculator() {
                 <InputField label="Benefits Load" value={inputs.benefitsLoad} onChange={(value) => updateInput("benefitsLoad", value)} suffix="%" />
                 <InputField label="Annual Mileage" value={inputs.annualMileage} onChange={(value) => updateInput("annualMileage", value)} suffix="miles" />
                 <InputField label="Other Fixed Costs" value={inputs.otherFixedCosts} onChange={(value) => updateInput("otherFixedCosts", value)} prefix="$" />
+                <InputField
+                  label="Net Contribution Per Admission"
+                  value={inputs.netContributionPerAdmission}
+                  onChange={(value) => updateInput("netContributionPerAdmission", value)}
+                  prefix="$"
+                  help="Revenue retained after patient-care costs, before sales commission. Use your finance-approved contribution margin, not gross reimbursement."
+                />
               </CardContent>
             </Card>
 
@@ -266,6 +278,10 @@ export default function RepCostCalculator() {
           <main className="space-y-6">
             <FadeIn>
               <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
+                <MetricCard label="Monthly Break-Even Admissions" value={admissions(result.monthlyBreakEvenAdmissions)} description="minimum whole admissions to cover monthly rep cost" emphasis />
+                <MetricCard label="Annual Break-Even Admissions" value={admissions(result.annualBreakEvenAdmissions)} description="minimum whole admissions to cover annual rep cost" emphasis />
+                <MetricCard label="Monthly Contribution After Rep Cost" value={money(result.monthlyContributionAfterRepCost)} description={result.monthlyContributionAfterRepCost >= 0 ? "modeled contribution above break-even" : "modeled shortfall below break-even"} emphasis />
+                <MetricCard label="Annual Contribution After Rep Cost" value={money(result.annualContributionAfterRepCost)} description={result.annualContributionAfterRepCost >= 0 ? "modeled contribution above break-even" : "modeled shortfall below break-even"} emphasis />
                 <MetricCard label="Cost Per Sales Call" value={money(result.costPerCall)} description="salary and fixed costs" />
                 <MetricCard label="Cost Per Referral" value={money(result.costPerReferral)} description="salary and fixed costs" />
                 <MetricCard label="Cost Per Admitted Patient" value={money(result.costPerAdmit)} description="salary and fixed costs" emphasis />
@@ -298,7 +314,8 @@ export default function RepCostCalculator() {
               <FadeIn delay={0.25}><Card className="h-full"><CardHeader><CardTitle className="flex items-center gap-2"><TrendingDown className="w-5 h-5 text-primary" /> Activity and Conversion</CardTitle></CardHeader><CardContent className="space-y-0 divide-y divide-border">
                 <SummaryRow label="Sales Calls" monthly={whole(result.monthlyCalls)} annual={whole(result.annualCalls)} />
                 <SummaryRow label="Referrals Generated" monthly={decimal(result.monthlyReferrals)} annual={decimal(result.annualReferrals)} />
-                <SummaryRow label="Admissions" monthly={decimal(result.monthlyAdmissions)} annual={decimal(result.annualAdmissions)} />
+                <SummaryRow label="Admissions Produced" monthly={decimal(result.monthlyAdmissions)} annual={decimal(result.annualAdmissions)} />
+                <SummaryRow label="Admissions Required to Break Even" monthly={admissions(result.monthlyBreakEvenAdmissions)} annual={admissions(result.annualBreakEvenAdmissions)} />
                 <SummaryRow label="Lost Admissions" monthly={decimal(result.monthlyLostAdmissions)} annual={decimal(result.annualLostAdmissions)} danger />
                 <SummaryRow label="Lost Conversion Cost" monthly={money(result.monthlyConversionLoss)} annual={money(result.annualConversionLoss)} danger />
               </CardContent></Card></FadeIn>
@@ -308,6 +325,7 @@ export default function RepCostCalculator() {
               <div className="rounded-lg bg-muted/40 p-4"><p className="text-muted-foreground">Mileage rate</p><p className="mt-1 font-bold">{money(mileageRate)} per mile</p></div>
               <div className="rounded-lg bg-muted/40 p-4"><p className="text-muted-foreground">Active commission tier</p><p className="mt-1 font-bold">{whole(result.activeTier.min)} - {result.activeTier.max === 999 ? "Unlimited" : whole(result.activeTier.max)} admits</p></div>
               <div className="rounded-lg bg-muted/40 p-4"><p className="text-muted-foreground">Referral-to-admit rate</p><p className="mt-1 font-bold">{decimal(inputs.conversionRate)}%</p></div>
+              <div className="rounded-lg bg-muted/40 p-4"><p className="text-muted-foreground">Net contribution per admission</p><p className="mt-1 font-bold">{money(inputs.netContributionPerAdmission)}</p><p className="mt-1 text-xs text-muted-foreground">After patient-care costs, before commission.</p></div>
             </CardContent></Card></FadeIn>
           </main>
         </div>
@@ -315,10 +333,10 @@ export default function RepCostCalculator() {
 
       <section className="print-report" aria-label="Printable Hospice Rep Cost Calculator report">
         <div className="print-header"><img src="/hospice-sales-moneyball-logo.png" alt="Hospice Sales Moneyball" /><div><p>Spartan Coaching | Hospice Sales Intelligence</p><h1><AccentText>Hospice Rep Cost Calculator Report</AccentText></h1></div><span>Generated {new Date().toLocaleDateString()}</span></div>
-        <div className="print-metrics"><PrintMetric label="Total Rep Cost" value={money(result.totalRepCost)} /><PrintMetric label="Cost Per Call" value={money(result.costPerCall)} /><PrintMetric label="Cost Per Referral" value={money(result.costPerReferral)} /><PrintMetric label="Cost Per Admit" value={money(result.costPerAdmit)} /><PrintMetric label="Annual Conversion Loss" value={money(result.annualConversionLoss)} critical /></div>
+        <div className="print-metrics"><PrintMetric label="Monthly Break-Even Admits" value={admissions(result.monthlyBreakEvenAdmissions)} critical /><PrintMetric label="Annual Break-Even Admits" value={admissions(result.annualBreakEvenAdmissions)} critical /><PrintMetric label="Total Rep Cost" value={money(result.totalRepCost)} /><PrintMetric label="Cost Per Call" value={money(result.costPerCall)} /><PrintMetric label="Cost Per Referral" value={money(result.costPerReferral)} /><PrintMetric label="Cost Per Admit" value={money(result.costPerAdmit)} /><PrintMetric label="Annual Conversion Loss" value={money(result.annualConversionLoss)} critical /></div>
         <div className="print-grid">
-          <PrintPanel title="Annual Cost Stack"><PrintTable rows={[["Base Salary", money(inputs.baseSalary)], ["Benefits, Mileage & Fixed", money(result.benefitsAndFixed)], ["Annual Commission", money(result.annualCommission)], ["Total Annual Cost", money(result.totalRepCost)]]} /></PrintPanel>
-          <PrintPanel title="Activity & Conversion"><PrintTable rows={[["Sales Calls", `${whole(result.monthlyCalls)} / mo`, whole(result.annualCalls)], ["Referrals", `${decimal(result.monthlyReferrals)} / mo`, decimal(result.annualReferrals)], ["Admissions", `${decimal(result.monthlyAdmissions)} / mo`, decimal(result.annualAdmissions)], ["Lost Admissions", `${decimal(result.monthlyLostAdmissions)} / mo`, decimal(result.annualLostAdmissions)], ["Conversion Loss", money(result.monthlyConversionLoss), money(result.annualConversionLoss)]]} columns={["Metric", "Monthly", "Annual"]} /></PrintPanel>
+          <PrintPanel title="Annual Cost Stack"><PrintTable rows={[["Net contribution / admission", money(inputs.netContributionPerAdmission)], ["Monthly fixed rep cost", money(result.monthlyFixedCost)], ["Base Salary", money(inputs.baseSalary)], ["Benefits, Mileage & Fixed", money(result.benefitsAndFixed)], ["Annual Commission", money(result.annualCommission)], ["Total Annual Cost", money(result.totalRepCost)]]} /></PrintPanel>
+          <PrintPanel title="Activity & Conversion"><PrintTable rows={[["Sales Calls", `${whole(result.monthlyCalls)} / mo`, whole(result.annualCalls)], ["Referrals", `${decimal(result.monthlyReferrals)} / mo`, decimal(result.annualReferrals)], ["Admissions produced", `${decimal(result.monthlyAdmissions)} / mo`, decimal(result.annualAdmissions)], ["Admissions to break even", `${admissions(result.monthlyBreakEvenAdmissions)} / mo`, admissions(result.annualBreakEvenAdmissions)], ["Lost Admissions", `${decimal(result.monthlyLostAdmissions)} / mo`, decimal(result.annualLostAdmissions)], ["Conversion Loss", money(result.monthlyConversionLoss), money(result.annualConversionLoss)]]} columns={["Metric", "Monthly", "Annual"]} /></PrintPanel>
           <PrintPanel title="Commission Tiers"><PrintTable rows={tiers.map((tier) => [`${tier.id === result.activeTier.id ? "Active " : ""}Tier`, `${whole(tier.min)} - ${tier.max === 999 ? "Unlimited" : whole(tier.max)} admits`, `${money(tier.rate)} / admit`])} columns={["Tier", "Range", "Rate"]} /></PrintPanel>
           <PrintPanel title="Rep Model Assumptions"><PrintTable rows={[["Calls per day", whole(inputs.callsPerDay)], ["Working days per month", whole(inputs.workingDaysPerMonth)], ["Calls per referral", decimal(inputs.callsPerReferral)], ["Referral to admit", `${decimal(inputs.conversionRate)}%`], ["Mileage rate", `${money(mileageRate)} / mile`]]} /></PrintPanel>
         </div>
@@ -337,7 +355,7 @@ export default function RepCostCalculator() {
           .print-header p { margin: 0; color: #475569; font-size: 9pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
           .print-header h1 { margin: .03in 0 0; color: #172033; font-family: Georgia, serif; font-size: 16pt; line-height: 1.2; }
           .print-header > span { color: #475569; font-size: 9pt; text-align: right; }
-          .print-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: .07in; margin: .1in 0; }
+          .print-metrics { display: grid; grid-template-columns: repeat(7, 1fr); gap: .07in; margin: .1in 0; }
           .print-metric { min-height: .6in; padding: .07in; border: 1pt solid #d7dce5; border-radius: 4pt; background: #f6f8fb; }
           .print-metric.critical { border-color: #c91d31; background: #fff4f5; }
           .print-metric label { display: block; color: #334155; font-size: 8pt; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; line-height: 1.25; }
