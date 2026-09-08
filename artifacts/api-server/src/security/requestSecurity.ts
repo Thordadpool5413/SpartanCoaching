@@ -62,6 +62,16 @@ export function requireTrustedMutationOrigin(
     return next();
   }
 
+  // React Native keeps Set-Cookie values in its native cookie jar. After a
+  // password reset that stale cookie can accompany the next login, but the
+  // request is still a credential-authenticated native login rather than an
+  // ambient-authority browser mutation. The custom iOS header triggers a CORS
+  // preflight in browsers, so untrusted web origins remain blocked by CORS.
+  const isIosLogin =
+    req.path === "/api/auth/login" &&
+    String(req.headers["x-client-platform"] || "").toLowerCase() === "ios";
+  if (isIosLogin) return next();
+
   const hasSessionCookie = Boolean(req.cookies?.[SESSION_COOKIE_NAME]);
   const hasBearer = req.headers.authorization?.startsWith("Bearer ");
   if (!hasSessionCookie || hasBearer) return next();
