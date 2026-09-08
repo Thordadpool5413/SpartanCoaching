@@ -131,9 +131,34 @@ export type RepCostInputs = {
   workingDaysPerMonth: number;
   callsPerReferral: number;
   conversionRate: number;
+  /** Contribution retained by the hospice per admission after patient-care costs, before sales commission. */
+  netContributionPerAdmission: number;
 };
 
 export type CommissionTier = { id: number; min: number; max: number; rate: number };
+
+function tierForMonthlyAdmissions(monthlyAdmissions: number, tiers: CommissionTier[]) {
+  return tiers.find((tier) => monthlyAdmissions >= tier.min && monthlyAdmissions <= tier.max) ?? tiers[0];
+}
+
+function breakEvenAdmissions(
+  fixedCost: number,
+  netContributionPerAdmission: number,
+  tiers: CommissionTier[],
+  months: number,
+): number | null {
+  if (fixedCost <= 0) return 0;
+  if (netContributionPerAdmission <= 0 || tiers.length === 0) return null;
+
+  for (let admissions = 1; admissions <= 100_000; admissions += 1) {
+    const tier = tierForMonthlyAdmissions(admissions / months, tiers);
+    if (!tier) return null;
+    if (admissions * (netContributionPerAdmission - tier.rate) >= fixedCost) {
+      return admissions;
+    }
+  }
+  return null;
+}
 
 export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[]) {
   const annualCalls = inputs.callsPerDay * inputs.workingDaysPerMonth * 12;
@@ -149,9 +174,7 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
     inputs.annualMileage * MILEAGE_RATE +
     inputs.otherFixedCosts;
   const fixedCost = inputs.baseSalary + benefitsAndFixed;
-  const activeTier =
-    tiers.find((tier) => monthlyAdmissions >= tier.min && monthlyAdmissions <= tier.max) ??
-    tiers[0];
+  const activeTier = tierForMonthlyAdmissions(monthlyAdmissions, tiers);
   const monthlyCommission = monthlyAdmissions * (activeTier?.rate ?? 0);
   const annualCommission = monthlyCommission * 12;
   const totalRepCost = fixedCost + annualCommission;
@@ -161,6 +184,22 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
   const blendedCostPerAdmit = annualAdmissions > 0 ? totalRepCost / annualAdmissions : 0;
   const monthlyConversionLoss = monthlyLostAdmissions * costPerReferral;
   const annualConversionLoss = annualLostAdmissions * costPerReferral;
+  const monthlyFixedCost = fixedCost / 12;
+  const monthlyBreakEvenAdmissions = breakEvenAdmissions(
+    monthlyFixedCost,
+    inputs.netContributionPerAdmission,
+    tiers,
+    1,
+  );
+  const annualBreakEvenAdmissions = breakEvenAdmissions(
+    fixedCost,
+    inputs.netContributionPerAdmission,
+    tiers,
+    12,
+  );
+  const monthlyContributionAfterRepCost =
+    monthlyAdmissions * inputs.netContributionPerAdmission - monthlyCommission - monthlyFixedCost;
+  const annualContributionAfterRepCost = monthlyContributionAfterRepCost * 12;
 
   return {
     annualCalls,
@@ -173,6 +212,7 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
     annualLostAdmissions,
     benefitsAndFixed,
     fixedCost,
+    monthlyFixedCost,
     annualCommission,
     totalRepCost,
     costPerCall,
@@ -181,6 +221,10 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
     blendedCostPerAdmit,
     monthlyConversionLoss,
     annualConversionLoss,
+    monthlyBreakEvenAdmissions,
+    annualBreakEvenAdmissions,
+    monthlyContributionAfterRepCost,
+    annualContributionAfterRepCost,
     activeTier,
   };
 }
