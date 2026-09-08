@@ -58,6 +58,7 @@ describe("complete calculator workspaces", () => {
         workingDaysPerMonth: 20,
         callsPerReferral: 8,
         conversionRate: 70,
+        netContributionPerAdmission: 5000,
       },
       [
         { id: 1, min: 1, max: 20, rate: 125 },
@@ -69,6 +70,30 @@ describe("complete calculator workspaces", () => {
     expect(result.costPerReferral).toBeGreaterThan(0);
     expect(result.annualLostAdmissions).toBeGreaterThan(0);
     expect(result.annualConversionLoss).toBeGreaterThan(0);
+    expect(result.monthlyFixedCost).toBeCloseTo(12241.83, 2);
+    expect(result.monthlyBreakEvenAdmissions).toBe(3);
+    expect(result.annualBreakEvenAdmissions).toBe(31);
+    expect(result.monthlyContributionAfterRepCost).toBeGreaterThan(0);
+  });
+
+  it("does not invent break-even when contribution cannot cover commission", () => {
+    const result = calculateRepCost(
+      {
+        baseSalary: 90000,
+        benefitsLoad: 42,
+        annualMileage: 5400,
+        otherFixedCosts: 15484,
+        callsPerDay: 12,
+        workingDaysPerMonth: 20,
+        callsPerReferral: 8,
+        conversionRate: 70,
+        netContributionPerAdmission: 100,
+      },
+      [{ id: 1, min: 1, max: 999, rate: 125 }],
+    );
+
+    expect(result.monthlyBreakEvenAdmissions).toBeNull();
+    expect(result.annualBreakEvenAdmissions).toBeNull();
   });
 
   it("saves and removes decision reports for My Work", async () => {
