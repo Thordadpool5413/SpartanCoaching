@@ -221,7 +221,7 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   }
   if (typeof value === "string") {
     return (
-      <p className="whitespace-pre-wrap leading-7 text-foreground/95">{value}</p>
+      <p className="whitespace-pre-wrap break-words text-[15px] leading-7 text-foreground/95">{value}</p>
     );
   }
   if (typeof value === "number" || typeof value === "boolean") {
@@ -243,11 +243,11 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
     // String lists as field bullets
     if (value.every((item) => typeof item === "string")) {
       return (
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {value.map((item, index) => (
             <li
               key={index}
-              className="flex gap-2 text-sm leading-relaxed rounded-lg border border-border/50 bg-background/60 px-3 py-2"
+              className="flex gap-3 break-words rounded-xl border border-border/50 bg-background/60 px-4 py-3 text-[15px] leading-7"
             >
               <span className="text-primary font-bold shrink-0">·</span>
               <span>{item as string}</span>
@@ -257,7 +257,7 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
       );
     }
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {value.map((item, index) => (
           <div
             key={index}
@@ -281,15 +281,15 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
           key={key}
           className={
             depth === 0
-              ? "rounded-xl border border-border/70 bg-muted/20 p-4"
+              ? "rounded-2xl border border-border/70 bg-muted/20 p-5 sm:p-6"
               : undefined
           }
         >
           <h3
             className={
               depth === 0
-                ? "mb-2 text-sm font-bold tracking-wide text-primary uppercase"
-                : "mb-1 text-sm font-semibold text-foreground"
+                ? "mb-4 text-sm font-bold tracking-wide text-primary uppercase"
+                : "mb-2 mt-1 text-sm font-semibold leading-6 text-foreground"
             }
           ><AccentText>{humanKey(key)}</AccentText></h3>
           <ResultValue value={child} depth={depth + 1} />
