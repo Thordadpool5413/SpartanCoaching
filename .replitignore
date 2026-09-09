@@ -3,3 +3,20 @@
 
 # No need to store the pnpm store twice.
 .local
+
+# Historical source uploads are retained in Git for provenance, but are not
+# imported by any runtime package. Shipping them made the Replit source layer
+# hundreds of megabytes larger and could prevent Autoscale image publication
+# after an otherwise successful build.
+attached_assets/
+
+# Superseded root-level video exports. Runtime media lives under each
+# artifact's public/ or assets/ directory and must remain deployable.
+/SpartanCoaching-*.mp4
+
+# Local and CI output are never required by the deployed services.
+/coverage/
+/playwright-report/
+/test-results/
+/.expo/
+/.cache/
