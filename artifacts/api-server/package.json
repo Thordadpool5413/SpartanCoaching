@@ -34,7 +34,7 @@
     "drizzle-orm": "catalog:",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.0",
-    "multer": "^2.2.0",
+    "multer": "^2.3.0",
     "openai": "^6.48.0",
     "p-limit": "^7.3.0",
     "p-retry": "^8.0.0",
