@@ -4,7 +4,7 @@ import { FieldKitGate } from "@/components/FieldKitGate";
 import { MembershipActivation } from "@/components/MembershipActivation";
 import { ElitePortalHome, type NextMoveData } from "@/components/elite/ElitePortalHome";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
 
 export default function Portal() {
@@ -14,27 +14,42 @@ export default function Portal() {
   const [nextMove, setNextMove] = useState<NextMoveData | null>(null);
   const [loadingNextMove, setLoadingNextMove] = useState(true);
   const [nextMoveError, setNextMoveError] = useState(false);
+  const [leadershipSaving, setLeadershipSaving] = useState(false);
+  const [leadershipError, setLeadershipError] = useState<string | null>(null);
+  const leadershipTouchedRef = useRef(false);
+  const nextMoveRequestRef = useRef(0);
 
   useEffect(() => {
     if (!canUseFieldKit) return;
     void fetch("/api/me/onboarding", { credentials: "include" })
       .then((response) => response.ok ? response.json() : null)
-      .then((data) => setAlsoLeadsTeam(Boolean(data?.member?.alsoLeadsTeam)))
+      .then((data) => {
+        if (!leadershipTouchedRef.current) {
+          setAlsoLeadsTeam(Boolean(data?.member?.alsoLeadsTeam));
+        }
+      })
       .catch(() => undefined);
   }, [canUseFieldKit]);
 
   const loadNextMove = useCallback(async () => {
+    const requestId = ++nextMoveRequestRef.current;
     setLoadingNextMove(true);
     setNextMoveError(false);
     try {
       const res = await fetch("/api/v1/workspace/next-move", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to load next move");
       const data = await res.json();
-      setNextMove(data?.recommendation || null);
+      if (requestId === nextMoveRequestRef.current) {
+        setNextMove(data?.recommendation || null);
+      }
     } catch {
-      setNextMoveError(true);
+      if (requestId === nextMoveRequestRef.current) {
+        setNextMoveError(true);
+      }
     } finally {
-      setLoadingNextMove(false);
+      if (requestId === nextMoveRequestRef.current) {
+        setLoadingNextMove(false);
+      }
     }
   }, []);
 
@@ -44,14 +59,26 @@ export default function Portal() {
   }, [canUseFieldKit, loadNextMove]);
 
   async function updateLeadershipPreference(checked: boolean) {
+    leadershipTouchedRef.current = true;
+    const previous = alsoLeadsTeam;
     setAlsoLeadsTeam(checked);
-    await fetch("/api/me/onboarding", {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ alsoLeadsTeam: checked }),
-    }).catch(() => setAlsoLeadsTeam(!checked));
-    // Refresh next move to include leadership context changes
+    setLeadershipSaving(true);
+    setLeadershipError(null);
+    try {
+      const response = await fetch("/api/me/onboarding", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alsoLeadsTeam: checked }),
+      });
+      if (!response.ok) throw new Error("Could not save your recommendation preference.");
+    } catch {
+      setAlsoLeadsTeam(previous);
+      setLeadershipError("Could not save your preference. Try again.");
+      return;
+    } finally {
+      setLeadershipSaving(false);
+    }
     void loadNextMove();
   }
 
@@ -79,8 +106,10 @@ export default function Portal() {
             <summary className="cursor-pointer text-sm font-bold text-foreground">Personalize recommendations</summary>
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-border/60 pt-4">
               <div><p className="text-sm font-semibold">I also lead a team</p><p className="mt-1 text-xs text-muted-foreground">Include leadership and coaching recommendations in your workspace.</p></div>
-              <Switch checked={alsoLeadsTeam} onCheckedChange={(checked) => void updateLeadershipPreference(checked)} data-testid="switch-also-leads-team" aria-label="I also lead a team" />
+              <Switch checked={alsoLeadsTeam} disabled={leadershipSaving} onCheckedChange={(checked) => void updateLeadershipPreference(checked)} data-testid="switch-also-leads-team" aria-label="I also lead a team" aria-describedby={leadershipError ? "leadership-preference-error" : undefined} />
             </div>
+            {leadershipSaving ? <p className="mt-3 text-xs text-muted-foreground" role="status">Saving preference…</p> : null}
+            {leadershipError ? <p id="leadership-preference-error" className="mt-3 text-sm text-destructive" role="alert">{leadershipError}</p> : null}
           </details>
         </div>
       </section>

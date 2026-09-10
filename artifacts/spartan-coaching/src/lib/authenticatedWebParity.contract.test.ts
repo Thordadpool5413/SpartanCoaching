@@ -41,4 +41,16 @@ describe("authenticated website capability parity", () => {
       expect(paths.has(path), `${path} is missing from workspace search`).toBe(true);
     }
   });
+
+  it("keeps role-specific administration discoverable", () => {
+    const paths = new Set(allSearchablePages.map((item) => item.path));
+    expect(paths.has("/org/admin")).toBe(true);
+    expect(paths.has("/admin")).toBe(true);
+    expect(paths.has("/admin/access-desk")).toBe(true);
+  });
+
+  it("does not publish duplicate workspace search paths", () => {
+    const paths = allSearchablePages.map((item) => item.path);
+    expect(new Set(paths).size).toBe(paths.length);
+  });
 });

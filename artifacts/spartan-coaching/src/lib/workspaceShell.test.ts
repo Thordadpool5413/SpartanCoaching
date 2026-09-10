@@ -11,6 +11,7 @@ import {
   loginWithReturn,
   normalizePath,
   workspaceNavContractErrors,
+  requiresAuthenticationPath,
 } from "./workspaceShell";
 
 describe("workspace shell (HSP-32)", () => {
@@ -100,6 +101,17 @@ describe("workspace shell (HSP-32)", () => {
       "/login?next=%2Ftools%2Fobjections",
     );
     expect(loginWithReturn("/login")).toBe("/login");
+    expect(loginWithReturn("/portal?panel=recent")).toBe(
+      "/login?next=%2Fportal%3Fpanel%3Drecent",
+    );
+  });
+
+  it("requires a session for private work and admin destinations", () => {
+    expect(requiresAuthenticationPath("/portal?panel=recent")).toBe(true);
+    expect(requiresAuthenticationPath("/my-work")).toBe(true);
+    expect(requiresAuthenticationPath("/org/admin")).toBe(true);
+    expect(requiresAuthenticationPath("/admin/access-desk")).toBe(true);
+    expect(requiresAuthenticationPath("/tools/objections")).toBe(false);
   });
 
   it("role helpers", () => {

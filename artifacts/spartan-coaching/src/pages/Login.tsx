@@ -14,13 +14,15 @@ import { fieldErrorId, fieldErrorProps } from "@/lib/a11y";
 function safeNextPath(raw: string | null): string | null {
   if (!raw) return null;
   try {
-    const decoded = decodeURIComponent(raw);
-    const path = normalizePath(decoded.split("?")[0] || decoded);
+    // URLSearchParams already decodes this value. Decoding again breaks valid
+    // nested query values that contain a literal percent sign.
+    if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+    const returnPath = raw.split("#")[0] || raw;
+    const path = normalizePath(returnPath);
     // Only allow same-origin relative workspace/account deep links
-    if (!path.startsWith("/") || path.startsWith("//")) return null;
     if (path.startsWith("/login")) return null;
     if (isWorkspacePath(path) || path === "/account" || path.startsWith("/account/")) {
-      return path;
+      return returnPath;
     }
     return null;
   } catch {

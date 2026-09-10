@@ -10,10 +10,10 @@ const outputDir = path.join(artifactDir, "dist", "public");
 
 const [configSource, routeManifest] = await Promise.all([
   readFile(sourceFile, "utf8"),
-  readFile(path.join(artifactDir, "public", "seo-routes.json"), "utf8"),
+  readFile(path.join(artifactDir, "src", "lib", "seo-routes.json"), "utf8"),
 ]);
 const inlinedSource = configSource.replace(
-  /import seoRoutes from ["']\.\.\/\.\.\/public\/seo-routes\.json["'];/,
+  /import seoRoutes from ["']\.\/seo-routes\.json["'];/,
   `const seoRoutes = ${routeManifest};`,
 );
 const transformed = await transformWithEsbuild(inlinedSource, sourceFile, {

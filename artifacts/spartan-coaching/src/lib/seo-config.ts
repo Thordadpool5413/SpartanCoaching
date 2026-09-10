@@ -1,4 +1,4 @@
-import seoRoutes from "../../public/seo-routes.json";
+import seoRoutes from "./seo-routes.json";
 
 export interface SEOConfig {
   title: string;

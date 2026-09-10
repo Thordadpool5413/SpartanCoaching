@@ -9,7 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
+import { isWorkspacePath, loginWithReturn, requiresAuthenticationPath } from "@/lib/workspaceShell";
 import { PageLoadingState, RouteErrorBoundary } from "@/components/RouteRecovery";
 import { SEO } from "@/components/SEO";
 import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
@@ -326,10 +326,8 @@ function AppLayout() {
   // Public tool previews remain available when not authenticated.
   useEffect(() => {
     if (isLoading || isAuthenticated || isAuthShell || isBrandedAssessment) return;
-    const pathOnly = location.split("?")[0] || location;
-    // Hard require auth for portal home and account (not public marketing)
-    if (pathOnly === "/portal" || pathOnly.startsWith("/portal/") || pathOnly === "/account" || pathOnly.startsWith("/account/") || pathOnly.startsWith("/admin")) {
-      setLocation(loginWithReturn(pathOnly));
+    if (requiresAuthenticationPath(location)) {
+      setLocation(loginWithReturn(location));
     }
   }, [isLoading, isAuthenticated, isAuthShell, isBrandedAssessment, location, setLocation]);
 

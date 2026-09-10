@@ -58,7 +58,7 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
   };
 
   return (
-    <main className="field-home" data-testid="elite-portal-home">
+    <div className="field-home" data-testid="elite-portal-home">
       <header className="field-home-header">
         <span className="field-kicker">Private field workspace</span>
         <h1 className="field-greeting">Good {greeting}{firstName ? `, ${firstName}` : ""}.</h1>
@@ -199,6 +199,6 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

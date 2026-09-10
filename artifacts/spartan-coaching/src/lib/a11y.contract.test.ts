@@ -105,6 +105,31 @@ describe("a11y contracts (source-level)", () => {
     expect(shell).toMatch(/aria-label="Workspace navigation"/);
     expect(shell).toMatch(/aria-label="Universal workspace search"/);
     expect(shell).toMatch(/data-testid="app-shell"/);
+    expect(shell).toMatch(/role="combobox"/);
+    expect(shell).toMatch(/role="listbox"/);
+    expect(shell).toMatch(/role="option"/);
+    expect(shell).toMatch(/ArrowDown/);
+    expect(shell).toMatch(/ArrowUp/);
+    expect(shell).toMatch(/Escape/);
+    expect(shell).toMatch(/tabIndex=\{-1\}/);
+    expect(shell).toMatch(/scrollIntoView/);
+  });
+
+  it("portal home does not nest a second main landmark inside AppShell", () => {
+    const home = read("components/elite/ElitePortalHome.tsx");
+    expect(home).not.toMatch(/<main/);
+  });
+
+  it("workspace preference and coach action failures are announced once", () => {
+    const portal = read("pages/Portal.tsx");
+    const coach = read("pages/Coach.tsx");
+    expect(portal).toMatch(/if \(!response\.ok\) throw/);
+    expect(portal).toMatch(/leadership-preference-error/);
+    expect(portal).toMatch(/disabled=\{leadershipSaving\}/);
+    expect(portal).toMatch(/requestId === nextMoveRequestRef\.current/);
+    expect(coach).toMatch(/browser blocked the print window/);
+    expect(coach).toMatch(/Could not copy the brief/);
+    expect((coach.match(/role="alert"/g) || []).length).toBe(1);
   });
 
   it("login associates labels with inputs", () => {

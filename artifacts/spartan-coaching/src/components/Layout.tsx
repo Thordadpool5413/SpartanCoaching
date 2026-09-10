@@ -278,22 +278,22 @@ export function Header() {
 
   return (
     <header className="public-site-header sticky top-0 z-50 w-full safe-area-top">
-      <div className="public-site-header-inner max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 h-[4.75rem] sm:h-20 flex items-center safe-area-x">
+      <div className="public-site-header-inner max-w-[96rem] mx-auto px-3 sm:px-6 lg:px-8 h-[4.75rem] sm:h-20 flex items-center safe-area-x">
         {/* Brand — fixed footprint, never collides with nav */}
-        <div className="public-site-brand shrink-0 flex items-center pr-3 sm:pr-5 2xl:pr-7 2xl:mr-2 2xl:border-r 2xl:border-border">
+        <div className="public-site-brand shrink-0 flex items-center pr-1 sm:pr-5 2xl:pr-7 2xl:mr-2 2xl:border-r 2xl:border-border">
           <Link href={homeHref}>
             <div
-              className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
+              className="flex items-center gap-2 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
               data-testid="link-home"
             >
               <span
-                className="brand-helmet-mark h-11 w-11 sm:h-12 sm:w-12"
+                className="brand-helmet-mark h-10 w-10 sm:h-12 sm:w-12"
                 role="img"
                 aria-label="Spartan Coaching helmet"
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="font-black text-[1.1rem] sm:text-[1.35rem] md:text-[1.5rem] text-primary tracking-[-0.02em] font-display block leading-none group-hover:text-primary whitespace-nowrap">
+                <span className="font-black text-[0.95rem] min-[360px]:text-[1.1rem] sm:text-[1.35rem] md:text-[1.5rem] text-primary tracking-[-0.02em] font-display block leading-none group-hover:text-primary whitespace-nowrap">
                   SPARTAN COACHING
                 </span>
                 <span className="hidden md:block text-[11px] leading-none font-bold uppercase tracking-[0.15em] text-muted-foreground mt-2 whitespace-nowrap">
@@ -335,7 +335,7 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="public-site-actions flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 2xl:pl-5 2xl:border-l 2xl:border-border">
+        <div className="public-site-actions flex items-center gap-1 sm:gap-2.5 shrink-0 ml-auto pl-1 sm:pl-4 2xl:pl-5 2xl:border-l 2xl:border-border">
           <AppearanceControls
             compact
             className="hidden xl:inline-flex touch-manipulation"
@@ -387,12 +387,12 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                 className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-border bg-card px-3 text-card-foreground hover:bg-muted"
+                 className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-border bg-card px-2 min-[400px]:px-3 text-card-foreground hover:bg-muted"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >
                 <Menu className="w-6 h-6" />
-                <span className="text-sm font-mono font-bold uppercase tracking-[0.08em]">
+                <span className="hidden min-[400px]:inline text-sm font-mono font-bold uppercase tracking-[0.08em]">
                   Menu
                 </span>
               </Button>

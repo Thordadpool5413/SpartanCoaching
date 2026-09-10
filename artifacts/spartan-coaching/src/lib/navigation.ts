@@ -87,7 +87,6 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
   { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
-  { path: "/portal/learn", label: "Learn", description: "Member learning paths, resources, drills, and knowledge", icon: BookOpen },
   { path: "/portal/learn", label: "Learn", description: "Hospice sales knowledge, practice, and field lessons", icon: GraduationCap },
   { path: "/my-work", label: "My Work", description: "Saved tool results, briefs, and next actions", icon: FolderOpen },
   { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`, icon: Wrench },
@@ -98,7 +97,6 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
   { path: "/tools/intelligence", label: "Spartan Intelligence", description: "Verified provider, market, and policy intelligence", icon: Search },
   { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
-  { path: "/my-work", label: "My Work", description: "Resume synced drafts, reports, resources, downloads, commitments, and Elite outputs", icon: FolderOpen },
   { path: "/my-work/elite-outputs", label: "Saved Elite outputs", description: "Review saved advanced nonclinical tool results", icon: FileText },
   { path: "/portal/coach", label: "Coach", description: "Private coaching conversation and commitments", icon: MessageCircle },
   { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },
@@ -128,6 +126,9 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/disclaimer", label: "Disclaimer", description: "Important notices", icon: ScrollText },
   { path: "/legal", label: "Legal Agreements", description: "Contracts and legal documents", icon: Scale },
   { path: "/compliance", label: "Compliance & Ethics", description: "No PHI stance and practices", icon: Shield },
+  { path: "/org/admin", label: "Organization admin", description: "Manage organization seats and members", icon: Users },
+  { path: "/admin", label: "Platform admin", description: "Operate the Spartan Coaching platform", icon: Shield },
+  { path: "/admin/access-desk", label: "Access desk", description: "Review and manage account access", icon: Lock },
 ];
 
 export const allSearchablePages: SiteNavItem[] = [

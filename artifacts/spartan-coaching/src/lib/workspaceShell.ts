@@ -345,7 +345,28 @@ export function workspaceNavContractErrors(
 export function loginWithReturn(pathname: string): string {
   const p = normalizePath(pathname);
   if (!p || p === "/" || p.startsWith("/login")) return "/login";
-  return `/login?next=${encodeURIComponent(p)}`;
+  const sameOriginPath =
+    pathname.startsWith("/") && !pathname.startsWith("//")
+      ? pathname.split("#")[0] || p
+      : p;
+  return `/login?next=${encodeURIComponent(sameOriginPath)}`;
+}
+
+/** Private web surfaces that never have a signed-out preview. */
+export function requiresAuthenticationPath(pathname: string): boolean {
+  const p = normalizePath(pathname);
+  return (
+    p === "/portal" ||
+    p.startsWith("/portal/") ||
+    p === "/account" ||
+    p.startsWith("/account/") ||
+    p === "/my-work" ||
+    p.startsWith("/my-work/") ||
+    p === "/org/admin" ||
+    p.startsWith("/org/admin/") ||
+    p === "/admin" ||
+    p.startsWith("/admin/")
+  );
 }
 
 /** Whether a role may open a nav item. */

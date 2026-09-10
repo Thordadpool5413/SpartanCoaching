@@ -145,16 +145,24 @@ export default function Coach() {
   }
 
   async function copyResponse(message: Message) {
-    await navigator.clipboard.writeText(message.content);
-    setCopiedMessageId(message.id);
-    window.setTimeout(() => setCopiedMessageId(null), 1800);
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopiedMessageId(message.id);
+      window.setTimeout(() => setCopiedMessageId(null), 1800);
+    } catch {
+      setError("Could not copy the brief. Select the text and copy it manually.");
+    }
   }
 
   function printResponse(message: Message) {
-    const popup = window.open("", "_blank", "noopener,noreferrer");
-    if (!popup) return;
+    const popup = window.open("", "_blank");
+    if (!popup) {
+      setError("Your browser blocked the print window. Allow pop-ups and try again.");
+      return;
+    }
+    popup.opener = null;
     const safe = message.content.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1><AccentText>Spartan Coach Brief</AccentText></h1><pre>${safe}</pre></body></html>`);
+    popup.document.write(`<!doctype html><html><head><title>Spartan Coach Brief</title><style>body{font:16px/1.65 system-ui,-apple-system,sans-serif;max-width:760px;margin:48px auto;padding:0 24px;color:#111}h1{font-size:24px}pre{white-space:pre-wrap;font:inherit}</style></head><body><h1>Spartan Coach Brief</h1><pre>${safe}</pre></body></html>`);
     popup.document.close();
     popup.focus();
     popup.print();
@@ -248,7 +256,6 @@ export default function Coach() {
           </div>
 
           <div className="border-t border-border bg-background p-4 sm:p-6">
-            {error && <p className="text-sm text-destructive mb-3" role="alert">{error}</p>}
             <div className="flex flex-col sm:flex-row gap-3 items-end">
               <Textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); }

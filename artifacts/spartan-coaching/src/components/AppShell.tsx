@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Clock,
@@ -208,6 +208,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [apiHits, setApiHits] = useState<UniversalSearchHit[] | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchUsingLocal, setSearchUsingLocal] = useState(false);
+  const [activeSearchIndex, setActiveSearchIndex] = useState(-1);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const corpus = useMemo(() => workspaceSearchCorpus(), []);
   const currentSection = useMemo(
@@ -275,6 +277,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [searchQ, member]);
 
   useEffect(() => {
+    setActiveSearchIndex(-1);
+  }, [searchQ, results.length]);
+
+  useEffect(() => {
+    if (activeSearchIndex < 0) return;
+    document
+      .getElementById(`workspace-search-option-${activeSearchIndex}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [activeSearchIndex]);
+
+  useEffect(() => {
     const path = location.split("?")[0] || location;
     if (!path.startsWith("/")) return;
     const hit = corpus.find((c) => c.path === path);
@@ -309,6 +322,28 @@ export function AppShell({ children }: { children: ReactNode }) {
     setSearchOpen(false);
     setSearchQ("");
     setMobileOpen(false);
+  };
+
+  const onSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") {
+      setSearchOpen(false);
+      setActiveSearchIndex(-1);
+      return;
+    }
+    if (!searchOpen && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+      setSearchOpen(true);
+    }
+    if (results.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveSearchIndex((current) => (current + 1) % results.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveSearchIndex((current) => (current <= 0 ? results.length - 1 : current - 1));
+    } else if (event.key === "Enter" && activeSearchIndex >= 0) {
+      event.preventDefault();
+      go(results[activeSearchIndex].path);
+    }
   };
 
   return (
@@ -364,7 +399,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </Button>
 
-          <div className="field-search-container">
+          <div
+            ref={searchContainerRef}
+            className="field-search-container"
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                setSearchOpen(false);
+                setActiveSearchIndex(-1);
+              }
+            }}
+          >
             <Search className="field-search-icon" aria-hidden />
             <Input
               value={searchQ}
@@ -373,28 +417,36 @@ export function AppShell({ children }: { children: ReactNode }) {
                 setSearchOpen(true);
               }}
               onFocus={() => setSearchOpen(true)}
-              onBlur={() => {
-                window.setTimeout(() => setSearchOpen(false), 150);
-              }}
+              onKeyDown={onSearchKeyDown}
               placeholder="Search workspace…"
               className="field-search-input"
               aria-label="Universal workspace search"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={searchOpen}
+              aria-controls="workspace-search-results"
+              aria-activedescendant={activeSearchIndex >= 0 ? `workspace-search-option-${activeSearchIndex}` : undefined}
               data-testid="workspace-search"
             />
             {searchOpen && (
-              <div className="field-search-results" data-testid="workspace-search-results">
+              <div id="workspace-search-results" className="field-search-results" role="listbox" aria-label="Workspace search results" data-testid="workspace-search-results">
                 {searchLoading ? (
-                  <p className="px-4 py-4 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center">Searching…</p>
+                  <p className="px-4 py-4 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center" role="status">Searching…</p>
                 ) : null}
                 {!searchLoading && results.length === 0 ? (
                   <p className="px-4 py-6 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center">No matches</p>
                 ) : (
-                  results.map((item) => (
+                  results.map((item, index) => (
                     <button
                       key={`${item.path}-${item.label}`}
+                      id={`workspace-search-option-${index}`}
                       type="button"
-                      className="field-search-result-item"
+                      tabIndex={-1}
+                      role="option"
+                      aria-selected={activeSearchIndex === index}
+                      className={cn("field-search-result-item", activeSearchIndex === index && "active")}
                       onMouseDown={(e) => e.preventDefault()}
+                      onMouseEnter={() => setActiveSearchIndex(index)}
                       onClick={() => go(item.path)}
                       data-testid={`workspace-search-${item.path.replace(/[^a-z0-9]+/gi, "-")}`}
                     >

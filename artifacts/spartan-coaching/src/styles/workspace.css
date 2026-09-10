@@ -137,6 +137,7 @@
 .field-search-container {
   position: relative;
   flex: 1;
+  min-width: 0;
   max-width: 400px;
   margin-left: 8px;
 }
@@ -211,6 +212,11 @@
 
 .field-search-result-item:hover {
   background-color: hsl(var(--muted));
+}
+
+.field-search-result-item.active {
+  background-color: hsl(var(--muted));
+  box-shadow: inset 3px 0 0 hsl(var(--primary));
 }
 
 .field-search-result-title {
@@ -513,7 +519,7 @@
 
 .field-lane-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 32px;
 }
 
