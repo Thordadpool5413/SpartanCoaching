@@ -21,7 +21,7 @@ export type NextMoveDecision = {
  * using available local/member signals.
  */
 export function determineNextMove(signals: MemberSignals): NextMoveDecision {
-  if (signals.hasCommitment) {
+  if (signals.hasCommitment && signals.canUseElite) {
     return { id: "commitment", stage: "Execute", why: "You have an unfinished commitment recorded." };
   }
   if (!signals.contextAvailable) {
@@ -40,7 +40,7 @@ export function determineNextMove(signals: MemberSignals): NextMoveDecision {
     return { id: "coach", stage: "Practice", why: "You have no active commitment. Practice your approach first." };
   }
   if (signals.alsoLeadsTeam) {
-    return { id: "leadership", stage: "Prepare", why: "As a team leader, your next move is enabling others." };
+    return { id: "leadership", stage: "Execute", why: "As a team leader, your next move is enabling others." };
   }
   return { id: "playbook", stage: "Prepare", why: "Start the loop by preparing your next important conversation." };
 }

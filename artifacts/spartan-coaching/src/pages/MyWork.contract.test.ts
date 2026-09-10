@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), "utf
 
 describe("authenticated web My Work parity", () => {
   it("is a first class paid workspace destination", () => {
-    const nav = workspaceNavForRole("member").find((item) => item.id === "saved");
+    const nav = workspaceNavForRole("member").find((item) => item.id === "my_work");
     expect(nav?.href).toBe("/my-work");
     expect(nav?.label).toBe("My Work");
     expect(nav?.match("/my-work/elite-outputs")).toBe(true);

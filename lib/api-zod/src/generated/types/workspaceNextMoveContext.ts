@@ -12,9 +12,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './healthStatus';
-export * from './healthStatusBillingEmail';
-export * from './workspaceNextMoveContext';
-export * from './workspaceNextMoveRecommendation';
-export * from './workspaceNextMoveRecommendationStage';
-export * from './workspaceNextMoveResponse';
+export interface WorkspaceNextMoveContext {
+  contextAvailable: boolean;
+  hasJobRole: boolean;
+  hasCommitment: boolean;
+  hasDraftWork: boolean;
+  hasReviewableWork: boolean;
+  canUseElite: boolean;
+  alsoLeadsTeam: boolean;
+}

@@ -5,17 +5,17 @@ import {
   ArrowRight,
   BookOpen,
   Calculator,
-  CheckCircle2,
   FileText,
   RefreshCw,
   Shield,
   Smartphone,
-  Target,
+  Crosshair,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
+import { StateBlock } from "@/components/StateBlock";
 
 type ToolDraft = { value: Record<string, string>; updatedAt: string };
 type ToolResult = { value: string; updatedAt: string };
@@ -250,38 +250,33 @@ export default function MyWork() {
       </header>
 
       {loading ? (
-        <Card className="p-10 text-center text-muted-foreground">Loading your work…</Card>
+        <StateBlock variant="loading" title="Loading your work" description="Syncing cross-device continuity..." />
       ) : error ? (
-        <Card className="space-y-4 p-8 text-center" role="alert">
-          <p className="font-bold">My Work is temporarily unavailable</p>
-          <p className="text-sm text-muted-foreground">{error}</p>
-          <Button type="button" onClick={() => void load()}>Try again</Button>
-        </Card>
+        <StateBlock variant="error" title="My Work is temporarily unavailable" description={error} action={{ label: "Try again", onClick: () => void load() }} />
       ) : (
         <>
           {warning ? (
-            <Card className="flex flex-col gap-4 border-amber-500/30 bg-amber-500/[0.06] p-5 sm:flex-row sm:items-center sm:justify-between" role="status" data-testid="my-work-partial-warning">
-              <div><p className="font-bold">Some saved work is still syncing</p><p className="mt-1 text-sm text-muted-foreground">{warning}</p></div>
-              <Button type="button" variant="outline" onClick={() => void load()} className="shrink-0">Try again</Button>
-            </Card>
+            <div className="mb-6" data-testid="my-work-partial-warning">
+              <StateBlock variant="warning" title="Some saved work is still syncing" description={warning} action={{ label: "Try again", onClick: () => void load() }} />
+            </div>
           ) : null}
           <section className="grid gap-4 md:grid-cols-2">
+            <Link href="/tools/sales-workflow" className="block">
+              <Card className="h-full border-primary/25 p-6 transition hover:border-primary hover:shadow-md bg-primary/5">
+                <Crosshair className="h-6 w-6 text-primary" />
+                <h2 className="mt-4 text-xl font-black text-primary"><AccentText>Continue Command Center</AccentText></h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {continuity?.commitment?.value || "Resume your account preparation and execution plan."}
+                </p>
+                <span className="mt-5 inline-flex items-center text-sm font-bold text-primary">Open Command Center <ArrowRight className="ml-2 h-4 w-4" /></span>
+              </Card>
+            </Link>
             <Link href="/my-work/elite-outputs" className="block">
               <Card className="h-full border-primary/25 p-6 transition hover:border-primary hover:shadow-md">
                 <Shield className="h-6 w-6 text-highlight" />
                 <h2 className="mt-4 text-xl font-black"><AccentText>Saved Elite outputs</AccentText></h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">Review completed advanced, nonclinical tool results and reopen the tool that created them.</p>
                 <span className="mt-5 inline-flex items-center text-sm font-bold text-highlight">Open Elite outputs <ArrowRight className="ml-2 h-4 w-4" /></span>
-              </Card>
-            </Link>
-            <Link href="/portal/coach" className="block">
-              <Card className="h-full p-6 transition hover:border-primary hover:shadow-md">
-                <Target className="h-6 w-6 text-highlight" />
-                <h2 className="mt-4 text-xl font-black"><AccentText>Current commitment</AccentText></h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {continuity?.commitment?.value || "Open Coach and make one clear commitment for the next field action."}
-                </p>
-                <span className="mt-5 inline-flex items-center text-sm font-bold text-highlight">Open Coach <ArrowRight className="ml-2 h-4 w-4" /></span>
               </Card>
             </Link>
           </section>
@@ -314,12 +309,9 @@ export default function MyWork() {
           </WorkSection>
 
           {savedCount === 0 ? (
-            <Card className="p-10 text-center">
-              <CheckCircle2 className="mx-auto h-8 w-8 text-highlight" />
-              <h2 className="mt-4 text-xl font-black"><AccentText>Your next piece of work starts in Tools</AccentText></h2>
-              <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">Build a plan, run a calculator, use an interactive resource, or complete an Elite tool. Saved continuity returns here.</p>
-              <Button asChild className="mt-5"><Link href="/tools">Open Tools</Link></Button>
-            </Card>
+            <div className="mt-8">
+              <StateBlock variant="empty" title="Your next piece of work starts in Tools" description="Build a plan, run a calculator, use an interactive resource, or complete an Elite tool. Saved continuity returns here." action={{ label: "Open Tools", href: "/tools" }} />
+            </div>
           ) : null}
         </>
       )}

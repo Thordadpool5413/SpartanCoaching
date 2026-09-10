@@ -13,6 +13,7 @@ import { apiGet, fetchOnboardingMobile } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { listCoachMemory } from "@/lib/coachApi";
 import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
+import { trackMobileEvent } from "@/lib/analytics";
 import { haptics } from "@/lib/haptics";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { font } from "@/lib/typography";
@@ -69,6 +70,28 @@ export default function HomeScreen() {
   const [contextError, setContextError] = useState(false);
   const [contextReady, setContextReady] = useState(false);
   const [contextRetry, setContextRetry] = useState(0);
+  const [serverNextMove, setServerNextMove] = useState<{
+    recommendation: {
+      id: string;
+      stage: FieldLoopStage;
+      title: string;
+      description: string;
+      reason: string;
+      mobileHref: string;
+    };
+    context: {
+      contextAvailable: boolean;
+      hasJobRole: boolean;
+      hasCommitment: boolean;
+      hasDraftWork: boolean;
+      hasReviewableWork: boolean;
+      canUseElite: boolean;
+      alsoLeadsTeam: boolean;
+    };
+  } | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
+  const trackedNextMove = React.useRef(false);
+
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
   const designPreview = __DEV__ && Platform.OS === "web" && preview === "approved-home";
@@ -81,61 +104,110 @@ export default function HomeScreen() {
       let cancelled = false;
       setContextError(false);
       setContextReady(false);
+      setUsingFallback(false);
+      setServerNextMove(null);
+      trackedNextMove.current = false;
 
-      const onboardingRequest = fetchOnboardingMobile()
+      apiGet<NonNullable<typeof serverNextMove>>("/api/v1/workspace/next-move")
         .then((data) => {
-          if (!cancelled) {
-            setJobRole(data.member.jobRole || "");
-            setAlsoLeadsTeam(Boolean(data.member.alsoLeadsTeam));
-          }
-        })
-        .catch(() => {
-          if (!cancelled) setContextError(true);
-        });
-
-      const workRequest = apiGet<{ items: Array<{ status: string; updatedAt: string }> }>("/api/v1/member-work")
-        .then(({ items }) => {
           if (cancelled) return;
-          const recentCutoff = Date.now() - 14 * 24 * 60 * 60 * 1000;
-          setHasDraftWork(items.some((item) => item.status === "draft"));
-          setHasReviewableWork(
-            items.some(
-              (item) =>
-                item.status !== "draft" &&
-                Number.isFinite(Date.parse(item.updatedAt)) &&
-                Date.parse(item.updatedAt) >= recentCutoff,
-            ),
-          );
+          setServerNextMove(data);
+          setContextReady(true);
         })
         .catch(() => {
-          if (!cancelled) setContextError(true);
-        });
+          if (cancelled) return;
+          setUsingFallback(true);
+          setCommitment(null);
 
-      void Promise.all([onboardingRequest, workRequest]).finally(() => {
-        if (!cancelled) setContextReady(true);
-      });
+          const onboardingRequest = fetchOnboardingMobile()
+            .then((data) => {
+              if (!cancelled) {
+                setJobRole(data.member.jobRole || "");
+                setAlsoLeadsTeam(Boolean(data.member.alsoLeadsTeam));
+              }
+            })
+            .catch(() => {
+              if (!cancelled) setContextError(true);
+            });
 
-      if (canUseElite && user?.member?.id) {
-        void loadCachedCommitment(user.member.id).then((value) => {
-          if (!cancelled && value) setCommitment(value);
+          const workRequest = apiGet<{ items: Array<{ status: string; updatedAt: string }> }>("/api/v1/member-work")
+            .then(({ items }) => {
+              if (cancelled) return;
+              const recentCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+              setHasDraftWork(items.some((item) => item.status === "draft"));
+              setHasReviewableWork(
+                items.some(
+                  (item) =>
+                    item.status === "completed" &&
+                    Number.isFinite(Date.parse(item.updatedAt)) &&
+                    Date.parse(item.updatedAt) >= recentCutoff,
+                ),
+              );
+            })
+            .catch(() => {
+              if (!cancelled) setContextError(true);
+            });
+
+          const commitmentRequest = canUseElite && user?.member?.id
+            ? Promise.all([
+                loadCachedCommitment(user.member.id).catch(() => null),
+                listCoachMemory()
+                  .then((items) => ({ available: true as const, items }))
+                  .catch(() => ({ available: false as const, items: [] })),
+              ]).then(([cached, live]) => {
+                if (cancelled) return;
+                const latest = live.items.find((item) => item.category === "commitment" && item.enabled);
+                const resolved = live.available ? latest?.content ?? null : cached;
+                setCommitment(resolved);
+                if (latest?.content) void cacheCommitment(user.member.id, latest.content);
+              })
+            : Promise.resolve();
+
+          void Promise.all([onboardingRequest, workRequest, commitmentRequest]).finally(() => {
+            if (!cancelled) setContextReady(true);
+          });
         });
-        void listCoachMemory()
-          .then((items) => {
-            if (cancelled) return;
-            const latest = items.find((item) => item.category === "commitment" && item.enabled);
-            if (latest?.content) {
-              setCommitment(latest.content);
-              void cacheCommitment(user.member.id, latest.content);
-            }
-          })
-          .catch(() => undefined);
-      }
 
       return () => {
         cancelled = true;
       };
     }, [canUseElite, canUseFieldKit, contextRetry, designPreview, refresh, user?.member?.id]),
   );
+
+  React.useEffect(() => {
+    if (designPreview || !contextReady || trackedNextMove.current) return;
+    trackedNextMove.current = true;
+    if (serverNextMove) {
+      void trackMobileEvent("product", "NEXT_MOVE_SHOWN", {
+        metadata: JSON.stringify({ source: "server", stepId: serverNextMove.recommendation.id }),
+      });
+    } else if (usingFallback) {
+      const decision = determineNextMove({
+        contextAvailable: !contextError,
+        hasJobRole: !!jobRole,
+        hasCommitment: !!commitment,
+        hasDraftWork,
+        hasReviewableWork,
+        canUseElite,
+        alsoLeadsTeam,
+      });
+      void trackMobileEvent("product", "NEXT_MOVE_SHOWN", {
+        metadata: JSON.stringify({ source: "fallback", stepId: decision.id }),
+      });
+    }
+  }, [
+    contextReady,
+    serverNextMove,
+    usingFallback,
+    contextError,
+    jobRole,
+    commitment,
+    hasDraftWork,
+    hasReviewableWork,
+    canUseElite,
+    alsoLeadsTeam,
+    designPreview,
+  ]);
 
   if (!isAuthenticated && !designPreview) {
     return <WelcomeExperience topPad={topPad} bottomPad={bottomPad} />;
@@ -147,7 +219,7 @@ export default function HomeScreen() {
 
   const firstName = designPreview ? "Nick" : user?.member?.name?.trim().split(/\s+/)[0] || "there";
 
-  const signals = {
+  const signals = serverNextMove ? serverNextMove.context : {
     contextAvailable: designPreview || (contextReady && !contextError),
     hasJobRole: !!jobRole,
     hasCommitment: !!commitment,
@@ -158,6 +230,7 @@ export default function HomeScreen() {
   };
 
   const nextMoveDecision = determineNextMove(signals);
+  const resolvingFallback = usingFallback && !contextReady;
 
   const ALL_DESTINATIONS = [
     {
@@ -242,19 +315,60 @@ export default function HomeScreen() {
     },
   ];
 
-  const primaryDest = ALL_DESTINATIONS.find((d) => d.id === nextMoveDecision.id)!;
+  let primaryDest: {
+    id: string;
+    stage: FieldLoopStage;
+    title: string;
+    description: string;
+    why: string;
+    icon: React.ComponentProps<typeof Feather>["name"];
+    route: Href;
+    testID: string;
+  };
+
+  if (serverNextMove) {
+    const serverId = serverNextMove.recommendation.id;
+    const fallbackMatch = ALL_DESTINATIONS.find((d) => d.id === serverId);
+    primaryDest = {
+      id: serverId,
+      stage: serverNextMove.recommendation.stage,
+      title: serverNextMove.recommendation.title,
+      description: serverNextMove.recommendation.description,
+      why: serverNextMove.recommendation.reason,
+      icon: fallbackMatch?.icon || ("target" as const),
+      route: (serverNextMove.recommendation.mobileHref || fallbackMatch?.route || "/(tabs)/tools") as Href,
+      testID: `home-primary-${serverId}`,
+    };
+  } else {
+    const fallbackMatch = ALL_DESTINATIONS.find((d) => d.id === nextMoveDecision.id)!;
+    primaryDest = {
+      ...fallbackMatch,
+      stage: nextMoveDecision.stage,
+      why: nextMoveDecision.why,
+    };
+  }
+
   const secondaryDestinations = ALL_DESTINATIONS.filter((d) => {
-    if (d.id === nextMoveDecision.id) return false;
+    if (d.id === primaryDest.id) return false;
     if (d.id === "setup" && signals.hasJobRole) return false;
     if (d.id === "leadership" && !signals.alsoLeadsTeam) return false;
     if (d.id === "resume-work" || d.id === "review-work") return false;
     return true;
   });
 
-  const open = (route: Href) => {
+  const [navigating, setNavigating] = useState(false);
+  const open = (dest: { id: string; route: Href }, isPrimary: boolean) => {
+    if (navigating) return;
+    setNavigating(true);
     haptics.tap(reduceMotion);
-    // test assertion compat: open("/tool/playbook" as Href)
-    router.push(route);
+    void trackMobileEvent("product", isPrimary ? "NEXT_MOVE_SELECTED" : "DESTINATION_SELECTED", {
+      metadata: JSON.stringify({
+        source: serverNextMove && isPrimary ? "server" : "fallback",
+        stepId: dest.id,
+      }),
+    });
+    router.push(dest.route);
+    setTimeout(() => setNavigating(false), 500);
   };
 
   return (
@@ -278,7 +392,7 @@ export default function HomeScreen() {
         <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.intro}>
           Prepare the moment, practice the language, and leave with one clear next move.
         </Text>
-        {contextError ? (
+        {(contextError || usingFallback) && !resolvingFallback ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Retry loading your daily recommendation"
@@ -288,18 +402,34 @@ export default function HomeScreen() {
           >
             <Feather name="wifi-off" size={17} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.contextNoticeTitle}>Using what is saved on this iPhone</Text>
-              <Text style={styles.contextNoticeBody}>Some account context is unavailable. Tap to retry.</Text>
+              <Text style={styles.contextNoticeTitle}>
+                {contextError ? "Using what is saved on this iPhone" : "Using available account context"}
+              </Text>
+              <Text style={styles.contextNoticeBody}>
+                {contextError
+                  ? "Some account context is unavailable. Tap to retry."
+                  : "The shared recommendation is unavailable, so this move was calculated on this device. Tap to retry."}
+              </Text>
             </View>
             <Feather name="refresh-cw" size={17} color={colors.accent === "#FDB927" ? colors.accent : colors.primary} />
           </Pressable>
         ) : null}
 
+        {resolvingFallback ? (
+          <View accessibilityRole="progressbar" style={styles.primaryLoading} testID="home-next-move-loading">
+            <Feather name="loader" size={22} color={colors.readablePrimary} />
+            <Text style={styles.contextNoticeTitle}>Building your next move…</Text>
+            <Text style={styles.contextNoticeBody}>Checking the account context available on this device.</Text>
+          </View>
+        ) : null}
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={primaryDest.title}
-          onPress={() => open(primaryDest.route)}
-          style={({ pressed }) => [styles.primaryWrap, pressed && styles.pressed]}
+          accessibilityElementsHidden={resolvingFallback}
+          importantForAccessibility={resolvingFallback ? "no-hide-descendants" : "auto"}
+          onPress={() => open(primaryDest, true)}
+          style={({ pressed }) => [styles.primaryWrap, resolvingFallback && styles.hidden, pressed && styles.pressed]}
           testID={primaryDest.testID}
         >
           <LinearGradient
@@ -320,7 +450,7 @@ export default function HomeScreen() {
                <Feather name="arrow-up-right" size={21} color={colors.heroForeground} />
             </View>
 
-            <FieldLoopTreatment currentStage={nextMoveDecision.stage} styles={styles} />
+            <FieldLoopTreatment currentStage={primaryDest.stage} styles={styles} />
 
             <View style={{ marginTop: 20 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 }}>
@@ -335,7 +465,7 @@ export default function HomeScreen() {
               <View style={styles.whyBox}>
                   <Feather name="info" size={14} color={colors.heroMuted} />
                  <Text maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER} style={styles.whyText}>
-                   {nextMoveDecision.why}
+                   {primaryDest.why}
                  </Text>
               </View>
             </View>
@@ -350,7 +480,7 @@ export default function HomeScreen() {
             <Pressable
               key={destination.id}
               accessibilityRole="button"
-              onPress={() => open(destination.route)}
+              onPress={() => open(destination, false)}
               style={({ pressed }) => [styles.destinationRow, pressed && styles.pressed]}
               testID={destination.testID}
             >
@@ -392,6 +522,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     contextNoticeTitle: { color: colors.foreground, fontSize: 12, ...font("bold") },
     contextNoticeBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 15, marginTop: 2, ...font("regular") },
     primaryWrap: { marginTop: 24, borderRadius: 24, borderCurve: "continuous", shadowColor: colors.primary, shadowOpacity: 0.28, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } },
+    primaryLoading: { minHeight: 242, marginTop: 24, borderRadius: 24, borderCurve: "continuous", alignItems: "center", justifyContent: "center", gap: 8, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 22 },
     primaryCard: { minHeight: 242, borderRadius: 24, borderCurve: "continuous", padding: 22, overflow: "hidden" },
     primaryTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
      primaryIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
@@ -414,5 +545,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     destinationTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     destinationBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
+    hidden: { display: "none" },
   });
 }

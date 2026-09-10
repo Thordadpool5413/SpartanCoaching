@@ -27,20 +27,26 @@ describe("homeDecisionModel", () => {
     expect(move.why).toContain("Loading");
   });
 
-  it("keeps a locally cached commitment above unavailable account context", () => {
+  it("keeps an entitled locally cached commitment above unavailable account context", () => {
     const move = determineNextMove({
       ...baseSignals,
       contextAvailable: false,
       hasJobRole: false,
       hasCommitment: true,
+      canUseElite: true,
     });
     expect(move.id).toBe("commitment");
   });
 
   it("recommends commitment if present", () => {
-    const move = determineNextMove({ ...baseSignals, hasCommitment: true });
+    const move = determineNextMove({ ...baseSignals, hasCommitment: true, canUseElite: true });
     expect(move.id).toBe("commitment");
     expect(move.stage).toBe("Execute");
+  });
+
+  it("does not route a downgraded member to an Elite-only commitment", () => {
+    const move = determineNextMove({ ...baseSignals, hasCommitment: true, canUseElite: false });
+    expect(move.id).toBe("playbook");
   });
 
   it("recommends coach if elite and no commitment", () => {
@@ -64,7 +70,7 @@ describe("homeDecisionModel", () => {
   it("recommends leadership if alsoLeadsTeam and no elite/commitment", () => {
     const move = determineNextMove({ ...baseSignals, alsoLeadsTeam: true });
     expect(move.id).toBe("leadership");
-    expect(move.stage).toBe("Prepare");
+    expect(move.stage).toBe("Execute");
   });
 
   it("falls back to playbook", () => {

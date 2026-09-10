@@ -2,14 +2,18 @@ import { AccentText } from "@/components/AccentText";
 import { SEO } from "@/components/SEO";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { MembershipActivation } from "@/components/MembershipActivation";
-import { ElitePortalHome } from "@/components/elite/ElitePortalHome";
+import { ElitePortalHome, type NextMoveData } from "@/components/elite/ElitePortalHome";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Switch } from "@/components/ui/switch";
 
 export default function Portal() {
-  const { member, canUseFieldKit, isLoading } = useAuth();
+  const { member, canUseFieldKit, isLoading: authLoading } = useAuth();
   const [alsoLeadsTeam, setAlsoLeadsTeam] = useState(false);
+
+  const [nextMove, setNextMove] = useState<NextMoveData | null>(null);
+  const [loadingNextMove, setLoadingNextMove] = useState(true);
+  const [nextMoveError, setNextMoveError] = useState(false);
 
   useEffect(() => {
     if (!canUseFieldKit) return;
@@ -19,6 +23,26 @@ export default function Portal() {
       .catch(() => undefined);
   }, [canUseFieldKit]);
 
+  const loadNextMove = useCallback(async () => {
+    setLoadingNextMove(true);
+    setNextMoveError(false);
+    try {
+      const res = await fetch("/api/v1/workspace/next-move", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load next move");
+      const data = await res.json();
+      setNextMove(data?.recommendation || null);
+    } catch {
+      setNextMoveError(true);
+    } finally {
+      setLoadingNextMove(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!canUseFieldKit) return;
+    void loadNextMove();
+  }, [canUseFieldKit, loadNextMove]);
+
   async function updateLeadershipPreference(checked: boolean) {
     setAlsoLeadsTeam(checked);
     await fetch("/api/me/onboarding", {
@@ -27,9 +51,11 @@ export default function Portal() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ alsoLeadsTeam: checked }),
     }).catch(() => setAlsoLeadsTeam(!checked));
+    // Refresh next move to include leadership context changes
+    void loadNextMove();
   }
 
-  if (isLoading) {
+  if (authLoading) {
     return <div className="grid min-h-[60vh] place-items-center" role="status"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /><span className="sr-only">Loading workspace</span></div>;
   }
 
@@ -43,11 +69,10 @@ export default function Portal() {
         <h1 id="portal-next-action-heading" className="sr-only"><AccentText>Your Hospice Sales Pro workspace</AccentText></h1>
         <ElitePortalHome
           firstName={member?.name?.split(" ")[0] || ""}
-          nextMove={{
-            title: "Open today’s Command Center",
-            desc: "Choose the next account, prepare the conversation, record the outcome, and lock the next commitment.",
-            href: "/tools/sales-workflow",
-          }}
+          nextMove={nextMove}
+          loading={loadingNextMove}
+          error={nextMoveError}
+          onRetry={loadNextMove}
         />
         <div className="mx-auto -mt-3 w-full max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
           <details className="rounded-xl border border-border/70 bg-card/40 p-4">

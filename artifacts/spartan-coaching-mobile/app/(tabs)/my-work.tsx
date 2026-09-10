@@ -11,9 +11,12 @@ import { font } from "@/lib/typography";
 import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
 import { apiGet } from "@/lib/api";
 import { loadCachedCommitment } from "@/lib/commitmentCache";
+import { haptics } from "@/lib/haptics";
+import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { openToolHref } from "@/lib/toolDeepLinks";
 import { getToolById } from "@workspace/field-kit-catalog";
 import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
+import { type FieldLoopStage } from "@/lib/homeDecisionModel";
 
 type MemberWorkItem = {
   id: string;
@@ -25,23 +28,52 @@ type MemberWorkItem = {
   updatedAt: string;
 };
 
+type NextMoveResponse = {
+  recommendation: {
+    id: string;
+    stage: FieldLoopStage;
+    title: string;
+    description: string;
+    reason: string;
+    mobileHref: string;
+  };
+};
+
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, canUseElite, user } = useAuth();
+  const { reduceMotion } = useAccessibilityPrefs();
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
   const [memberWork, setMemberWork] = useState<MemberWorkItem[]>([]);
   const [commitment, setCommitment] = useState<string | null>(null);
+  const [serverNextMove, setServerNextMove] = useState<NextMoveResponse | null>(null);
   const [loadingWork, setLoadingWork] = useState(false);
+  const [loadingNextMove, setLoadingNextMove] = useState(false);
   const [workError, setWorkError] = useState("");
+  const [nextMoveError, setNextMoveError] = useState(false);
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
   const loadMemberWork = useCallback(async () => {
     const result = await apiGet<{ items: MemberWorkItem[] }>("/api/v1/member-work");
     return result.items || [];
+  }, []);
+
+  const loadNextMove = useCallback(async () => {
+    setLoadingNextMove(true);
+    setNextMoveError(false);
+    try {
+      const res = await apiGet<NextMoveResponse>("/api/v1/workspace/next-move");
+      setServerNextMove(res);
+    } catch {
+      setNextMoveError(true);
+      setServerNextMove(null);
+    } finally {
+      setLoadingNextMove(false);
+    }
   }, []);
 
   const refreshWork = useCallback(async () => {
@@ -55,7 +87,8 @@ export default function MyWorkScreen() {
     } finally {
       setLoadingWork(false);
     }
-  }, [loadMemberWork]);
+    void loadNextMove();
+  }, [loadMemberWork, loadNextMove]);
 
   useFocusEffect(useCallback(() => {
     let cancelled = false;
@@ -77,8 +110,13 @@ export default function MyWorkScreen() {
       setCommitment(nextCommitment);
       setLoadingWork(false);
     });
+
+    if (canUseFieldKit) {
+      void loadNextMove();
+    }
+
     return () => { cancelled = true; };
-  }, [user?.member.id, loadMemberWork]));
+  }, [user?.member.id, loadMemberWork, loadNextMove, canUseFieldKit]));
 
   const openMemberWork = (item: MemberWorkItem) => {
     const classic = getToolById(item.toolId);
@@ -153,13 +191,46 @@ export default function MyWorkScreen() {
                   </View>
                   <Text style={styles.commitmentTitle}>{commitment}</Text>
                   <Text style={styles.commitmentBody}>Return to Coach when you are ready to review the outcome or set the next commitment.</Text>
-                  <Pressable style={styles.commitmentAction} onPress={() => router.push("/(tabs)/coach" as never)} accessibilityRole="button">
+                  <Pressable style={({ pressed }) => [styles.commitmentAction, pressed && styles.pressed]} onPress={() => { haptics.tap(reduceMotion); router.push("/(tabs)/coach" as never); }} accessibilityRole="button">
                     <Text style={styles.commitmentActionText}>Open Coach</Text>
                     <Feather name="arrow-right" size={17} color={colors.readablePrimary} />
                   </Pressable>
                 </View>
               </>
             ) : null}
+
+            <Text style={styles.sectionLabel}>COMMAND CENTER</Text>
+            {loadingNextMove ? (
+              <View style={styles.loadingCard}><ActivityIndicator color={colors.readablePrimary} /><Text style={styles.downloadEmptyText}>Loading your next move…</Text></View>
+            ) : nextMoveError ? (
+              <View style={styles.errorCard}>
+                <View style={styles.errorHeader}>
+                  <Feather name="wifi-off" size={18} color={colors.readablePrimary} />
+                  <Text style={styles.errorTitle}>Using the daily Command fallback</Text>
+                </View>
+                <Text style={styles.errorBody}>Personalized context is unavailable, but your core field workflow is ready.</Text>
+                <View style={styles.fallbackActions}>
+                  <Pressable accessibilityRole="button" style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]} onPress={() => { haptics.tap(reduceMotion); router.push("/(tabs)/command" as never); }}>
+                    <Feather name="crosshair" size={15} color={colors.foreground} />
+                    <Text style={styles.retryButtonText}>Open Command</Text>
+                  </Pressable>
+                  <Pressable accessibilityRole="button" style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]} onPress={() => { haptics.tap(reduceMotion); void loadNextMove(); }}>
+                    <Feather name="refresh-cw" size={15} color={colors.foreground} />
+                    <Text style={styles.retryButtonText}>Retry</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : serverNextMove ? (
+              <WorkRow
+                icon="zap"
+                iconColor={colors.accent === "#FDB927" ? colors.accent : colors.primary}
+                title={serverNextMove.recommendation.title}
+                body={serverNextMove.recommendation.stage.toUpperCase() + " · " + serverNextMove.recommendation.description}
+                onPress={() => router.push((serverNextMove.recommendation.mobileHref || "/(tabs)/tools") as never)}
+              />
+            ) : (
+              <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>No recommended move right now.</Text></View>
+            )}
 
             <Text style={styles.sectionLabel}>CONNECTED WORK</Text>
             {loadingWork ? (
@@ -224,22 +295,52 @@ export default function MyWorkScreen() {
 function SavedReportRow({ report, onDelete }: { report: SavedCalculatorReport; onDelete: () => void | Promise<void> }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const { reduceMotion } = useAccessibilityPrefs();
+  const [isBusy, setIsBusy] = useState(false);
   const route = report.kind === "activity" ? "/activity-calculator" : report.kind === "roi" ? "/roi-calculator" : report.kind === "rep-cost" ? "/rep-cost-calculator" : "/staffing";
+
+  const handlePress = () => {
+    if (isBusy) return;
+    setIsBusy(true);
+    haptics.tap(reduceMotion);
+    router.push(route as never);
+    setTimeout(() => setIsBusy(false), 500);
+  };
+
+  const handleDelete = () => {
+    if (isBusy) return;
+    setIsBusy(true);
+    haptics.action(reduceMotion);
+    void onDelete();
+    setTimeout(() => setIsBusy(false), 500);
+  };
+
   return <View style={styles.savedReport}>
-    <Pressable accessibilityRole="button" accessibilityLabel={`Reopen ${report.title}`} onPress={() => router.push(route as never)} style={({ pressed }) => [styles.savedReportMain, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Reopen ${report.title}`} onPress={handlePress} style={({ pressed }) => [styles.savedReportMain, pressed && styles.pressed]}>
               <View style={styles.rowIcon}><Feather name="bar-chart-2" size={19} color={colors.readablePrimary} /></View>
       <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{report.title}</Text><Text style={styles.rowBody} numberOfLines={2}>{report.summary}</Text><Text style={styles.reportDate}>{new Date(report.createdAt).toLocaleDateString()}</Text></View>
       <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
     </Pressable>
-    <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${report.title}`} onPress={() => void onDelete()} hitSlop={8} style={styles.deleteReport}><Feather name="trash-2" size={17} color={colors.mutedForeground} /></Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${report.title}`} onPress={handleDelete} hitSlop={8} style={styles.deleteReport}><Feather name="trash-2" size={17} color={colors.mutedForeground} /></Pressable>
   </View>;
 }
 
 function WorkRow({ icon, iconColor, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; iconColor?: string; title: string; body: string; onPress: () => void }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const { reduceMotion } = useAccessibilityPrefs();
+  const [isBusy, setIsBusy] = useState(false);
+
+  const handlePress = () => {
+    if (isBusy) return;
+    setIsBusy(true);
+    haptics.tap(reduceMotion);
+    onPress();
+    setTimeout(() => setIsBusy(false), 500);
+  };
+
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="button" onPress={handlePress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <View style={styles.rowIcon}><Feather name={icon} size={19} color={iconColor || colors.readablePrimary} /></View>
       <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{title}</Text><Text style={styles.rowBody}>{body}</Text></View>
       <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
@@ -280,6 +381,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     errorTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     errorBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 8, ...font("regular") },
     retryButton: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", gap: 6, marginTop: 14, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.secondary },
+    fallbackActions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
     retryButtonText: { color: colors.foreground, fontSize: 13, ...font("bold") },
     downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
     emptyCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 20, marginTop: 30 },

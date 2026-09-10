@@ -9,6 +9,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bell,
+  BookOpen,
   Clock,
   Crosshair,
   FolderOpen,
@@ -28,9 +29,10 @@ export const WORKSPACE_SHELL_VERSION = "workspace-shell-v1";
 export type WorkspaceNavId =
   | "home"
   | "command"
-  | "explore"
+  | "tools"
   | "coach"
-  | "saved"
+  | "library"
+  | "my_work"
   | "recent"
   | "notifications"
   | "settings"
@@ -165,7 +167,8 @@ export function workspaceNavForRole(
       id: "home",
       destinationId: "home",
       href: "/portal",
-      label: "Home",
+      label: "Today",
+      short: "Today",
       icon: Home,
       primary: true,
       match: (loc) => normalizePath(loc) === "/portal",
@@ -174,30 +177,24 @@ export function workspaceNavForRole(
       id: "command",
       destinationId: "command",
       href: "/tools/sales-workflow",
-      label: "Command Center",
+      label: "Command",
       short: "Command",
       icon: Crosshair,
       primary: true,
       match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
     },
     {
-      id: "explore",
+      id: "tools",
       destinationId: "explore",
       href: "/tools",
-      label: "Explore",
+      label: "Tools",
       icon: Compass,
       primary: true,
       match: (loc) => {
         const p = normalizePath(loc);
         return (
           ((p === "/tools" || p.startsWith("/tools/")) && !p.startsWith("/tools/sales-workflow")) ||
-          p.startsWith("/spartan-intelligence") ||
-          p === "/resources" ||
-          p.startsWith("/resources/") ||
-          p === "/portal/learn" ||
-          p === "/drills" ||
-          p === "/quiz" ||
-          p.startsWith("/learn/")
+          p.startsWith("/spartan-intelligence")
         );
       },
     },
@@ -210,7 +207,26 @@ export function workspaceNavForRole(
       match: (loc) => normalizePath(loc).startsWith("/portal/coach"),
     },
     {
-      id: "saved",
+      id: "library",
+      destinationId: "library",
+      href: "/resources",
+      label: "Library",
+      icon: BookOpen,
+      primary: true,
+      match: (loc) => {
+        const p = normalizePath(loc);
+        return (
+          p === "/resources" ||
+          p.startsWith("/resources/") ||
+          p === "/portal/learn" ||
+          p === "/drills" ||
+          p === "/quiz" ||
+          p.startsWith("/learn/")
+        );
+      },
+    },
+    {
+      id: "my_work",
       destinationId: "my-work",
       href: "/my-work",
       label: "My Work",
@@ -239,8 +255,8 @@ export function workspaceNavForRole(
     {
       id: "settings",
       href: "/account",
-      label: "Account settings",
-      short: "Account",
+      label: "Account/Manage",
+      short: "Manage",
       icon: UserCircle,
       match: (loc) => {
         const p = normalizePath(loc);

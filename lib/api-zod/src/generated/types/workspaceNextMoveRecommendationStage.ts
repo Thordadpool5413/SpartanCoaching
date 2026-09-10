@@ -12,9 +12,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './healthStatus';
-export * from './healthStatusBillingEmail';
-export * from './workspaceNextMoveContext';
-export * from './workspaceNextMoveRecommendation';
-export * from './workspaceNextMoveRecommendationStage';
-export * from './workspaceNextMoveResponse';
+export type WorkspaceNextMoveRecommendationStage = typeof WorkspaceNextMoveRecommendationStage[keyof typeof WorkspaceNextMoveRecommendationStage];
+
+
+export const WorkspaceNextMoveRecommendationStage = {
+  Prepare: 'Prepare',
+  Practice: 'Practice',
+  Execute: 'Execute',
+  Review: 'Review',
+} as const;

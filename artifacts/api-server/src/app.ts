@@ -18,6 +18,7 @@ import { registerNotificationRoutes } from "./routes/notificationRoutes";
 import { registerCoachRoutes } from "./routes/coachRoutes";
 import { registerMemberSyncRoutes } from "./routes/memberSyncRoutes";
 import { registerMemberWorkRoutes } from "./routes/memberWorkRoutes";
+import { registerNextMoveRoutes } from "./routes/nextMoveRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession, type AuthedRequest } from "./auth/middleware";
 import { requireClinicalJurisdictionContext } from "./clinical/jurisdictionMiddleware";
@@ -171,6 +172,7 @@ registerNotificationRoutes(app);
 registerCoachRoutes(app);
 registerMemberSyncRoutes(app);
 registerMemberWorkRoutes(app);
+registerNextMoveRoutes(app);
 registerRoutes(app);
 
 export default app;

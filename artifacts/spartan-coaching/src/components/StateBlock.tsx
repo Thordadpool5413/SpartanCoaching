@@ -1,11 +1,11 @@
 import { AccentText } from "@/components/AccentText";
 import type { ReactNode } from "react";
-import { AlertCircle, Inbox, Loader2, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Inbox, Loader2, CheckCircle2, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type StateBlockProps = {
-  variant: "loading" | "empty" | "error" | "success";
+  variant: "loading" | "empty" | "error" | "warning" | "success";
   title: string;
   description?: string;
   action?: { label: string; onClick?: () => void; href?: string };
@@ -17,6 +17,7 @@ const ICONS = {
   loading: Loader2,
   empty: Inbox,
   error: AlertCircle,
+  warning: TriangleAlert,
   success: CheckCircle2,
 };
 
@@ -37,14 +38,14 @@ export function StateBlock({
       role={
         variant === "error"
           ? "alert"
-          : variant === "loading" || variant === "success"
+          : variant === "loading" || variant === "warning" || variant === "success"
             ? "status"
             : undefined
       }
       aria-live={
         variant === "error"
           ? "assertive"
-          : variant === "loading" || variant === "success"
+          : variant === "loading" || variant === "warning" || variant === "success"
             ? "polite"
             : undefined
       }
@@ -52,6 +53,7 @@ export function StateBlock({
       className={cn(
         "rounded-xl border border-border bg-card/80 px-5 py-10 sm:px-8 sm:py-12 text-center",
         variant === "error" && "border-destructive/40 bg-destructive/5",
+        variant === "warning" && "border-amber-500/35 bg-amber-500/[0.07]",
         variant === "success" && "border-primary/30 bg-primary/5",
         className,
       )}
@@ -62,6 +64,7 @@ export function StateBlock({
           "w-8 h-8 mx-auto mb-3 text-muted-foreground",
           variant === "loading" && "animate-spin text-primary",
           variant === "error" && "text-destructive",
+          variant === "warning" && "text-amber-600 dark:text-amber-400",
           variant === "success" && "text-primary",
         )}
         aria-hidden

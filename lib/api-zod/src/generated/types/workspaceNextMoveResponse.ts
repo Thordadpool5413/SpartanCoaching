@@ -11,10 +11,11 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+import type { WorkspaceNextMoveContext } from './workspaceNextMoveContext';
+import type { WorkspaceNextMoveRecommendation } from './workspaceNextMoveRecommendation';
 
-export * from './healthStatus';
-export * from './healthStatusBillingEmail';
-export * from './workspaceNextMoveContext';
-export * from './workspaceNextMoveRecommendation';
-export * from './workspaceNextMoveRecommendationStage';
-export * from './workspaceNextMoveResponse';
+export interface WorkspaceNextMoveResponse {
+  recommendation: WorkspaceNextMoveRecommendation;
+  context: WorkspaceNextMoveContext;
+  generatedAt: Date;
+}

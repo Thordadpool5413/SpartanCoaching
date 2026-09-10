@@ -12,9 +12,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './healthStatus';
-export * from './healthStatusBillingEmail';
-export * from './workspaceNextMoveContext';
-export * from './workspaceNextMoveRecommendation';
-export * from './workspaceNextMoveRecommendationStage';
-export * from './workspaceNextMoveResponse';
+/**
+ * Billing-email delivery health metrics.
+ */
+export type HealthStatusBillingEmail = {
+  hydrated: boolean;
+  ok: boolean;
+  failures1h: number;
+  failures24h: number;
+};

@@ -11,10 +11,14 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+import type { WorkspaceNextMoveRecommendationStage } from './workspaceNextMoveRecommendationStage';
 
-export * from './healthStatus';
-export * from './healthStatusBillingEmail';
-export * from './workspaceNextMoveContext';
-export * from './workspaceNextMoveRecommendation';
-export * from './workspaceNextMoveRecommendationStage';
-export * from './workspaceNextMoveResponse';
+export interface WorkspaceNextMoveRecommendation {
+  id: string;
+  stage: WorkspaceNextMoveRecommendationStage;
+  title: string;
+  description: string;
+  reason: string;
+  webHref: string;
+  mobileHref: string;
+}

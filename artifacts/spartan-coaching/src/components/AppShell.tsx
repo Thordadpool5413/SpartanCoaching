@@ -30,6 +30,7 @@ import { AppearanceControls } from "@/components/AppearanceControls";
 import {
   primaryWorkspaceNav,
   utilityWorkspaceNav,
+  workspaceNavForRole,
   pushWorkspaceRecent,
   readWorkspaceRecent,
   type WorkspaceRecentEntry,
@@ -206,8 +207,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [recent, setRecent] = useState<WorkspaceRecentEntry[]>([]);
   const [apiHits, setApiHits] = useState<UniversalSearchHit[] | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchUsingLocal, setSearchUsingLocal] = useState(false);
 
   const corpus = useMemo(() => workspaceSearchCorpus(), []);
+  const currentSection = useMemo(
+    () => workspaceNavForRole(member?.role).find((item) => item.match(location)),
+    [location, member?.role],
+  );
   const localResults: LocalResult[] = useMemo(() => {
     const q = searchQ.trim().toLowerCase();
     if (!q) return corpus.slice(0, 8).map((c) => ({ ...c, group: "Workspace" }));
@@ -239,6 +245,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (q.length < 2 || !member) {
       setApiHits(null);
       setSearchLoading(false);
+      setSearchUsingLocal(false);
       return;
     }
     let cancelled = false;
@@ -246,10 +253,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     const t = window.setTimeout(() => {
       void fetchUniversalSearch(q, 20)
         .then((data) => {
-          if (!cancelled) setApiHits(flattenSearchHits(data));
+          if (!cancelled) {
+            setApiHits(flattenSearchHits(data));
+            setSearchUsingLocal(false);
+          }
         })
         .catch(() => {
-          if (!cancelled) setApiHits(null);
+          if (!cancelled) {
+            setApiHits(null);
+            setSearchUsingLocal(true);
+          }
         })
         .finally(() => {
           if (!cancelled) setSearchLoading(false);
@@ -391,7 +404,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   ))
                 )}
                 <div className="px-4 py-2 bg-muted/50 border-t border-border text-[9px] text-muted-foreground font-mono uppercase tracking-widest">
-                  {apiHits ? "Live search" : "Local catalog"}
+                  {searchUsingLocal ? "Local results · live search unavailable" : apiHits ? "Live search" : "Local catalog"}
                 </div>
               </div>
             )}
@@ -464,6 +477,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Button>
           </div>
         </header>
+
+        <div className="flex min-h-11 items-center justify-between gap-3 border-b border-border/70 bg-card/35 px-4 sm:px-6" aria-label="Current workspace section" data-testid="workspace-section-context">
+          <div className="flex min-w-0 items-center gap-2 text-xs">
+            <span className="font-mono font-bold uppercase tracking-[0.16em] text-primary">Workspace</span>
+            <span className="text-border" aria-hidden>/</span>
+            <span className="truncate font-semibold text-foreground">{currentSection?.label ?? "Current work"}</span>
+          </div>
+          <span className="hidden text-[10px] font-mono font-bold uppercase tracking-[0.14em] text-muted-foreground sm:inline">Private · nonclinical</span>
+        </div>
 
         <main id="main-content" className="flex-1 min-w-0" tabIndex={-1}>
           {children}

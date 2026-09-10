@@ -61,20 +61,28 @@ describe("workspace shell (HSP-32)", () => {
     expect(plat.some((i) => i.id === "org_admin")).toBe(true);
   });
 
-  it("keeps the primary rail focused on five member jobs", () => {
+  it("keeps the primary rail focused on member jobs", () => {
     const primary = primaryWorkspaceNav("member");
     const ids = primary.map((i) => i.id);
-    expect(ids).toEqual(["home", "command", "explore", "coach", "saved"]);
+    expect(ids).toEqual(["home", "command", "tools", "coach", "library", "my_work"]);
     // no duplicate accounts in primary
     expect(ids.filter((id) => id === "accounts").length).toBe(0);
   });
 
-  it("treats tools, intelligence, resources, and learning as Explore", () => {
-    const explore = workspaceNavForRole("member").find((item) => item.id === "explore")!;
-    expect(explore.match("/tools/intelligence")).toBe(true);
-    expect(explore.match("/resources/objection-cards")).toBe(true);
-    expect(explore.match("/portal/learn")).toBe(true);
-    expect(explore.match("/tools/sales-workflow")).toBe(false);
+  it("treats tools and intelligence as Tools", () => {
+    const tools = workspaceNavForRole("member").find((item) => item.id === "tools")!;
+    expect(tools.match("/tools/intelligence")).toBe(true);
+    expect(tools.match("/tools/objections")).toBe(true);
+    expect(tools.match("/tools")).toBe(true);
+    expect(tools.match("/tools/sales-workflow")).toBe(false); // Command Center
+  });
+
+  it("treats resources and learning as Library", () => {
+    const library = workspaceNavForRole("member").find((item) => item.id === "library")!;
+    expect(library.match("/resources/objection-cards")).toBe(true);
+    expect(library.match("/portal/learn")).toBe(true);
+    expect(library.match("/drills")).toBe(true);
+    expect(library.match("/quiz")).toBe(true);
   });
 
   it("canAccessNavItem respects roles", () => {
@@ -117,7 +125,7 @@ describe("workspace shell (HSP-32)", () => {
   });
 
   it("routes saved work to the connected My Work workspace", () => {
-    const saved = workspaceNavForRole("member").find((item) => item.id === "saved");
+    const saved = workspaceNavForRole("member").find((item) => item.id === "my_work");
     expect(saved?.href).toBe("/my-work");
     expect(saved?.label).toBe("My Work");
     expect(saved?.match("/my-work/elite-outputs")).toBe(true);

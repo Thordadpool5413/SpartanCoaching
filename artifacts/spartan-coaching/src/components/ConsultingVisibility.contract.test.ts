@@ -22,7 +22,7 @@ describe("consulting and workspace coexistence", () => {
   it("preserves the current workspace navigation and product routes", () => {
     const shell = read("./AppShell.tsx");
     const workspace = read("../lib/workspaceShell.ts");
-    for (const label of ["Command Center", "Explore", "Coach", "My Work"]) {
+    for (const label of ["Command", "Tools", "Library", "Coach", "My Work"]) {
       expect(workspace).toContain(label);
     }
     expect(shell).toContain("primaryWorkspaceNav");
