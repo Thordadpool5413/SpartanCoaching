@@ -11,7 +11,25 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const distPublic = path.resolve(__dirname, "../artifacts/spartan-coaching/dist/public");
+
+/**
+ * Candidate dist/public locations.
+ * Keeps CI resilient when working directory/layout differs across environments.
+ */
+const DIST_CANDIDATES = [
+  path.resolve(__dirname, "../artifacts/spartan-coaching/dist/public"),
+  path.resolve(__dirname, "../dist/public"),
+  path.resolve(__dirname, "../../dist/public"),
+  path.resolve(process.cwd(), "artifacts/spartan-coaching/dist/public"),
+  path.resolve(process.cwd(), "dist/public"),
+];
+
+function pickDistPublic() {
+  for (const p of DIST_CANDIDATES) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
 
 /** Soft budgets (bytes, uncompressed on disk after vite build) */
 const BUDGETS = {
@@ -28,8 +46,7 @@ const BUDGETS = {
    * 2867.3 KiB failed 2867.2 KiB by ~100 bytes). The current route catalog is
    * 3.01 MiB while the initial entry remains independently capped at 450 KiB.
    * Keep 3.1 MiB of aggregate headroom to catch real route-level regressions.
-   * Tighten when
-   * large deps (recharts/framer) are code-split further.
+   * Tighten when large deps (recharts/framer) are code-split further.
    */
   maxJsTotal: 3.1 * 1024 * 1024,
   /** Any single CSS file */
@@ -61,7 +78,7 @@ function kb(n) {
   return `${(n / 1024).toFixed(1)} KiB`;
 }
 
-function checkFileBudget(file, limit, label, report) {
+function checkFileBudget(file, limit, label, report, distPublic) {
   if (!fs.existsSync(file)) {
     report.push(`FAIL ${label} is missing: ${path.relative(distPublic, file)}`);
     return true;
@@ -76,11 +93,16 @@ function checkFileBudget(file, limit, label, report) {
 }
 
 function main() {
-  if (!fs.existsSync(distPublic)) {
-    console.error(`[performance-budget] Missing build output: ${distPublic}`);
+  const distPublic = pickDistPublic();
+  if (!distPublic) {
+    console.error("[performance-budget] Missing build output: dist/public not found.");
+    console.error("[performance-budget] Checked:");
+    for (const p of DIST_CANDIDATES) console.error(`  - ${p}`);
     console.error("Run `pnpm run build` first (or ensure CI order is build → budget).");
     process.exit(1);
   }
+
+  console.log(`[performance-budget] Using build output: ${distPublic}`);
 
   const files = walk(distPublic);
   const js = files.filter((f) => f.endsWith(".js"));
@@ -125,10 +147,11 @@ function main() {
   const desktopHero = path.join(distPublic, "hero-video.mp4");
   const mobileHero = path.join(distPublic, "hero-video-mobile.mp4");
   const heroPoster = path.join(distPublic, "hero-poster.jpg");
-  failed = checkFileBudget(html, BUDGETS.maxHtmlDocument, "HTML document", report) || failed;
-  failed = checkFileBudget(desktopHero, BUDGETS.maxDesktopHeroVideo, "desktop hero video", report) || failed;
-  failed = checkFileBudget(mobileHero, BUDGETS.maxMobileHeroVideo, "mobile hero video", report) || failed;
-  failed = checkFileBudget(heroPoster, BUDGETS.maxHeroPoster, "hero poster", report) || failed;
+
+  failed = checkFileBudget(html, BUDGETS.maxHtmlDocument, "HTML document", report, distPublic) || failed;
+  failed = checkFileBudget(desktopHero, BUDGETS.maxDesktopHeroVideo, "desktop hero video", report, distPublic) || failed;
+  failed = checkFileBudget(mobileHero, BUDGETS.maxMobileHeroVideo, "mobile hero video", report, distPublic) || failed;
+  failed = checkFileBudget(heroPoster, BUDGETS.maxHeroPoster, "hero poster", report, distPublic) || failed;
 
   const htmlContents = fs.existsSync(html) ? fs.readFileSync(html, "utf8") : "";
   if (/uppy-(?:core|dashboard|styles)\.css/.test(htmlContents)) {
@@ -144,8 +167,7 @@ function main() {
     report.push("FAIL initial JS entry is not referenced by dist/public/index.html");
   } else {
     const initialScript = path.resolve(distPublic, initialScriptMatch[1].replace(/^[/\\]/, ""));
-    failed =
-      checkFileBudget(initialScript, BUDGETS.maxInitialJs, "initial JS entry", report) || failed;
+    failed = checkFileBudget(initialScript, BUDGETS.maxInitialJs, "initial JS entry", report, distPublic) || failed;
   }
 
   console.log("[performance-budget]");
