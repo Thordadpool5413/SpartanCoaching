@@ -431,10 +431,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             {searchOpen && (
               <div id="workspace-search-results" className="field-search-results" role="listbox" aria-label="Workspace search results" data-testid="workspace-search-results">
                 {searchLoading ? (
-                  <p className="px-4 py-4 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center" role="status">Searching…</p>
+                  <p className="px-4 py-4 text-[13px] leading-relaxed font-mono uppercase tracking-[0.08em] text-muted-foreground text-center" role="status">Searching…</p>
                 ) : null}
                 {!searchLoading && results.length === 0 ? (
-                  <p className="px-4 py-6 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center">No matches</p>
+                  <p className="px-4 py-6 text-[13px] leading-relaxed font-mono uppercase tracking-[0.08em] text-muted-foreground text-center">No matches</p>
                 ) : (
                   results.map((item, index) => (
                     <button
@@ -455,7 +455,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </button>
                   ))
                 )}
-                <div className="px-4 py-2 bg-muted/50 border-t border-border text-[9px] text-muted-foreground font-mono uppercase tracking-widest">
+                <div className="px-4 py-2.5 bg-muted/50 border-t border-border text-[11px] leading-relaxed text-muted-foreground font-mono uppercase tracking-[0.08em]">
                   {searchUsingLocal ? "Local results · live search unavailable" : apiHits ? "Live search" : "Local catalog"}
                 </div>
               </div>
@@ -464,7 +464,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
             {!canUseFieldKit && (
-              <Button size="sm" asChild className="hidden sm:inline-flex font-mono font-bold uppercase tracking-wider text-[10px] rounded-sm bg-primary text-primary-foreground hover:bg-primary/90" data-testid="workspace-subscribe-cta">
+              <Button size="sm" asChild className="hidden sm:inline-flex font-mono font-bold uppercase tracking-[0.08em] text-xs rounded-sm bg-primary text-primary-foreground hover:bg-primary/90" data-testid="workspace-subscribe-cta">
                 <Link href="/account">Unlock tools</Link>
               </Button>
             )}
@@ -483,13 +483,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </PopoverTrigger>
               <PopoverContent align="end" className="w-72 p-0 border-border shadow-lg rounded-md bg-card">
                 <div className="px-4 py-3 bg-muted/50 border-b border-border">
-                  <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-muted-foreground">
+                  <span className="text-xs font-mono font-bold tracking-[0.08em] uppercase text-muted-foreground">
                     Recent activity
                   </span>
                 </div>
                 <div className="py-2 max-h-[300px] overflow-y-auto">
                   {recent.length === 0 ? (
-                    <p className="px-4 py-4 text-xs font-mono uppercase tracking-widest text-muted-foreground text-center">
+                      <p className="px-4 py-4 text-[13px] leading-relaxed font-mono uppercase tracking-[0.08em] text-muted-foreground text-center">
                       Visit tools and resources.
                     </p>
                   ) : (
@@ -501,7 +501,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         onClick={() => go(r.path)}
                       >
                         <span className="block text-sm font-semibold text-foreground mb-1">{r.label}</span>
-                        <span className="block text-[11px] font-mono text-muted-foreground truncate" title={r.path}>
+                        <span className="block text-xs leading-relaxed font-mono text-muted-foreground truncate" title={r.path}>
                           {r.path}
                         </span>
                       </button>
@@ -536,7 +536,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="text-border" aria-hidden>/</span>
             <span className="truncate font-semibold text-foreground">{currentSection?.label ?? "Current work"}</span>
           </div>
-          <span className="hidden text-[10px] font-mono font-bold uppercase tracking-[0.14em] text-muted-foreground sm:inline">Private · nonclinical</span>
+          <span className="hidden text-[11px] font-mono font-bold uppercase tracking-[0.1em] text-muted-foreground sm:inline">Private · nonclinical</span>
         </div>
 
         <main id="main-content" className="flex-1 min-w-0" tabIndex={-1}>

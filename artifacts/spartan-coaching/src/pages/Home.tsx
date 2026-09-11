@@ -208,7 +208,7 @@ function HomePathfinder() {
           <p className="text-kicker">Not sure which path fits?</p>
           <h2
             id="homepage-pathfinder-title"
-            className="mt-4 text-3xl font-display font-black tracking-tight text-foreground sm:text-5xl"
+            className="mt-4 text-3xl font-display font-black tracking-[-0.01em] leading-[1.15] text-foreground sm:text-5xl"
           >
             Start with the work in front of <span className="text-primary">you.</span>
           </h2>
@@ -280,7 +280,7 @@ export default function Home() {
               </p>
               <h1
                 id="home-hero-title"
-                className="text-5xl sm:text-6xl lg:text-[5.5rem] font-display font-black uppercase tracking-[-0.02em] text-foreground leading-[1.02] text-balance"
+                className="text-5xl sm:text-6xl lg:text-[5.5rem] font-display font-black uppercase tracking-[-0.015em] text-foreground leading-[1.08] text-balance"
                 data-testid="text-home-hero-title"
               >
                 Make the next<br/>
@@ -406,7 +406,7 @@ export default function Home() {
               <span className="font-display font-black text-xl">!</span>
             </div>
             <p className="text-[13px] font-bold tracking-[0.2em] text-primary uppercase mb-6">The real problem</p>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground mb-8 tracking-[-0.02em] leading-tight" data-testid="text-stakes-title">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground mb-8 tracking-[-0.01em] leading-[1.1]" data-testid="text-stakes-title">
               The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
             </h2>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-[1.7] mb-12 max-w-2xl mx-auto text-balance">
@@ -425,7 +425,7 @@ export default function Home() {
           <FadeIn>
             <div className="text-center mb-16 sm:mb-24">
               <p className="text-[13px] font-bold tracking-[0.2em] text-primary uppercase mb-6">How Spartan helps</p>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground tracking-[-0.02em]">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-foreground tracking-[-0.01em] leading-[1.1]">
                 <span className="text-primary">Two ways</span> to put it to work.
               </h2>
             </div>
@@ -467,7 +467,7 @@ export default function Home() {
                     data-testid={p.testId}
                   >
                     <p className="text-[13px] font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
-                    <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight">
+                    <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-[-0.01em] leading-[1.15]">
                       {p.primary ? (
                         <>Spartan <span className="text-primary">Consulting</span></>
                       ) : (
@@ -515,16 +515,16 @@ export default function Home() {
             <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-primary">
               Field-built authority
             </p>
-            <h2 className="mt-6 max-w-3xl font-display font-black text-4xl sm:text-5xl lg:text-[4rem] tracking-[-0.02em] leading-[1.05] text-white">
+            <h2 className="mt-6 max-w-3xl font-display font-black text-4xl sm:text-5xl lg:text-[4rem] tracking-[-0.01em] leading-[1.1] text-background">
               Built by someone who has <span className="text-primary">carried the number.</span>
             </h2>
-            <p className="mt-8 max-w-2xl text-lg sm:text-xl font-medium leading-[1.6] text-white/80">
+            <p className="mt-8 max-w-2xl text-lg sm:text-xl font-medium leading-[1.6] text-background/80">
               Nick Lynch built Spartan Coaching from the field: hospice-specific sales, leadership,
               and execution systems shaped by the conversations teams actually have to lead.
             </p>
             <Link
               href="/about"
-              className="mt-10 inline-flex min-h-11 w-fit items-center gap-2 border-b-2 border-primary text-sm font-bold text-white transition-colors hover:text-primary"
+              className="mt-10 inline-flex min-h-11 w-fit items-center gap-2 border-b-2 border-primary text-sm font-bold text-background transition-colors hover:text-primary"
               data-testid="link-founder-story"
             >
               Read the founder story
@@ -566,7 +566,7 @@ export default function Home() {
         <FadeIn>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-6">Ready to close the gap?</p>
-            <h2 className="text-5xl sm:text-7xl font-black text-background mb-8 font-display uppercase tracking-tight" data-testid="text-closing-title">
+            <h2 className="text-5xl sm:text-7xl font-black text-background mb-8 font-display uppercase tracking-[-0.01em] leading-[1.1]" data-testid="text-closing-title">
               Stop <span className="text-primary">winging it.</span>
             </h2>
             <p className="text-lg text-background/75 font-medium max-w-2xl mx-auto mb-12 leading-relaxed">

@@ -38,3 +38,9 @@ Authenticated routes that reuse a public presentation wrapper must reassert work
 **Why:** A public muted-copy rule remained more specific than the base theme utility and made Explore descriptions unreadable even though the dark Mamba tokens were correct.
 
 **How to apply:** When a route can render under both public and authenticated shells, inspect computed styles in both contexts and keep the workspace correction scoped under `.workspace-premium`.
+
+Inverse sections inside a light public shell must use semantic opposite-surface tokens rather than literal white text utilities.
+
+**Why:** The light-mode compatibility layer can remap legacy white utilities to dark foreground colors, turning dark inverse sections into dark-on-dark content even though their local markup looks correct.
+
+**How to apply:** Pair `background` with `foreground` semantically in both directions, and verify inverse sections in the actual light public shell rather than judging utility names in isolation.

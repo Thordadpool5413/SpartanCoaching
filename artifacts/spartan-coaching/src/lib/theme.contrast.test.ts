@@ -85,7 +85,7 @@ describe("BG_PRESETS contrast contract", () => {
     expect(root.getPropertyValue("--card")).toBe("0 0% 100%");
     expect(root.getPropertyValue("--card-foreground")).toBe("0 0% 10%");
     expect(root.getPropertyValue("--muted")).toBe("0 0% 90%");
-    expect(root.getPropertyValue("--muted-foreground")).toBe("0 0% 43%");
+    expect(root.getPropertyValue("--muted-foreground")).toBe("0 0% 36%");
     expect(root.getPropertyValue("--sidebar")).toBe("0 0% 94%");
     expect(root.getPropertyValue("--sidebar-foreground")).toBe("0 0% 10%");
   });

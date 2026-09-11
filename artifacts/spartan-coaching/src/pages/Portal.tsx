@@ -102,14 +102,14 @@ export default function Portal() {
           onRetry={loadNextMove}
         />
         <div className="mx-auto -mt-3 w-full max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
-          <details className="rounded-xl border border-border/70 bg-card/40 p-4">
-            <summary className="cursor-pointer text-sm font-bold text-foreground">Personalize recommendations</summary>
-            <div className="mt-4 flex items-center justify-between gap-4 border-t border-border/60 pt-4">
-              <div><p className="text-sm font-semibold">I also lead a team</p><p className="mt-1 text-xs text-muted-foreground">Include leadership and coaching recommendations in your workspace.</p></div>
+          <details className="rounded-xl border border-border/70 bg-card/40 p-5">
+            <summary className="cursor-pointer text-[15px] font-bold text-foreground">Personalize recommendations</summary>
+            <div className="mt-5 flex items-center justify-between gap-6 border-t border-border/60 pt-5">
+              <div><p className="text-[15px] font-semibold text-foreground">I also lead a team</p><p className="mt-1.5 text-[13.5px] leading-relaxed text-muted-foreground">Include leadership and coaching recommendations in your workspace.</p></div>
               <Switch checked={alsoLeadsTeam} disabled={leadershipSaving} onCheckedChange={(checked) => void updateLeadershipPreference(checked)} data-testid="switch-also-leads-team" aria-label="I also lead a team" aria-describedby={leadershipError ? "leadership-preference-error" : undefined} />
             </div>
-            {leadershipSaving ? <p className="mt-3 text-xs text-muted-foreground" role="status">Saving preference…</p> : null}
-            {leadershipError ? <p id="leadership-preference-error" className="mt-3 text-sm text-destructive" role="alert">{leadershipError}</p> : null}
+            {leadershipSaving ? <p className="mt-4 text-sm text-muted-foreground" role="status">Saving preference…</p> : null}
+            {leadershipError ? <p id="leadership-preference-error" className="mt-4 text-sm text-destructive" role="alert">{leadershipError}</p> : null}
           </details>
         </div>
       </section>

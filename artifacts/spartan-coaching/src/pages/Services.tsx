@@ -203,7 +203,7 @@ export default function Services() {
       <div className="text-center max-w-4xl mx-auto mb-14 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent blur-3xl -z-10" />
         <p className="text-kicker mb-4 animate-fade-in-up">Hospice growth consulting</p>
-        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up font-display" data-testid="text-services-title">
+        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up font-display leading-[1.1] tracking-[-0.01em]" data-testid="text-services-title">
           Work <span className="text-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up max-w-2xl mx-auto" style={{ animationDelay: "0.1s" }}>
@@ -231,8 +231,8 @@ export default function Services() {
       >
         <div className="text-center max-w-2xl mx-auto mb-6">
           <p className="text-kicker justify-center mb-3">Start with the right fit</p>
-          <h2 className="text-h2 font-display text-foreground">What kind of <span className="text-primary">help</span> do you need?</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed mt-3">
+          <h2 className="text-h2 font-display text-foreground leading-[1.15] tracking-[-0.01em]">What kind of <span className="text-primary">help</span> do you need?</h2>
+             <p className="text-[15px] text-muted-foreground leading-[1.65] mt-4">
             Choose the closest match. Each path opens the kind of conversation, time commitment, and next step you can expect.
           </p>
         </div>
@@ -271,8 +271,8 @@ export default function Services() {
             <p className="mb-1 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
               {s.frame}
             </p>
-            <h3 className="text-base font-display font-bold text-foreground mb-2"><AccentText>{s.t}</AccentText></h3>
-            <p className="text-sm text-muted-foreground leading-relaxed flex-1">{s.d}</p>
+            <h3 className="text-base font-display font-bold text-foreground mb-2 leading-[1.15] tracking-[-0.01em]"><AccentText>{s.t}</AccentText></h3>
+             <p className="text-[15px] text-muted-foreground leading-[1.65] flex-1">{s.d}</p>
             <Link
               href={s.href}
               className="inline-flex items-center gap-1.5 mt-5 min-h-11 text-sm font-bold text-primary hover:underline underline-offset-4"
@@ -295,7 +295,7 @@ export default function Services() {
         ].map((s) => (
           <Card key={s.t} className="border border-border/80 bg-card p-5 text-center sm:text-left">
             <p className="text-kicker mb-2 justify-center sm:justify-start">{s.t}</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+             <p className="text-[15px] text-muted-foreground leading-[1.65]">{s.d}</p>
           </Card>
         ))}
       </div>
@@ -307,7 +307,7 @@ export default function Services() {
             <UserCheck className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">For Individual <span className="text-primary">Sales Reps</span></h2>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Individual <span className="text-primary">Sales Reps</span></h2>
             <p className="text-body text-muted-foreground">Get better at the job you&apos;re doing right now.</p>
           </div>
         </div>
@@ -324,31 +324,31 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-7">
                   <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {service.includes.map((item, iIdx) => (
-                      <li key={iIdx} className="flex items-start gap-2">
-                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{item}</span>
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
                   <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
-                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
               <div className="relative">
@@ -370,7 +370,7 @@ export default function Services() {
             <Users className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">For Sales <span className="text-primary">Leadership</span></h2>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Sales <span className="text-primary">Leadership</span></h2>
             <p className="text-body text-muted-foreground">Build teams that execute consistently and scale what works.</p>
           </div>
         </div>
@@ -387,31 +387,31 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-7">
                   <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {service.includes.map((item, iIdx) => (
-                      <li key={iIdx} className="flex items-start gap-2">
-                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{item}</span>
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
                   <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
-                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
               <div className="relative">
@@ -433,7 +433,7 @@ export default function Services() {
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">For Corporate <span className="text-primary">Hospice Providers</span></h2>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Corporate <span className="text-primary">Hospice Providers</span></h2>
             <p className="text-body text-muted-foreground">Scale execution across markets and make growth predictable.</p>
           </div>
         </div>
@@ -466,31 +466,31 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-7">
                   <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {service.includes.map((item, iIdx) => (
-                      <li key={iIdx} className="flex items-start gap-2">
-                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{item}</span>
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
                   <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
-                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
               <div className="relative">
@@ -533,31 +533,31 @@ export default function Services() {
                 <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
                 <p className="text-3xl font-black text-primary mb-6">{service.price}</p>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-5">
                   <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-7">
                   <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {service.includes.map((item, iIdx) => (
-                      <li key={iIdx} className="flex items-start gap-2">
-                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{item}</span>
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
                   <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
-                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
               <div className="relative">

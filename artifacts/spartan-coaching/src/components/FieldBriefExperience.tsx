@@ -317,10 +317,10 @@ function FieldBriefTour() {
       <div className="field-brief-tour-header">
         <div>
           <p className="field-brief-label">Read-only product tour</p>
-          <h3 className="mt-2 text-2xl font-display font-bold tracking-tight text-foreground sm:text-3xl"><AccentText>A field system with a memory.</AccentText></h3>
+          <h3 className="mt-4 text-2xl font-display font-bold tracking-[-0.01em] leading-[1.15] text-foreground sm:text-3xl"><AccentText>A field system with a memory.</AccentText></h3>
         </div>
           <div className="field-brief-tour-context">
-            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-sm text-[15px] leading-[1.65] text-muted-foreground">
               See the four moves behind Hospice Sales Pro. This sample is useful without an account; live
               generation and saved work stay behind the existing access paths.
             </p>
@@ -396,9 +396,9 @@ function FieldBriefTour() {
             <SelectedIcon className="h-5 w-5" aria-hidden />
           </div>
           <p className="field-brief-label">{selected.signal}</p>
-          <h4 className="mt-3 text-2xl font-display font-bold leading-tight text-foreground"><AccentText>{selected.title}</AccentText></h4>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{selected.body}</p>
-          <div className="field-brief-next-move">
+          <h4 className="mt-4 text-2xl font-display font-bold leading-[1.15] text-foreground tracking-[-0.01em]"><AccentText>{selected.title}</AccentText></h4>
+          <p className="mt-4 text-[15px] leading-[1.65] text-muted-foreground">{selected.body}</p>
+          <div className="field-brief-next-move mt-6">
             <span>Next move</span>
             <p>{selected.nextMove}</p>
           </div>
@@ -466,10 +466,10 @@ export function FieldBriefExperience({ includePathfinder = true }: { includePath
             <p className="field-brief-label">Field brief / 01</p>
             <h2
               id="field-brief-title"
-              className="mt-4 text-3xl font-display font-black tracking-tight text-foreground sm:text-5xl"
+              className="mt-5 text-3xl font-display font-black tracking-[-0.01em] leading-[1.1] text-foreground sm:text-5xl"
             ><AccentText>Prepared conversations are built, not wished for.</AccentText></h2>
           </div>
-          <p className="max-w-md text-base leading-relaxed text-muted-foreground">
+          <p className="max-w-md text-base leading-[1.65] text-muted-foreground mt-5">
             Spartan turns the work between meetings into a repeatable rhythm: prepare the objective,
             practice the pressure, execute the visit, and review the next move.
           </p>
@@ -479,8 +479,8 @@ export function FieldBriefExperience({ includePathfinder = true }: { includePath
           <div className="field-brief-main-grid">
             <div className="field-brief-route field-brief-route-full">
               <p className="field-brief-label">Start with the work in front of you</p>
-              <h3 className="mt-3 text-2xl font-display font-bold tracking-tight text-foreground"><AccentText>Find the right Spartan path in under a minute.</AccentText></h3>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mt-4 text-2xl font-display font-bold tracking-[-0.01em] leading-[1.15] text-foreground"><AccentText>Find the right Spartan path in under a minute.</AccentText></h3>
+              <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-muted-foreground">
                 No generic funnel. Choose the role closest to your current responsibility and get a
                 specific next step with clear expectations.
               </p>

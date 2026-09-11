@@ -228,7 +228,7 @@ export function NavDropdown({ label, items, dataTestId, align = "left" }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "block px-5 py-3.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none border-l-2 border-transparent hover:border-primary",
+                "block px-6 py-4 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none border-l-2 border-transparent hover:border-primary",
                 location === item.path
                   ? "bg-primary/5 text-primary font-bold border-primary"
                   : "text-foreground"
@@ -236,8 +236,8 @@ export function NavDropdown({ label, items, dataTestId, align = "left" }: {
               data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
               onClick={() => setOpen(false)}
             >
-              <div className="font-bold text-base leading-snug">{item.label}</div>
-              <div className="text-sm leading-relaxed text-muted-foreground mt-1.5">{item.description}</div>
+              <div className="font-bold text-base leading-[1.3] mb-1.5">{item.label}</div>
+              <div className="text-[13px] leading-[1.6] text-muted-foreground">{item.description}</div>
             </Link>
           ))}
         </div>

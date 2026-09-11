@@ -71,7 +71,7 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
             <span className="field-card-title">
               <Target aria-hidden /> Today’s objective
             </span>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.15em] text-primary hidden sm:inline-block">
+            <span className="text-[11px] leading-relaxed font-mono font-bold uppercase tracking-[0.1em] text-primary hidden sm:inline-block">
               {effectiveMove ? `${effectiveMove.stage} stage` : "Calculating"}
             </span>
           </div>
@@ -95,8 +95,8 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
                 <p className="field-objective-desc">{effectiveMove.description}</p>
 
                 {effectiveMove.reason && (
-                  <p className="mt-4 text-xs font-medium text-primary bg-primary/5 p-3 border-l-2 border-primary">
-                    <span className="block font-bold uppercase tracking-wider mb-1">Why this matters:</span>
+                  <p className="mt-4 text-[13px] leading-relaxed font-medium text-primary bg-primary/5 p-3 border-l-2 border-primary">
+                    <span className="block font-bold uppercase tracking-[0.08em] mb-1.5">Why this matters:</span>
                     {effectiveMove.reason}
                   </p>
                 )}
@@ -157,7 +157,7 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
              <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden />
              <div>
                <strong className="block text-sm font-bold uppercase tracking-wide text-foreground mb-1">Operating Standard</strong>
-               <p className="text-xs text-muted-foreground leading-relaxed">Leave every conversation with a defined next commitment.</p>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">Leave every conversation with a defined next commitment.</p>
              </div>
           </div>
         </aside>
