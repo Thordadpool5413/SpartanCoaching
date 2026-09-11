@@ -11,7 +11,7 @@ import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 
-type Workspace = "referral" | "market" | "policy";
+type Workspace = "referral" | "market" | "decision" | "policy";
 type Choice = { value: string; label: string };
 type Source = { label: string; url?: string; checkedAt?: string };
 
@@ -56,9 +56,20 @@ type HospiceProfile = {
   interpretation: string; sources: Source[];
 };
 
+type DecisionBrief = {
+  title: string; purpose: string; recommendedMove: string; whyNow: string[];
+  evidence: Array<{ label: string; value: string; period: string; interpretation: string }>;
+  questionsToValidate: string[];
+  nextActions: Array<{ timing: string; action: string; successSignal: string }>;
+  stopConditions: string[];
+  confidence: { score: number; label: string; availableSignals: number; possibleSignals: number; explanation: string };
+  limitations: string[]; sources: Source[];
+};
+
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
   { value: "referral", label: "Referral", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
+  { value: "decision", label: "Decide", icon: "target" },
   { value: "policy", label: "Policy", icon: "book-open" },
 ];
 
@@ -110,9 +121,9 @@ export default function SpartanIntelligenceScreen() {
           <Text style={[styles.backText, { color: colors.readablePrimary }, font("bold")]}>Tools</Text>
         </Pressable>
         <View style={styles.hero}>
-          <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
-          <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Walk in prepared. Walk out with movement.</Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES data turned into decisions, conversations, and next actions.</Text>
+          <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>MEDICARE MARKET INTELLIGENCE</Text>
+          <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the evidence. Make the next move.</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES evidence turned into decisions, conversations, and next actions.</Text>
         </View>
         <View style={[styles.workspaceTabs, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
           {workspaceChoices.map((item) => {
@@ -125,6 +136,7 @@ export default function SpartanIntelligenceScreen() {
         </View>
         {workspace === "referral" ? <ReferralWorkspace colors={colors} /> : null}
         {workspace === "market" ? <MarketWorkspace colors={colors} /> : null}
+        {workspace === "decision" ? <DecisionWorkspace colors={colors} /> : null}
         {workspace === "policy" ? <PolicyWorkspace colors={colors} /> : null}
         <SavedBriefs colors={colors} />
       </ScrollView>
@@ -395,6 +407,38 @@ function MarketWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
   </View>;
 }
 
+function DecisionWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const [ccn, setCcn] = useState("");
+  const [goal, setGoal] = useState("");
+  const [brief, setBrief] = useState<DecisionBrief | null>(null);
+  const [status, setStatus] = useState("");
+  const build = async () => {
+    if (!/^\d{6}$/.test(ccn)) return Alert.alert("Add a hospice CCN", "Enter the six-digit CCN from a verified hospice profile.");
+    setStatus("Building the evidence-backed decision brief");
+    setBrief(null);
+    try {
+      const response = await apiPost<{ brief: DecisionBrief }>(
+        "/api/intelligence/market-decision",
+        { ccn, goal },
+        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
+      );
+      setBrief(response.brief);
+    } catch (error) { Alert.alert("Decision brief unavailable", message(error)); }
+    finally { setStatus(""); }
+  };
+  return <View style={styles.workspace}>
+    <WorkspaceIntro number="03" eyebrow="DECISION ROOM" title="Move from public data to one defensible action." text="Use a verified hospice CCN. Evidence, reporting periods, limitations, confidence, next actions, and stop conditions stay visible." colors={colors} />
+    <Panel colors={colors}>
+      <Step title="Name the decision" text="Missing evidence lowers coverage. It is never treated as poor performance." colors={colors} />
+      <Field label="Hospice CCN" value={ccn} onChangeText={(value) => setCcn(value.replace(/\D/g, "").slice(0, 6))} placeholder="Six digits" colors={colors} />
+      <Field label="Decision you need to make" value={goal} onChangeText={setGoal} placeholder="Example: Should this account receive focused field development this quarter?" colors={colors} multiline />
+      <SpartanButton title="Build decision brief" loading={Boolean(status)} onPress={build} />
+      <Progress status={status} colors={colors} />
+    </Panel>
+    {brief ? <DecisionResult brief={brief} colors={colors} /> : null}
+  </View>;
+}
+
 function PolicyWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
   const [topic, setTopic] = useState("hospice-benefit"); const [audience, setAudience] = useState("referral-source");
   const [concern, setConcern] = useState(""); const [brief, setBrief] = useState<PolicyBrief | null>(null); const [status, setStatus] = useState("");
@@ -423,6 +467,21 @@ function PolicyWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
     </Panel>
     {brief ? <PolicyResult brief={brief} colors={colors} /> : null}
   </View>;
+}
+
+function DecisionResult({ brief, colors }: { brief: DecisionBrief; colors: ReturnType<typeof useColors> }) {
+  const shareText = [brief.title, brief.purpose, `Recommended move: ${brief.recommendedMove}`, "Why now", ...brief.whyNow, "Questions to validate", ...brief.questionsToValidate, "Next actions", ...brief.nextActions.map((item) => `${item.timing}: ${item.action} Success: ${item.successSignal}`), "Stop conditions", ...brief.stopConditions, ...brief.limitations].join("\n\n");
+  return <ResultPanel eyebrow="DECISION BRIEF" title={brief.title} shareText={shareText} colors={colors}>
+    <View style={styles.metricRow}><Metric label="EVIDENCE COVERAGE" value={`${brief.confidence.score}%`} colors={colors} /><Metric label="CONFIDENCE" value={brief.confidence.label} colors={colors} /></View>
+    <Callout title="RECOMMENDED MOVE" text={brief.recommendedMove} colors={colors} />
+    <ListSection title="Why now" items={brief.whyNow} colors={colors} />
+    <View style={styles.block}><Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>Evidence ledger</Text>{brief.evidence.map((item) => <View key={`${item.label}-${item.period}`} style={[styles.evidenceCard, { borderColor: colors.border, backgroundColor: colors.background }]}><View style={styles.measureTop}><Text selectable style={[styles.measureName, styles.flex, { color: colors.foreground }, font("bold")]}>{item.label}</Text><Text selectable style={[styles.measureScore, { color: colors.primary }, font("heavy")]}>{item.value}</Text></View><Text selectable style={[styles.source, { color: colors.mutedForeground }, font("bold")]}>PERIOD  •  {item.period}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{item.interpretation}</Text></View>)}</View>
+    <ListSection title="Questions to validate" items={brief.questionsToValidate} colors={colors} numbered />
+    <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>Execution plan</Text>
+    {brief.nextActions.map((item, index) => <View key={item.timing} style={[styles.planRow, { borderColor: colors.border }]}><View style={[styles.number, { backgroundColor: colors.primary }]}><Text style={[styles.numberText, font("bold")]}>{index + 1}</Text></View><View style={styles.flex}><Text style={[styles.planTiming, { color: colors.primary }, font("bold")]}>{item.timing}</Text><Text selectable style={[styles.body, { color: colors.foreground }, font("regular")]}>{item.action}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>Success: {item.successSignal}</Text></View></View>)}
+    <ListSection title="Stop conditions" items={brief.stopConditions} colors={colors} warning />
+    <SourceNote text={`${brief.confidence.explanation} ${brief.limitations.join(" ")}`} colors={colors} />
+  </ResultPanel>;
 }
 
 function AccountResult({ brief, colors }: { brief: AccountBrief; colors: ReturnType<typeof useColors> }) {
@@ -489,6 +548,7 @@ function ResultPanel({ eyebrow, title, shareText, colors, children }: { eyebrow:
       <Action icon="share-2" label="Share" onPress={() => void Share.share({ title, message: shareText })} colors={colors} />
       <Action icon="bookmark" label="Save" onPress={() => void save()} colors={colors} />
     </View>
+    <SpartanButton title="Ask Coach about this" variant="outline" onPress={() => router.push("/(tabs)/coach")} />
     {children}
   </View>;
 }
@@ -566,7 +626,7 @@ const styles = StyleSheet.create({
   line: { flexDirection: "row", alignItems: "flex-start", gap: 11 }, dot: { width: 7, height: 7, borderRadius: 4, marginTop: 8 }, number: { width: 27, height: 27, borderRadius: 14, alignItems: "center", justifyContent: "center" }, numberText: { color: "#FFFFFF", fontSize: 11 },
   planRow: { borderTopWidth: 1, paddingTop: 14, flexDirection: "row", gap: 11 }, planTiming: { fontSize: 11, letterSpacing: 0.5, marginBottom: 3 },
   factGrid: { flexDirection: "row", flexWrap: "wrap", gap: 9 }, fact: { width: "48%", borderWidth: 1, borderRadius: 14, padding: 12, gap: 5 },
-  measure: { borderTopWidth: 1, paddingTop: 13, gap: 4 }, measureTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, measureName: { fontSize: 14, lineHeight: 19 }, measureScore: { fontSize: 19 },
+  measure: { borderTopWidth: 1, paddingTop: 13, gap: 4 }, evidenceCard: { borderWidth: 1, borderRadius: 16, padding: 14, gap: 7 }, measureTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, measureName: { fontSize: 14, lineHeight: 19 }, measureScore: { fontSize: 19 },
   sourceNote: { borderTopWidth: 1, paddingTop: 15, flexDirection: "row", gap: 10 },
   savedPanel: { borderWidth: 1, borderRadius: 22, padding: 17, gap: 12 }, savedHeader: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12 }, savedItem: { borderTopWidth: 1, paddingTop: 12, flexDirection: "row", alignItems: "center", gap: 7 }, savedIcon: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
 });

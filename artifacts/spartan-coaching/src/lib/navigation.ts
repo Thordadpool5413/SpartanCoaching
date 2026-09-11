@@ -96,7 +96,7 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage Hospice Sales Pro", icon: DollarSign },
   { path: "/login", label: "Client Login", description: "Sign in to Hospice Sales Pro / portal", icon: Lock },
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
-  { path: "/tools/intelligence", label: "Spartan Intelligence", description: "Verified provider, market, and policy intelligence", icon: Search },
+  { path: "/tools/intelligence", label: "Medicare Intelligence", description: "Verified provider, market, decision, and policy intelligence", icon: Search },
   { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
   { path: "/my-work", label: "My Work", description: "Resume synced drafts, reports, resources, downloads, commitments, and Elite outputs", icon: FolderOpen },
   { path: "/my-work/elite-outputs", label: "Saved Elite outputs", description: "Review saved advanced nonclinical tool results", icon: FileText },

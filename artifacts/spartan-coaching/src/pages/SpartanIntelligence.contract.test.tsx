@@ -18,6 +18,9 @@ vi.mock("@/components/PolicyNavigatorPanel", () => ({
 vi.mock("@/components/HospiceMarketPanel", () => ({
   HospiceMarketPanel: () => <div data-testid="market-panel">Market workspace</div>,
 }));
+vi.mock("@/components/MedicareDecisionPanel", () => ({
+  MedicareDecisionPanel: () => <div data-testid="decision-panel">Decision workspace</div>,
+}));
 
 afterEach(cleanup);
 
@@ -36,7 +39,7 @@ describe("Spartan Intelligence workspace contract", () => {
     expect(tools?.match("/tools/intelligence")).toBe(false);
   });
 
-  it("switches between the three working intelligence missions", () => {
+  it("switches between the four working intelligence missions", () => {
     render(<SpartanIntelligence />);
 
     expect(screen.getByTestId("referral-panel")).toBeTruthy();
@@ -47,6 +50,10 @@ describe("Spartan Intelligence workspace contract", () => {
     fireEvent.click(screen.getByTestId("intelligence-mission-market"));
     expect(screen.getByTestId("market-panel")).toBeTruthy();
     expect(screen.queryByTestId("policy-panel")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("intelligence-mission-decision"));
+    expect(screen.getByTestId("decision-panel")).toBeTruthy();
+    expect(screen.queryByTestId("market-panel")).toBeNull();
   });
 
   it("offers the complete United States state selector", () => {
