@@ -297,7 +297,7 @@ export function Header() {
                   SPARTAN COACHING
                 </span>
                 <span className="hidden md:block text-[11px] leading-none font-bold uppercase tracking-[0.15em] text-muted-foreground mt-2 whitespace-nowrap">
-                  Consulting · Hospice Sales Pro
+                  Spartan Consulting · Hospice Sales Pro
                 </span>
               </div>
             </div>
@@ -427,7 +427,7 @@ export function Header() {
                 ) : (
                   <>
                     <MobileNavSection title="Choose your path" />
-                    <MobileNavLink href="/services" label="Consulting for teams" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/services" label="Spartan Consulting · expert-led" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro · daily work" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/contact" label="Book a strategy call" location={location} onClose={() => setMobileMenuOpen(false)} />
@@ -595,7 +595,7 @@ export function Footer() {
               <div>
                 <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
                 <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
-                  {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Consulting · Hospice Sales Pro"}
+                  {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Spartan Consulting · Hospice Sales Pro"}
                 </p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">

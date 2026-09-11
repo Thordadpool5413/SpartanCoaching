@@ -205,7 +205,7 @@ function HomePathfinder() {
     >
       <div className="mx-auto grid max-w-7xl items-start gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 lg:px-8">
         <div className="max-w-xl">
-          <p className="text-kicker">Choose your next move</p>
+          <p className="text-kicker">Not sure which path fits?</p>
           <h2
             id="homepage-pathfinder-title"
             className="mt-4 text-3xl font-display font-black tracking-tight text-foreground sm:text-5xl"
@@ -213,8 +213,8 @@ function HomePathfinder() {
             Start with the work in front of <span className="text-primary">you.</span>
           </h2>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">
-            The right Spartan path depends on your responsibility today. Choose the closest brief and
-            get a specific next step—no account required.
+            Choose the responsibility closest to yours and see whether Spartan Consulting, Hospice Sales Pro,
+            or a combination is the best next move—no account required.
           </p>
           <div className="mt-8 grid gap-3 border-t border-border pt-5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground sm:grid-cols-3 lg:grid-cols-1">
             <span><span className="text-primary">01</span> Identify the work</span>
@@ -276,7 +276,7 @@ export default function Home() {
             <div className="max-w-2xl text-left">
               <p className="text-xs font-bold tracking-[0.15em] uppercase text-primary mb-8 flex items-center gap-3">
                 <span className="w-10 h-[2px] bg-primary"></span>
-                Hospice Sales Consulting + Hospice Sales Pro
+                Expert-led consulting · Digital field workspace
               </p>
               <h1
                 id="home-hero-title"
@@ -287,13 +287,14 @@ export default function Home() {
                 hospice <span className="text-primary">conversation</span><br/>
                 count.
               </h1>
-               <p className="mt-8 max-w-xl text-lg sm:text-xl text-muted-foreground font-medium leading-[1.6]">
-                Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
+               <p className="mt-8 max-w-xl text-base sm:text-lg text-muted-foreground font-medium leading-[1.65]">
+                 <strong className="text-foreground">Spartan Consulting</strong> gives hospice growth leaders and teams direct strategy and coaching.{" "}
+                 <strong className="text-foreground">Hospice Sales Pro</strong> gives individuals and teams a digital workspace for planning, practice, and daily execution.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none">
-                  <Link href="#homepage-pathfinder" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_pathfinder")}>
-                    Find your Spartan path
+                   <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
+                     Explore Spartan Consulting
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
@@ -304,6 +305,17 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
+               <div className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                 <p>Choose either path—or combine expert guidance with the daily field system.</p>
+                 <Link
+                   href="#homepage-pathfinder"
+                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_pathfinder")}
+                   className="mt-2 inline-flex min-h-11 items-center gap-2 font-bold text-foreground underline decoration-primary decoration-2 underline-offset-4 transition-colors hover:text-primary"
+                 >
+                   Not sure which fits? Find your Spartan path
+                   <ArrowRight className="h-4 w-4" aria-hidden />
+                 </Link>
+               </div>
 
               <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-6 text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
                 <span className="flex items-center gap-2"><Check className="w-4 h-4 text-primary" /> Built for <span className="text-foreground">leaders</span></span>
@@ -422,20 +434,20 @@ export default function Home() {
             {[
               {
                 icon: Briefcase,
-                kicker: "Offer A · Consulting",
-                title: "HUMAN COACHING",
-                desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
+                kicker: "Spartan Consulting · Expert-led service",
+                title: "SPARTAN CONSULTING",
+                desc: "Direct strategy and coaching for hospice growth leaders and teams through individual coaching, ridealongs, workshops, and leadership systems.",
                 features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
                 href: "/services",
-                cta: "View consulting services",
+                cta: "Explore Spartan Consulting",
                 primary: true,
                 testId: "card-door-consulting",
               },
               {
                 icon: Wrench,
-                kicker: "Offer B · Hospice Sales Pro",
-                title: "THE TOOLS PRODUCT",
-                desc: "What you actually get: daily Command Center, practice tools, plans, calculators, and field resources.",
+                kicker: "Hospice Sales Pro · Digital field workspace",
+                title: "HOSPICE SALES PRO",
+                desc: "A web and iPhone workspace for individuals and teams, with a daily Command Center, practice tools, plans, calculators, and field resources.",
                 features: [
                   "Sales Command Center",
                   "Objections · role-play · email",
@@ -457,9 +469,9 @@ export default function Home() {
                     <p className="text-[13px] font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
                     <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight">
                       {p.primary ? (
-                        <>Human <span className="text-primary">Coaching</span></>
+                        <>Spartan <span className="text-primary">Consulting</span></>
                       ) : (
-                        <>The Tools <span className="text-primary">Product</span></>
+                        <>Hospice Sales <span className="text-primary">Pro</span></>
                       )}
                     </h3>
                     <p className="text-base font-medium text-muted-foreground leading-[1.6] mb-8">{p.desc}</p>
@@ -562,8 +574,8 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground">
-                <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")}>
-                  Book a strategy call
+                 <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_consulting")}>
+                   Explore Spartan Consulting
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>

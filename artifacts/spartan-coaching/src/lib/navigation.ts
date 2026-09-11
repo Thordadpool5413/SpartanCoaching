@@ -52,11 +52,11 @@ export const navSections: SiteNavSection[] = [
   {
     title: "Consulting",
     items: [
-      { path: "/services", label: "Services", description: "Coaching and consulting for hospice growth", icon: Briefcase },
+      { path: "/services", label: "Spartan Consulting", description: "Expert-led strategy and coaching for hospice growth leaders and teams", icon: Briefcase },
       { path: "/programs", label: "Programs", description: "Team workshops and growth systems", icon: GraduationCap },
       { path: "/method", label: "The Spartan Method", description: "Discipline, empathy, and strategy", icon: Shield },
       { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan", icon: Flame },
-      { path: "/contact", label: "Book a strategy call", description: "Talk with Nick about coaching", icon: Phone },
+      { path: "/contact", label: "Book a strategy call", description: "Talk with Nick about Spartan Consulting", icon: Phone },
     ],
   },
   {
