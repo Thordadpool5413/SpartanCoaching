@@ -31,6 +31,14 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).toContain("Family experience");
   });
 
+  it("includes an evidence-backed decision room with Coach handoff", () => {
+    expect(screen).toContain("DECISION ROOM");
+    expect(screen).toContain("/api/intelligence/market-decision");
+    expect(screen).toContain("Missing evidence lowers coverage");
+    expect(screen).toContain("Stop conditions");
+    expect(screen).toContain("Ask Coach about this");
+  });
+
   it("shows progress and makes every result portable", () => {
     expect(screen).toContain("This usually takes a few seconds");
     expect(screen).toContain("Clipboard.setStringAsync");

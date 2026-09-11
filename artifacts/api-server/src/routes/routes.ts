@@ -93,6 +93,7 @@ import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntellige
 import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
 import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import { buildMarketDecisionBrief } from "../knowledge/marketDecision";
 import {
   aiProviderReadinessSnapshot,
   runLiveAiProviderProbe,
@@ -634,6 +635,22 @@ Do not make patient-specific eligibility decisions. Do not invent state rules or
     } catch (error: any) {
       console.error("Hospice profile lookup error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Hospice profile could not be built") });
+    }
+  });
+
+  app.post("/api/intelligence/market-decision", requireElite, standardAiLimit, globalDailyAiCap, async (req, res) => {
+    try {
+      const ccn = String(req.body?.ccn || "").trim();
+      if (!/^\d{6}$/.test(ccn)) {
+        return res.status(400).json({ error: "Choose a verified six-digit hospice CCN before building the decision brief." });
+      }
+      const goal = typeof req.body?.goal === "string" ? req.body.goal : undefined;
+      const profile = await getCmsHospiceProfile(ccn);
+      const brief = buildMarketDecisionBrief(profile, goal);
+      res.json({ brief });
+    } catch (error: any) {
+      console.error("Market decision brief error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "The market decision brief could not be built") });
     }
   });
 
