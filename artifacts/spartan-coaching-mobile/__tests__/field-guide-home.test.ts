@@ -86,7 +86,7 @@ describe("Field Guide experience contract", () => {
     expect(publicHome).toContain('route: "/(tabs)/learn"');
     expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} field tools");
     expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
-    expect(home).toContain('open("/tool/playbook" as Href)');
+    expect(home).toContain('route: "/tool/playbook" as Href');
     expect(home).toContain('"/(tabs)/coach"');
     expect(home).toContain("<SpartanHeader");
     expect(read("components/ui/SpartanHeader.tsx")).toContain('title = "Hospice Sales Pro"');
