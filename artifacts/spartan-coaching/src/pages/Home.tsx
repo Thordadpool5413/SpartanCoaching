@@ -293,14 +293,14 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Button size="lg" asChild className="font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none bg-primary hover:bg-primary/90 text-primary-foreground border-none">
-                   <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
-                     Explore Spartan Consulting
+                   <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
+                     Book a strategy call
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="mamba-gold-action font-display font-bold text-base min-h-[3.5rem] px-8 rounded-none border-2 border-border text-foreground hover:bg-muted">
                   <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
-                    Preview Hospice Sales Pro
+                    Explore Hospice Sales Pro
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
