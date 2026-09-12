@@ -39,12 +39,11 @@ function makeBudgetFixture(mode) {
 }
 
 function runBudget(cwd, distPublic) {
+  const env = { ...process.env };
+  if (distPublic) env.PERFORMANCE_BUDGET_DIST_PUBLIC = distPublic;
   return spawnSync(process.execPath, [scriptPath], {
     cwd,
-    env: {
-      ...process.env,
-      PERFORMANCE_BUDGET_DIST_PUBLIC: distPublic,
-    },
+    env,
     encoding: "utf8",
   });
 }
@@ -52,7 +51,7 @@ function runBudget(cwd, distPublic) {
 test("uses cwd dist/public when repository artifact paths are absent", () => {
   const { root, distPublic } = makeBudgetFixture("pass");
   try {
-    const result = runBudget(root, distPublic);
+    const result = runBudget(root);
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, new RegExp(`Using build output: ${distPublic.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
     assert.match(result.stdout, /All budgets within limits\./);
@@ -64,11 +63,25 @@ test("uses cwd dist/public when repository artifact paths are absent", () => {
 test("counts root-level CSS files toward the total CSS budget", () => {
   const { root, distPublic } = makeBudgetFixture("fail-root-css");
   try {
-    const result = runBudget(root, distPublic);
+    const result = runBudget(root);
     assert.notEqual(result.status, 0, "budget check should fail when root-level CSS pushes total over the limit");
     assert.match(result.stdout, /FAIL CSS total/);
     assert.match(result.stderr, /Bundle exceeds Wave 4 budgets/);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("prefers an explicit dist/public override when provided", () => {
+  const fallback = makeBudgetFixture("fail-root-css");
+  const override = makeBudgetFixture("pass");
+  try {
+    const result = runBudget(fallback.root, override.distPublic);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, new RegExp(`Using build output: ${override.distPublic.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+    assert.match(result.stdout, /All budgets within limits\./);
+  } finally {
+    rmSync(fallback.root, { recursive: true, force: true });
+    rmSync(override.root, { recursive: true, force: true });
   }
 });

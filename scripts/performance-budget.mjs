@@ -14,17 +14,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Candidate dist/public locations.
- * Keeps CI resilient when working directory/layout differs across environments.
+ * Supports explicit overrides first, then the caller's working tree, then the
+ * script-relative repo layout used in CI.
  */
 const DIST_CANDIDATES = [
   process.env.PERFORMANCE_BUDGET_DIST_PUBLIC
     ? path.resolve(process.env.PERFORMANCE_BUDGET_DIST_PUBLIC)
     : null,
+  path.resolve(process.cwd(), "artifacts/spartan-coaching/dist/public"),
+  path.resolve(process.cwd(), "dist/public"),
   path.resolve(__dirname, "../artifacts/spartan-coaching/dist/public"),
   path.resolve(__dirname, "../dist/public"),
   path.resolve(__dirname, "../../dist/public"),
-  path.resolve(process.cwd(), "artifacts/spartan-coaching/dist/public"),
-  path.resolve(process.cwd(), "dist/public"),
 ].filter(Boolean);
 
 function pickDistPublic() {
