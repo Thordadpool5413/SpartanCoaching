@@ -1,4 +1,4 @@
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { expect, test, type Locator, type Page, type TestInfo } from "@playwright/test";
 
 const publicPages = [
   { path: "/", name: "home" },
@@ -206,7 +206,7 @@ async function expectNoHorizontalOverflow(page: Page, label: string) {
   ).toBeLessThanOrEqual(1);
 }
 
-async function expectKeyboardFocus(locator: ReturnType<Page["getByTestId"]>, label: string) {
+async function expectKeyboardFocus(locator: Locator, label: string) {
   await expect(locator, `${label} must receive keyboard focus`).toBeFocused();
 
   const focusState = await locator.evaluate((element) => {
@@ -466,6 +466,38 @@ test.describe("public website release gate", () => {
         contentType: "image/png",
       });
     }
+  });
+
+  test("desktop navigation dropdowns stay keyboard-navigable at xl", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chromium", "Desktop navigation is not rendered on mobile");
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await isolatePublicPage(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts?.ready);
+
+    const dropdown = page.getByTestId("dropdown-consulting");
+    const trigger = dropdown.getByRole("button", { name: "Consulting menu" });
+    const menu = dropdown.getByRole("menu", { name: "Consulting" });
+    const menuItems = menu.getByRole("menuitem");
+
+    await expect(trigger).toBeVisible();
+    await expect(menu).toBeHidden();
+
+    await trigger.focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(menu).toBeVisible();
+    await expectNoHorizontalOverflow(page, "xl desktop navigation dropdown");
+
+    const itemCount = await menuItems.count();
+    expect(itemCount, "desktop dropdown must contain navigable items").toBeGreaterThan(1);
+    for (let index = 0; index < itemCount; index += 1) {
+      await expectKeyboardFocus(menuItems.nth(index), `desktop dropdown item ${index + 1}`);
+      await page.keyboard.press("ArrowDown");
+    }
+
+    await page.keyboard.press("Escape");
+    await expect(menu).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 
   test("mobile header keeps search and menu usable at 390px", async ({ page }, testInfo) => {

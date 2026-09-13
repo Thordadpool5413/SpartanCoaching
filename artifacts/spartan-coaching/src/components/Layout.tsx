@@ -228,7 +228,7 @@ export function NavDropdown({ label, items, dataTestId, align = "left" }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "block px-6 py-4 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none border-l-2 border-transparent hover:border-primary",
+                "block px-6 py-4 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-popover border-l-2 border-transparent hover:border-primary",
                 location === item.path
                   ? "bg-primary/5 text-primary font-bold border-primary"
                   : "text-foreground"
