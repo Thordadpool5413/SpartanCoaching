@@ -1,6 +1,6 @@
 import { AccentText } from "@/components/AccentText";
 import { useState, type ComponentType } from "react";
-import { BookOpen, CheckCircle2, Crosshair, Database, Map, ShieldCheck, Target } from "lucide-react";
+import { BookOpen, Calculator, Crosshair, Map, ShieldAlert, ShieldCheck, Sparkles, Target } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { SEO } from "@/components/SEO";
@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 type Mission = "referral" | "market" | "decision" | "policy";
 
 const MISSIONS: Array<{ id: Mission; label: string; description: string; icon: ComponentType<{ className?: string }> }> = [
-  { id: "referral", label: "Prepare for an account", description: "Verify a referral source and build a focused meeting brief.", icon: Crosshair },
-  { id: "market", label: "Understand a market", description: "Explore enrolled hospice organizations in a service area.", icon: Map },
-  { id: "decision", label: "Make the next decision", description: "Turn verified Medicare evidence into an action, success signal, and stop condition.", icon: Target },
-  { id: "policy", label: "Answer a policy question", description: "Find sourced CMS guidance and explain it clearly.", icon: BookOpen },
+  { id: "referral", label: "Research a provider", description: "Verify the account and prepare the conversation.", icon: Crosshair },
+  { id: "market", label: "Analyze a market", description: "See enrolled hospices across a service area.", icon: Map },
+  { id: "decision", label: "Build a decision brief", description: "Turn evidence into one defensible next move.", icon: Target },
+  { id: "policy", label: "Answer a policy question", description: "Explain sourced CMS guidance clearly.", icon: BookOpen },
 ];
 
 export default function SpartanIntelligence() {
@@ -42,13 +42,16 @@ export default function SpartanIntelligence() {
               Choose a mission and work in one focused space. Every result stays connected to its public source, with no patient information or invented referral data.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-            <CheckCircle2 className="h-4 w-4 text-primary" /> CMS and NPPES sourced
+          <div className="grid gap-2 text-xs font-semibold text-muted-foreground sm:grid-cols-2 lg:grid-cols-1">
+            <TrustSignal icon={ShieldCheck} label="Verified fact" detail="CMS or NPPES source" />
+            <TrustSignal icon={Calculator} label="Calculated result" detail="Rule-based analysis" />
+            <TrustSignal icon={Sparkles} label="Coach guidance" detail="Clearly identified advice" />
+            <TrustSignal icon={ShieldAlert} label="Missing evidence" detail="Never scored as zero" />
           </div>
         </div>
       </header>
 
-      <nav className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="Choose an intelligence mission">
+      <nav className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4" aria-label="Choose an intelligence mission">
         {MISSIONS.map((item) => {
           const Icon = item.icon;
           const selected = item.id === mission;
@@ -58,13 +61,13 @@ export default function SpartanIntelligence() {
               type="button"
               onClick={() => setMission(item.id)}
               className={cn(
-                "flex min-h-24 items-start gap-3 rounded-2xl border p-4 text-left transition",
+                "flex min-h-24 items-start gap-2 rounded-2xl border p-3 text-left transition sm:gap-3 sm:p-4",
                 selected ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/20" : "border-border bg-card hover:border-primary/50 hover:bg-muted/30",
               )}
               aria-pressed={selected}
               data-testid={`intelligence-mission-${item.id}`}
             >
-              <span className={cn("rounded-xl p-2.5", selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}><Icon className="h-5 w-5" /></span>
+              <span className={cn("hidden rounded-xl p-2.5 sm:block", selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}><Icon className="h-5 w-5" /></span>
               <span>
                 <span className="block font-black text-foreground">{item.label}</span>
                 <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{item.description}</span>
@@ -84,12 +87,11 @@ export default function SpartanIntelligence() {
   );
 }
 
-function Promise({ icon: Icon, title, body }: { icon: typeof Database; title: string; body: string }) {
+function TrustSignal({ icon: Icon, label, detail }: { icon: typeof ShieldCheck; label: string; detail: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <Icon className="h-5 w-5 text-primary" />
-      <h2 className="mt-3 font-bold text-foreground"><AccentText>{title}</AccentText></h2>
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    <div className="flex items-center gap-2 rounded-xl border border-border bg-background/80 px-3 py-2">
+      <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      <span><strong className="text-foreground">{label}</strong><span className="block font-normal">{detail}</span></span>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, BrainCircuit, CheckCircle2, Loader2, ShieldAlert, Target } from "lucide-react";
+import { ArrowRight, BrainCircuit, CheckCircle2, ExternalLink, Loader2, ShieldAlert, Target } from "lucide-react";
 import { AccentText } from "@/components/AccentText";
 import { ToolResultActions } from "@/components/ToolResultActions";
 import { Button } from "@/components/ui/button";
@@ -88,9 +88,17 @@ export function MedicareDecisionPanel() {
       <DecisionSection title="Evidence ledger"><div className="grid gap-3 md:grid-cols-2">{brief.evidence.map((item) => <article key={`${item.label}-${item.period}`} className="rounded-2xl border border-border bg-background/70 p-4"><div className="flex items-start justify-between gap-3"><h5 className="text-sm font-bold text-foreground">{item.label}</h5><span className="shrink-0 text-sm font-black tabular-nums text-primary">{item.value}</span></div><p className="mt-2 text-xs font-semibold text-muted-foreground">Period: {item.period}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{item.interpretation}</p></article>)}</div></DecisionSection>
       <DecisionSection title="Execution plan"><div className="space-y-3">{brief.nextActions.map((item, index) => <article key={item.timing} className="rounded-2xl border border-border p-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-start"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-black text-primary-foreground">{index + 1}</span><div className="flex-1"><p className="text-xs font-black uppercase tracking-wide text-primary">{item.timing}</p><p className="mt-1 text-sm font-semibold text-foreground">{item.action}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Success: {item.successSignal}</p></div></div></article>)}</div></DecisionSection>
       <div className="grid gap-5 lg:grid-cols-2"><DecisionSection title="Stop conditions"><BulletList items={brief.stopConditions} warning /></DecisionSection><DecisionSection title="Evidence boundary"><p className="text-sm leading-6 text-muted-foreground">{brief.confidence.explanation}</p><BulletList items={brief.limitations} /></DecisionSection></div>
+      <DecisionSection title="Official sources">
+        <div className="grid gap-2 sm:grid-cols-2">{brief.sources.map((source) => <a key={`${source.label}-${source.url}`} href={source.url} target="_blank" rel="noreferrer" className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-border bg-background/70 px-4 py-3 text-sm transition hover:border-primary/50 hover:bg-muted/30"><span><span className="block font-bold text-foreground">{source.label}</span><span className="mt-1 block text-xs text-muted-foreground">Checked {formatCheckedAt(source.checkedAt)}</span></span><ExternalLink className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden /></a>)}</div>
+      </DecisionSection>
       <ToolResultActions toolId="spartan-intelligence" title="Keep this decision moving" description="Save the brief to My Work, then use Coach to challenge or prepare the action." saveResult={{ toolId: "spartan-intelligence", title: brief.title, kind: "intelligence_brief", value: JSON.stringify(brief), input: { ccn, goal }, nextAction: { title: brief.nextActions[0]?.action || brief.recommendedMove, href: "/tools/intelligence" } }} actions={[{ id: "coach", label: "Challenge with Coach", href: "/portal/coach" }, { id: "my-work", label: "Open My Work", href: "/my-work" }]} testId="market-decision-actions" />
     </Card> : null}
   </div>;
+}
+
+function formatCheckedAt(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "date unavailable" : date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 function DecisionSection({ title, children }: { title: string; children: React.ReactNode }) {

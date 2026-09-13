@@ -3,13 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, DeviceEventEmitter, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, DeviceEventEmitter, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
+import { saveCoachHandoff } from "@/lib/coachHandoff";
 
 type Workspace = "referral" | "market" | "decision" | "policy";
 type Choice = { value: string; label: string };
@@ -67,7 +68,7 @@ type DecisionBrief = {
 };
 
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
-  { value: "referral", label: "Referral", icon: "users" },
+  { value: "referral", label: "Provider", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
   { value: "decision", label: "Decide", icon: "target" },
   { value: "policy", label: "Policy", icon: "book-open" },
@@ -124,6 +125,12 @@ export default function SpartanIntelligenceScreen() {
           <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>MEDICARE MARKET INTELLIGENCE</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the evidence. Make the next move.</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES evidence turned into decisions, conversations, and next actions.</Text>
+          <View style={styles.trustGrid}>
+            <TrustItem icon="shield" label="Verified fact" colors={colors} />
+            <TrustItem icon="bar-chart-2" label="Calculated result" colors={colors} />
+            <TrustItem icon="message-circle" label="Coach guidance" colors={colors} />
+            <TrustItem icon="alert-circle" label="Missing, not zero" colors={colors} />
+          </View>
         </View>
         <View style={[styles.workspaceTabs, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
           {workspaceChoices.map((item) => {
@@ -456,7 +463,7 @@ function PolicyWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
     finally { setStatus(""); }
   };
   return <View style={styles.workspace}>
-    <WorkspaceIntro number="03" eyebrow="CMS POLICY INTELLIGENCE" title="Explain the rule clearly. Know where your authority ends." text="Choose the decision and audience. Receive plain language, key facts, a human talk track, a verification checklist, language to avoid, and escalation guidance." colors={colors} />
+    <WorkspaceIntro number="04" eyebrow="CMS POLICY INTELLIGENCE" title="Explain the rule clearly. Know where your authority ends." text="Choose the decision and audience. Receive plain language, key facts, a human talk track, a verification checklist, language to avoid, and escalation guidance." colors={colors} />
     <Panel colors={colors}>
       <Step title="Prepare the explanation" text="Choose the exact policy decision and who needs the answer." colors={colors} />
       <ChoiceField label="Policy decision" value={topic} choices={policyTopics} onChange={(v) => { setTopic(v); setBrief(null); }} colors={colors} />
@@ -480,6 +487,7 @@ function DecisionResult({ brief, colors }: { brief: DecisionBrief; colors: Retur
     <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>Execution plan</Text>
     {brief.nextActions.map((item, index) => <View key={item.timing} style={[styles.planRow, { borderColor: colors.border }]}><View style={[styles.number, { backgroundColor: colors.primary }]}><Text style={[styles.numberText, font("bold")]}>{index + 1}</Text></View><View style={styles.flex}><Text style={[styles.planTiming, { color: colors.primary }, font("bold")]}>{item.timing}</Text><Text selectable style={[styles.body, { color: colors.foreground }, font("regular")]}>{item.action}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>Success: {item.successSignal}</Text></View></View>)}
     <ListSection title="Stop conditions" items={brief.stopConditions} colors={colors} warning />
+    <View style={styles.block}><Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>Official sources</Text>{brief.sources.map((source) => <SourceLink key={`${source.label}-${source.url || "source"}`} source={source} colors={colors} />)}</View>
     <SourceNote text={`${brief.confidence.explanation} ${brief.limitations.join(" ")}`} colors={colors} />
   </ResultPanel>;
 }
@@ -548,7 +556,7 @@ function ResultPanel({ eyebrow, title, shareText, colors, children }: { eyebrow:
       <Action icon="share-2" label="Share" onPress={() => void Share.share({ title, message: shareText })} colors={colors} />
       <Action icon="bookmark" label="Save" onPress={() => void save()} colors={colors} />
     </View>
-    <SpartanButton title="Ask Coach about this" variant="outline" onPress={() => router.push("/(tabs)/coach")} />
+    <SpartanButton title="Ask Coach about this" variant="outline" onPress={() => void saveCoachHandoff({ situation: shareText.slice(0, 4000), intention: `Pressure-test this ${eyebrow.toLowerCase()} and help me choose the strongest next action.` }).then(() => router.push("/(tabs)/coach"))} />
     {children}
   </View>;
 }
@@ -587,6 +595,8 @@ function Panel({ colors, children }: { colors: ReturnType<typeof useColors>; chi
 function Step({ title, text, colors }: { title: string; text: string; colors: ReturnType<typeof useColors> }) { return <View style={styles.step}><Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{title}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{text}</Text></View>; }
 function Progress({ status, colors }: { status: string; colors: ReturnType<typeof useColors> }) { return status ? <View accessibilityLiveRegion="polite" style={[styles.progress, { backgroundColor: colors.primaryMuted }]}><ActivityIndicator color={colors.primary} /><View style={styles.flex}><Text style={[styles.progressTitle, { color: colors.foreground }, font("bold")]}>{status}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>This usually takes a few seconds.</Text></View></View> : null; }
 function message(error: unknown) { return error instanceof Error ? error.message : "Try again in a moment."; }
+function formatCheckedAt(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? "date unavailable" : date.toLocaleDateString(); }
+function TrustItem({ icon, label, colors }: { icon: keyof typeof Feather.glyphMap; label: string; colors: ReturnType<typeof useColors> }) { return <View style={[styles.trustItem, { backgroundColor: colors.card, borderColor: colors.border }]}><Feather name={icon} size={14} color={colors.readablePrimary} /><Text style={[styles.trustLabel, { color: colors.foreground }, font("semibold")]}>{label}</Text></View>; }
 
 function Field({ label, value, onChangeText, placeholder, colors, multiline = false }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; colors: ReturnType<typeof useColors>; multiline?: boolean }) { return <View style={styles.field}><Text style={[styles.label, { color: colors.foreground }, font("bold")]}>{label}</Text><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor={colors.mutedForeground} multiline={multiline} style={[styles.input, multiline && styles.multiline, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.borderStrong }, font("regular")]} /></View>; }
 
@@ -603,14 +613,15 @@ function Callout({ title, text, colors }: { title: string; text: string; colors:
 function TextBlock({ title, text, quote = false, colors }: { title: string; text: string; quote?: boolean; colors: ReturnType<typeof useColors> }) { return <View style={styles.block}><Text style={[styles.briefLabel, { color: colors.readablePrimary }, font("bold")]}>{title.toUpperCase()}</Text><Text style={[styles.body, quote && styles.quote, { color: colors.foreground, borderLeftColor: colors.primary }, font(quote ? "semibold" : "regular")]}>{text}</Text></View>; }
 function ListSection({ title, items, colors, numbered = false, warning = false }: { title: string; items: string[]; colors: ReturnType<typeof useColors>; numbered?: boolean; warning?: boolean }) { return <View style={styles.block}><Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{title}</Text>{items.map((item, index) => <View key={`${index}-${item}`} style={styles.line}><View style={[numbered ? styles.number : styles.dot, { backgroundColor: warning ? "#C46A13" : colors.primary }]}>{numbered ? <Text style={[styles.numberText, font("bold")]}>{index + 1}</Text> : null}</View><Text style={[styles.body, styles.flex, { color: colors.foreground }, font("regular")]}>{item}</Text></View>)}</View>; }
 function LineItem({ text, icon, colors }: { text: string; icon: keyof typeof Feather.glyphMap; colors: ReturnType<typeof useColors> }) { return <View style={styles.line}><Feather name={icon} size={16} color={colors.readablePrimary} /><Text style={[styles.body, styles.flex, { color: colors.foreground }, font("regular")]}>{text}</Text></View>; }
+function SourceLink({ source, colors }: { source: Source; colors: ReturnType<typeof useColors> }) { const content = <><Feather name="external-link" size={16} color={colors.readablePrimary} /><View style={styles.flex}><Text style={[styles.body, { color: colors.foreground }, font("semibold")]}>{source.label}</Text>{source.checkedAt ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>Checked {formatCheckedAt(source.checkedAt)}</Text> : null}</View></>; return source.url ? <Pressable accessibilityRole="link" accessibilityLabel={`Open official source: ${source.label}`} hitSlop={8} onPress={() => void Linking.openURL(source.url!)} style={({ pressed }) => [styles.line, pressed && { opacity: 0.72 }]}>{content}</Pressable> : <View style={styles.line}>{content}</View>; }
 function MeasureSection({ title, measures, colors }: { title: string; measures: HospiceMeasure[]; colors: ReturnType<typeof useColors> }) { return <View style={styles.block}><Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{title}</Text>{measures.length ? measures.map((item) => <View key={item.code} style={[styles.measure, { borderColor: colors.border }]}><View style={styles.measureTop}><Text style={[styles.measureName, styles.flex, { color: colors.foreground }, font("bold")]}>{item.name}</Text><Text style={[styles.measureScore, { color: colors.primary }, font("heavy")]}>{item.displayScore}</Text></View><Text style={[styles.helper, { color: item.favorable === true ? "#37845A" : item.favorable === false ? "#C46A13" : colors.mutedForeground }, font("semibold")]}>{item.comparisonLabel}</Text><Text style={[styles.source, { color: colors.mutedForeground }, font("regular")]}>{item.reportingPeriod}</Text></View>) : <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>CMS does not currently report these measures for this hospice.</Text>}</View>; }
 function SourceNote({ text, colors }: { text: string; colors: ReturnType<typeof useColors> }) { return <View style={[styles.sourceNote, { borderTopColor: colors.border }]}><Feather name="shield" size={17} color={colors.readablePrimary} /><Text style={[styles.helper, styles.flex, { color: colors.mutedForeground }, font("regular")]}>{text}</Text></View>; }
 function Action({ icon, label, onPress, colors }: { icon: keyof typeof Feather.glyphMap; label: string; onPress: () => void; colors: ReturnType<typeof useColors> }) { return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={[styles.action, { backgroundColor: colors.background, borderColor: colors.border }]}><Feather name={icon} size={17} color={colors.readablePrimary} /><Text style={[styles.actionText, { color: colors.foreground }, font("bold")]}>{label}</Text></Pressable>; }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 }, content: { paddingHorizontal: 20, gap: 22 }, back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 }, backText: { fontSize: 15 },
-  hero: { gap: 10 }, kicker: { fontSize: 10, letterSpacing: 2.1 }, title: { fontSize: 34, lineHeight: 39, letterSpacing: -1.1 }, subtitle: { fontSize: 16, lineHeight: 24 },
-  workspaceTabs: { flexDirection: "row", borderWidth: 1, borderRadius: 18, padding: 5 }, workspaceTab: { flex: 1, minHeight: 48, borderRadius: 13, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6 }, workspaceLabel: { fontSize: 12 },
+  hero: { gap: 10 }, kicker: { fontSize: 10, letterSpacing: 2.1 }, title: { fontSize: 34, lineHeight: 39, letterSpacing: -1.1 }, subtitle: { fontSize: 16, lineHeight: 24 }, trustGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 }, trustItem: { width: "48%", minHeight: 38, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", gap: 7 }, trustLabel: { flex: 1, fontSize: 11, lineHeight: 14 },
+  workspaceTabs: { flexDirection: "row", flexWrap: "wrap", gap: 5, borderWidth: 1, borderRadius: 18, padding: 5 }, workspaceTab: { width: "48%", flexGrow: 1, minHeight: 48, borderRadius: 13, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6 }, workspaceLabel: { fontSize: 12 },
   workspace: { gap: 20 }, intro: { gap: 9, paddingTop: 4 }, workspaceTitle: { fontSize: 27, lineHeight: 33, letterSpacing: -0.5 },
   panel: { borderWidth: 1, borderRadius: 22, padding: 18, gap: 16 }, step: { gap: 5 }, sectionHeading: { fontSize: 19, lineHeight: 24 }, helper: { fontSize: 13, lineHeight: 19 },
   field: { gap: 8 }, label: { fontSize: 14 }, input: { minHeight: 52, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontSize: 16 }, multiline: { minHeight: 92, paddingTop: 13, textAlignVertical: "top" },

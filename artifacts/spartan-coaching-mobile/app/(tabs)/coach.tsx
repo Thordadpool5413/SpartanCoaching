@@ -44,6 +44,7 @@ import {
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
+import { consumeCoachHandoff } from "@/lib/coachHandoff";
 import { isSafeForMemberContinuity } from "@/lib/memberSync";
 import { userFacingApiError } from "@/lib/offlineQueue";
 import { useCoachSession } from "@/lib/CoachSessionContext";
@@ -110,6 +111,16 @@ export default function CoachScreen() {
         setHistoryError(true);
       });
   }, [canUseElite]);
+
+  useEffect(() => {
+    void consumeCoachHandoff().then((handoff) => {
+      if (!handoff) return;
+      setSituation((current) => current.trim() ? current : handoff.situation);
+      setIntention((current) => current.trim() ? current : handoff.intention);
+      setLandingVisible(false);
+      setStep("prepare");
+    });
+  }, []);
 
   async function retryHistory() {
     setHistoryError(false);
