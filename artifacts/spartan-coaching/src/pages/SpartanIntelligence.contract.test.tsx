@@ -44,6 +44,8 @@ describe("Spartan Intelligence workspace contract", () => {
   it("switches between the four working intelligence missions", () => {
     render(<SpartanIntelligence />);
 
+    expect(screen.getByTestId("cms-national-platform")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Field assistant" }));
     expect(screen.getByTestId("referral-panel")).toBeTruthy();
     fireEvent.click(screen.getByTestId("intelligence-mission-policy"));
     expect(screen.getByTestId("policy-panel")).toBeTruthy();
@@ -65,6 +67,17 @@ describe("Spartan Intelligence workspace contract", () => {
     expect(screen.getByText("Calculated result")).toBeTruthy();
     expect(screen.getByText("Coach guidance")).toBeTruthy();
     expect(screen.getByText("Missing evidence")).toBeTruthy();
+  });
+
+  it("integrates the complete national CMS platform instead of only renaming the tool", () => {
+    render(<SpartanIntelligence />);
+
+    expect(screen.getByText("Command Center")).toBeTruthy();
+    expect(screen.getByText("Provider 360")).toBeTruthy();
+    expect(screen.getByText("Territory Deployment")).toBeTruthy();
+    expect(screen.getByText("Referral Market")).toBeTruthy();
+    expect(screen.getByText("Data Lab")).toBeTruthy();
+    expect(screen.getByTitle("CMS Medicare Knowledge Hub national intelligence platform")).toBeTruthy();
   });
 
   it("offers the complete United States state selector", () => {
