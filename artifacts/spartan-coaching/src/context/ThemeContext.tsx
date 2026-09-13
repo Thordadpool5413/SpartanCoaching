@@ -92,9 +92,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   useEffect(() => {
-    // Re-apply on mount (covers hydration / late body)
-    applyAppearance(store.mode, store.accent, store.background, store.themePreset);
-
     const onCustom = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (!detail) return;

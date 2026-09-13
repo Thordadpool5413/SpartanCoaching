@@ -9,6 +9,12 @@ Browser appearance coverage should assert the saved mode, accent, background, an
 
 **How to apply:** When testing public-to-workspace transitions, normalize the sync record to its semantic appearance fields and separately reject writes that contain route-scoped public values.
 
+The route layout is the authority for the live appearance after navigation; the provider must not reapply the saved workspace appearance from a mount effect after the route has selected a public surface.
+
+**Why:** A provider mount re-application can run after the public route effect on the first load, leaving the route marker public while the document still has the saved dark workspace attributes.
+
+**How to apply:** Keep saved appearance initialization before React paints, and apply route-scoped values with persistence and notification disabled from the route layout.
+
 Cross-tab storage rehydration must apply the saved appearance with persistence and same-tab notification disabled; the storage event is already the external update signal.
 
 **Why:** Re-persisting a storage event creates a write-back loop and can make route-scoped consumers observe a second, synthetic theme change.
