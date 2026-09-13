@@ -70,14 +70,14 @@ function commit(next: ThemeState) {
   emit();
 }
 
-function initStoreFromStorage() {
+function initStoreFromStorage(options?: { persist?: boolean; notify?: boolean }) {
   if (typeof window === "undefined") return;
   const background = getInitialBackground();
   const accent = getInitialAccent();
   const themePreset = getInitialThemePreset();
   const mode = getInitialModeForPreset(themePreset);
   store = { mode, accent, background, themePreset };
-  applyAppearance(mode, accent, background, themePreset);
+  applyAppearance(mode, accent, background, themePreset, options);
 }
 
 // Initialize as soon as this module loads in the browser
@@ -124,7 +124,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         e.key === "spartan_theme_preset" ||
         e.key === "spartan_theme_sync"
       ) {
-        initStoreFromStorage();
+        initStoreFromStorage({ persist: false, notify: false });
         emit();
       }
     };
