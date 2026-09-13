@@ -200,7 +200,7 @@ export default function Tools() {
       <SlideUp delay={0.05}>
         <section className="mb-8 grid gap-3 lg:grid-cols-3" aria-label="Explore Hospice Sales Pro" data-testid="public-spartan-intelligence">
           {[
-            { icon: Sparkles, title: "Intelligence", body: "Verify an account, answer a CMS policy question, or understand a market.", href: "/tools/intelligence", action: "Open Intelligence", testId: "button-public-spartan-intelligence" },
+            { icon: Sparkles, title: "CMS Medicare Knowledge Hub", body: "Verify a provider, analyze a hospice market, build a decision brief, or answer a CMS policy question.", href: "/tools/intelligence", action: "Open Medicare Hub", testId: "button-public-spartan-intelligence" },
             { icon: BookOpen, title: "Resources", body: "Use a downloadable script, checklist, template, or field guide right now.", href: "/resources", action: "Browse resources", testId: "button-explore-resources" },
             { icon: GraduationCap, title: "Learn", body: "Build the knowledge, practice the skill, then test your judgment.", href: "/portal/learn", action: "Open Learn", testId: "button-explore-learn" },
           ].map(({ icon: Icon, title, body, href, action, testId }) => (

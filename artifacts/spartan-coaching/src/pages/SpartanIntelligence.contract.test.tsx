@@ -25,11 +25,13 @@ vi.mock("@/components/MedicareDecisionPanel", () => ({
 afterEach(cleanup);
 
 describe("Spartan Intelligence workspace contract", () => {
-  it("is discoverable through the consolidated Tools destination", () => {
+  it("is a visible primary workspace destination", () => {
     const nav = primaryWorkspaceNav("member");
     const tools = nav.find((item) => item.href === "/tools" && item.label === "Tools");
-    expect(tools?.match("/tools/intelligence")).toBe(true);
-    expect(nav.some((item) => item.href === "/tools/intelligence")).toBe(false);
+    const hub = nav.find((item) => item.href === "/tools/intelligence");
+    expect(hub?.label).toBe("Medicare Hub");
+    expect(hub?.match("/tools/intelligence")).toBe(true);
+    expect(tools?.match("/tools/intelligence")).toBe(false);
   });
 
   it("is a dedicated member destination instead of being hidden under Tools", () => {
