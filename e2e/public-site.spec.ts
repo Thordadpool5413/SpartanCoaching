@@ -97,6 +97,37 @@ async function attachRegion(page: Page, testInfo: TestInfo, testId: string, name
   });
 }
 
+async function expectNoHorizontalOverflow(page: Page, label: string) {
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+
+  expect(
+    dimensions.scrollWidth - dimensions.clientWidth,
+    `${label} must not overflow horizontally`,
+  ).toBeLessThanOrEqual(1);
+}
+
+async function expectKeyboardFocus(locator: ReturnType<Page["getByTestId"]>, label: string) {
+  await expect(locator, `${label} must receive keyboard focus`).toBeFocused();
+
+  const focusState = await locator.evaluate((element) => {
+    const styles = window.getComputedStyle(element);
+    return {
+      focusVisible: element.matches(":focus-visible"),
+      hasOutline: styles.outlineStyle !== "none" && styles.outlineWidth !== "0px",
+      hasBoxShadow: styles.boxShadow !== "none",
+    };
+  });
+
+  expect(focusState.focusVisible, `${label} must use :focus-visible`).toBe(true);
+  expect(
+    focusState.hasOutline || focusState.hasBoxShadow,
+    `${label} must retain a visible focus indicator`,
+  ).toBe(true);
+}
+
 test.describe("public website release gate", () => {
   for (const entry of publicPages) {
     test(`${entry.name} is complete and fits the viewport`, async ({ page }, testInfo) => {
@@ -204,5 +235,83 @@ test.describe("public website release gate", () => {
     await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
       "Recommended path · consulting + seats",
     );
+  });
+
+  test("public header stays composed at the xl and wide desktop boundaries", async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await isolatePublicPage(page);
+
+    for (const width of [1280, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => document.fonts?.ready);
+
+      const header = page.locator("header.public-site-header");
+      const navigation = page.getByRole("navigation", { name: "Main navigation" });
+      const search = page.getByTestId("button-mobile-search");
+      const menu = page.getByTestId("button-mobile-menu");
+      const login = page.getByTestId("button-login");
+      const primaryAction = page.getByTestId("button-book-call");
+
+      await expect(header).toBeVisible();
+      await expect(navigation).toBeVisible();
+      await expect(search).toBeHidden();
+      await expect(menu).toBeVisible();
+      await expect(login).toBeVisible();
+      await expect(primaryAction).toBeVisible();
+      await expectNoHorizontalOverflow(page, `${width}px public header`);
+
+      await page.keyboard.press("Tab");
+      await login.focus();
+      await expectKeyboardFocus(login, `${width}px login`);
+
+      await testInfo.attach(`public-header-${width}px-${testInfo.project.name}`, {
+        body: await header.screenshot({ animations: "disabled", caret: "hide" }),
+        contentType: "image/png",
+      });
+    }
+  });
+
+  test("mobile header keeps search and menu usable at 390px", async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await isolatePublicPage(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts?.ready);
+
+    const header = page.locator("header.public-site-header");
+    const search = page.getByTestId("button-mobile-search");
+    const menu = page.getByTestId("button-mobile-menu");
+
+    await expect(header).toBeVisible();
+    await expect(search).toBeVisible();
+    await expect(menu).toBeVisible();
+    await expect(page.getByTestId("button-login")).toBeHidden();
+    await expect(page.getByTestId("button-book-call")).toBeHidden();
+    await expectNoHorizontalOverflow(page, "390px public header");
+
+    await page.keyboard.press("Tab");
+    await search.focus();
+    await page.keyboard.press("Tab");
+    await expectKeyboardFocus(menu, "390px menu control");
+    await page.keyboard.press("Shift+Tab");
+    await expectKeyboardFocus(search, "390px search control");
+
+    await search.click();
+    await expect(page.getByTestId("dialog-search")).toBeVisible();
+    await expect(page.getByTestId("input-search")).toBeFocused();
+    await expectNoHorizontalOverflow(page, "390px search dialog");
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("dialog-search")).toBeHidden();
+
+    await menu.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Mobile navigation" })).toBeVisible();
+    await expectNoHorizontalOverflow(page, "390px mobile menu");
+
+    await testInfo.attach(`public-header-mobile-menu-${testInfo.project.name}`, {
+      body: await page.screenshot({ animations: "disabled", caret: "hide" }),
+      contentType: "image/png",
+    });
   });
 });
