@@ -24,7 +24,7 @@ export default function SpartanIntelligence() {
   return (
     <FieldKitToolLayout toolPath="/tools/intelligence" className="max-w-[90rem]" showHowTo={false}>
       <SEO
-        title="Medicare Market Intelligence | Hospice Sales Pro"
+        title="CMS Medicare Knowledge Hub | Hospice Sales Pro"
         description="Turn verified Medicare provider, market, and policy evidence into focused hospice sales decisions."
       />
 
@@ -32,7 +32,7 @@ export default function SpartanIntelligence() {
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground">Medicare Market Intelligence</span>
+              <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground">CMS Medicare Knowledge Hub</span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Verified public data
               </span>

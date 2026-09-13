@@ -108,7 +108,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   {
     id: "spartan-intelligence",
     owner: "explore",
-    title: "Medicare Market Intelligence",
+    title: "CMS Medicare Knowledge Hub",
     description: "Turn verified Medicare provider, market, and policy evidence into focused sales decisions.",
     path: "/tools/intelligence",
     category: "Prepare",

@@ -138,8 +138,8 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
             <Link href="/tools/intelligence" className="field-channel group">
               <div className="field-channel-icon"><BrainCircuit aria-hidden className="w-5 h-5" /></div>
               <div className="field-channel-content">
-                <strong>Intelligence</strong>
-                <small>Verify account context.</small>
+                <strong>CMS Medicare Knowledge Hub</strong>
+                <small>Verify providers, markets, and policy.</small>
               </div>
               <ArrowRight className="field-channel-arrow" aria-hidden />
             </Link>

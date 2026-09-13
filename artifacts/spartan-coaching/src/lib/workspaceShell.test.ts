@@ -65,14 +65,18 @@ describe("workspace shell (HSP-32)", () => {
   it("keeps the primary rail focused on member jobs", () => {
     const primary = primaryWorkspaceNav("member");
     const ids = primary.map((i) => i.id);
-    expect(ids).toEqual(["home", "command", "tools", "coach", "library", "my_work"]);
+    expect(ids).toEqual(["home", "command", "intelligence", "tools", "coach", "library", "my_work"]);
     // no duplicate accounts in primary
     expect(ids.filter((id) => id === "accounts").length).toBe(0);
   });
 
-  it("treats tools and intelligence as Tools", () => {
+  it("gives the Medicare Hub its own primary destination", () => {
+    const intelligence = workspaceNavForRole("member").find((item) => item.id === "intelligence")!;
     const tools = workspaceNavForRole("member").find((item) => item.id === "tools")!;
-    expect(tools.match("/tools/intelligence")).toBe(true);
+    expect(intelligence.label).toBe("Medicare Hub");
+    expect(intelligence.match("/tools/intelligence")).toBe(true);
+    expect(intelligence.match("/spartan-intelligence")).toBe(true);
+    expect(tools.match("/tools/intelligence")).toBe(false);
     expect(tools.match("/tools/objections")).toBe(true);
     expect(tools.match("/tools")).toBe(true);
     expect(tools.match("/tools/sales-workflow")).toBe(false); // Command Center

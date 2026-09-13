@@ -122,7 +122,7 @@ export default function SpartanIntelligenceScreen() {
           <Text style={[styles.backText, { color: colors.readablePrimary }, font("bold")]}>Tools</Text>
         </Pressable>
         <View style={styles.hero}>
-          <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>MEDICARE MARKET INTELLIGENCE</Text>
+          <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>CMS MEDICARE KNOWLEDGE HUB</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the evidence. Make the next move.</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES evidence turned into decisions, conversations, and next actions.</Text>
           <View style={styles.trustGrid}>
