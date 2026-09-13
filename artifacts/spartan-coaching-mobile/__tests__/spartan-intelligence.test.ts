@@ -37,6 +37,16 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).toContain("Missing evidence lowers coverage");
     expect(screen).toContain("Stop conditions");
     expect(screen).toContain("Ask Coach about this");
+    expect(screen).toContain("saveCoachHandoff");
+    expect(screen).toContain("Official sources");
+    expect(screen).toContain("Linking.openURL");
+  });
+
+  it("distinguishes sourced facts, calculations, guidance, and missing evidence", () => {
+    expect(screen).toContain("Verified fact");
+    expect(screen).toContain("Calculated result");
+    expect(screen).toContain("Coach guidance");
+    expect(screen).toContain("Missing, not zero");
   });
 
   it("shows progress and makes every result portable", () => {

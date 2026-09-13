@@ -56,6 +56,15 @@ describe("Spartan Intelligence workspace contract", () => {
     expect(screen.queryByTestId("market-panel")).toBeNull();
   });
 
+  it("labels evidence and guidance so users can judge every answer", () => {
+    render(<SpartanIntelligence />);
+
+    expect(screen.getByText("Verified fact")).toBeTruthy();
+    expect(screen.getByText("Calculated result")).toBeTruthy();
+    expect(screen.getByText("Coach guidance")).toBeTruthy();
+    expect(screen.getByText("Missing evidence")).toBeTruthy();
+  });
+
   it("offers the complete United States state selector", () => {
     expect(US_STATES).toHaveLength(51);
     expect(US_STATES).toContainEqual(["DC", "District of Columbia"]);
