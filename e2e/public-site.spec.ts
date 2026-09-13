@@ -433,6 +433,118 @@ test.describe("public website release gate", () => {
     await expectOnlySavedAppearanceWrites();
   });
 
+  test("workspace appearance survives a direct workspace refresh", async ({
+    page,
+  }) => {
+    await prepareWorkspaceAppearanceRefresh(page);
+    await page.goto("/portal", { waitUntil: "networkidle" });
+
+    const savedAppearance = {
+      theme: JSON.stringify("dark"),
+      background: "forest",
+      accent: "purple",
+      themePreset: "custom",
+      sync: {
+        mode: "dark",
+        accent: "purple",
+        background: "forest",
+        themePreset: "custom",
+      },
+    };
+
+    const readAppearance = () =>
+      page.evaluate(() => ({
+        theme: localStorage.getItem("spartan_theme"),
+        background: localStorage.getItem("spartan_bg"),
+        accent: localStorage.getItem("spartan_accent"),
+        themePreset: localStorage.getItem("spartan_theme_preset"),
+        sync: (() => {
+          const raw = localStorage.getItem("spartan_theme_sync");
+          if (!raw) return null;
+          const parsed = JSON.parse(raw) as {
+            mode?: string;
+            accent?: string;
+            background?: string;
+            themePreset?: string;
+          };
+          return {
+            mode: parsed.mode,
+            accent: parsed.accent,
+            background: parsed.background,
+            themePreset: parsed.themePreset,
+          };
+        })(),
+      }));
+    const readAppearanceWrites = () =>
+      page.evaluate(
+        () =>
+          (
+            window as Window & {
+              __spartanAppearanceWrites?: Array<{ key: string; value: string }>;
+            }
+          ).__spartanAppearanceWrites ?? [],
+      );
+    const expectOnlySavedAppearanceWrites = async () => {
+      const writes = await readAppearanceWrites();
+      expect(
+        writes.filter(({ key, value }) => {
+          if (key === "spartan_theme") return value !== savedAppearance.theme;
+          if (key === "spartan_bg") return value !== savedAppearance.background;
+          if (key === "spartan_accent") return value !== savedAppearance.accent;
+          if (key === "spartan_theme_preset")
+            return value !== savedAppearance.themePreset;
+          if (key === "spartan_theme_sync") {
+            try {
+              const parsed = JSON.parse(value) as {
+                mode?: string;
+                accent?: string;
+                background?: string;
+                themePreset?: string;
+              };
+              return (
+                parsed.mode !== savedAppearance.sync.mode ||
+                parsed.accent !== savedAppearance.sync.accent ||
+                parsed.background !== savedAppearance.sync.background ||
+                parsed.themePreset !== savedAppearance.sync.themePreset
+              );
+            } catch {
+              return true;
+            }
+          }
+          return true;
+        }),
+      ).toEqual([]);
+    };
+    const expectWorkspaceAppearance = async () => {
+      await expect(page.getByTestId("app-shell")).toBeVisible();
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-route-surface",
+        "workspace",
+      );
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme-mode",
+        "dark",
+      );
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-accent",
+        "purple",
+      );
+      await expect(page.locator("html")).toHaveAttribute("data-bg", "forest");
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-theme-preset",
+        "custom",
+      );
+      await expect.poll(readAppearance).toEqual(savedAppearance);
+      await expectOnlySavedAppearanceWrites();
+    };
+
+    await expectWorkspaceAppearance();
+
+    await page.reload({ waitUntil: "networkidle" });
+
+    await expectWorkspaceAppearance();
+  });
+
   test("public header stays composed at the xl and wide desktop boundaries", async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await isolatePublicPage(page);
