@@ -11,3 +11,4 @@
 - [Expo 57 monorepo constraints](expo57-monorepo.md) — align root peer contexts, avoid direct React Navigation imports, and clear Expo tokens for session login.
 - [Shared token declarations](shared-token-declarations.md) — rebuild composite token declarations when adding exports consumed by another workspace package.
 - [Named theme coverage](named-theme-coverage.md) — semantic palette tokens do not retheme surfaces that still hard-code brand gradients or colors.
+- [Browser appearance assertions](browser-appearance-regressions.md) — compare saved appearance semantics, not the volatile sync timestamp, in browser refresh coverage.

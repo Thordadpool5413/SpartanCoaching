@@ -56,6 +56,103 @@ async function isolatePublicPage(page: Page) {
   );
 }
 
+async function prepareWorkspaceAppearanceRefresh(page: Page) {
+  await page.addInitScript(() => {
+    const appearanceKeys = new Set([
+      "spartan_theme",
+      "spartan_bg",
+      "spartan_accent",
+      "spartan_theme_preset",
+      "spartan_theme_sync",
+    ]);
+    const savedAppearance = {
+      theme: JSON.stringify("dark"),
+      background: "forest",
+      accent: "purple",
+      themePreset: "custom",
+      sync: JSON.stringify({
+        mode: "dark",
+        accent: "purple",
+        background: "forest",
+        themePreset: "custom",
+        t: 0,
+      }),
+    };
+
+    if (!localStorage.getItem("spartan_theme_preset")) {
+      localStorage.setItem("spartan_theme", savedAppearance.theme);
+      localStorage.setItem("spartan_bg", savedAppearance.background);
+      localStorage.setItem("spartan_accent", savedAppearance.accent);
+      localStorage.setItem("spartan_theme_preset", savedAppearance.themePreset);
+      localStorage.setItem("spartan_theme_sync", savedAppearance.sync);
+    }
+
+    const appearanceWrites: Array<{ key: string; value: string }> = [];
+    Object.defineProperty(window, "__spartanAppearanceWrites", {
+      configurable: true,
+      value: appearanceWrites,
+    });
+
+    const originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function setItem(key: string, value: string) {
+      if (this === localStorage && appearanceKeys.has(key)) {
+        appearanceWrites.push({ key, value });
+      }
+      return originalSetItem.call(this, key, value);
+    };
+  });
+
+  await page.route("**/api/auth/me", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        member: {
+          id: 7,
+          email: "appearance-test@example.com",
+          name: "Appearance Test",
+          role: "member",
+          organizationId: 1,
+          status: "active",
+        },
+        organization: {
+          id: 1,
+          name: "Appearance Test Organization",
+          type: "personal",
+          seatLimit: 1,
+          status: "active",
+        },
+        fieldKit: {
+          allowed: true,
+          reason: null,
+          hoursRemaining: null,
+        },
+      }),
+    }),
+  );
+  await page.route("**/api/analytics/track", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ok: true }),
+    }),
+  );
+  await page.route("**/api/me/onboarding", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ member: { alsoLeadsTeam: false } }),
+    }),
+  );
+  await page.route("**/api/v1/workspace/next-move", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ recommendation: null }),
+    }),
+  );
+}
+
 async function prepareHomepageVisualTest(page: Page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await isolatePublicPage(page);
@@ -235,6 +332,105 @@ test.describe("public website release gate", () => {
     await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
       "Recommended path · consulting + seats",
     );
+  });
+
+  test("workspace appearance survives a public-page refresh", async ({ page }) => {
+    await prepareWorkspaceAppearanceRefresh(page);
+    await page.goto("/", { waitUntil: "networkidle" });
+
+    const savedAppearance = {
+      theme: JSON.stringify("dark"),
+      background: "forest",
+      accent: "purple",
+      themePreset: "custom",
+      sync: {
+        mode: "dark",
+        accent: "purple",
+        background: "forest",
+        themePreset: "custom",
+      },
+    };
+
+    const readAppearance = () =>
+      page.evaluate(() => ({
+        theme: localStorage.getItem("spartan_theme"),
+        background: localStorage.getItem("spartan_bg"),
+        accent: localStorage.getItem("spartan_accent"),
+        themePreset: localStorage.getItem("spartan_theme_preset"),
+        sync: (() => {
+          const raw = localStorage.getItem("spartan_theme_sync");
+          if (!raw) return null;
+          const parsed = JSON.parse(raw) as {
+            mode?: string;
+            accent?: string;
+            background?: string;
+            themePreset?: string;
+          };
+          return {
+            mode: parsed.mode,
+            accent: parsed.accent,
+            background: parsed.background,
+            themePreset: parsed.themePreset,
+          };
+        })(),
+      }));
+    const readAppearanceWrites = () =>
+      page.evaluate(
+        () =>
+          (window as Window & {
+            __spartanAppearanceWrites?: Array<{ key: string; value: string }>;
+          }).__spartanAppearanceWrites ?? [],
+      );
+    const expectOnlySavedAppearanceWrites = async () => {
+      const writes = await readAppearanceWrites();
+      expect(
+        writes.filter(({ key, value }) => {
+          if (key === "spartan_theme") return value !== savedAppearance.theme;
+          if (key === "spartan_bg") return value !== savedAppearance.background;
+          if (key === "spartan_accent") return value !== savedAppearance.accent;
+          if (key === "spartan_theme_preset") return value !== savedAppearance.themePreset;
+          if (key === "spartan_theme_sync") {
+            try {
+              const parsed = JSON.parse(value) as {
+                mode?: string;
+                accent?: string;
+                background?: string;
+                themePreset?: string;
+              };
+              return (
+                parsed.mode !== savedAppearance.sync.mode ||
+                parsed.accent !== savedAppearance.sync.accent ||
+                parsed.background !== savedAppearance.sync.background ||
+                parsed.themePreset !== savedAppearance.sync.themePreset
+              );
+            } catch {
+              return true;
+            }
+          }
+          return true;
+        }),
+      ).toEqual([]);
+    };
+
+    await expect(page.locator("html")).toHaveAttribute("data-route-surface", "public");
+    await expect.poll(readAppearance).toEqual(savedAppearance);
+    await expectOnlySavedAppearanceWrites();
+
+    await page.reload({ waitUntil: "networkidle" });
+
+    await expect(page.locator("html")).toHaveAttribute("data-route-surface", "public");
+    await expect.poll(readAppearance).toEqual(savedAppearance);
+    await expectOnlySavedAppearanceWrites();
+
+    await page.goto("/portal", { waitUntil: "networkidle" });
+
+    await expect(page.locator("html")).toHaveAttribute("data-route-surface", "workspace");
+    await expect(page.locator("html")).toHaveAttribute("data-theme-mode", "dark");
+    await expect(page.locator("html")).toHaveAttribute("data-accent", "purple");
+    await expect(page.locator("html")).toHaveAttribute("data-bg", "forest");
+    await expect(page.locator("html")).toHaveAttribute("data-theme-preset", "custom");
+    await expect.poll(readAppearance).toEqual(savedAppearance);
+    await expectOnlySavedAppearanceWrites();
   });
 
   test("public header stays composed at the xl and wide desktop boundaries", async ({ page }, testInfo) => {
