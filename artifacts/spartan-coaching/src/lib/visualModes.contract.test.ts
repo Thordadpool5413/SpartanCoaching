@@ -11,9 +11,22 @@ import path from "node:path";
 import { applyAppearance } from "./theme";
 
 const srcRoot = path.resolve(import.meta.dirname, "..");
+const appearanceStorageKeys = [
+  "spartan_theme",
+  "spartan_bg",
+  "spartan_accent",
+  "spartan_theme_preset",
+  "spartan_theme_sync",
+] as const;
 
 function read(relativePath: string): string {
   return fs.readFileSync(path.join(srcRoot, relativePath), "utf8");
+}
+
+function readAppearanceStorage() {
+  return Object.fromEntries(
+    appearanceStorageKeys.map((key) => [key, localStorage.getItem(key)]),
+  );
 }
 
 describe("route-family visual contracts", () => {
@@ -53,6 +66,41 @@ describe("route-family visual contracts", () => {
     expect(document.documentElement.dataset.themePreset).toBe("spartan");
     expect(document.documentElement.style.getPropertyValue("--background")).toBe("38 33% 97%");
     expect(localStorage.getItem("spartan_theme_preset")).toBe(savedWorkspaceTheme);
+  });
+
+  it("preserves the saved workspace appearance across public and workspace surfaces", () => {
+    localStorage.clear();
+    applyAppearance("dark", "purple", "midnight", "custom");
+    const savedWorkspaceAppearance = readAppearanceStorage();
+    const routeThemeEvents: Event[] = [];
+    const onRouteThemeChange = (event: Event) => routeThemeEvents.push(event);
+    window.addEventListener("spartan-theme-change", onRouteThemeChange);
+
+    applyAppearance("light", "red", "soft", "spartan", {
+      persist: false,
+      notify: false,
+    });
+
+    expect(document.documentElement.dataset.themeMode).toBe("light");
+    expect(document.documentElement.dataset.accent).toBe("red");
+    expect(document.documentElement.dataset.bg).toBe("soft");
+    expect(document.documentElement.dataset.themePreset).toBe("spartan");
+    expect(readAppearanceStorage()).toEqual(savedWorkspaceAppearance);
+    expect(routeThemeEvents).toHaveLength(0);
+
+    applyAppearance("dark", "purple", "midnight", "custom", {
+      persist: false,
+      notify: false,
+    });
+
+    expect(document.documentElement.dataset.themeMode).toBe("dark");
+    expect(document.documentElement.dataset.accent).toBe("purple");
+    expect(document.documentElement.dataset.bg).toBe("midnight");
+    expect(document.documentElement.dataset.themePreset).toBe("custom");
+    expect(readAppearanceStorage()).toEqual(savedWorkspaceAppearance);
+    expect(routeThemeEvents).toHaveLength(0);
+
+    window.removeEventListener("spartan-theme-change", onRouteThemeChange);
   });
 
   it("keeps every major rendered family represented in the route registry", () => {
