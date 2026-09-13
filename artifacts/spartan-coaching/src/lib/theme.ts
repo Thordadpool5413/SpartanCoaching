@@ -422,9 +422,11 @@ export function applyAppearance(
   accent: AccentKey,
   background: BgKey,
   themePreset: ThemePresetKey = "spartan",
+  options: { persist?: boolean; notify?: boolean } = {},
 ): void {
   if (typeof document === "undefined") return;
 
+  const { persist = true, notify = true } = options;
   const root = document.documentElement;
   const body = document.body;
   const surface = resolveThemeSurface(themePreset, mode, background);
@@ -543,29 +545,35 @@ export function applyAppearance(
   setVar("--warning-foreground", themePreset === "mamba" ? "0 0% 10%" : effectiveMode === "dark" ? "40 30% 10%" : "0 0% 100%");
   root.style.setProperty("color-scheme", effectiveMode);
 
-  // 6) Persist
-  try {
-    localStorage.setItem("spartan_theme", JSON.stringify(effectiveMode));
-    localStorage.setItem("spartan_bg", background);
-    localStorage.setItem("spartan_accent", accent);
-    localStorage.setItem("spartan_theme_preset", themePreset);
-    localStorage.setItem(
-      "spartan_theme_sync",
-      JSON.stringify({ mode: effectiveMode, accent, background, themePreset, t: Date.now() }),
-    );
-  } catch {
-    /* private mode */
+  // 6) Persist only user-selected appearance. Route scopes use the same
+  // renderer without overwriting the user's workspace preference.
+  if (persist) {
+    try {
+      localStorage.setItem("spartan_theme", JSON.stringify(effectiveMode));
+      localStorage.setItem("spartan_bg", background);
+      localStorage.setItem("spartan_accent", accent);
+      localStorage.setItem("spartan_theme_preset", themePreset);
+      localStorage.setItem(
+        "spartan_theme_sync",
+        JSON.stringify({ mode: effectiveMode, accent, background, themePreset, t: Date.now() }),
+      );
+    } catch {
+      /* private mode */
+    }
   }
 
-  // Notify same-tab listeners (custom event — more reliable than BroadcastChannel alone)
-  try {
-    window.dispatchEvent(
-      new CustomEvent("spartan-theme-change", {
-        detail: { mode: effectiveMode, accent, background, themePreset },
-      }),
-    );
-  } catch {
-    /* ignore */
+  // Notify same-tab listeners only for user-driven changes. Route scopes must
+  // not rewrite the React theme store while a visitor moves between surfaces.
+  if (notify) {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("spartan-theme-change", {
+          detail: { mode: effectiveMode, accent, background, themePreset },
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
   }
 }
 

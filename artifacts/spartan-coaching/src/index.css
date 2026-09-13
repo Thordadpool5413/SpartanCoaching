@@ -157,7 +157,6 @@
 .tools-intent-card h3 { font-size: 1.2rem !important; letter-spacing: -.02em; }
 .tools-catalog-disclosure { border-radius: 0; background: hsl(var(--muted)) !important; box-shadow: 0 24px 58px rgb(0 0 0 / .2) !important; }
 
-.resources-premium > div:first-of-type,
 .coach-premium > div:first-of-type,
 .my-work-premium .my-work-hero {
   padding: clamp(24px, 3vw, 38px);
@@ -166,31 +165,28 @@
   background: hsl(var(--card));
   box-shadow: 0 28px 72px rgb(0 0 0 / .24);
 }
-.resources-premium > div:first-of-type,
-.resources-library-dock {
-  --foreground: 0 0% 98%;
-  --card: 221 40% 10%;
-  --card-foreground: 0 0% 98%;
-  --muted: 220 28% 18%;
-  --muted-foreground: 220 12% 72%;
-  --border: 220 18% 36%;
-  --primary: 357 86% 51%;
-  --primary-foreground: 0 0% 100%;
-  --input: 220 18% 44%;
-  --ring: 357 86% 51%;
-  color: hsl(var(--foreground));
-}
 .resources-library-dock, .my-work-filter {
   padding: 16px !important;
   border-radius: 0;
+  box-shadow: 0 20px 46px rgb(0 0 0 / .18);
+}
+.field-workspace .resources-premium > div:first-of-type {
+  padding: clamp(24px, 3vw, 38px);
+  border: 1px solid var(--workspace-line);
+  border-radius: 0;
+  background: hsl(var(--card));
+  box-shadow: 0 28px 72px rgb(0 0 0 / .24);
+}
+.field-workspace .resources-library-dock,
+.field-workspace .my-work-filter {
   background: hsl(var(--muted)) !important;
   box-shadow: 0 20px 46px rgb(0 0 0 / .18);
 }
-.resources-library-dock { position: sticky; top: 76px; z-index: 20; backdrop-filter: blur(14px); }
+.field-workspace .resources-library-dock { position: sticky; top: 76px; z-index: 20; backdrop-filter: blur(14px); }
 
 @media (max-width: 768px) {
   .tools-search-dock,
-  .resources-library-dock {
+  .field-workspace .resources-library-dock {
     top: 124px;
   }
 }
@@ -198,16 +194,6 @@
 .resource-category-group[open] .resource-category-toggle::after { content: " less"; }
 .resource-category-group:not([open]) .resource-category-toggle::after { content: " all"; }
 .resources-premium .shadcn-card {
-  --foreground: 0 0% 98%;
-  --card: 221 40% 10%;
-  --card-foreground: 0 0% 98%;
-  --muted: 220 28% 18%;
-  --muted-foreground: 220 12% 72%;
-  --border: 220 18% 36%;
-  --primary: 357 86% 51%;
-  --primary-foreground: 0 0% 100%;
-  --input: 220 18% 44%;
-  --ring: 357 86% 51%;
   min-width: 0;
   background: hsl(var(--card));
   color: hsl(var(--card-foreground));

@@ -306,7 +306,7 @@ export function Header() {
 
         {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden 2xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-5"
+            className="hidden xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-3 2xl:px-5"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -329,22 +329,26 @@ export function Header() {
             ))}
           <NavLink href="/about">About</NavLink>
           {isAuthenticated && (
-            <NavLink href="/portal">Workspace</NavLink>
+            <span className="hidden 2xl:inline-flex">
+              <NavLink href="/portal">Workspace</NavLink>
+            </span>
           )}
-          <NavLink href="/app">iPhone app</NavLink>
+          <span className="hidden 2xl:inline-flex">
+            <NavLink href="/app">iPhone app</NavLink>
+          </span>
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="public-site-actions flex items-center gap-1 sm:gap-2.5 shrink-0 ml-auto pl-1 sm:pl-4 2xl:pl-5 2xl:border-l 2xl:border-border">
-          <AppearanceControls
+        <div className="public-site-actions flex items-center gap-1 sm:gap-2.5 shrink-0 ml-auto pl-1 sm:pl-4 xl:pl-4 2xl:pl-5 xl:border-l xl:border-border">
+           <AppearanceControls
             compact
-            className="hidden xl:inline-flex touch-manipulation"
+            className="hidden 2xl:inline-flex touch-manipulation"
             testId="button-appearance-header"
           />
           <Button
             variant="ghost"
             size="icon"
-             className="header-utility-control 2xl:hidden touch-manipulation border border-border bg-card text-card-foreground hover:bg-muted"
+             className="header-utility-control xl:hidden touch-manipulation border border-border bg-card text-card-foreground hover:bg-muted"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -354,7 +358,7 @@ export function Header() {
           {!isAuthenticated && (
             <Link
               href="/login"
-               className="header-login-control hidden 2xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-foreground hover:text-primary"
+                className="header-login-control hidden xl:inline-flex min-h-11 items-center gap-2 px-3 2xl:px-4 text-sm font-bold text-foreground hover:text-primary"
               data-testid="button-login"
             >
               <LogIn className="w-4 h-4" />
@@ -364,7 +368,7 @@ export function Header() {
           {isAuthenticated ? (
             <Button
               asChild
-              className="hidden 2xl:inline-flex min-h-11 rounded-none px-5 text-sm font-bold shrink-0"
+               className="hidden xl:inline-flex min-h-11 rounded-none px-4 2xl:px-5 text-sm font-bold shrink-0"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -374,7 +378,7 @@ export function Header() {
           ) : (
             <Button
               asChild
-              className="hidden 2xl:inline-flex min-h-11 rounded-none px-5 text-sm font-bold shrink-0 bg-primary hover:bg-primary/90"
+               className="hidden xl:inline-flex min-h-11 rounded-none px-4 2xl:px-5 text-sm font-bold shrink-0 bg-primary hover:bg-primary/90"
               data-testid="button-book-call"
             >
               <Link href="/contact">Book a strategy call</Link>
@@ -580,12 +584,7 @@ export function Footer() {
 
   return (
     <>
-      <footer
-        className={cn(
-          "mt-auto border-t border-border bg-background no-print safe-area-bottom",
-          !canUseFieldKit && "public-site-footer",
-        )}
-      >
+       <footer className="public-site-footer mt-auto border-t border-border bg-background no-print safe-area-bottom">
         {/* 3-column main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
           <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>

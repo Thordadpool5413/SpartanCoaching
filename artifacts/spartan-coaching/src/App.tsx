@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
-import { useEffect, useRef, lazy, Suspense, type ComponentType } from "react";
+import { useEffect, useLayoutEffect, useRef, lazy, Suspense, type ComponentType } from "react";
 import { pageView } from "./lib/ga";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -13,6 +13,8 @@ import { isWorkspacePath, loginWithReturn, requiresAuthenticationPath } from "@/
 import { PageLoadingState, RouteErrorBoundary } from "@/components/RouteRecovery";
 import { SEO } from "@/components/SEO";
 import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
+import { applyAppearance } from "@/lib/theme";
+import { useTheme } from "@/context/ThemeContext";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -309,6 +311,7 @@ function Router() {
 function AppLayout() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
+  const { accent, background, themePreset } = useTheme();
   const isBrandedAssessment = location.startsWith("/assess/");
   const isWelcome = location === "/welcome";
   const isAuthShell =
@@ -321,6 +324,27 @@ function AppLayout() {
 
   const onWorkspace =
     isAuthenticated && !isLoading && isWorkspacePath(location);
+
+  // Public pages are always paper/ink/Spartan red. Workspace pages are always
+  // dark, while still honoring the member's selected accent and preset. This
+  // is route-scoped rather than persisted, so visiting a public page cannot
+  // rewrite the user's saved workspace appearance.
+  useLayoutEffect(() => {
+    const routeSurface = onWorkspace ? "workspace" : "public";
+    document.documentElement.dataset.routeSurface = routeSurface;
+
+    if (onWorkspace) {
+      applyAppearance("dark", accent, background, themePreset, {
+        persist: false,
+        notify: false,
+      });
+    } else {
+      applyAppearance("light", "red", "soft", "spartan", {
+        persist: false,
+        notify: false,
+      });
+    }
+  }, [accent, background, onWorkspace, themePreset]);
 
   // Deep link / refresh with expired session: send to login with return path.
   // Public tool previews remain available when not authenticated.
