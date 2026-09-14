@@ -1,0 +1,1443 @@
+From 49de2aad79d904f020069ba09385255706accf23 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Mon, 14 Sep 2026 15:58:28 -0400
+Subject: [PATCH] Restore trusted Medicare decision workspace
+
+---
+ ...edicareIntelligenceRoutes.contract.test.ts |  23 ++++
+ .../src/routes/medicareIntelligenceRoutes.ts  |  28 ++--
+ .../components/medicare-platform/DataLab.tsx  |  70 ++++++++++
+ .../medicare-platform/DecisionRoom.tsx        | 102 ++++++++++++++
+ .../GlobalProviderSearch.tsx                  |  81 +++++++++++
+ .../medicare-platform/IntelligenceCenter.tsx  | 126 ++++++++++++++++++
+ .../medicare-platform/NationalDashboard.tsx   | 113 ++++++++++++++++
+ .../medicare-platform/ReferralMarket.tsx      |  40 ++++++
+ .../medicare-platform/TerritoryView.tsx       |  68 ++++++++++
+ .../TrustedMedicarePlatform.tsx               |  26 ++++
+ .../components/medicare-platform/api.test.ts  |  29 ++++
+ .../src/components/medicare-platform/api.ts   |  29 ++++
+ .../intelligenceMath.test.ts                  |  29 ++++
+ .../medicare-platform/intelligenceMath.ts     | 100 ++++++++++++++
+ .../platform-enhancements.css                 |  83 ++++++++++++
+ .../components/medicare-platform/platform.css |   1 +
+ .../src/components/medicare-platform/types.ts |  86 ++++++++++++
+ .../src/components/medicare-platform/utils.ts |  29 ++++
+ .../SpartanIntelligence.contract.test.tsx     |  75 +----------
+ .../src/pages/SpartanIntelligence.tsx         | 101 +-------------
+ 20 files changed, 1061 insertions(+), 178 deletions(-)
+ create mode 100644 artifacts/api-server/src/routes/medicareIntelligenceRoutes.contract.test.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/DataLab.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/DecisionRoom.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/GlobalProviderSearch.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/IntelligenceCenter.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/ReferralMarket.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/TerritoryView.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/TrustedMedicarePlatform.tsx
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/api.test.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/api.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.test.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/platform.css
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/types.ts
+ create mode 100644 artifacts/spartan-coaching/src/components/medicare-platform/utils.ts
+
+diff --git a/artifacts/api-server/src/routes/medicareIntelligenceRoutes.contract.test.ts b/artifacts/api-server/src/routes/medicareIntelligenceRoutes.contract.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..db11913c445620476f16be491063744bf4ab1751
+--- /dev/null
++++ b/artifacts/api-server/src/routes/medicareIntelligenceRoutes.contract.test.ts
+@@ -0,0 +1,23 @@
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
++import { describe, expect, it } from "vitest";
++
++const route = readFileSync(resolve(process.cwd(), "src/routes/medicareIntelligenceRoutes.ts"), "utf8");
++const app = readFileSync(resolve(process.cwd(), "src/app.ts"), "utf8");
++
++describe("Medicare Intelligence route bridge", () => {
++  it("mounts the engine behind Elite authentication", () => {
++    expect(app).toContain("registerMedicareIntelligenceRoutes(app)");
++    expect(route).toContain('app.use("/api/v1/medicare", requireElite');
++  });
++
++  it("maps platform paths and scopes private data to organization and member", () => {
++    expect(route).toContain('path: `/api${request.path');
++    expect(route).toContain('`${member.organizationId}:${request.clientMemberId}`');
++  });
++
++  it("forwards rejected runtime work to the Express error boundary", () => {
++    expect(route).toContain("catch (error)");
++    expect(route).toContain("next(error)");
++  });
++});
+diff --git a/artifacts/api-server/src/routes/medicareIntelligenceRoutes.ts b/artifacts/api-server/src/routes/medicareIntelligenceRoutes.ts
+index 174e459a174a2c681ea97ce0b2cf3af2a11f443c..a2af8980279af09490d74efe1ab07b990b50d926 100644
+--- a/artifacts/api-server/src/routes/medicareIntelligenceRoutes.ts
++++ b/artifacts/api-server/src/routes/medicareIntelligenceRoutes.ts
+@@ -1,18 +1,22 @@
+-import type { Express, Response } from "express";
++import type { Express, NextFunction, Response } from "express";
+ import { requireElite, type AuthedRequest } from "../auth/middleware";
+ import { handler } from "../medicare-intelligence";
+ 
+ export function registerMedicareIntelligenceRoutes(app: Express) {
+-  app.use("/api/v1/medicare", requireElite, async (request: AuthedRequest, response: Response) => {
+-    const member = request.fieldKit!.member!;
+-    const result = await handler({
+-      method: request.method,
+-      path: `/api${request.path === "/" ? "/_healthcheck" : request.path}`,
+-      query: Object.fromEntries(Object.entries(request.query).map(([key, value]) => [key, Array.isArray(value) ? String(value[0] ?? "") : String(value ?? "")])),
+-      body: request.body,
+-      user: { userId: `${member.organizationId}:${request.clientMemberId}` },
+-    });
+-    for (const [key, value] of Object.entries(result.headers || {})) response.setHeader(key, value);
+-    response.status(result.statusCode).send(result.body || "");
++  app.use("/api/v1/medicare", requireElite, async (request: AuthedRequest, response: Response, next: NextFunction) => {
++    try {
++      const member = request.fieldKit!.member!;
++      const result = await handler({
++        method: request.method,
++        path: `/api${request.path === "/" ? "/_healthcheck" : request.path}`,
++        query: Object.fromEntries(Object.entries(request.query).map(([key, value]) => [key, Array.isArray(value) ? String(value[0] ?? "") : String(value ?? "")])),
++        body: request.body,
++        user: { userId: `${member.organizationId}:${request.clientMemberId}` },
++      });
++      for (const [key, value] of Object.entries(result.headers || {})) response.setHeader(key, value);
++      response.status(result.statusCode).send(result.body || "");
++    } catch (error) {
++      next(error);
++    }
+   });
+ }
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/DataLab.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/DataLab.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..8bc1900420bc4199b31a9188aa5dd0d5f1fa2940
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/DataLab.tsx
+@@ -0,0 +1,70 @@
++import { useEffect, useState } from 'react';
++import { Activity, AlertTriangle, CheckCircle2, Database, FileSpreadsheet, LoaderCircle, Network, RefreshCw, Server, ShieldCheck, Timer } from 'lucide-react';
++import { api } from './api';
++import type { AnyRow, Provider } from './types';
++import { apiError, num, pct, statusClass } from './utils';
++
++export default function DataLab({ state, provider, providerStatus }: { state: string; provider: Provider; providerStatus: string }) {
++  const [sourceHealth, setSourceHealth] = useState<AnyRow | null>(null);
++  const [warehouse, setWarehouse] = useState<AnyRow | null>(null);
++  const [hcrisRouting, setHcrisRouting] = useState<AnyRow | null>(null);
++  const [competition, setCompetition] = useState<AnyRow | null>(null);
++  const [diagnostics, setDiagnostics] = useState<AnyRow | null>(null);
++  const [loading, setLoading] = useState(false);
++  const [diagLoading, setDiagLoading] = useState(false);
++  const [error, setError] = useState('');
++  const ccn = provider.ccn;
++
++  const load = async (force = false) => {
++    setLoading(true); setError('');
++    const settled = await Promise.allSettled([
++      api.get(`/api/source-health${force ? '?force=1' : ''}`),
++      api.get('/api/physician-warehouse-status'),
++      api.get(`/api/hcris-routing/${encodeURIComponent(ccn)}`),
++      api.get('/api/competition-coverage-status'),
++    ]);
++    const values = settled.map((result) => result.status === 'fulfilled' ? result.value.data : null);
++    setSourceHealth(values[0]); setWarehouse(values[1]); setHcrisRouting(values[2]); setCompetition(values[3]);
++    const failures = settled.filter((result) => result.status === 'rejected').length;
++    if (failures) setError(`${failures} completeness/source control${failures === 1 ? '' : 's'} could not be refreshed. Missing status is not treated as zero.`);
++    setLoading(false);
++  };
++  useEffect(() => { setDiagnostics(null); void load(false); }, [ccn, state]);
++
++  const runDiagnostics = async () => {
++    setDiagLoading(true); setError('');
++    try { const response = await api.get(`/api/system-diagnostics?state=${encodeURIComponent(state)}&ccn=${encodeURIComponent(ccn)}`); setDiagnostics(response.data); }
++    catch (requestError) { setError(apiError(requestError, 'System diagnostics could not complete.')); }
++    finally { setDiagLoading(false); }
++  };
++
++  const readiness: Array<[string,'operational'|'scoped',string]> = [
++    ['Expert decision operating layer','operational','Decision Room turns evidence into GO / CONDITIONAL / HOLD recommendations with confidence, guardrails, evidence ledger and private execution.'],
++    ['CMS evidence + source-contract layer','operational','Core CMS APIs and external source contracts expose failures, reporting boundaries and missing evidence instead of converting them to zero.'],
++    ['HCRIS Operating Model 2.0','operational','Freestanding CMS-1984-14 operating evidence is normalized with explicit accounting guardrails and provider-specific form-routing status.'],
++    ['Territory Deployment 3.0','operational','County demand, observed service geography, Census adjacency and private operating truth create a transparent territory gate.'],
++    ['Internal deployment truth','operational','Private serviceability, travel, staffing, same-day admission and relationship evidence can change the effective gate and now retains an audit trail.'],
++    ['Physician Opportunity 3.0','operational','Clinician ranking uses peer Medicare volume, serious-illness evidence, service intensity and specialty relevance with evidence coverage.'],
++    ['National physician warehouse pipeline','operational','Checkpointed ingestion is implemented; actual completion is reported below rather than assumed from the architecture.'],
++    ['National competition precompute','scoped','Provider/ZIP competitive evidence is cached incrementally. A completed all-provider national competition warehouse is not claimed.'],
++    ['Based-provider financial normalization','scoped','Freestanding hospice HCRIS is normalized. Hospital- and HHA-based parent cost-report models remain scoped until validated.'],
++    ['Native executive document generation','scoped','Print and CSV workflows are available. Native server-generated PDF/XLSX/PPTX intelligence books are not part of this runtime.'],
++  ];
++
++  return <section className='page'>
++    <div className='hero'><div><span className='kicker'>DATA LAB · SYSTEM TRUST</span><h2>Know what is connected, what is current, and what is still bounded.</h2><p>Source confidence is part of the product. A green badge does not get to substitute for completed evidence.</p></div><div className='hero-actions'><button onClick={() => void load(true)} disabled={loading}>{loading ? <LoaderCircle className='spin' size={15}/> : <RefreshCw size={15}/>}Validate sources</button><button onClick={() => void runDiagnostics()} disabled={diagLoading}>{diagLoading ? <LoaderCircle className='spin' size={15}/> : <Activity size={15}/>}Run diagnostics</button></div></div>
++    {error && <div className='alert'><AlertTriangle size={16}/>{error}</div>}
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>NATIONAL COMPLETENESS CONTROL</span><h3>What is actually complete, what is building, and what is deliberately unresolved</h3><p>These statuses come from live checkpoints or provider-specific routing, not from the existence of code.</p></div><ShieldCheck size={18}/></div><div className='completeness-grid'>
++      <article><Database size={20}/><div><small>NATIONAL PHYSICIAN WAREHOUSE</small><h4>{warehouse ? `${num(warehouse.completeStates)} / ${num(warehouse.totalStates)} COMPLETE` : 'STATUS UNAVAILABLE'}</h4><p>{warehouse ? `${num(warehouse.buildingStates)} building · ${num(warehouse.queuedStates)} queued · ${num(warehouse.errorStates)} error · ${num(warehouse.rowsStored)} stored rows · ${pct(warehouse.completionPct)} completion.` : 'Checkpoint status was not returned.'}</p><em>{warehouse?.lastWorkerRun ? `Last worker checkpoint ${new Date(warehouse.lastWorkerRun).toLocaleString()}` : 'No worker checkpoint is currently recorded.'}</em></div></article>
++      <article><FileSpreadsheet size={20}/><div><small>HCRIS FORM ROUTING · CCN {ccn}</small><h4>{hcrisRouting?.status || 'STATUS UNAVAILABLE'}</h4><p>{hcrisRouting?.nextStep || 'Provider-specific routing status was not returned.'}</p><em>{hcrisRouting ? `${hcrisRouting.controllingForm} · provider type: ${hcrisRouting.providerType}` : ''}</em></div></article>
++      <article><Network size={20}/><div><small>COMPETITION EVIDENCE CACHE</small><h4>{competition?.mode ? 'INCREMENTAL · PROVIDER-CENTRIC' : 'STATUS UNAVAILABLE'}</h4><p>{competition ? `${num(competition.providerIntelligence?.count)} Provider 360 caches · ${num(competition.providerZipFootprints?.count)} competitor footprint caches · ${num(competition.zipCollisionCells?.count)} ZIP collision cells.` : 'Cache coverage was not returned.'}</p><em>{competition?.caveat || ''}</em></div></article>
++    </div></div>
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>SOURCE CONTRACT HEALTH</span><h3>{String(sourceHealth?.overall || 'loading').toUpperCase()}</h3><p>{sourceHealth?.checkedAt ? `Validated ${new Date(sourceHealth.checkedAt).toLocaleString()}` : 'Loading source health...'}</p></div><span className={`pill ${statusClass(sourceHealth?.overall)}`}>{sourceHealth?.liveValidation ? 'LIVE VALIDATION' : 'CACHED VALIDATION'}</span></div><div className='source-grid'>{(sourceHealth?.sources || []).map((source: AnyRow) => <div key={source.name} className={statusClass(source.status)}>{source.status === 'healthy' ? <CheckCircle2 size={15}/> : <AlertTriangle size={15}/>}<span><b>{source.name}</b><small>{String(source.status || '').toUpperCase()} · {source.detail || source.modified || source.temporal || 'Source contract checked'}</small></span></div>)}{!sourceHealth?.sources?.length && <p className='empty'>Source-contract status is still loading.</p>}</div></div>
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>SYSTEM DIAGNOSTICS</span><h3>Selected provider stack</h3><p>Checks the current market/provider stack, cache mode, latency, stale recovery and scheduled-run evidence.</p></div>{diagnostics ? <span className={`pill ${statusClass(diagnostics.overall)}`}>{String(diagnostics.overall).toUpperCase()}</span> : <Server size={18}/>}</div>{diagnostics ? <><div className='diagnostic-grid'>{(diagnostics.checks || []).map((check: AnyRow) => <div key={check.label} className={statusClass(check.status)}>{check.status === 'healthy' ? <CheckCircle2 size={15}/> : <AlertTriangle size={15}/>}<span><b>{check.label}</b><small>{check.cacheMode} · {num(check.ms)} ms{check.stale ? ' · stale recovery' : ''}</small>{check.detail && <em>{check.detail}</em>}</span></div>)}</div><div className='scheduled-grid'><div><Server size={16}/><span><b>Source-health scheduler</b><small>{diagnostics.scheduled?.sourceHealth?.checkedAt ? `Last recorded ${new Date(diagnostics.scheduled.sourceHealth.checkedAt).toLocaleString()} · ${diagnostics.scheduled.sourceHealth.overall || 'recorded'}` : 'No scheduled source-health run recorded yet.'}</small></span></div><div><Timer size={16}/><span><b>Provider monitor scheduler</b><small>{diagnostics.scheduled?.monitoring?.checkedAt ? `Last recorded ${new Date(diagnostics.scheduled.monitoring.checkedAt).toLocaleString()} · ${diagnostics.scheduled.monitoring.processed || 0} processed · ${diagnostics.scheduled.monitoring.failed || 0} failed` : 'No monitor run recorded yet.'}</small></span></div><div><Database size={16}/><span><b>Physician warehouse scheduler</b><small>{diagnostics.scheduled?.physicianWarehouse?.checkedAt ? `Last recorded ${new Date(diagnostics.scheduled.physicianWarehouse.checkedAt).toLocaleString()} · ${diagnostics.scheduled.physicianWarehouse.status || 'recorded'}` : 'No physician warehouse run recorded yet.'}</small></span></div></div></> : <p className='empty'>Run diagnostics to test the selected provider stack. App architecture is not treated as runtime proof.</p>}</div>
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>SYSTEM READINESS</span><h3>Operational versus deliberately scoped</h3><p>Current provider evidence status: {providerStatus.toUpperCase()}.</p></div></div><div className='readiness-list'>{readiness.map(([title,status,detail]) => <div key={title} className={status}><span>{status.toUpperCase()}</span><b>{title}</b><p>{detail}</p></div>)}</div></div>
++  </section>;
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/DecisionRoom.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/DecisionRoom.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..8bd28138aefbe0ba86ec3532dd66b91a4037e168
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/DecisionRoom.tsx
+@@ -0,0 +1,102 @@
++import { useEffect, useMemo, useState } from 'react';
++import { AlertTriangle, ArrowUpRight, CheckCircle2, Database, Download, LockKeyhole, Save, ShieldCheck, Target, Trash2 } from 'lucide-react';
++import { api } from './api';
++import type { AnyRow, DashboardData, Provider, ProviderDetail, TabId, User } from './types';
++import { buildEvidenceAlignment, evidenceConfidence } from './intelligenceMath';
++import { apiError, clamp, csvDownload, num, pct, today } from './utils';
++
++type Decision = { key: string; category: string; gate: 'GO'|'CONDITIONAL'|'HOLD'; priority: number; confidence: number; title: string; decision: string; why: string[]; next: string; success: string; stop: string; source: string; tab: TabId };
++
++const plusDays = (days: number) => { const date = new Date(); date.setDate(date.getDate() + days); return date.toISOString().slice(0, 10); };
++
++export default function DecisionRoom({ state, stateName, market, provider, detail, user, onSignIn, onNavigate }: { state: string; stateName: string; market: DashboardData; provider: Provider; detail: ProviderDetail | null; user: User | null; onSignIn: () => void; onNavigate: (tab: TabId) => void }) {
++  const [intel, setIntel] = useState<AnyRow | null>(null);
++  const [geo, setGeo] = useState<AnyRow | null>(null);
++  const [deployment, setDeployment] = useState<AnyRow | null>(null);
++  const [physicianMeta, setPhysicianMeta] = useState<AnyRow>({});
++  const [actions, setActions] = useState<AnyRow[]>([]);
++  const [loading, setLoading] = useState(false);
++  const [error, setError] = useState('');
++  const [saving, setSaving] = useState('');
++  const ccn = provider.ccn;
++
++  const loadActions = async () => {
++    if (!user) { setActions([]); return; }
++    try { const response = await api.get(`/api/decision-actions?ccn=${encodeURIComponent(ccn)}`); setActions(response.data.records || []); }
++    catch (requestError) { setError(apiError(requestError, 'Execution queue failed to load.')); }
++  };
++
++  useEffect(() => {
++    let live = true;
++    setLoading(true); setError(''); setIntel(null); setGeo(null); setDeployment(null); setPhysicianMeta({});
++    void Promise.allSettled([
++      api.get(`/api/intelligence?ccn=${encodeURIComponent(ccn)}&state=${encodeURIComponent(state)}`),
++      api.get(`/api/service-geography/${encodeURIComponent(ccn)}`),
++      api.get(`${user ? '/api/territory-deployment-private' : '/api/territory-deployment'}/${encodeURIComponent(ccn)}?state=${encodeURIComponent(state)}`),
++      api.get(`/api/physicians/${encodeURIComponent(state)}`),
++    ]).then((results) => {
++      if (!live) return;
++      if (results[0].status === 'fulfilled') setIntel(results[0].value.data);
++      if (results[1].status === 'fulfilled') setGeo(results[1].value.data);
++      if (results[2].status === 'fulfilled') setDeployment(results[2].value.data);
++      if (results[3].status === 'fulfilled') setPhysicianMeta(results[3].value.data);
++      const failures = results.filter((result) => result.status === 'rejected').length;
++      if (failures) setError(`${failures} decision input${failures === 1 ? '' : 's'} could not be refreshed. Recommendations using those inputs are scoped.`);
++    }).finally(() => live && setLoading(false));
++    return () => { live = false; };
++  }, [ccn, state, user?.userId]);
++  useEffect(() => { void loadActions(); }, [user?.userId, ccn]);
++
++  const alignment = useMemo(() => buildEvidenceAlignment(detail, intel, market.sources || []), [detail, intel, market.sources]);
++  const confidence = useMemo(() => evidenceConfidence(market, detail, geo, intel, physicianMeta, alignment), [market, detail, geo, intel, physicianMeta, alignment]);
++  const topThreat = intel?.threats?.[0];
++  const topCounty = (deployment?.markets || []).find((row: AnyRow) => row.motion === 'DENSIFY') || (deployment?.markets || [])[0];
++  const expansion = (deployment?.markets || []).find((row: AnyRow) => row.motion === 'ADJACENT EXPANSION');
++  const topPhysician = physicianMeta?.physicians?.[0];
++  const topSnf = market.snfs?.[0];
++
++  const decisions = useMemo(() => {
++    const rows: Decision[] = [];
++    const adjusted = (value: number) => clamp(value - alignment.confidencePenalty);
++    if (topCounty) rows.push({ key: `density:${topCounty.fips}`, category: 'TERRITORY', gate: (topCounty.effectiveGate || topCounty.gate || 'CONDITIONAL') as Decision['gate'], priority: 94, confidence: adjusted(Number(topCounty.evidenceCoveragePct) || confidence.base), title: `${topCounty.motion === 'DENSIFY' ? 'Densify' : 'Prioritize'} ${topCounty.name}`, decision: topCounty.motion === 'DENSIFY' ? 'Concentrate field attention inside demonstrated service geography before adding avoidable travel.' : 'Treat this county as the strongest current territory screen while preserving the operating gate.', why: [`County Demand / deployment score: ${num(topCounty.score)}/100 with ${num(topCounty.evidenceCoveragePct)}% evidence coverage.`, topCounty.served ? 'CMS service geography confirms observed patient-service activity in this county/equivalent.' : 'This area is not treated as current serviceability merely because the public demand signal is attractive.'], next: 'Build a named account map across SNFs, hospitals and serious-illness clinicians, then verify account ownership and response capacity.', success: 'Referral density improves without creating delayed admissions or unnecessary windshield time.', stop: 'Stop or change the motion if serviceability, staffing, same-day admission capacity or account density cannot support it.', source: topCounty.operationalTruth ? 'CMS market/geography evidence + private internal operational truth' : 'CMS market, service geography and Territory Deployment 3.0', tab: 'territory' });
++    if (expansion) rows.push({ key: `expand:${expansion.fips}`, category: 'EXPANSION', gate: (expansion.effectiveGate || expansion.gate || 'CONDITIONAL') as Decision['gate'], priority: 78, confidence: adjusted(Number(expansion.evidenceCoveragePct) || confidence.base), title: `Screen ${expansion.name} for expansion`, decision: 'Investigate the adjacent market, but do not assign recurring field coverage until operating evidence clears the gate.', why: [`Territory Deployment score: ${num(expansion.score)}/100.`, 'Adjacency and demand can justify a screen, but they do not establish licensure, drive time, staffing or same-day capacity.'], next: 'Verify licensure/serviceability, drive time, staffing, intake coverage, referral density and competitive saturation.', success: 'A documented go/no-go expansion case with a named operating owner.', stop: 'Hold if any controlling internal readiness fact is No or serviceability is not confirmed.', source: expansion.operationalTruth ? 'CMS Territory Deployment 3.0 + private operational truth' : 'CMS Territory Deployment 3.0', tab: 'territory' });
++    if (topThreat) rows.push({ key: `threat:${topThreat.ccn}`, category: 'COMPETITION', gate: intel?.serviceArea?.partial ? 'CONDITIONAL' : 'GO', priority: 90, confidence: adjusted(intel?.serviceArea?.partial ? 70 : 90), title: `Defend against ${topThreat.name}`, decision: 'Protect the referral channels where the measured service footprints collide.', why: [`${num(topThreat.shared)} shared service ZIPs and ${pct(topThreat.jaccardPct)} Jaccard overlap create direct public-market collision.`, `Threat Score V3: ${num(topThreat.threatScore)}/100. Missing scale or growth evidence is reweighted rather than scored as zero.`], next: 'Map overlapping accounts, recent losses, response-speed gaps and verifiable quality or capability proof points.', success: 'Fewer field losses in overlapping accounts and a specific counter-position for the team.', stop: 'Do not treat Threat Score as evidence of competitor misconduct, poor care or guaranteed win probability.', source: 'CMS Hospice ZIP + PAC peer comparison', tab: 'intelligence' });
++    if (topSnf) rows.push({ key: `snf:${topSnf.ccn}`, category: 'ACCOUNT', gate: 'GO', priority: 84, confidence: adjusted(Number(topSnf.opportunityCoveragePct) || confidence.base), title: `Prioritize ${topSnf.name}`, decision: 'Place this SNF into the active account-development cadence based on reportable facility scale and surrounding market context.', why: [`CMS reports ${num(topSnf.residents, 1)} average residents per day and ${num(topSnf.beds)} certified beds.`, `The facility prospecting rank is ${num(topSnf.score)}/100 where evidence is reportable.`], next: 'Map administrator, DON, case management, current hospice relationships, response-time pain and decline-identification workflow.', success: 'A measurable referral relationship or a documented reason to deprioritize the account.', stop: 'High resident census is prospecting scale, never proof that a specific resident is hospice eligible.', source: 'CMS Nursing Home Provider Information', tab: 'referral' });
++    if (topPhysician) rows.push({ key: `clinician:${topPhysician.npi}`, category: 'ACCOUNT', gate: 'GO', priority: 82, confidence: adjusted(Number(topPhysician.scoreCoveragePct) || confidence.base), title: `Develop ${topPhysician.name}`, decision: 'Prioritize an education-first clinician relationship based on Medicare panel scale, serious-illness mix and specialty relevance.', why: [`CMS reports ${num(topPhysician.beneficiaries)} Medicare beneficiaries and a ${num(topPhysician.score)}/100 confidence-adjusted prospecting rank.`, `${num(topPhysician.conditionCoveragePct)}% of modeled condition evidence is reportable.`], next: 'Lead with decline patterns relevant to the specialty and make the referral conversation operationally simple.', success: 'The practice identifies appropriate hospice conversations earlier and knows exactly how to reach the hospice.', stop: 'Never infer that any specific patient is hospice eligible from clinician panel data.', source: 'CMS Physician & Other Practitioners + ZCTA county approximation', tab: 'referral' });
++    return rows.sort((a, b) => b.priority - a.priority).slice(0, 7);
++  }, [topCounty, expansion, topThreat, topSnf, topPhysician, alignment.confidencePenalty, confidence.base, intel]);
++
++  const debt = useMemo(() => {
++    const rows: string[] = [];
++    if (!geo || geo.available === false) rows.push('Provider service geography is unresolved, so expansion remains a screen rather than a deployable territory decision.');
++    if (detail?.dataQuality?.status !== 'healthy') rows.push('One or more provider evidence domains are limited or not reportable.');
++    if (physicianMeta?.partial) rows.push('The live state clinician source reached its configured row ceiling while the checkpointed warehouse is incomplete.');
++    if (alignment.status === 'PERIOD MISMATCH') rows.push(`Core source periods span ${alignment.spanYears} years, reducing composite evidence confidence by ${alignment.confidencePenalty} points.`);
++    if (!user) rows.push('Private operating truth and field Win/Loss evidence are not available until the workspace is signed in.');
++    return rows;
++  }, [geo, detail, physicianMeta, alignment, user]);
++
++  const queued = new Set(actions.filter((action) => action.status !== 'Complete').map((action) => action.recommendationKey));
++  const commit = async (decision: Decision) => {
++    if (!user) { onSignIn(); return; }
++    setSaving(decision.key);
++    try { await api.post('/api/decision-actions', { providerCcn: ccn, recommendationKey: decision.key, title: decision.title, category: decision.category, gate: decision.gate, priority: decision.priority, status: 'Committed', dueDate: plusDays(decision.gate === 'HOLD' ? 7 : 14), owner: '', note: '' }); await loadActions(); }
++    catch (requestError) { setError(apiError(requestError, 'Unable to add decision to execution.')); }
++    finally { setSaving(''); }
++  };
++  const saveAction = async (action: AnyRow) => { setSaving(action.id); try { await api.put(`/api/decision-actions/${encodeURIComponent(action.id)}`, { providerCcn: ccn, status: action.status, owner: action.owner, dueDate: action.dueDate, note: action.note }); await loadActions(); } catch (requestError) { setError(apiError(requestError, 'Unable to save execution action.')); } finally { setSaving(''); } };
++  const removeAction = async (action: AnyRow) => { setSaving(action.id); try { await api.delete(`/api/decision-actions/${encodeURIComponent(action.id)}?ccn=${encodeURIComponent(ccn)}`); await loadActions(); } catch (requestError) { setError(apiError(requestError, 'Unable to remove execution action.')); } finally { setSaving(''); } };
++  const patch = (id: string, key: string, value: string) => setActions((current) => current.map((action) => action.id === id ? { ...action, [key]: value } : action));
++  const exportBrief = () => csvDownload(`decision-brief-${ccn}-${today()}.csv`, [['Expert Decision Brief', provider.name], ['CCN', ccn], ['Market', stateName], ['Decision confidence', `${confidence.adjusted}%`], ['Period alignment', alignment.status], [], ['Rank','Gate','Category','Decision','Confidence','Why','Next','Success','Stop','Evidence'], ...decisions.map((decision, index) => [index + 1, decision.gate, decision.category, decision.title, `${decision.confidence}%`, decision.why.join(' | '), decision.next, decision.success, decision.stop, decision.source]), [], ['Decision debt'], ...debt.map((item) => [item])]);
++
++  return <section className='page'>
++    <div className='hero'><div><span className='kicker'>EXPERT DECISION ROOM · {stateName.toUpperCase()}</span><h2>What should we do next, why, and what would make us change our mind?</h2><p>{provider.name} · CCN {ccn}. Intelligence is only useful when it changes a decision, action or resource allocation.</p></div><div className='hero-actions'><button onClick={exportBrief}><Download size={15}/>Export brief</button><button onClick={() => onNavigate('growth')}><ArrowUpRight size={15}/>Growth model</button></div></div>
++    {error && <div className='alert'><AlertTriangle size={16}/>{error}</div>}
++    <div className='executive-posture'><ShieldCheck size={24}/><div><span className='kicker'>EXECUTIVE DECISION POSTURE</span><h3>{detail?.dataQuality?.status === 'degraded' ? 'HOLD' : confidence.adjusted >= 80 ? 'GO' : 'CONDITIONAL'}</h3><p>Confidence is weighted evidence completeness after source-period alignment. It is not a probability of success.</p></div><div className='posture-stats'><span><b>{confidence.adjusted}%</b><small>decision confidence</small></span><span><b>{decisions.filter((decision) => decision.gate === 'GO').length}</b><small>go decisions</small></span><span><b>{debt.length}</b><small>open unknowns</small></span></div></div>
++    <div className='decision-layout'><div className='decision-stack'>{loading && !decisions.length && <div className='panel empty'>Building decision evidence...</div>}{decisions.map((decision, index) => <article className={`decision-card ${decision.gate.toLowerCase()}`} key={decision.key}><div className='decision-rank'>{String(index + 1).padStart(2, '0')}</div><div className='decision-body'><div className='decision-meta'><span className='decision-gate'>{decision.gate}</span><span>{decision.category}</span><span>{decision.confidence}% EVIDENCE CONFIDENCE</span></div><h3>{decision.title}</h3><p className='decision-statement'>{decision.decision}</p><div className='decision-evidence'>{decision.why.map((why) => <span key={why}><CheckCircle2 size={14}/>{why}</span>)}</div><details className='evidence-ledger'><summary><Database size={14}/>Evidence ledger <span>{alignment.status}</span></summary><div><p><b>Evidence basis</b>{decision.source}</p>{decision.why.map((why) => <p key={why}><b>Supporting fact</b>{why}</p>)}<p><b>Period alignment</b>{alignment.status}{alignment.confidencePenalty ? ` · ${alignment.confidencePenalty}-point public-evidence adjustment` : ''}</p><p><b>Boundary</b>Evidence confidence is completeness, not future-success probability.</p></div></details><div className='decision-operating'><div><span>NEXT MOVE</span><p>{decision.next}</p></div><div><span>SUCCESS LOOKS LIKE</span><p>{decision.success}</p></div><div><span>STOP / CHANGE IF</span><p>{decision.stop}</p></div></div><div className='decision-actions'><button onClick={() => onNavigate(decision.tab)}>Open supporting intelligence <ArrowUpRight size={14}/></button><button className='primary' disabled={queued.has(decision.key) || saving === decision.key} onClick={() => void commit(decision)}>{queued.has(decision.key) ? 'In execution queue' : saving === decision.key ? 'Adding...' : 'Commit to execution'}</button></div></div></article>)}{!loading && !decisions.length && <div className='panel empty'>No defensible recommendation has enough evidence yet. The platform will not manufacture one to keep the screen busy.</div>}</div>
++      <aside><div className='panel'><div className='panel-head'><div><span className='kicker'>DECISION DEBT</span><h3>What we still do not know</h3></div><AlertTriangle size={17}/></div><div className='debt-list'>{debt.length ? debt.map((item) => <p key={item}>{item}</p>) : <p><CheckCircle2 size={14}/>No material decision gaps detected in the current evidence set.</p>}</div></div><div className='panel alignment-mini'><span className='kicker'>SOURCE PERIOD ALIGNMENT</span><h3>{alignment.status}</h3><p>{alignment.explanation}</p></div></aside>
++    </div>
++
++    <section className='panel execution-queue'><div className='panel-head'><div><span className='kicker'>EXECUTION QUEUE · PRIVATE</span><h3>Turn decisions into accountable work</h3><p>Assign an owner, due date, status and operating note. No patient PHI belongs here.</p></div>{user ? <span className='pill'>{actions.length} TRACKED</span> : <LockKeyhole size={18}/>}</div>{!user ? <div className='auth-lock'><LockKeyhole size={25}/><div><b>Sign in to own the decisions.</b><p>Public intelligence stays public. Commitments and execution notes stay in your private workspace.</p></div><button className='primary' onClick={onSignIn}>Sign in</button></div> : actions.length ? <div className='execution-list'>{actions.map((action) => <div className='execution-row' key={action.id}><div><b>{action.title}</b><small>{action.category} · {action.gate}</small></div><label><span>Status</span><select value={action.status} onChange={(event) => patch(action.id, 'status', event.target.value)}>{['Committed','In progress','Blocked','Complete','Deferred'].map((value) => <option key={value}>{value}</option>)}</select></label><label><span>Owner</span><input value={action.owner || ''} onChange={(event) => patch(action.id, 'owner', event.target.value)} placeholder='Owner'/></label><label><span>Due</span><input type='date' value={action.dueDate || ''} onChange={(event) => patch(action.id, 'dueDate', event.target.value)}/></label><label className='wide'><span>Execution note</span><input value={action.note || ''} onChange={(event) => patch(action.id, 'note', event.target.value)} placeholder='What changed, what is blocked, what happens next?'/></label><div className='row-actions'><button disabled={saving === action.id} onClick={() => void saveAction(action)}><Save size={14}/>Save</button><button disabled={saving === action.id} onClick={() => void removeAction(action)}><Trash2 size={14}/>Remove</button></div></div>)}</div> : <div className='empty'>No committed decisions yet.</div>}</section>
++  </section>;
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/GlobalProviderSearch.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/GlobalProviderSearch.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..bee875e5c3207ba08740b8ad0be7c2bc476f5428
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/GlobalProviderSearch.tsx
+@@ -0,0 +1,81 @@
++import { useEffect, useRef, useState } from 'react';
++import { AlertTriangle, Globe2, LoaderCircle, Search, X } from 'lucide-react';
++import { api } from './api';
++import type { Provider } from './types';
++import { apiError } from './utils';
++
++type Result = Pick<Provider, 'ccn'|'name'|'city'|'county'|'state'|'zip'>;
++
++export default function GlobalProviderSearch({ currentState, onOpen }: { currentState: string; onOpen: (provider: Result) => void }) {
++  const [query, setQuery] = useState('');
++  const [results, setResults] = useState<Result[]>([]);
++  const [loading, setLoading] = useState(false);
++  const [warning, setWarning] = useState('');
++  const [error, setError] = useState('');
++  const [open, setOpen] = useState(false);
++  const seq = useRef(0);
++  const shell = useRef<HTMLDivElement>(null);
++
++  useEffect(() => {
++    const value = query.trim();
++    if (value.length < 2) {
++      seq.current += 1;
++      setResults([]);
++      setWarning('');
++      setError('');
++      setLoading(false);
++      return;
++    }
++    const id = ++seq.current;
++    const timer = window.setTimeout(() => {
++      setLoading(true);
++      setError('');
++      setWarning('');
++      void api.get(`/api/provider-search?q=${encodeURIComponent(value)}`)
++        .then((response) => {
++          if (id !== seq.current) return;
++          setResults(response.data.results || []);
++          setWarning(response.data.warning || '');
++          setOpen(true);
++        })
++        .catch((requestError) => {
++          if (id !== seq.current) return;
++          setResults([]);
++          setError(apiError(requestError, 'National provider search is temporarily unavailable.'));
++          setOpen(true);
++        })
++        .finally(() => id === seq.current && setLoading(false));
++    }, 300);
++    return () => window.clearTimeout(timer);
++  }, [query]);
++
++  useEffect(() => {
++    const outside = (event: MouseEvent) => { if (shell.current && !shell.current.contains(event.target as Node)) setOpen(false); };
++    const keyboard = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
++    document.addEventListener('mousedown', outside);
++    document.addEventListener('keydown', keyboard);
++    return () => { document.removeEventListener('mousedown', outside); document.removeEventListener('keydown', keyboard); };
++  }, []);
++
++  const choose = (result: Result) => {
++    setOpen(false);
++    setQuery('');
++    setResults([]);
++    onOpen(result);
++  };
++
++  return <div className='global-search' ref={shell}>
++    <label>
++      <Search size={16}/>
++      <input value={query} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} onFocus={() => query.trim().length >= 2 && setOpen(true)} placeholder='Search any U.S. hospice by name, city, county or CCN' aria-label='Search all U.S. hospice providers'/>
++      {loading ? <LoaderCircle className='spin' size={15}/> : query ? <button type='button' onClick={() => setQuery('')} aria-label='Clear search'><X size={14}/></button> : <Globe2 size={15}/>} 
++    </label>
++    {open && query.trim().length >= 2 && <div className='global-search-results'>
++      <header><span><Globe2 size={14}/>NATIONAL CMS HOSPICE SEARCH</span><small>{loading ? 'Searching...' : `${results.length} result${results.length === 1 ? '' : 's'}`}</small></header>
++      {error && <div className='search-message danger'><AlertTriangle size={14}/>{error}</div>}
++      {warning && <div className='search-message'><AlertTriangle size={14}/>{warning}</div>}
++      {!loading && !error && !results.length && <div className='search-empty'>No hospice matched this search. Try the provider name, city, county/equivalent or Medicare CCN.</div>}
++      {results.map((result) => <button type='button' key={result.ccn} onClick={() => choose(result)}><span><b>{result.name || `CCN ${result.ccn}`}</b><small>{result.city || 'City NR'}, {result.state || 'State NR'} {result.zip || ''} · {result.county || 'County/equivalent NR'}</small></span><em>{result.state === currentState ? 'CURRENT STATE · ' : ''}CCN {result.ccn}</em></button>)}
++    </div>}
++  </div>;
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/IntelligenceCenter.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/IntelligenceCenter.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..b200329f539154843fc7f4326207062a37308082
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/IntelligenceCenter.tsx
+@@ -0,0 +1,126 @@
++import { useEffect, useMemo, useRef, useState } from 'react';
++import { AlertTriangle, Bell, Building2, CheckCircle2, CircleDollarSign, Database, Download, FileSpreadsheet, History, LoaderCircle, MapPin, Network, RefreshCw, ShieldCheck } from 'lucide-react';
++import { api } from './api';
++import type { AnyRow, Provider, ProviderDetail, User } from './types';
++import { buildEvidenceAlignment } from './intelligenceMath';
++import { apiError, csvDownload, money, num, pct, statusClass } from './utils';
++
++export default function IntelligenceCenter({ state, stateName, provider, detail, marketSources, user, onSignIn, onOpenProvider }: { state: string; stateName: string; provider: Provider; detail: ProviderDetail | null; marketSources: AnyRow[]; user: User | null; onSignIn: () => void; onOpenProvider: (ccn: string) => void; }) {
++  const [intel, setIntel] = useState<AnyRow | null>(null);
++  const [ssvi, setSsvi] = useState<AnyRow | null>(null);
++  const [hcris, setHcris] = useState<AnyRow | null>(null);
++  const [geo, setGeo] = useState<AnyRow | null>(null);
++  const [white, setWhite] = useState<AnyRow | null>(null);
++  const [capabilities, setCapabilities] = useState<AnyRow | null>(null);
++  const [history, setHistory] = useState<AnyRow | null>(null);
++  const [watched, setWatched] = useState<AnyRow | null>(null);
++  const [loading, setLoading] = useState(false);
++  const [deepLoading, setDeepLoading] = useState(false);
++  const [error, setError] = useState('');
++  const seq = useRef(0);
++  const ccn = provider.ccn;
++
++  const load = async (force = false) => {
++    const id = ++seq.current;
++    setLoading(true);
++    setError('');
++    const suffix = force ? '&force=1' : '';
++    const settled = await Promise.allSettled([
++      api.get(`/api/intelligence?ccn=${encodeURIComponent(ccn)}&state=${encodeURIComponent(state)}${suffix}`),
++      api.get(`/api/ssvi/${encodeURIComponent(ccn)}${force ? '?force=1' : ''}`),
++      api.get(`/api/hcris/${encodeURIComponent(ccn)}${force ? '?force=1' : ''}`),
++      api.get(`/api/service-geography/${encodeURIComponent(ccn)}${force ? '?force=1' : ''}`),
++      api.get(`/api/white-space/${encodeURIComponent(ccn)}?state=${encodeURIComponent(state)}${suffix}`),
++      api.get(`/api/capabilities/${encodeURIComponent(ccn)}`),
++      api.get(`/api/provider-history/${encodeURIComponent(ccn)}`),
++    ]);
++    if (id !== seq.current) return;
++    const values = settled.map((result) => result.status === 'fulfilled' ? result.value.data : null);
++    setIntel(values[0]); setSsvi(values[1]); setHcris(values[2]); setGeo(values[3]); setWhite(values[4]); setCapabilities(values[5]); setHistory(values[6]);
++    const failures = settled.filter((result) => result.status === 'rejected');
++    if (failures.length) setError(`${failures.length} intelligence source${failures.length === 1 ? '' : 's'} could not be refreshed. Successful evidence remains visible.`);
++    if (user) {
++      try { const response = await api.get(`/api/watchlist?ccn=${encodeURIComponent(ccn)}`); if (id === seq.current) setWatched(response.data.records?.[0] || null); } catch {}
++    } else setWatched(null);
++    setLoading(false);
++  };
++
++  useEffect(() => { setIntel(null); setSsvi(null); setHcris(null); setGeo(null); setWhite(null); setCapabilities(null); setHistory(null); setWatched(null); void load(); }, [ccn, state, user?.userId]);
++
++  const alignment = useMemo(() => buildEvidenceAlignment(detail, intel, marketSources, ssvi, hcris), [detail, intel, marketSources, ssvi, hcris]);
++  const threats = intel?.threats || [];
++  const whiteRows = white?.counties || [];
++  const ssviReportable = ssvi?.fy2025?.reportable === true && ssvi?.fy2025?.totalScore !== null && ssvi?.fy2025?.totalScore !== undefined;
++  const adcHistory = (detail?.history || []).filter((row) => row.adc !== null && row.adc !== undefined).slice(-3);
++  const growth = adcHistory.length >= 2 && Number(adcHistory[0].adc) > 0 ? (Number(adcHistory[adcHistory.length - 1]?.adc) / Number(adcHistory[0].adc) - 1) * 100 : null;
++
++  const toggleWatch = async () => {
++    if (!user) { onSignIn(); return; }
++    try {
++      if (watched) { await api.delete(`/api/watchlist/${encodeURIComponent(watched.id)}`); setWatched(null); }
++      else { const response = await api.post('/api/watchlist', { ccn, state: provider.state || state, label: provider.name }); setWatched(response.data); }
++    } catch (requestError) { setError(apiError(requestError, 'Watchlist update failed.')); }
++  };
++
++  const deepenHcris = async () => {
++    setDeepLoading(true);
++    try { const response = await api.get(`/api/hcris/${encodeURIComponent(ccn)}?detail=1`); setHcris(response.data); const caps = await api.get(`/api/capabilities/${encodeURIComponent(ccn)}?deep=1`); setCapabilities(caps.data); }
++    catch (requestError) { setError(apiError(requestError, 'Detailed HCRIS extraction failed.')); }
++    finally { setDeepLoading(false); }
++  };
++
++  const exportCsv = () => csvDownload(`hospice-intelligence-${ccn}.csv`, [
++    ['Provider 360', provider.name], ['CCN', ccn], ['State', stateName], ['Evidence coverage', detail?.confidence ?? 'NR'], ['CAHPS summary star', detail?.cahpsSummary?.summaryStar ?? 'NR'], ['Hospital readmission proxy', detail?.qualitySummary?.hospitalReadmission ?? 'NR'],
++  ]);
++
++  return <section className='page'>
++    <div className='hero'><div><span className='kicker'>PROVIDER 360 · NATIONAL INTELLIGENCE</span><h2>{provider.name}</h2><p>{provider.city}, {provider.state} · CCN {ccn} · market position, quality, source-period alignment and public/private evidence context.</p></div><div className='hero-actions'><button className='ghost' onClick={exportCsv}><Download size={16}/>Export evidence</button><button className='ghost' onClick={() => void load(true)} disabled={loading}><RefreshCw size={16} className={loading ? 'spin' : ''}/>Refresh source validation</button><button onClick={() => void toggleWatch()} className={watched ? 'selected' : ''}>{watched ? 'Remove watch' : 'Watch provider'}</button></div></div>
++    {error && <div className='alert'><AlertTriangle size={16}/>{error}</div>}
++
++    <div className='evidence-readiness panel'>
++      <div className='panel-head'><div><span className='kicker'>EVIDENCE READINESS</span><h3>Missing evidence lowers evidence coverage rather than being silently scored as zero.</h3><p>The platform preserves unsupported states and reporting boundaries.</p></div>{loading ? <LoaderCircle className='spin' size={18}/> : <CheckCircle2 size={18}/>}</div>
++      <div className='readiness-grid'>
++        <div><Database size={18}/><span><small>PROVIDER EVIDENCE</small><b>{String(detail?.dataQuality?.status || 'loading').toUpperCase()}</b><p>{detail?.dataQuality?.limitations?.[0] || 'Current provider evidence is available.'}</p></span></div>
++        <div><FileSpreadsheet size={18}/><span><small>SSVI FY2025</small><b>{loading && !ssvi ? 'CHECKING' : ssviReportable ? num(ssvi?.fy2025?.totalScore) : 'NOT REPORTABLE'}</b><p>{ssvi?.fy2025?.reportable === false ? 'Oversight context is not reportable for this provider.' : 'Oversight and variation context.'}</p></span></div>
++        <div><CircleDollarSign size={18}/><span><small>HCRIS OPERATING EVIDENCE</small><b>{hcris?.available ? 'REPORT FOUND' : 'NOT RESOLVED'}</b><p>{hcris?.available ? `${hcris.costReportBasis || 'Cost report'} · ${hcris.fiscalYear || 'FY NR'}` : 'Cost-report validation may be unavailable.'}</p></span></div>
++      </div>
++    </div>
++
++    <div className={`alignment panel ${statusClass(alignment.status)}`}><div className='panel-head'><div><span className='kicker'>SOURCE PERIOD ALIGNMENT</span><h3>{alignment.status}</h3><p>{alignment.explanation}</p></div><ShieldCheck size={18}/></div><div className='align-stats'><span><b>{alignment.confidencePenalty}%</b><small>confidence penalty</small></span><span><b>{alignment.spanYears ?? 'NR'}</b><small>span years</small></span><span><b>{alignment.sources.length}</b><small>period anchors</small></span></div></div>
++
++    <div className='metrics six'>
++      <Metric label='CAHPS summary star' value={detail?.cahpsSummary?.summaryStar ? `${detail.cahpsSummary.summaryStar}/5` : 'NR'} sub={detail?.periods?.cahpsDate || 'Published period NR'}/>
++      <Metric label='Hospice Care Index' value={num(detail?.qualitySummary?.hci, 1)} sub={detail?.periods?.qualityDate || 'Claims-based quality'}/>
++      <Metric label='SSVI FY2025' value={ssviReportable ? num(ssvi?.fy2025?.totalScore) : 'NOT REPORTABLE'} sub='Oversight / variation context'/>
++      <Metric label='Patient-service ZIPs' value={num(intel?.serviceArea?.focusZipCount)} sub='Observed CMS footprint'/>
++      <Metric label='County footprint' value={num(geo?.counties?.length)} sub={geo?.mappingCoveragePct !== undefined ? `${pct(geo.mappingCoveragePct)} ZCTA mapping` : 'Census mapping'}/>
++      <Metric label='Recent ADC trend' value={growth === null ? 'INSUFFICIENT HISTORY' : pct(growth)} sub={adcHistory.length ? `${adcHistory[0].year} to ${adcHistory[adcHistory.length - 1]?.year}` : 'PAC history unavailable'}/>
++    </div>
++
++    {intel && <div className='grid-2'>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>EXECUTIVE READOUT</span><h3>What matters first</h3></div><ShieldCheck size={18}/></div><div className='insight-list'>
++        {threats[0] && <div><b>Competitive collision</b><p>{threats[0].name} is the highest measured collision at {num(threats[0].threatScore)}/100 with {num(threats[0].shared)} shared service ZIPs.</p></div>}
++        {whiteRows[0] && <div><b>Growth geography</b><p>{whiteRows[0].name} leads the current local-relative White Space screen at {num(whiteRows[0].whiteSpaceScore)}/100. Serviceability and operating truth still govern execution.</p></div>}
++        <div><b>Evidence boundary</b><p>Provider evidence coverage is {detail?.confidence ?? 'NR'}%. Reporting periods remain separate, and missing inputs are not converted to zero.</p></div>
++      </div></div>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>CHANGE INTELLIGENCE</span><h3>Stored provider history</h3></div><History size={18}/></div><div className='change-list'>{(history?.records || []).slice(0, 5).map((row: AnyRow) => <div key={String(row.id || row.timestamp)}><b>{row.label || row.changeType || 'Update'}</b><p>{row.detail || row.description || 'Historical provider event'}</p></div>)}</div></div>
++    </div>}
++
++    <div className='grid-2'>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>THREAT SCORE V3</span><h3>Who actually collides?</h3><p>Service-area collision plus peer Medicare scale and local pressure.</p></div><Network size={18}/></div><div className='table'>{(intel?.threats || []).slice(0, 5).map((row: AnyRow) => <div key={row.ccn || row.name}><span>{row.name}</span><b>{num(row.threatScore)}/100</b></div>)}</div></div>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>QUALITY BATTLECARD</span><h3>Provider vs state vs U.S.</h3></div><ShieldCheck size={18}/></div><div className='table'>{(intel?.qualityBattlecard || []).slice(0, 5).map((row: AnyRow) => <div key={row.code || row.label}><span>{row.label}</span><b>{num(row.provider)} · {num(row.state)} · {num(row.national)}</b></div>)}</div></div>
++    </div>
++
++    <div className='grid-2'>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>HCRIS COST REPORT INTELLIGENCE</span><h3>Provider-reported operating context</h3></div><CircleDollarSign size={18}/></div><div className='table'><div><span>Fiscal year</span><b>{hcris?.fiscalYear || 'NR'}</b></div><div><span>Operating basis</span><b>{hcris?.costReportBasis || 'NR'}</b></div><div><span>Report status</span><b>{hcris?.available ? 'AVAILABLE' : 'UNAVAILABLE'}</b></div></div><button className='ghost' onClick={() => void deepenHcris()} disabled={deepLoading}>{deepLoading ? <LoaderCircle className='spin' size={16}/> : <RefreshCw size={16}/>}Deepen HCRIS extraction</button></div>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>CMS OBSERVED CAPABILITIES</span><h3>What public evidence supports</h3></div><Database size={18}/></div><div className='insight-list'>{(capabilities?.supported || []).slice(0, 6).map((row: AnyRow) => <div key={row.label}><b>{row.label}</b><p>{row.detail}</p></div>)}</div></div>
++    </div>
++
++    <div className='grid-2'>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>WHITE SPACE 2.2</span><h3>Demand minus local service-area saturation</h3></div><MapPin size={18}/></div><div className='insight-list'>{whiteRows.slice(0, 5).map((row: AnyRow) => <div key={row.fips}><b>{row.name}</b><p>{num(row.whiteSpaceScore)}/100 · {row.reason || 'screened'}</p></div>)}</div></div>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>ENTERPRISE 360</span><h3>PECOS legal and enrollment context</h3></div><Network size={18}/></div><div className='insight-list'>{(intel?.enterprise?.relatedEnrollments || []).slice(0, 5).map((row: AnyRow) => <div key={row.enrollmentId}><b>{row.organizationName || row.dba || row.enrollmentId}</b><p>{row.city}, {row.state} · {row.ccn || 'CCN NR'}</p></div>)}</div></div>
++    </div>
++  </section>;
++}
++
++function Metric({ label, value, sub }: { label: string; value: string; sub: string }) { return <div className='metric'><span>{label}</span><b>{value}</b><small>{sub}</small></div>; }
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..5e5a79e84f343553425cb46ef4276ad39e65b206
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
+@@ -0,0 +1,113 @@
++import { useEffect, useMemo, useRef, useState } from 'react';
++import { AlertTriangle, ArrowUpRight, BarChart3, Bell, Building2, CheckCircle2, Database, DollarSign, Globe2, Home, LineChart, LoaderCircle, LockKeyhole, MapPinned, Network, RefreshCw, Save, Scale, Search, ShieldCheck, Stethoscope, Target, Trophy, X, Users } from 'lucide-react';
++import { api } from './api';
++import GlobalProviderSearch from './GlobalProviderSearch';
++import IntelligenceCenter from './IntelligenceCenter';
++import DecisionRoom from './DecisionRoom';
++import TerritoryView from './TerritoryView';
++import ReferralMarket from './ReferralMarket';
++import DataLab from './DataLab';
++import type { AnyRow, DashboardData, Provider, ProviderDetail, TabId, User } from './types';
++import { solveGrowth } from './intelligenceMath';
++import { apiError, clean, money, num, pct, STATES, statusClass, today } from './utils';
++
++const NAV: Array<{ id: TabId; label: string; group: string; icon: typeof Home }> = [
++  { id:'decision',label:'Decision Room',group:'DECIDE',icon:Target },{ id:'command',label:'Command Center',group:'DECIDE',icon:Home },
++  { id:'intelligence',label:'Intelligence 360',group:'INTELLIGENCE',icon:LineChart },{ id:'hospice',label:'Hospice Explorer',group:'INTELLIGENCE',icon:Building2 },{ id:'compare',label:'Compare',group:'INTELLIGENCE',icon:Scale },{ id:'network',label:'Ownership / PECOS',group:'INTELLIGENCE',icon:Network },
++  { id:'growth',label:'Growth Strategy',group:'GROWTH',icon:BarChart3 },{ id:'territory',label:'Territory',group:'GROWTH',icon:MapPinned },
++  { id:'referral',label:'Referral Market',group:'ACCOUNTS',icon:Stethoscope },{ id:'watchlist',label:'Watchlist & Alerts',group:'ACCOUNTS',icon:Bell },{ id:'winloss',label:'Win / Loss',group:'ACCOUNTS',icon:Trophy },
++  { id:'sources',label:'Data Lab',group:'DATA',icon:Database },
++];
++
++const parseHash = () => {
++  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
++  const tab = params.get('tab') as TabId;
++  return { state: (params.get('state') || 'OK').toUpperCase(), ccn: params.get('ccn') || '371653', tab: NAV.some((item) => item.id === tab) ? tab : 'command' as TabId };
++};
++
++export default function NationalDashboard() {
++  const initial = useMemo(parseHash, []);
++  const [data, setData] = useState<DashboardData | null>(null);
++  const [detail, setDetail] = useState<ProviderDetail | null>(null);
++  const [state, setState] = useState(initial.state);
++  const [focus, setFocus] = useState(initial.ccn);
++  const [tab, setTab] = useState<TabId>(initial.tab);
++  const [loading, setLoading] = useState(true);
++  const [detailLoading, setDetailLoading] = useState(false);
++  const [error, setError] = useState('');
++  const [user] = useState<User>({ userId: 'spartan-elite-member', name: 'Spartan Elite', scope: 'Secure member workspace' });
++  const request = useRef({ market: 0, provider: 0 });
++
++  const loadProvider = async (ccn: string, expectedState = state) => {
++    if (!ccn) return;
++    const id = ++request.current.provider;
++    setFocus(ccn); setDetail(null); setDetailLoading(true); setError('');
++    try {
++      const response = await api.get(`/api/provider/${encodeURIComponent(ccn)}`), next = response.data as ProviderDetail;
++      if (next.provider?.ccn !== ccn) throw new Error(`Provider context mismatch: requested ${ccn}, received ${next.provider?.ccn || 'no CCN'}.`);
++      if (expectedState && next.provider?.state && String(next.provider.state).toUpperCase() !== expectedState.toUpperCase()) throw new Error(`Provider ${ccn} belongs to ${next.provider.state}, not the requested ${expectedState} market.`);
++      if (id === request.current.provider) setDetail(next);
++    } catch (requestError) {
++      if (id === request.current.provider) setError(`Provider dossier refresh failed: ${apiError(requestError, 'The selected provider could not be loaded.')}`);
++    } finally { if (id === request.current.provider) setDetailLoading(false); }
++  };
++
++  const loadMarket = async (nextState = state, requestedCcn = '', force = false) => {
++    const id = ++request.current.market;
++    setLoading(true); setError('');
++    try {
++      const response = await api.get(`/api/dashboard?state=${encodeURIComponent(nextState)}&ccn=${encodeURIComponent(requestedCcn)}${force ? '&force=1' : ''}`), next = response.data as DashboardData;
++      if (id !== request.current.market) return;
++      if (String(next.state).toUpperCase() !== nextState.toUpperCase()) throw new Error(`Market context mismatch: requested ${nextState}, received ${next.state || 'no state'}.`);
++      if (requestedCcn && next.focusCcn !== requestedCcn) throw new Error(`Provider ${requestedCcn} was not resolved inside the ${nextState} market.`);
++      request.current.provider += 1;
++      setData(next); setState(next.state); setFocus(next.focusCcn); setDetail(null);
++      if (next.focusCcn) await loadProvider(next.focusCcn, next.state);
++    } catch (requestError) { if (id === request.current.market) setError(apiError(requestError, 'CMS market refresh is temporarily unavailable.')); }
++    finally { if (id === request.current.market) setLoading(false); }
++  };
++
++  useEffect(() => {
++    void loadMarket(initial.state, initial.ccn);
++  }, []);
++  useEffect(() => { const params = new URLSearchParams({ state, ccn: focus, tab }); history.replaceState(null, '', `#${params.toString()}`); }, [state, focus, tab]);
++
++  const signIn = () => setError('Your Spartan Elite session protects this workspace. Sign in again from the main account menu if access expires.');
++  const selected = data?.providers.find((provider) => provider.ccn === focus) || detail?.provider || data?.providers[0];
++  const navigate = (next: TabId) => setTab(next);
++
++  if (!data || !selected) return <div className='boot'><LoaderCircle className='spin' size={30}/><h2>Building national hospice intelligence...</h2><p>{error || 'Joining current CMS market and provider context.'}</p></div>;
++
++  return <div className='app-shell'>
++    <aside className='sidebar'><div className='brand'><span>CMS</span><div><b>Hospice Intelligence</b><small>Decision Platform</small></div></div><nav>{['DECIDE','INTELLIGENCE','GROWTH','ACCOUNTS','DATA'].map((group) => <div key={group} className='nav-group'><span>{group}</span>{NAV.filter((item) => item.group === group).map(({ id, label, icon: Icon }) => <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}><Icon size={16}/>{label}</button>)}</div>)}</nav><div className='sidebar-footer'><button onClick={() => void loadMarket(state, focus, true)} disabled={loading}><RefreshCw size={15} className={loading ? 'spin' : ''}/>Refresh market</button><button onClick={() => void loadProvider(focus, state)} disabled={detailLoading}><ArrowUpRight size={15}/>{detailLoading ? 'Loading provider...' : 'Reload provider'}</button><div className='login-card'><LockKeyhole size={14}/><div><b>{user.name}</b><small>{user.scope}</small></div></div></div></aside>
++    <main className='main'>
++      <header className='topbar'><div className='page-title'><span>NATIONAL HOSPICE EXPERT INTELLIGENCE & DECISION PLATFORM</span><h1>{NAV.find((item) => item.id === tab)?.label}</h1></div><div className='topbar-workspace'><label className='market-picker'><span>Market</span><select aria-label='Select Medicare market' value={state} disabled={loading} onChange={(event) => void loadMarket(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><GlobalProviderSearch currentState={state} onOpen={(result) => { setTab('intelligence'); if (result.state !== state) { void loadMarket(result.state, result.ccn); return; } void loadProvider(result.ccn, state); }}/></div><div className='topbar-actions'><button onClick={() => setTab('decision')} className={tab === 'decision' ? 'active' : ''}><ShieldCheck size={15}/>Decision view</button><button onClick={() => setTab('sources')} className={tab === 'sources' ? 'active' : ''}><Database size={15}/>Source health</button></div></header>
++      <div className='context-bar'><div><span className={`status-dot ${statusClass(data.dataQuality?.status)}`}/><span><small>ACTIVE PROVIDER</small><b>{selected.name}</b><em>{selected.city}, {selected.state} · CCN {selected.ccn}</em></span></div><div><small>MARKET</small><b>{data.stateName}</b></div><div><small>LAST REFRESH</small><b>{today()}</b></div></div>
++      <div className='mobile-nav'><select value={tab} onChange={(event) => setTab(event.target.value as TabId)}>{NAV.map((item) => <option key={item.id} value={item.id}>{item.group} · {item.label}</option>)}</select></div>
++      {error && <div className='alert global-alert'><AlertTriangle size={17}/><span>{error}</span><button onClick={() => setError('')}><X size={14}/></button></div>}
++      {data.warnings?.length > 0 && <div className='warning-strip'><AlertTriangle size={15}/><span><b>Source issue:</b> {data.warnings.join(' · ')} Successful evidence remains available.</span></div>}
++      {tab === 'command' && <CommandPage data={data} provider={selected} detail={detail} onNavigate={navigate} onProvider={(ccn, providerState) => { void loadProvider(ccn, providerState || state); }}/>} 
++      {tab === 'decision' && <DecisionRoom state={state} stateName={data.stateName} market={data} provider={selected} detail={detail} user={user} onSignIn={() => void signIn()} onNavigate={navigate}/>} 
++      {tab === 'intelligence' && <IntelligenceCenter state={state} stateName={data.stateName} provider={selected} detail={detail} marketSources={data.sources} user={user} onSignIn={() => void signIn()} onOpenProvider={(ccn) => void loadProvider(ccn, state)}/>} 
++      {tab === 'hospice' && <HospiceExplorer data={data} focus={focus} onProvider={(ccn) => void loadProvider(ccn, state)}/>} 
++      {tab === 'compare' && <ComparePage data={data} focus={focus}/>} 
++      {tab === 'network' && <OwnershipPage provider={selected} detail={detail}/>} 
++      {tab === 'watchlist' && <WatchlistPage user={user} current={selected} onSignIn={() => void signIn()} onOpen={(ccn, providerState) => { setTab('intelligence'); if (providerState && providerState !== state) { void loadMarket(providerState, ccn); return; } void loadProvider(ccn, providerState || state); }}/>} 
++      {tab === 'growth' && <GrowthPage data={data} provider={selected}/>} 
++      {tab === 'territory' && <TerritoryView state={state} stateName={data.stateName} market={data} provider={selected} user={user} onSignIn={() => void signIn()}/>} 
++      {tab === 'referral' && <ReferralMarket state={state} stateName={data.stateName} market={data}/>} 
++      {tab === 'winloss' && <WinLossPage user={user} provider={selected} counties={data.counties} onSignIn={() => void signIn()}/>} 
++      {tab === 'sources' && <DataLab state={state} provider={selected} providerStatus={String(detail?.dataQuality?.status || 'limited')}/>} 
++    </main>
++  </div>;
++}
++
++function CommandPage({ data, provider, detail, onNavigate }: { data: DashboardData; provider: Provider; detail: ProviderDetail | null; onNavigate: (tab: TabId) => void; onProvider: (ccn: string, providerState?: string) => void }) { const summary=data.marketSummary||{}; return <section className='page'><div className='hero'><div><span className='kicker'>NATIONAL COMMAND · {data.stateName.toUpperCase()}</span><h2>{provider.name}</h2><p>{provider.city}, {provider.state} · CCN {provider.ccn} · One operating picture from current CMS evidence.</p></div><div className='hero-actions'><button className='primary' onClick={()=>onNavigate('decision')}><Target size={15}/>Open Decision Room</button></div></div><div className='metrics six'><Metric icon={Building2} label='Hospices' value={num(data.providers.length)} sub='CMS-certified market'/><Metric icon={Users} label='Medicare lives' value={num(summary.totalMedicare)} sub='Market enrollment'/><Metric icon={Home} label='Focus ADC' value={num(provider.adc,1)} sub='Reported utilization'/><Metric icon={DollarSign} label='Focus payment' value={money(provider.payment)} sub='Reported Medicare'/><Metric icon={ShieldCheck} label='Evidence coverage' value={pct(detail?.confidence||data.dataQuality?.coveragePct,0)} sub={data.dataQuality?.status||'limited'}/><Metric icon={MapPinned} label='Counties' value={num(data.counties.length)} sub='Market geography'/></div><div className='launch-grid'><Launch icon={LineChart} label='Provider Intelligence 360' note='Quality, CAHPS, utilization, HCRIS, SSVI and service geography.' onClick={()=>onNavigate('intelligence')}/><Launch icon={MapPinned} label='Territory Deployment' note='See served, adjacent, hold and remote county posture.' onClick={()=>onNavigate('territory')}/><Launch icon={Stethoscope} label='Referral Market' note='Inspect hospitals, SNFs and serious-illness clinicians.' onClick={()=>onNavigate('referral')}/><Launch icon={Database} label='Data Lab' note='Validate source health, freshness and model completeness.' onClick={()=>onNavigate('sources')}/></div></section>; }
++function HospiceExplorer({ data, focus, onProvider }: { data: DashboardData; focus: string; onProvider: (ccn: string) => void }) { const [query,setQuery]=useState(''); const rows=data.providers.filter(row=>`${row.name} ${row.city} ${row.county} ${row.ccn}`.toLowerCase().includes(query.toLowerCase())); return <section className='page'><div className='hero'><div><span className='kicker'>{data.stateName.toUpperCase()} CMS-CERTIFIED MARKET</span><h2>Hospice Explorer</h2><p>Find and open any enrolled hospice without losing market context.</p></div></div><div className='panel'><label className='local-search'><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder='Search provider, city, county or CCN'/>{query&&<button onClick={()=>setQuery('')}><X size={14}/></button>}</label><div className='simple-table'><div className='simple-row header'><span>Provider</span><span>County</span><span>Ownership</span><span>ADC</span><span>Medicare payment</span></div>{rows.map(row=><button className={`simple-row ${row.ccn===focus?'selected':''}`} key={row.ccn} onClick={()=>onProvider(row.ccn)}><span><b>{row.name}</b><small>{row.city}, {row.state} · CCN {row.ccn}</small></span><span>{row.county||'NR'}</span><span>{row.ownership||'NR'}</span><span>{num(row.adc,1)}</span><span>{money(row.payment)}</span></button>)}</div></div></section>; }
++function GrowthPage({ data, provider }: { data: DashboardData; provider: Provider }) { const [target,setTarget]=useState(Math.max(10,Math.round(Number(provider.adc)||25)+10)); const [los,setLos]=useState(Math.max(1,Math.round(Number(provider.daysPerBene)||75))); const [conversion,setConversion]=useState(50); const result=solveGrowth({currentAdc:Number(provider.adc)||0,targetAdc:target,losDays:los,conversionPct:conversion,horizonDays:90}); return <section className='page'><div className='hero'><div><span className='kicker'>90-DAY GROWTH STRATEGY · {data.stateName.toUpperCase()}</span><h2>Turn a census target into admissions and referral requirements.</h2><p>Transparent census-flow math. Change an assumption and the operating requirement recalculates immediately.</p></div></div><div className='panel'><div className='form-grid four'><label className='field'><span>Current ADC</span><input value={num(provider.adc,1)} disabled/></label><label className='field'><span>Target ADC</span><input type='number' value={target} onChange={e=>setTarget(Number(e.target.value))}/></label><label className='field'><span>Average length of stay</span><input type='number' value={los} onChange={e=>setLos(Number(e.target.value))}/></label><label className='field'><span>Referral conversion %</span><input type='number' value={conversion} onChange={e=>setConversion(Number(e.target.value))}/></label></div></div><div className='metrics five'><Metric icon={Target} label='Admissions / month' value={num(result.admissionsPerMonth,1)} sub='Required for target'/><Metric icon={Users} label='Referrals / month' value={num(result.referralsPerMonth,1)} sub={`At ${conversion}% conversion`}/><Metric icon={BarChart3} label='Referrals / week' value={num(result.referralsPerWeek,1)} sub='Weekly pace'/><Metric icon={LineChart} label='Referrals / workday' value={num(result.referralsPerWorkday,2)} sub='Daily requirement'/><Metric icon={Home} label='Natural census at day 90' value={num(result.projectedAdcWithoutAdmissions,1)} sub='Before new admissions'/></div><div className='panel'><p className='guardrail'>{result.formula} This planning model uses an exponential discharge assumption and should be reconciled to actual agency LOS and conversion history.</p></div></section>; }
++function ComparePage({ data, focus }: { data: DashboardData; focus: string }) { const defaults=[focus,...data.providers.filter(p=>p.ccn!==focus).slice(0,2).map(p=>p.ccn)]; const [ids,setIds]=useState(defaults); const selected=ids.map(id=>data.providers.find(p=>p.ccn===id)).filter(Boolean) as Provider[]; return <section className='page'><div className='hero'><div><span className='kicker'>HEAD-TO-HEAD INTELLIGENCE</span><h2>Compare up to three hospices.</h2><p>Same market, same definitions, and missing values remain NR.</p></div></div><div className='panel'><div className='compare-picker'>{[0,1,2].map(index=><div key={index}><label>Provider {index+1}</label><select value={ids[index]||''} onChange={e=>setIds(current=>current.map((v,i)=>i===index?e.target.value:v))}><option value=''>Choose hospice</option>{data.providers.map(p=><option key={p.ccn} value={p.ccn}>{p.name} · {p.ccn}</option>)}</select></div>)}</div><div className='comparison-table'>{[['Provider',(p:Provider)=>p.name],['CCN',(p:Provider)=>p.ccn],['Location',(p:Provider)=>`${p.city}, ${p.state}`],['Ownership',(p:Provider)=>p.ownership||'NR'],['ADC',(p:Provider)=>num(p.adc,1)],['Beneficiaries',(p:Provider)=>num(p.beneficiaries)],['Days / beneficiary',(p:Provider)=>num(p.daysPerBene,1)],['Medicare payment',(p:Provider)=>money(p.payment)]].map(([label,get],index)=><div className={`compare-row ${index===0?'header':''}`} key={String(label)}><span>{String(label)}</span>{selected.map(p=><span key={p.ccn}>{(get as (p:Provider)=>string)(p)}</span>)}</div>)}</div></div></section>; }
++function OwnershipPage({ provider, detail }: { provider: Provider; detail: ProviderDetail | null }) { return <section className='page'><div className='hero'><div><span className='kicker'>OWNERSHIP / PECOS CONTEXT</span><h2>{provider.name}</h2><p>Enrollment and ownership evidence is context, not proof of control beyond the published CMS record.</p></div></div><div className='grid-2'><div className='panel'><div className='panel-head'><div><span className='kicker'>OWNERS</span><h3>Published ownership records</h3></div><Network size={18}/></div><div className='entity-list'>{detail?.owners?.length?detail.owners.map((row,index)=><div key={index}><span><b>{clean(row.ownerName||row.name||row.organizationName)}</b><small>{clean(row.ownerType||row.type)} · {clean(row.role||row.association)}</small></span><em>{pct(row.percentageOwned||row.ownershipPercentage)}</em></div>):<p className='empty'>No current owner row was resolved for this CCN.</p>}</div></div><div className='panel'><div className='panel-head'><div><span className='kicker'>ENROLLMENT</span><h3>PECOS and certification context</h3></div></div><div className='entity-list'>{detail?.enrollments?.length?detail.enrollments.map((row,index)=><div key={index}><span><b>{clean(row.enrollmentId||row.associateId||`Enrollment ${index+1}`)}</b><small>{clean(row.enrollmentState||row.state)} · {clean(row.status)}</small></span></div>):<p className='empty'>No enrollment rows were resolved.</p>}</div></div></div></section>; }
++function WatchlistPage({ user, current, onSignIn, onOpen }: { user: User | null; current: Provider; onSignIn: () => void; onOpen: (ccn: string, state: string) => void }) { const [records,setRecords]=useState<AnyRow[]>([]),[alerts,setAlerts]=useState<AnyRow[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState(''); const load=async()=>{try{const [w,a]=await Promise.all([api.get('/api/watchlist'),api.get('/api/alerts')]);setRecords(w.data.records||[]);setAlerts(a.data.records||[]);}catch(e){setError(apiError(e));}}; useEffect(()=>{if(user)void load();},[user?.userId]); const toggle=async()=>{if(!user)return onSignIn();setBusy(true);try{const found=records.find(r=>r.ccn===current.ccn);if(found)await api.delete(`/api/watchlist/${found.id}`);else await api.post('/api/watchlist',{ccn:current.ccn,state:current.state,label:current.name});await load();}catch(e){setError(apiError(e));}finally{setBusy(false);}}; return <section className='page'><div className='hero'><div><span className='kicker'>PRIVATE WATCHLIST</span><h2>Provider change intelligence</h2><p>Track material public-data changes and keep them tied to the right provider.</p></div><div className='hero-actions'><button className='primary' disabled={busy} onClick={()=>void toggle()}><Bell size={15}/>{records.some(r=>r.ccn===current.ccn)?'Remove focus provider':'Watch focus provider'}</button></div></div>{error&&<div className='alert'><AlertTriangle size={16}/>{error}</div>}<div className='grid-2'><div className='panel'><div className='panel-head'><div><span className='kicker'>{records.length} WATCHED</span><h3>Provider watchlist</h3></div></div>{records.length?records.map(row=><div className='watch-row' key={row.id}><button onClick={()=>onOpen(row.ccn,row.state)}><span className='rank'><Bell size={14}/></span><span><b>{row.label}</b><small>{row.state} · CCN {row.ccn}</small></span><em>{row.monitor?.lastStatus||'MONITORING'}</em></button></div>):<p className='empty'>No providers watched yet.</p>}</div><div className='panel'><div className='panel-head'><div><span className='kicker'>{alerts.length} ALERTS</span><h3>Change ledger</h3></div></div>{alerts.length?alerts.map(row=><div className='change-list' key={row.id}><div><span>{row.severity||'CHANGE'}</span><p><b>{row.providerLabel}</b>{row.summary}</p></div></div>):<p className='empty'>No provider changes detected.</p>}</div></div></section>; }
++function WinLossPage({ user, provider, counties, onSignIn }: { user: User | null; provider: Provider; counties: AnyRow[]; onSignIn: () => void }) { const [records,setRecords]=useState<AnyRow[]>([]),[summary,setSummary]=useState<AnyRow>({}),[account,setAccount]=useState(''),[outcome,setOutcome]=useState('Win'),[reason,setReason]=useState('Relationship'),[busy,setBusy]=useState(false); const load=async()=>{const r=await api.get(`/api/winloss?ccn=${provider.ccn}`);setRecords(r.data.records||[]);setSummary(r.data.summary||{});}; useEffect(()=>{if(user)void load();},[user?.userId,provider.ccn]); const save=async()=>{if(!user)return onSignIn();if(!account.trim())return;setBusy(true);try{await api.post('/api/winloss',{providerCcn:provider.ccn,date:today(),outcome,account,reason,county:counties[0]?.name||'',accountType:'Other',notes:'',estimatedMonthlyReferrals:0});setAccount('');await load();}finally{setBusy(false);}}; return <section className='page'><div className='hero'><div><span className='kicker'>PRIVATE FIELD INTELLIGENCE · {provider.name}</span><h2>Win / Loss</h2><p>Turn field outcomes into a usable pattern, not a stack of anecdotes.</p></div></div><div className='metrics'><Metric icon={Trophy} label='Win rate' value={pct(summary.winRate)} sub={`${num(summary.total)} decisions`}/><Metric icon={CheckCircle2} label='Wins' value={num(summary.wins)} sub={summary.topWinReason||'Not enough data'}/><Metric icon={X} label='Losses' value={num(summary.losses)} sub={summary.topLossReason||'Not enough data'}/><Metric icon={Users} label='Monthly referrals won' value={num(summary.estimatedMonthlyWon)} sub='Estimated'/></div><div className='grid-2'><div className='panel'><div className='panel-head'><div><span className='kicker'>RECORD OUTCOME</span><h3>Add field intelligence</h3></div></div><div className='form-grid'><label className='field wide'><span>Account</span><input value={account} onChange={e=>setAccount(e.target.value)} placeholder='Account or referral source'/></label><label className='field'><span>Outcome</span><select value={outcome} onChange={e=>setOutcome(e.target.value)}><option>Win</option><option>Loss</option></select></label><label className='field'><span>Primary reason</span><input value={reason} onChange={e=>setReason(e.target.value)}/></label><button className='primary wide' disabled={busy||!account.trim()} onClick={()=>void save()}><Save size={15}/>Save outcome</button></div></div><div className='panel'><div className='panel-head'><div><span className='kicker'>DECISION HISTORY</span><h3>Latest outcomes</h3></div></div><div className='entity-list'>{records.length?records.map(row=><div key={row.id}><span><b>{row.account}</b><small>{row.date} · {row.reason}</small></span><em>{row.outcome}</em></div>):<p className='empty'>No outcomes recorded for this provider.</p>}</div></div></div></section>; }
++function Metric({ icon: Icon, label, value, sub }: { icon: typeof Users; label: string; value: string; sub: string }) { return <div className='metric'><Icon size={17}/><span>{label}</span><b>{value}</b><small>{sub}</small></div>; }
++function Launch({ icon: Icon, label, note, onClick }: { icon: typeof Home; label: string; note: string; onClick: () => void }) { return <button className='launch-card' onClick={onClick}><Icon size={20}/><b>{label}</b><p>{note}</p></button>; }
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/ReferralMarket.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/ReferralMarket.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa414d013ae1dc82c72229e5de1b3b37cc8f7c62
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/ReferralMarket.tsx
+@@ -0,0 +1,40 @@
++import { useEffect, useMemo, useState } from 'react';
++import { AlertTriangle, Building2, LoaderCircle, Stethoscope, UserRoundSearch } from 'lucide-react';
++import { api } from './api';
++import type { AnyRow, DashboardData } from './types';
++import { apiError, money, num, pct } from './utils';
++
++export default function ReferralMarket({ state, stateName, market }: { state: string; stateName: string; market: DashboardData }) {
++  const [view, setView] = useState<'hospitals'|'snfs'|'physicians'>('hospitals');
++  const [physicians, setPhysicians] = useState<AnyRow[]>([]);
++  const [physicianMeta, setPhysicianMeta] = useState<AnyRow>({});
++  const [physicianLoading, setPhysicianLoading] = useState(false);
++  const [hospital, setHospital] = useState<AnyRow | null>(null);
++  const [hospitalLoading, setHospitalLoading] = useState(false);
++  const [physician, setPhysician] = useState<AnyRow | null>(null);
++  const [physicianDetailLoading, setPhysicianDetailLoading] = useState(false);
++  const [error, setError] = useState('');
++
++  useEffect(() => { setPhysicians([]); setPhysicianMeta({}); setHospital(null); setPhysician(null); setError(''); }, [state]);
++  useEffect(() => {
++    if (view !== 'physicians' || physicians.length || physicianLoading) return;
++    setPhysicianLoading(true);
++    void api.get(`/api/physicians/${encodeURIComponent(state)}`).then((response) => { setPhysicians(response.data.physicians || []); setPhysicianMeta(response.data); }).catch((requestError) => setError(apiError(requestError, 'Clinician opportunity could not be loaded.'))).finally(() => setPhysicianLoading(false));
++  }, [view, state, physicians.length, physicianLoading]);
++
++  const hospitals = useMemo(() => [...(market.hospitals || [])].sort((a, b) => String(a.name).localeCompare(String(b.name))), [market.hospitals]);
++  const snfs = useMemo(() => [...(market.snfs || [])].sort((a, b) => Number(b.score ?? -1) - Number(a.score ?? -1)), [market.snfs]);
++  const openHospital = async (ccn: string) => { setHospitalLoading(true); setError(''); try { const response = await api.get(`/api/hospital/${encodeURIComponent(ccn)}`); setHospital(response.data); } catch (requestError) { setError(apiError(requestError, 'Hospital detail could not be loaded.')); } finally { setHospitalLoading(false); } };
++  const openPhysician = async (npi: string) => { setPhysicianDetailLoading(true); setError(''); try { const response = await api.get(`/api/physician/${encodeURIComponent(npi)}`); setPhysician(response.data); } catch (requestError) { setError(apiError(requestError, 'Physician 360 could not be loaded.')); } finally { setPhysicianDetailLoading(false); } };
++
++  return <section className='page'>
++    <div className='hero'><div><span className='kicker'>REFERRAL MARKET · {stateName.toUpperCase()}</span><h2>Follow the accounts that can change the referral conversation.</h2><p>Hospitals, SNFs and serious-illness clinicians are prospecting and education context. Volume does not establish patient-level hospice eligibility.</p></div><div className='segmented'><button className={view === 'hospitals' ? 'active' : ''} onClick={() => setView('hospitals')}>Hospitals</button><button className={view === 'snfs' ? 'active' : ''} onClick={() => setView('snfs')}>SNFs</button><button className={view === 'physicians' ? 'active' : ''} onClick={() => setView('physicians')}>Physicians</button></div></div>
++    {error && <div className='alert'><AlertTriangle size={16}/>{error}</div>}
++
++    {view === 'hospitals' && <div className='grid-2'><div className='panel'><div className='panel-head'><div><span className='kicker'>{hospitals.length} HOSPITALS</span><h3>Acute referral market</h3><p>Open a facility to inspect CMS service-area and inpatient DRG context.</p></div><Building2 size={18}/></div><div className='rank-table'>{hospitals.map((row: AnyRow, index) => <button key={row.ccn} onClick={() => void openHospital(row.ccn)}><span className='rank'>{String(index + 1).padStart(2, '0')}</span><span><b>{row.name}</b><small>{row.city} · {row.county || 'County NR'} · CCN {row.ccn}</small></span><em>{row.rating ? `${row.rating} rating` : 'OPEN'}</em></button>)}</div></div><div className='panel sticky-detail'>{hospitalLoading ? <p className='loading'><LoaderCircle className='spin' size={18}/>Loading hospital evidence...</p> : hospital ? <><div className='panel-head'><div><span className='kicker'>HOSPITAL 360</span><h3>{hospital.hospital?.name}</h3><p>{hospital.hospital?.city}, {hospital.hospital?.state} · CCN {hospital.hospital?.ccn}</p></div></div><div className='kpi-grid'><div><span>Service-area cases</span><b>{num(hospital.summary?.totalCases)}</b></div><div><span>Inpatient discharges</span><b>{num(hospital.summary?.totalInpatientDischarges)}</b></div><div><span>Serious-illness DRG discharges</span><b>{num(hospital.summary?.hospiceRelevantDischarges)}</b></div><div><span>Serious-illness share</span><b>{pct(hospital.summary?.hospiceRelevantSharePct)}</b></div><div><span>Service-area days</span><b>{num(hospital.summary?.totalDays)}</b></div><div><span>Service-area charges</span><b>{money(hospital.summary?.totalCharges)}</b></div></div><h4 className='subhead'>Hospice-relevant discharge-planning context</h4><div className='entity-list'>{(hospital.hospiceRelevant || []).slice(0, 18).map((row: AnyRow) => <div key={`${row.drg}-${row.description}`}><span><b>{row.description}</b><small>DRG {row.drg}</small></span><em>{num(row.discharges)} discharges</em></div>)}</div><p className='guardrail'>Serious-illness DRGs are discharge-planning context. They do not establish hospice eligibility for any patient.</p></> : <p className='empty'>Select a hospital to inspect its public Medicare referral context.</p>}</div></div>}
++
++    {view === 'snfs' && <div className='panel'><div className='panel-head'><div><span className='kicker'>{snfs.length} SKILLED NURSING FACILITIES</span><h3>SNF opportunity board</h3><p>Confidence-adjusted prospecting priority using reported resident census and certified beds.</p></div><Building2 size={18}/></div><div className='simple-table'><div className='simple-row header'><span>Facility</span><span>Residents</span><span>Beds</span><span>Occupancy</span><span>Rating</span><span>Opportunity</span></div>{snfs.map((row: AnyRow) => <div className='simple-row six-cols' key={row.ccn}><span><b>{row.name}</b><small>{row.city} · {row.county} · CCN {row.ccn}</small></span><span>{num(row.residents,1)}</span><span>{num(row.beds)}</span><span>{pct(row.occupancyPct)}</span><span>{num(row.rating,1)}</span><span><strong>{num(row.score)}/100</strong><small>{num(row.opportunityCoveragePct)}% evidence</small></span></div>)}</div><p className='guardrail'>Facility census is prospecting scale. It is never evidence that an individual resident qualifies for hospice.</p></div>}
++
++    {view === 'physicians' && <div className='grid-2'><div className='panel'><div className='panel-head'><div><span className='kicker'>PHYSICIAN OPPORTUNITY 3.0</span><h3>{stateName} clinician priorities</h3><p>Specialty-peer Medicare panel, serious-illness burden, service intensity and hospice relevance.</p></div>{physicianLoading ? <LoaderCircle className='spin' size={18}/> : <UserRoundSearch size={18}/>}</div>{physicianMeta?.partial && <div className='scope-note'><AlertTriangle size={14}/>The live state clinician scan hit its configured row ceiling. The ranking is scoped until the checkpointed warehouse completes.</div>}<div className='rank-table'>{physicians.slice(0, 100).map((row, index) => <button key={row.npi} onClick={() => void openPhysician(row.npi)}><span className='rank'>{String(index + 1).padStart(2, '0')}</span><span><b>{row.name}</b><small>{row.specialty} · {row.city} · {row.county || row.zip} · {num(row.beneficiaries)} Medicare beneficiaries</small></span><em>{num(row.score)}/100</em></button>)}{physicianLoading && !physicians.length && <p className='loading'><LoaderCircle className='spin' size={18}/>Building state clinician ranking...</p>}</div></div><div className='panel sticky-detail'>{physicianDetailLoading ? <p className='loading'><LoaderCircle className='spin' size={18}/>Loading Physician 360...</p> : physician ? <><div className='panel-head'><div><span className='kicker'>PHYSICIAN 360</span><h3>{physician.profile?.name || physician.npi}</h3><p>{physician.profile?.specialty || 'Specialty NR'} · NPI {physician.npi}</p></div><Stethoscope size={18}/></div><div className='kpi-grid'><div><span>Medicare beneficiaries</span><b>{num(physician.profile?.beneficiaries)}</b></div><div><span>Services</span><b>{num(physician.summary?.totalServices)}</b></div><div><span>Hospice refer eligibility</span><b>{physician.eligibility?.hospice?.raw || 'NR'}</b></div><div><span>Part B eligibility</span><b>{physician.eligibility?.partB?.raw || 'NR'}</b></div></div><h4 className='subhead'>Top provider + service rows</h4><div className='entity-list'>{(physician.services || []).slice(0, 20).map((row: AnyRow, index: number) => <div key={`${row.hcpcs}-${row.placeOfService}-${index}`}><span><b>{row.description || row.hcpcs}</b><small>HCPCS {row.hcpcs} · POS {row.placeOfService}</small></span><em>{num(row.services)} services</em></div>)}</div><p className='guardrail'>{physician.caveat}</p></> : <p className='empty'>Select a clinician to inspect Provider + Service and Order/Referring evidence.</p>}</div></div>}
++  </section>;
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/TerritoryView.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/TerritoryView.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..8afafacf8e39d6bfd5e036ae4b91c5144d158d56
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/TerritoryView.tsx
+@@ -0,0 +1,68 @@
++import { useEffect, useMemo, useState } from 'react';
++import { AlertTriangle, History, LoaderCircle, LockKeyhole, MapPinned, Save, ShieldCheck, Trash2 } from 'lucide-react';
++import { api } from './api';
++import type { AnyRow, County, DashboardData, Provider, User } from './types';
++import { apiError, num, pct } from './utils';
++
++type Point = [number, number];
++const collect = (value: any, out: Point[]) => { if (!Array.isArray(value)) return; if (typeof value[0] === 'number' && typeof value[1] === 'number') { out.push([Number(value[0]), Number(value[1])]); return; } value.forEach((child: any) => collect(child, out)); };
++const blankTruth = { serviceability: 'Unknown', travelReady: 'Unknown', staffingReady: 'Unknown', sameDayReady: 'Unknown', branch: '', owner: '', driveMinutes: '', relationshipContext: 'Unknown', note: '' };
++
++export default function TerritoryView({ state, stateName, market, provider, user, onSignIn }: { state: string; stateName: string; market: DashboardData; provider: Provider; user: User | null; onSignIn: () => void }) {
++  const [deployment, setDeployment] = useState<AnyRow | null>(null);
++  const [map, setMap] = useState<AnyRow | null>(null);
++  const [county, setCounty] = useState<AnyRow | null>(null);
++  const [selectedFips, setSelectedFips] = useState('');
++  const [form, setForm] = useState<AnyRow>(blankTruth);
++  const [history, setHistory] = useState<AnyRow[]>([]);
++  const [loading, setLoading] = useState(false);
++  const [saving, setSaving] = useState(false);
++  const [error, setError] = useState('');
++  const ccn = provider.ccn;
++
++  const loadDeployment = async () => {
++    const route = user ? '/api/territory-deployment-private' : '/api/territory-deployment';
++    const response = await api.get(`${route}/${encodeURIComponent(ccn)}?state=${encodeURIComponent(state)}`);
++    setDeployment(response.data);
++    return response.data;
++  };
++  useEffect(() => {
++    let live = true; setLoading(true); setError(''); setCounty(null); setSelectedFips('');
++    void Promise.allSettled([api.get(`/api/territory-map/${encodeURIComponent(state)}`), api.get(`${user ? '/api/territory-deployment-private' : '/api/territory-deployment'}/${encodeURIComponent(ccn)}?state=${encodeURIComponent(state)}`)])
++      .then((results) => { if (!live) return; if (results[0].status === 'fulfilled') setMap(results[0].value.data); if (results[1].status === 'fulfilled') setDeployment(results[1].value.data); const failures = results.filter((result) => result.status === 'rejected').length; if (failures) setError(`${failures} territory input${failures === 1 ? '' : 's'} could not be loaded. Remaining territory evidence is still available.`); })
++      .finally(() => live && setLoading(false));
++    return () => { live = false; };
++  }, [ccn, state, user?.userId]);
++
++  const byFips = useMemo(() => new Map<string, AnyRow>((deployment?.markets || []).map((row: AnyRow) => [String(row.fips), row])), [deployment]);
++  const projection = useMemo(() => {
++    const features = map?.features || [], points: Point[] = []; features.forEach((feature: AnyRow) => collect(feature.geometry?.coordinates, points)); if (!points.length) return null;
++    const rawLons = points.map(([lon]) => lon), crosses = Math.max(...rawLons) - Math.min(...rawLons) > 180, lonValue = (value: number) => crosses && value < 0 ? value + 360 : value, lons = rawLons.map(lonValue), lats = points.map(([,lat]) => lat), minLon = Math.min(...lons), maxLon = Math.max(...lons), minLat = Math.min(...lats), maxLat = Math.max(...lats), width = Math.max(.001,maxLon-minLon), height = Math.max(.001,maxLat-minLat), pad=24, scale=Math.min((1000-pad*2)/width,(610-pad*2)/height), xOffset=(1000-width*scale)/2, yOffset=(610-height*scale)/2, point=([lon,lat]:Point):Point=>[xOffset+(lonValue(lon)-minLon)*scale,610-(yOffset+(lat-minLat)*scale)], ring=(items:Point[])=>items.map((item,index)=>{const[x,y]=point(item);return`${index?'L':'M'}${x.toFixed(1)} ${y.toFixed(1)}`;}).join(' ')+' Z', polygon=(coords:Point[][])=>coords.map(ring).join(' '), path=(feature:AnyRow)=>feature.geometry.type==='Polygon'?polygon(feature.geometry.coordinates as Point[][]):(feature.geometry.coordinates as Point[][][]).map(polygon).join(' ');
++    return { path };
++  }, [map]);
++
++  const posture = (row?: AnyRow) => { if (!row) return 'unscored'; const gate = String(row.effectiveGate || row.gate || '').toUpperCase(); if (gate === 'HOLD') return 'hold'; if (row.served || row.motion === 'DENSIFY') return 'densify'; if (row.motion === 'ADJACENT EXPANSION' || row.adjacentToServedFootprint) return 'adjacent'; return 'remote'; };
++  const selectCounty = async (fips: string) => { setSelectedFips(fips); const row = byFips.get(fips); if (row?.operationalTruth) setForm({ ...blankTruth, ...row.operationalTruth, driveMinutes: row.operationalTruth.driveMinutes ?? '' }); else setForm(blankTruth); try { const response = await api.get(`/api/county/${encodeURIComponent(fips)}`); setCounty(response.data); } catch (requestError) { setError(apiError(requestError, 'County detail could not be loaded.')); } if (user) void loadHistory(fips); };
++  const loadHistory = async (fips = selectedFips) => { if (!user || !fips) return; try { const response = await api.get(`/api/operational-truth-history/${encodeURIComponent(fips)}?ccn=${encodeURIComponent(ccn)}`); setHistory(response.data.records || []); } catch { setHistory([]); } };
++  const saveTruth = async () => { if (!user) { onSignIn(); return; } if (!selectedFips) return; const area = byFips.get(selectedFips) || market.counties.find((row) => row.fips === selectedFips); setSaving(true); setError(''); try { await api.put(`/api/operational-truth/${encodeURIComponent(selectedFips)}`, { providerCcn: ccn, areaName: area?.name || county?.county || selectedFips, ...form, driveMinutes: form.driveMinutes === '' ? null : Number(form.driveMinutes) }); await loadDeployment(); await loadHistory(); } catch (requestError) { setError(apiError(requestError, 'Unable to save private operating evidence.')); } finally { setSaving(false); } };
++  const deleteTruth = async () => { if (!user || !selectedFips) return; setSaving(true); try { await api.delete(`/api/operational-truth/${encodeURIComponent(selectedFips)}?ccn=${encodeURIComponent(ccn)}`); setForm(blankTruth); await loadDeployment(); await loadHistory(); } catch (requestError) { setError(apiError(requestError, 'Unable to clear operating evidence.')); } finally { setSaving(false); } };
++  const selectedMarket = selectedFips ? byFips.get(selectedFips) : null;
++
++  return <section className='page'>
++    <div className='hero'><div><span className='kicker'>TERRITORY DEPLOYMENT 3.0 · {stateName.toUpperCase()}</span><h2>See where the provider operates, where adjacency matters, and where operating truth changes the decision.</h2><p>{provider.name} · CCN {ccn}. Public geography screens the market. Internal readiness controls whether a screen becomes deployment.</p></div><MapPinned size={24}/></div>
++    {error && <div className='alert'><AlertTriangle size={16}/>{error}</div>}
++    <div className='panel territory-map-panel'><div className='panel-head'><div><span className='kicker'>GEOGRAPHIC TERRITORY VIEW</span><h3>{stateName} county / equivalent deployment map</h3><p>County color is deployment posture, not patient eligibility, licensure or guaranteed opportunity.</p></div>{loading ? <LoaderCircle className='spin' size={18}/> : <ShieldCheck size={18}/>}</div><div className='map-legend'><span className='densify'><i/>Densify</span><span className='adjacent'><i/>Adjacent expansion</span><span className='hold'><i/>Hold / blocked</span><span className='remote'><i/>Remote screen</span><span className='unscored'><i/>Not in deployment set</span></div>{projection ? <div className='map-shell'><svg viewBox='0 0 1000 610' role='img' aria-label={`${stateName} territory map`}>{(map?.features || []).map((feature: AnyRow) => { const row = byFips.get(feature.geoid); return <path key={feature.geoid} d={projection.path(feature)} className={`map-county ${posture(row)} ${selectedFips === feature.geoid ? 'selected' : ''}`} tabIndex={0} role='button' onClick={() => void selectCounty(feature.geoid)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') void selectCounty(feature.geoid); }}><title>{feature.name} · {row ? `${row.motion || row.gate || 'screen'} · ${num(row.score)}/100` : 'not currently in provider deployment set'}</title></path>; })}</svg></div> : <div className='empty'>{loading ? 'Loading Census county geometry...' : 'Census geometry was not available. The ranked territory board remains usable below.'}</div>}<p className='guardrail'>{map?.source?.label || 'U.S. Census TIGERweb county/equivalent geometry'} · boundaries provide geographic context only.</p></div>
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>VISUAL DEPLOYMENT BOARD</span><h3>Densify, adjacent expansion, or hold</h3></div><span className='pill'>{num(deployment?.markets?.length)} MARKETS</span></div><div className='deployment-lanes'>{['DENSIFY','ADJACENT EXPANSION','REMOTE SCREEN'].map((motion) => <div key={motion}><h4>{motion}</h4>{(deployment?.markets || []).filter((row: AnyRow) => row.motion === motion || (motion === 'REMOTE SCREEN' && !['DENSIFY','ADJACENT EXPANSION'].includes(row.motion))).slice(0, 12).map((row: AnyRow) => <button key={row.fips} className={selectedFips === row.fips ? 'selected' : ''} onClick={() => void selectCounty(row.fips)}><span><b>{row.name}</b><small>{row.effectiveGate || row.gate} · {num(row.evidenceCoveragePct)}% evidence</small></span><em>{num(row.score)}/100</em></button>)}</div>)}</div><p className='guardrail'>{deployment?.caveat || 'Territory deployment requires serviceability, travel, staffing and intake validation.'}</p></div>
++
++    <div className='grid-2'>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>COUNTY ECONOMICS</span><h3>{county?.county || 'Select a county / equivalent'}</h3></div></div>{county ? <div className='kpi-grid'><div><span>Total Medicare</span><b>{num(county.enrollment?.totalMedicare)}</b></div><div><span>Aged Medicare</span><b>{num(county.enrollment?.aged)}</b></div><div><span>Hospice users</span><b>{num(county.hospice?.users)}</b></div><div><span>Hospice penetration</span><b>{pct(county.hospice?.penetrationPct)}</b></div><div><span>Covered days / 1K</span><b>{num(county.hospice?.coveredDaysPer1000,1)}</b></div><div><span>Medicare payment</span><b>{county.hospice?.payment === null || county.hospice?.payment === undefined ? 'NR' : new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(county.hospice.payment)}</b></div></div> : <p className='empty'>Select geography from the map, board or market table.</p>}<p className='guardrail'>County hospice-use measures size public Medicare context. They do not prove unmet need or individual eligibility.</p></div>
++      <div className='panel'><div className='panel-head'><div><span className='kicker'>INTERNAL OPERATIONAL TRUTH · PRIVATE</span><h3>{selectedMarket?.name || county?.county || 'Select a territory'}</h3><p>Public evidence proposes the motion. Verified internal facts create the effective gate.</p></div>{user ? <ShieldCheck size={18}/> : <LockKeyhole size={18}/>}</div>{!user ? <div className='auth-lock'><LockKeyhole size={24}/><div><b>Sign in to add operating reality.</b><p>Serviceability, drive time, staffing, same-day admission capacity and relationship context remain private.</p></div><button className='primary' onClick={onSignIn}>Sign in</button></div> : selectedFips ? <><div className='operational-gate'><span><small>PUBLIC GATE</small><b>{selectedMarket?.publicGate || selectedMarket?.gate || 'NR'}</b></span><span><small>EFFECTIVE GATE</small><b>{selectedMarket?.effectiveGate || selectedMarket?.gate || 'NR'}</b></span><span><small>INTERNAL EVIDENCE</small><b>{selectedMarket?.operationalVerification || 'UNVERIFIED'}</b></span></div><div className='form-grid'><Field label='Serviceability'><select value={form.serviceability} onChange={(event) => setForm({...form,serviceability:event.target.value})}><option>Unknown</option><option>Confirmed</option><option>Conditional</option><option>Hold</option></select></Field><Tri label='Within travel standard' value={form.travelReady} onChange={(value) => setForm({...form,travelReady:value})}/><Tri label='Staffing ready' value={form.staffingReady} onChange={(value) => setForm({...form,staffingReady:value})}/><Tri label='Same-day admission ready' value={form.sameDayReady} onChange={(value) => setForm({...form,sameDayReady:value})}/><Field label='Drive time / minutes'><input type='number' min='0' max='600' value={form.driveMinutes} onChange={(event) => setForm({...form,driveMinutes:event.target.value})}/></Field><Field label='Branch / hub'><input value={form.branch} onChange={(event) => setForm({...form,branch:event.target.value})}/></Field><Field label='Territory owner'><input value={form.owner} onChange={(event) => setForm({...form,owner:event.target.value})}/></Field><Field label='Relationship context'><select value={form.relationshipContext} onChange={(event) => setForm({...form,relationshipContext:event.target.value})}><option>Unknown</option><option>Open</option><option>Existing</option><option>Restricted</option></select></Field><label className='field wide'><span>Operating note · no patient PHI</span><textarea value={form.note} onChange={(event) => setForm({...form,note:event.target.value})}/></label></div><div className='row-actions'><button className='primary' onClick={() => void saveTruth()} disabled={saving}><Save size={14}/>{saving ? 'Saving...' : 'Save internal evidence'}</button>{selectedMarket?.operationalTruth && <button onClick={() => void deleteTruth()} disabled={saving}><Trash2 size={14}/>Clear evidence</button>}</div><details className='history-panel'><summary><History size={14}/>Operating evidence history <span>{history.length} changes</span></summary><div>{history.slice(0,10).map((row) => <article key={row.id}><b>{row.action} · {(row.changedFields || []).join(', ')}</b><small>{new Date(row.createdAt).toLocaleString()}</small></article>)}{!history.length && <p>No stored changes for this territory yet.</p>}</div></details></> : <p className='empty'>Select a county before entering internal operating evidence.</p>}</div>
++    </div>
++
++    <div className='panel'><div className='panel-head'><div><span className='kicker'>{market.counties.length} COUNTY / EQUIVALENT MARKETS</span><h3>{stateName} territory priorities</h3></div></div><div className='simple-table territory-table'><div className='simple-row header'><span>County</span><span>Aged Medicare</span><span>SNF residents</span><span>Hospice HQ*</span><span>Demand signal</span></div>{market.counties.map((row: County) => <button className='simple-row' key={row.fips} onClick={() => void selectCounty(row.fips)}><span><b>{row.name}</b><small>FIPS {row.fips} · {row.enrollmentPeriod || 'period NR'}</small></span><span>{num(row.agedMedicare)}</span><span>{num(row.snfResidents)}</span><span>{num(row.hospices)}</span><span><strong>{num(row.opportunity)}</strong></span></button>)}</div><p className='guardrail'>Hospice headquarters are context, not service-area competition. The observed service footprint comes from CMS patient-service ZIP evidence.</p></div>
++  </section>;
++}
++
++function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className='field'><span>{label}</span>{children}</label>; }
++function Tri({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <Field label={label}><select value={value} onChange={(event) => onChange(event.target.value)}><option>Unknown</option><option>Yes</option><option>No</option></select></Field>; }
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/TrustedMedicarePlatform.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/TrustedMedicarePlatform.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..21261ee1337f16317980eaac68c8b843b4a0faae
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/TrustedMedicarePlatform.tsx
+@@ -0,0 +1,26 @@
++import { useEffect, useRef, useState } from "react";
++import { createPortal } from "react-dom";
++import NationalDashboard from "./NationalDashboard";
++import platformCss from "./platform.css?raw";
++import enhancementCss from "./platform-enhancements.css?raw";
++
++export default function TrustedMedicarePlatform() {
++  const hostRef = useRef<HTMLDivElement>(null);
++  const [mount, setMount] = useState<ShadowRoot | null>(null);
++
++  useEffect(() => {
++    if (!hostRef.current) return;
++    const root = hostRef.current.shadowRoot || hostRef.current.attachShadow({ mode: "open" });
++    if (!root.querySelector("style[data-medicare-platform]")) {
++      const style = document.createElement("style");
++      style.dataset.medicarePlatform = "true";
++      style.textContent = platformCss
++        .replace(":root", ":host")
++        .replace("body{margin:0;min-width:320px;min-height:100vh;", ":host{display:block;min-width:0;min-height:100vh;") + enhancementCss;
++      root.appendChild(style);
++    }
++    setMount(root);
++  }, []);
++
++  return <div ref={hostRef} data-testid="trusted-medicare-platform" className="min-h-screen w-full">{mount ? createPortal(<NationalDashboard />, mount) : null}</div>;
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/api.test.ts b/artifacts/spartan-coaching/src/components/medicare-platform/api.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4df1de9b45e97762ebf5f1ce4f55ceb736012751
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/api.test.ts
+@@ -0,0 +1,29 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { api } from "./api";
++
++describe("Medicare Intelligence API client", () => {
++  afterEach(() => vi.unstubAllGlobals());
++
++  it("routes imported platform calls through the authenticated Spartan bridge", async () => {
++    const request = vi.fn().mockResolvedValue(new Response(JSON.stringify({ state: "OK" }), {
++      status: 200,
++      headers: { "Content-Type": "application/json" },
++    }));
++    vi.stubGlobal("fetch", request);
++
++    await expect(api.get("/api/dashboard?state=OK")).resolves.toEqual({ data: { state: "OK" } });
++    expect(request).toHaveBeenCalledWith("/api/v1/medicare/dashboard?state=OK", expect.objectContaining({ credentials: "include" }));
++  });
++
++  it("preserves the runtime error body and status for trustworthy recovery messaging", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: "CMS source unavailable" }), {
++      status: 503,
++      headers: { "Content-Type": "application/json" },
++    })));
++
++    await expect(api.get("/api/provider/371653")).rejects.toMatchObject({
++      message: "CMS source unavailable",
++      response: { status: 503, data: { error: "CMS source unavailable" } },
++    });
++  });
++});
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/api.ts b/artifacts/spartan-coaching/src/components/medicare-platform/api.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b06c45a2d7a6ea483a69ac746c186446d1b41cb
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/api.ts
+@@ -0,0 +1,29 @@
++const API_ROOT = "/api/v1/medicare";
++
++type ApiResponse<T = any> = { data: T };
++
++async function request<T>(method: string, sourcePath: string, body?: unknown): Promise<ApiResponse<T>> {
++  const path = sourcePath.startsWith("/api/") ? sourcePath.slice(4) : sourcePath;
++  const response = await fetch(`${API_ROOT}${path}`, {
++    method,
++    credentials: "include",
++    headers: body === undefined ? undefined : { "content-type": "application/json" },
++    body: body === undefined ? undefined : JSON.stringify(body),
++  });
++  const text = await response.text();
++  let data: any = null;
++  try { data = text ? JSON.parse(text) : null; } catch { data = { error: text || response.statusText }; }
++  if (!response.ok) {
++    const failure = new Error(typeof data?.error === "string" ? data.error : `Medicare Intelligence request failed (${response.status}).`) as Error & { response?: { status: number; data: unknown } };
++    failure.response = { status: response.status, data };
++    throw failure;
++  }
++  return { data: data as T };
++}
++
++export const api = {
++  get: <T = any>(path: string) => request<T>("GET", path),
++  post: <T = any>(path: string, body?: unknown) => request<T>("POST", path, body),
++  put: <T = any>(path: string, body?: unknown) => request<T>("PUT", path, body),
++  delete: <T = any>(path: string) => request<T>("DELETE", path),
++};
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.test.ts b/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..f1e2388182d45e16466c766f795dbddeea30dff5
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.test.ts
+@@ -0,0 +1,29 @@
++import { describe, expect, it } from "vitest";
++import { buildEvidenceAlignment, evidenceConfidence, solveGrowth } from "./intelligenceMath";
++
++describe("Medicare Intelligence decision math", () => {
++  it("solves the census-flow equation and converts admissions to referral pace", () => {
++    const result = solveGrowth({ currentAdc: 40, targetAdc: 50, losDays: 80, conversionPct: 50, horizonDays: 90 });
++    expect(result.projectedAdcWithoutAdmissions).toBeCloseTo(12.986, 2);
++    expect(result.admissionsPerMonth).toBeCloseTo(20.86, 1);
++    expect(result.referralsPerMonth).toBeCloseTo(result.admissionsPerMonth * 2, 6);
++  });
++
++  it("clamps unsafe assumptions and never produces negative admissions", () => {
++    const result = solveGrowth({ currentAdc: 100, targetAdc: 0, losDays: 0, conversionPct: 0 });
++    expect(result.losDays).toBe(1);
++    expect(result.admissionsPerDay).toBe(0);
++    expect(Number.isFinite(result.referralsPerMonth)).toBe(true);
++  });
++
++  it("penalizes materially misaligned evidence vintages", () => {
++    const alignment = buildEvidenceAlignment(
++      { history: [{ year: 2020 }], periods: { cahpsDate: "2024", qualityDate: "2024" } },
++      null,
++      [{ label: "Medicare Monthly Enrollment", freshness: "2024" }],
++    );
++    expect(alignment).toMatchObject({ status: "PERIOD MISMATCH", spanYears: 4, confidencePenalty: 8 });
++    const confidence = evidenceConfidence({ dataQuality: { status: "healthy" } }, { confidence: 90 }, null, { dataQuality: { status: "healthy" } }, {}, alignment);
++    expect(confidence.adjusted).toBe(confidence.base - 8);
++  });
++});
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.ts b/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b1efc0a820025a9765fbc6fa3dfcc862ddd2272
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/intelligenceMath.ts
+@@ -0,0 +1,100 @@
++import type { AnyRow } from './types';
++import { clamp, finite } from './utils';
++
++export type GrowthInputs = {
++  currentAdc: number;
++  targetAdc: number;
++  losDays: number;
++  conversionPct: number;
++  horizonDays?: number;
++};
++
++export type GrowthResult = {
++  currentAdc: number;
++  targetAdc: number;
++  horizonDays: number;
++  losDays: number;
++  survival: number;
++  projectedAdcWithoutAdmissions: number;
++  netGrowthRequired: number;
++  admissionsPerDay: number;
++  admissionsPerMonth: number;
++  referralsPerMonth: number;
++  referralsPerWeek: number;
++  referralsPerWorkday: number;
++  formula: string;
++};
++
++export function solveGrowth(inputs: GrowthInputs): GrowthResult {
++  const currentAdc = Math.max(0, Number(inputs.currentAdc) || 0);
++  const targetAdc = Math.max(0, Number(inputs.targetAdc) || 0);
++  const losDays = Math.max(1, Number(inputs.losDays) || 1);
++  const conversionPct = clamp(Number(inputs.conversionPct) || 0, 1, 100);
++  const horizonDays = Math.max(1, Number(inputs.horizonDays) || 90);
++  const survival = Math.exp(-horizonDays / losDays);
++  const projectedAdcWithoutAdmissions = currentAdc * survival;
++  const denominator = losDays * (1 - survival);
++  const admissionsPerDay = denominator > 0 ? Math.max(0, (targetAdc - projectedAdcWithoutAdmissions) / denominator) : 0;
++  const admissionsPerMonth = admissionsPerDay * 30.4375;
++  const referralsPerMonth = admissionsPerMonth / (conversionPct / 100);
++  return {
++    currentAdc,
++    targetAdc,
++    horizonDays,
++    losDays,
++    survival,
++    projectedAdcWithoutAdmissions,
++    netGrowthRequired: Math.max(0, targetAdc - currentAdc),
++    admissionsPerDay,
++    admissionsPerMonth,
++    referralsPerMonth,
++    referralsPerWeek: referralsPerMonth / 4.345,
++    referralsPerWorkday: referralsPerMonth / 21.74,
++    formula: 'Target census = current census × e^(-horizon/LOS) + daily admissions × LOS × (1 - e^(-horizon/LOS)). Referrals = required admissions ÷ conversion rate.',
++  };
++}
++
++export type EvidenceAlignment = {
++  status: 'ALIGNED' | 'DIRECTIONALLY COMPARABLE' | 'PERIOD MISMATCH' | 'PARTIAL VINTAGE';
++  spanYears: number | null;
++  confidencePenalty: number;
++  sources: Array<{ name: string; period: string; year: number | null; core: boolean }>;
++  explanation: string;
++};
++
++const yearsIn = (value: unknown) => [...String(value ?? '').matchAll(/\b(20\d{2})\b/g)].map((match) => Number(match[1])).filter(Number.isFinite);
++const latestYear = (value: unknown) => { const years = yearsIn(value); return years.length ? Math.max(...years) : null; };
++const periodFromSource = (sources: AnyRow[], pattern: RegExp) => { const source = sources.find((row) => pattern.test(String(row.label || ''))); return String(source?.freshness || source?.temporal || source?.modified || source?.period || '').trim(); };
++
++export function buildEvidenceAlignment(detail: AnyRow | null, intelligence: AnyRow | null, marketSources: AnyRow[] = [], ssvi?: AnyRow | null, hcris?: AnyRow | null): EvidenceAlignment {
++  const pac = String(detail?.history?.at?.(-1)?.year || intelligence?.financial?.year || detail?.periods?.utilizationYears?.at?.(-1) || '').trim();
++  const cahps = String(detail?.periods?.cahpsDate || '').trim();
++  const quality = String(detail?.periods?.qualityDate || intelligence?.benchmarks?.find((row: AnyRow) => row.period)?.period || '').trim();
++  const enrollment = periodFromSource(marketSources, /Medicare Monthly Enrollment/i);
++  const hcrisPeriod = String(hcris?.latest?.fiscalEnd || hcris?.detail?.fiscalEnd || '').trim();
++  const sources = [
++    { name: 'PAC utilization', period: pac || 'Not resolved', year: latestYear(pac), core: true },
++    { name: 'CAHPS family experience', period: cahps || 'Not resolved', year: latestYear(cahps), core: true },
++    { name: 'Hospice quality / HCI', period: quality || 'Not resolved', year: latestYear(quality), core: true },
++    { name: 'Monthly Medicare enrollment', period: enrollment || 'Not resolved', year: latestYear(enrollment), core: true },
++    { name: 'SSVI', period: ssvi ? 'FY2025' : 'Not loaded in this context', year: ssvi ? 2025 : null, core: false },
++    { name: 'HCRIS cost report', period: hcrisPeriod || 'Not loaded in this context', year: latestYear(hcrisPeriod), core: false },
++  ];
++  const coreYears = sources.filter((source) => source.core && source.year !== null).map((source) => source.year as number);
++  if (coreYears.length < 2) return { status: 'PARTIAL VINTAGE', spanYears: null, confidencePenalty: 0, sources, explanation: 'Fewer than two core evidence periods resolve to a calendar year. Missing evidence already lowers evidence coverage, so no second speculative time penalty is applied.' };
++  const spanYears = Math.max(...coreYears) - Math.min(...coreYears);
++  if (spanYears <= 1) return { status: 'ALIGNED', spanYears, confidencePenalty: 0, sources, explanation: 'Core decision sources resolve within one calendar year of one another. No time-alignment penalty is applied.' };
++  if (spanYears === 2) return { status: 'DIRECTIONALLY COMPARABLE', spanYears, confidencePenalty: 4, sources, explanation: 'Core evidence spans two calendar years. Directional comparison remains usable, while composite decision confidence is reduced by 4 points.' };
++  return { status: 'PERIOD MISMATCH', spanYears, confidencePenalty: 8, sources, explanation: `Core evidence spans ${spanYears} calendar years. Composite decision confidence is reduced by 8 points until more closely aligned evidence is available.` };
++}
++
++export function evidenceConfidence(market: AnyRow, detail: AnyRow | null, geo: AnyRow | null, intel: AnyRow | null, physicianMeta: AnyRow, alignment: EvidenceAlignment) {
++  const score = (status: unknown) => status === 'healthy' ? 95 : status === 'limited' ? 70 : status === 'degraded' ? 35 : 60;
++  const marketConfidence = score(market?.dataQuality?.status);
++  const providerConfidence = finite(detail?.confidence) ?? score(detail?.dataQuality?.status);
++  const geographyConfidence = geo?.available === false ? 40 : geo ? Math.max(70, finite(geo.mappingCoveragePct) ?? 90) : 55;
++  const intelligenceConfidence = score(intel?.dataQuality?.status);
++  const physicianConfidence = physicianMeta?.partial ? 65 : physicianMeta?.physicians?.length ? 90 : 55;
++  const base = clamp(Math.round(marketConfidence * .25 + providerConfidence * .30 + geographyConfidence * .15 + intelligenceConfidence * .20 + physicianConfidence * .10));
++  return { base, adjusted: clamp(base - alignment.confidencePenalty) };
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css b/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..583a40be77f4db59c3c27b9281b8299a9756d584
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
+@@ -0,0 +1,83 @@
++:host {
++  --nav: #071827;
++  --nav2: #0d2b42;
++  --ink: #13283b;
++  --muted: #526b80;
++  --line: #d4e1e9;
++  --panel: #ffffff;
++  --accent: #087f86;
++  display: block;
++  color: var(--ink);
++  background: #eef4f7;
++  border: 1px solid #ccdae3;
++  border-radius: 20px;
++  overflow: clip;
++  box-shadow: 0 24px 70px rgba(8, 32, 50, .13);
++}
++
++.app-shell { grid-template-columns: 252px minmax(0, 1fr); min-height: 860px; }
++.sidebar { padding: 24px 16px; background: linear-gradient(180deg, #061827, #0b2b42 72%, #0c3448); }
++.brand { padding: 2px 8px 22px; gap: 12px; }
++.brand > span { width: 48px; height: 48px; border-radius: 14px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
++.brand b { font-size: 14px; letter-spacing: -.01em; }
++.brand small { font-size: 10px; color: #9db4c6; }
++.nav-group { margin-bottom: 16px; }
++.nav-group > span { padding: 7px 10px; font-size: 9px; }
++.nav-group button { min-height: 42px; border-radius: 11px; padding: 10px 11px; font-size: 12px; }
++.sidebar-footer > button { width: 100%; min-height: 40px; margin-top: 7px; border: 1px solid #2b526a; border-radius: 10px; color: #d8e7f1; background: #102f44; font-size: 11px; font-weight: 800; }
++.login-card { margin-top: 12px; display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid #2d566e; background: rgba(255,255,255,.055); }
++.login-card b, .login-card small { display: block; }
++.login-card b { font-size: 11px; color: #fff; }
++.login-card small { margin-top: 2px; font-size: 9px; color: #9eb4c4; }
++.topbar { min-height: 104px; padding: 13px 24px; gap: 18px; }
++.page-title span, .kicker { font-size: 9px; }
++.page-title h1 { font-size: 21px; }
++.topbar-workspace { margin-left: auto; display: flex; align-items: end; gap: 10px; min-width: min(560px, 48vw); }
++.market-picker { display: grid; gap: 4px; flex: 0 0 150px; }
++.market-picker > span { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
++.market-picker select { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 800; }
++.global-search { flex: 1 1 300px; }
++.global-search > label { min-height: 40px; }
++.topbar-actions button { min-height: 40px; font-size: 11px; }
++.context-bar { top: 104px; }
++.context-bar > div { padding: 12px 15px; }
++.context-bar small { font-size: 9px; }
++.context-bar b { font-size: 12px; }
++.context-bar em { font-size: 10px; }
++.page { padding: 24px 26px 48px; }
++.hero { padding: 25px 27px; margin-bottom: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(16, 49, 72, .07); }
++.hero h2 { font-size: 27px; margin: 6px 0 9px; }
++.hero p { font-size: 13px; line-height: 1.6; }
++.panel { border-radius: 15px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(16, 45, 67, .06); }
++.panel-head { padding: 18px 19px; }
++.panel-head h3 { font-size: 17px; }
++.panel-head p { font-size: 12px; }
++.metric { min-height: 126px; border-radius: 14px; padding: 17px; }
++.metric > span { font-size: 10px; }
++.metric > b { font-size: 23px; margin: 7px 0; }
++.metric > small { font-size: 10px; }
++.launch-card { min-height: 88px; border-radius: 14px; padding: 16px; }
++.launch-card b { font-size: 13px; }
++.launch-card p, .launch-card small { font-size: 10px; line-height: 1.5; }
++.rank-table b, .simple-row b, .entity-list b, .capability-list b { font-size: 12px; }
++.rank-table small, .simple-row small, .entity-list small, .capability-list small { font-size: 10px; }
++.rank-table > button, .watch-row > button:first-child { padding: 13px 15px; }
++.simple-row > span { padding: 13px 15px; font-size: 11px; }
++.field > span, .compare-picker > div label { font-size: 10px; }
++.field input, .field select, .field textarea, .compare-picker select { min-height: 42px; font-size: 12px; }
++.primary, .hero-actions button, .workspace-button { min-height: 42px; font-size: 11px; }
++.guardrail, .scope-note, .alert, .warning-strip { font-size: 10px; line-height: 1.6; }
++.empty, .loading { font-size: 12px; }
++
++@media (max-width: 900px) {
++  :host { border-radius: 14px; }
++  .app-shell { min-height: 780px; }
++  .page { padding: 15px 12px 84px; }
++  .hero h2 { font-size: 23px; }
++  .hero p { font-size: 12px; }
++  .topbar { min-height: 66px; }
++  .topbar-workspace, .topbar-actions { display: none; }
++  .context-bar { top: 66px; }
++  .mobile-nav { bottom: 9px; }
++  .mobile-nav select { min-height: 46px; font-size: 12px; }
++}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/platform.css b/artifacts/spartan-coaching/src/components/medicare-platform/platform.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..f5f2c8195d50ad3d47869ea7b0a44980f7d6be81
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/platform.css
+@@ -0,0 +1 @@
++:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#182433;background:#eef3f7;font-synthesis:none;text-rendering:optimizeLegibility;--nav:#0a1725;--nav2:#10243a;--ink:#172333;--muted:#6a7b8f;--line:#dce5ed;--panel:#fff;--accent:#176f79;--blue:#2569a7;--good:#177564;--warn:#a66f16;--danger:#a43c49;--soft:#f7f9fb}*{box-sizing:border-box}body{margin:0;min-width:320px;min-height:100vh;background:linear-gradient(180deg,#edf3f7 0,#f6f8fa 46%,#eef3f7 100%)}button,input,select,textarea{font:inherit}button{cursor:pointer}.boot{min-height:100vh;display:grid;place-items:center;align-content:center;gap:10px;text-align:center;color:var(--ink)}.boot h2,.boot p{margin:0}.boot p{color:var(--muted);font-size:13px}.spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.app-shell{display:grid;grid-template-columns:225px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,var(--nav),#0b1d30);color:#dbe7f1;border-right:1px solid #1d3348;padding:18px 12px;display:flex;flex-direction:column;z-index:30}.brand{display:flex;align-items:center;gap:10px;padding:4px 7px 18px;border-bottom:1px solid #21374b}.brand>span{width:41px;height:41px;border-radius:10px;display:grid;place-items:center;background:#fff;color:#0c2942;font-weight:950;letter-spacing:-.04em;font-size:13px}.brand b,.brand small{display:block}.brand b{font-size:12px}.brand small{font-size:9px;color:#8fa5b8;margin-top:2px}.sidebar nav{padding-top:12px;overflow:auto}.nav-group{margin:0 0 12px}.nav-group>span{display:block;padding:5px 8px;font-size:7px;letter-spacing:.15em;color:#7890a5;font-weight:900}.nav-group button{width:100%;display:flex;align-items:center;gap:9px;border:0;border-radius:8px;padding:8px 9px;background:transparent;color:#aebdcc;font-size:10px;text-align:left}.nav-group button:hover{background:#132c43;color:#fff}.nav-group button.active{background:linear-gradient(90deg,#1d5362,#173d55);color:#fff;box-shadow:inset 3px 0 #6fd5cf}.sidebar-status{margin-top:auto;display:flex;gap:9px;align-items:center;border:1px solid #234159;background:#102940;padding:10px;border-radius:9px}.sidebar-status svg{color:#6fd5cf}.sidebar-status b,.sidebar-status small{display:block}.sidebar-status b{font-size:9px}.sidebar-status small{font-size:8px;color:#8ea4b8}.main{min-width:0}.topbar{position:sticky;top:0;z-index:25;min-height:72px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 18px}.page-title span{display:block;font-size:7px;letter-spacing:.12em;font-weight:900;color:#607a92}.page-title h1{font-size:17px;margin:3px 0 0;color:#101a25}.top-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end}.state-picker,.provider-picker,.mobile-nav select{border:1px solid #d2dde7;background:#fff;color:#24384d;border-radius:8px;min-height:39px;padding:0 9px;font-size:10px}.state-picker{max-width:150px}.workspace-button,.icon-button,.hero-actions button,.primary,.text-button,.row-actions button,.decision-actions button,.refresh{border:1px solid #cad8e4;background:#fff;color:#2d4963;border-radius:8px;min-height:38px;padding:0 11px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:9px;font-weight:800}.workspace-button:hover,.hero-actions button:hover,.row-actions button:hover,.decision-actions button:hover{background:#f2f7fb}.primary{background:linear-gradient(180deg,#247b82,#17676e);color:#fff;border-color:#17676e}.primary:hover{filter:brightness(.97)}.primary:disabled,button:disabled{opacity:.55;cursor:not-allowed}.icon-button{width:39px;padding:0}.global-search{position:relative;width:min(420px,36vw);z-index:80}.global-search>label{display:grid;grid-template-columns:18px minmax(0,1fr) 23px;gap:6px;align-items:center;border:1px solid #d2dde7;border-radius:8px;background:#fff;padding:0 8px;min-height:39px;color:#698095}.global-search input{border:0;outline:0;background:transparent;min-width:0;font-size:10px;color:#1e3144}.global-search label button{border:0;background:transparent;padding:0;width:23px;height:23px;display:grid;place-items:center;color:#72869a}.global-search-results{position:absolute;right:0;left:0;top:calc(100% + 6px);max-height:500px;overflow:auto;background:#fff;border:1px solid #cbd9e5;border-radius:10px;box-shadow:0 22px 60px rgba(14,35,55,.22)}.global-search-results header{position:sticky;top:0;background:#f6f9fc;border-bottom:1px solid #e1e8ef;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;z-index:1}.global-search-results header span{display:flex;gap:5px;align-items:center;font-size:8px;font-weight:900;letter-spacing:.07em;color:#315e85}.global-search-results header small{font-size:8px;color:#77899a}.global-search-results>button{width:100%;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:0;border-bottom:1px solid #ebf0f4;text-align:left}.global-search-results>button:hover{background:#f3f8fc}.global-search-results>button span{min-width:0}.global-search-results b,.global-search-results small{display:block}.global-search-results b{font-size:10px;color:#122133}.global-search-results small{font-size:8px;color:#718295;margin-top:2px}.global-search-results em{font-size:7px;font-style:normal;font-weight:900;color:#507695;white-space:nowrap}.search-message,.search-empty{padding:10px 11px;font-size:9px;line-height:1.45;color:#815b1b;background:#fff8e9;display:flex;gap:6px}.search-message.danger{color:#9d3442;background:#fff2f4}.context-bar{position:sticky;top:72px;z-index:20;display:grid;grid-template-columns:minmax(240px,1.4fr) repeat(3,minmax(90px,.4fr)) auto;gap:0;background:#f8fafc;border-bottom:1px solid #dce5ed;box-shadow:0 3px 8px rgba(23,43,63,.05)}.context-bar>div{padding:9px 12px;border-right:1px solid #e1e7ed;min-width:0}.context-bar>div:first-child{display:flex;align-items:center;gap:8px}.context-bar small,.context-bar b,.context-bar em{display:block}.context-bar small{font-size:7px;letter-spacing:.06em;color:#78899a;font-weight:800}.context-bar b{font-size:10px;color:#1c2d40;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.context-bar em{font-size:8px;color:#6e7e8e;font-style:normal;margin-top:2px}.status-dot{width:8px;height:8px;border-radius:50%;background:#d0a14a;flex:0 0 auto}.status-dot.healthy{background:#2e9d80}.status-dot.degraded{background:#bd4654}.context-links{display:flex!important;align-items:center;gap:4px}.context-links button{border:0;background:transparent;color:#416787;font-size:8px;font-weight:850;padding:6px}.context-links button:hover{color:#176f79;background:#edf5f6;border-radius:6px}.mobile-nav{display:none}.page{padding:16px 18px 38px;max-width:1600px;margin:0 auto}.hero{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:19px 21px;margin-bottom:13px;border:1px solid #d7e1ea;border-radius:12px;background:linear-gradient(125deg,#fff 0,#f7fbfe 72%,#edf6f6 100%);box-shadow:0 5px 16px rgba(23,52,78,.055)}.hero h2{font-size:19px;line-height:1.2;margin:3px 0 6px;color:#111e2d;letter-spacing:-.02em}.hero p{margin:0;max-width:850px;color:#63758a;font-size:10px;line-height:1.5}.kicker{display:block;font-size:7px;letter-spacing:.12em;font-weight:950;color:#2a6e78}.hero-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.panel{background:#fff;border:1px solid #d9e2ea;border-radius:11px;box-shadow:0 4px 14px rgba(24,47,69,.045);overflow:hidden;margin-bottom:13px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid #e3e9ef}.panel-head h3{font-size:13px;margin:3px 0 2px;color:#172536}.panel-head p{font-size:9px;line-height:1.45;margin:0;color:#6a7b8d}.pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid #cad7e2;background:#f7fafc;border-radius:999px;padding:5px 8px;font-size:7px;font-weight:900;color:#5c7286;white-space:nowrap}.pill.healthy,.pill.operational{border-color:#addbcf;background:#edf9f5;color:#117060}.pill.limited,.pill.directionally-comparable,.pill.partial-vintage{border-color:#efd49b;background:#fff8e8;color:#8d641d}.pill.degraded,.pill.period-mismatch{border-color:#e9b7be;background:#fff1f3;color:#9c3441}.alert,.warning-strip,.scope-note{display:flex;align-items:flex-start;gap:7px;border-radius:8px;padding:9px 11px;margin:0 0 12px;font-size:9px;line-height:1.45}.alert{background:#fff1f3;border:1px solid #efc0c7;color:#973541}.global-alert{margin:12px 18px 0}.global-alert span{flex:1}.global-alert button{border:0;background:transparent;color:inherit}.warning-strip{margin:8px 18px 0;background:#fff9ec;border:1px solid #edd7a6;color:#795b25}.scope-note{background:#fff9ec;border:1px solid #ead4a6;color:#765720}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:13px}.metrics.six{grid-template-columns:repeat(6,minmax(0,1fr))}.metrics.five{grid-template-columns:repeat(5,minmax(0,1fr))}.metric{position:relative;min-height:103px;background:#fff;border:1px solid #d9e2ea;border-radius:10px;padding:12px 13px;box-shadow:0 3px 10px rgba(30,54,76,.035)}.metric svg{color:#3d7897;margin-bottom:7px}.metric>span,.metric>b,.metric>small{display:block}.metric>span{font-size:8px;color:#667b90;font-weight:750}.metric>b{font-size:17px;color:#132336;margin:4px 0;line-height:1.15;overflow-wrap:anywhere}.metric>small{font-size:8px;line-height:1.35;color:#82909f}.grid-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:13px}.launch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:13px}.launch-card{display:grid;grid-template-columns:34px minmax(0,1fr) 18px;gap:8px;align-items:center;background:#fff;border:1px solid #d8e2eb;border-radius:10px;padding:12px;text-align:left;color:#29445e}.launch-card:hover{border-color:#9db7ca;box-shadow:0 5px 15px rgba(24,55,82,.08)}.launch-card>svg:first-child{color:#28727d}.launch-card b,.launch-card small{display:block}.launch-card b{font-size:10px;color:#1b2c3e}.launch-card small{font-size:8px;line-height:1.35;color:#728397;margin-top:2px}.rank-table{max-height:620px;overflow:auto}.rank-table>button,.watch-row>button:first-child{width:100%;display:grid;grid-template-columns:35px minmax(0,1fr) auto;gap:8px;align-items:center;border:0;border-bottom:1px solid #e8edf2;background:#fff;text-align:left;padding:9px 12px;color:#273c52}.rank-table>button:hover,.rank-table>button.selected{background:#f2f8fb}.rank-table .rank{font-size:9px;font-weight:900;color:#7c8b99}.rank-table b,.rank-table small{display:block}.rank-table b{font-size:9px}.rank-table small{font-size:8px;color:#778899;margin-top:2px}.rank-table em{font-size:8px;font-style:normal;font-weight:850;color:#3c6e92;text-align:right}.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.kpi-grid>div{padding:11px 12px;border-right:1px solid #e6ebf0;border-bottom:1px solid #e6ebf0}.kpi-grid>div:nth-child(3n){border-right:0}.kpi-grid span,.kpi-grid b{display:block}.kpi-grid span{font-size:8px;color:#738496}.kpi-grid b{font-size:11px;line-height:1.3;color:#1d3044;margin-top:3px;overflow-wrap:anywhere}.guardrail{margin:0;padding:10px 12px;border-top:1px solid #e6ebf0;background:#f8fafc;color:#65778a;font-size:8px;line-height:1.5}.empty,.loading{padding:24px 14px;color:#74869a;font-size:9px;line-height:1.5;text-align:center}.loading{display:flex;align-items:center;justify-content:center;gap:7px}.local-search{margin:12px;display:grid;grid-template-columns:18px minmax(0,1fr) 24px;align-items:center;gap:6px;border:1px solid #d9e3eb;background:#f8fafc;border-radius:8px;padding:0 8px;min-height:38px;color:#708497}.local-search input{border:0;background:transparent;outline:0;font-size:9px}.local-search button{border:0;background:transparent;color:#75889b}.simple-table{overflow:auto}.simple-row{min-width:650px;display:grid;grid-template-columns:2fr repeat(4,1fr);align-items:center;border-bottom:1px solid #e8edf2;background:#fff}.simple-row.header{position:sticky;top:0;background:#f6f9fb;z-index:1;font-size:7px;font-weight:900;letter-spacing:.04em;color:#718398}.simple-row>span{padding:9px 11px;font-size:9px;min-width:0}.simple-row b,.simple-row small{display:block}.simple-row b{font-size:9px;color:#25384c}.simple-row small{font-size:7px;color:#7b8b99;margin-top:2px}.simple-row strong{color:#176f79}.simple-table button.simple-row{width:100%;border-top:0;border-left:0;border-right:0;text-align:left;cursor:pointer;color:inherit}.simple-table button.simple-row:hover,.simple-table button.simple-row.selected{background:#f2f8fb}.simple-row.six-cols{grid-template-columns:2fr repeat(5,1fr)}.comparison-table{overflow:auto}.compare-row{min-width:720px;display:grid;grid-template-columns:1.4fr repeat(3,minmax(130px,1fr));border-bottom:1px solid #e8edf2}.compare-row>span{padding:9px 11px;font-size:9px}.compare-row.header{background:#f7f9fb;font-size:8px;font-weight:850;color:#5f7387}.compare-row b,.compare-row small{display:block}.compare-row small{font-size:7px;color:#81909e;margin-top:2px}.compare-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;padding:13px}.compare-picker>div label{display:block;font-size:8px;font-weight:800;color:#61758a;margin-bottom:4px}.compare-picker select,.compare-picker input,.field input,.field select,.field textarea,.execution-row input,.execution-row select{width:100%;border:1px solid #d3dee8;border-radius:7px;background:#fff;color:#25384b;padding:8px;font-size:9px}.compare-picker input{margin-top:5px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:13px}.form-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.field>span{display:block;font-size:8px;font-weight:800;color:#617488;margin-bottom:4px}.field textarea{min-height:74px;resize:vertical}.field.wide{grid-column:1/-1}.wide{width:100%}.entity-list,.capability-list,.change-list,.insight-list,.source-grid{display:grid}.entity-list>div,.capability-list>div,.change-list>div,.insight-list>div,.source-grid>div{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-bottom:1px solid #e8edf2}.entity-list>div>span,.capability-list>div>span{flex:1;min-width:0}.entity-list b,.entity-list small,.capability-list b,.capability-list small,.change-list b,.change-list p,.insight-list b,.insight-list p,.source-grid b,.source-grid small{display:block}.entity-list b,.capability-list b,.change-list b,.insight-list b,.source-grid b{font-size:9px;color:#25394d}.entity-list small,.capability-list small,.source-grid small{font-size:8px;color:#77899a;margin-top:2px}.entity-list em,.capability-list em{font-size:8px;font-style:normal;color:#4c6f8e;margin-left:auto}.change-list>div{display:grid;grid-template-columns:70px minmax(0,1fr)}.change-list>div>span{font-size:7px;font-weight:900;color:#926523}.change-list p,.insight-list p{font-size:8px;line-height:1.5;color:#687b8e;margin:3px 0 0}.evidence-readiness .readiness-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.readiness-grid>div{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;padding:13px;border-right:1px solid #e5ebf0}.readiness-grid>div:last-child{border-right:0}.readiness-grid svg{color:#347798}.readiness-grid small,.readiness-grid b,.readiness-grid p{display:block}.readiness-grid small{font-size:7px;letter-spacing:.06em;color:#728496}.readiness-grid b{font-size:11px;color:#1e3145;margin:3px 0}.readiness-grid p{font-size:8px;line-height:1.45;color:#6e8091;margin:0}.text-button{min-height:0!important;border:0!important;padding:5px 0!important;color:#176f79!important;background:transparent!important;justify-content:flex-start!important}.alignment-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}.alignment-grid>div{padding:10px 11px;border-right:1px solid #e7ecf1}.alignment-grid>div:last-child{border-right:0}.alignment-grid small,.alignment-grid b,.alignment-grid span{display:block}.alignment-grid small{font-size:7px;color:#6e8194}.alignment-grid b{font-size:9px;color:#213449;margin:3px 0}.alignment-grid span{font-size:7px;color:#8996a3}.subhead{font-size:10px;margin:12px 12px 4px;color:#2c4156}.executive-posture{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;background:linear-gradient(100deg,#0f2d40,#12445a);color:#fff;border-radius:11px;padding:14px 16px;margin-bottom:13px}.executive-posture svg{color:#75d4cf}.executive-posture h3{font-size:19px;margin:2px 0}.executive-posture p{font-size:9px;color:#b9cbd7;margin:0}.posture-stats{display:flex;gap:18px}.posture-stats span{text-align:center}.posture-stats b,.posture-stats small{display:block}.posture-stats b{font-size:14px}.posture-stats small{font-size:7px;color:#9bb0c0}.decision-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(245px,.7fr);gap:13px}.decision-card{display:grid;grid-template-columns:48px minmax(0,1fr);border:1px solid #d9e3eb;border-radius:11px;background:#fff;overflow:hidden;margin-bottom:10px}.decision-card.go{border-left:4px solid #25816f}.decision-card.conditional{border-left:4px solid #c89330}.decision-card.hold{border-left:4px solid #b84c5a}.decision-rank{display:grid;place-items:start center;padding-top:16px;background:#f7f9fb;color:#82909d;font-size:12px;font-weight:950}.decision-body{padding:13px}.decision-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:7px;font-weight:900;color:#6b7d8e}.decision-gate{border:1px solid #cbd7e1;border-radius:999px;padding:3px 6px}.decision-body h3{font-size:14px;margin:7px 0 4px;color:#18293b}.decision-statement{font-size:10px;line-height:1.5;color:#556a7e;margin:0 0 8px}.decision-evidence{display:grid;gap:5px}.decision-evidence span{display:flex;align-items:flex-start;gap:6px;font-size:8px;line-height:1.45;color:#607489}.decision-evidence svg{color:#27796f;flex:0 0 auto}.evidence-ledger{margin:10px 0;border:1px solid #dce5ed;border-radius:8px;background:#f8fafc}.evidence-ledger summary,.history-panel summary{display:flex;align-items:center;gap:6px;padding:8px 9px;list-style:none;cursor:pointer;font-size:8px;font-weight:850;color:#3d5b75}.evidence-ledger summary span,.history-panel summary span{margin-left:auto;color:#75879a}.evidence-ledger>div{padding:0 9px 8px}.evidence-ledger p{font-size:8px;line-height:1.4;color:#66798c;margin:7px 0}.evidence-ledger p b{display:block;font-size:7px;color:#7d8a97;text-transform:uppercase}.decision-operating{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.decision-operating>div{background:#f8fafc;border:1px solid #e2e8ee;border-radius:7px;padding:8px}.decision-operating span{font-size:7px;font-weight:900;color:#6e8192}.decision-operating p{font-size:8px;line-height:1.45;color:#52687c;margin:3px 0 0}.decision-actions{display:flex;gap:7px;margin-top:9px}.decision-actions button{min-height:34px}.debt-list p{display:flex;align-items:flex-start;gap:5px;font-size:8px;line-height:1.5;color:#66798c;padding:9px 11px;margin:0;border-bottom:1px solid #e7edf2}.alignment-mini{padding:13px}.alignment-mini h3{font-size:13px;margin:3px 0}.alignment-mini p{font-size:8px;line-height:1.5;color:#6c7d8d}.execution-queue{margin-top:13px}.auth-lock{display:flex;align-items:center;gap:12px;padding:18px}.auth-lock>div{flex:1}.auth-lock b{font-size:10px}.auth-lock p{font-size:8px;line-height:1.5;color:#718294;margin:3px 0 0}.execution-row{display:grid;grid-template-columns:1.4fr .6fr .7fr .7fr 1.5fr auto;gap:8px;align-items:end;padding:10px 12px;border-bottom:1px solid #e7edf2}.execution-row>div:first-child b,.execution-row>div:first-child small{display:block}.execution-row b{font-size:9px}.execution-row small{font-size:7px;color:#7c8b99}.execution-row label span{display:block;font-size:7px;font-weight:800;color:#738496;margin-bottom:3px}.row-actions{display:flex;gap:6px;padding:0 12px 12px}.execution-row .row-actions{padding:0}.danger-button{border:0;background:#fff4f5;color:#a43d4a;border-radius:7px;width:34px;height:32px;display:grid;place-items:center}.watch-row{display:grid;grid-template-columns:minmax(0,1fr) 42px;border-bottom:1px solid #e8edf2}.watch-row>button:first-child{border-bottom:0}.segmented{display:flex;border:1px solid #cad7e2;background:#fff;border-radius:8px;padding:3px}.segmented button{border:0;background:transparent;border-radius:6px;padding:7px 9px;font-size:8px;font-weight:850;color:#687b8e}.segmented button.active{background:#173e56;color:#fff}.sticky-detail{align-self:start;position:sticky;top:128px;max-height:calc(100vh - 145px);overflow:auto}.map-legend{display:flex;flex-wrap:wrap;gap:12px;padding:9px 12px;border-bottom:1px solid #e2e8ee;background:#f8fafc}.map-legend span{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:800;color:#5f7386}.map-legend i{width:10px;height:10px;border-radius:3px;border:1px solid #aab8c5}.map-legend .densify i{background:#3f9489}.map-legend .adjacent i{background:#6fa5db}.map-legend .hold i{background:#d67d89}.map-legend .remote i{background:#d5b46a}.map-legend .unscored i{background:#e4eaf0}.map-shell{background:radial-gradient(circle at 50% 45%,#fff,#f2f6f9);padding:10px;overflow:auto}.map-shell svg{display:block;width:100%;max-height:555px}.map-county{stroke:#fff;stroke-width:1.1;vector-effect:non-scaling-stroke;cursor:pointer}.map-county.densify{fill:#3f9489}.map-county.adjacent{fill:#6fa5db}.map-county.hold{fill:#d67d89}.map-county.remote{fill:#d5b46a}.map-county.unscored{fill:#e4eaf0}.map-county:hover,.map-county:focus{stroke:#173149;stroke-width:2.3;opacity:.78;outline:0}.map-county.selected{stroke:#071829;stroke-width:3}.deployment-lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}.deployment-lanes>div{border-right:1px solid #e4eaf0;padding:10px}.deployment-lanes>div:last-child{border-right:0}.deployment-lanes h4{font-size:8px;letter-spacing:.08em;color:#657a8e;margin:2px 2px 8px}.deployment-lanes button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px;border:1px solid #dfe7ee;border-radius:7px;background:#fff;text-align:left;margin-bottom:6px}.deployment-lanes button:hover,.deployment-lanes button.selected{background:#f2f8fb;border-color:#a9c4d4}.deployment-lanes b,.deployment-lanes small{display:block}.deployment-lanes b{font-size:8px;color:#263b4e}.deployment-lanes small{font-size:7px;color:#7c8c9a}.deployment-lanes em{font-size:8px;font-style:normal;font-weight:900;color:#366d91}.operational-gate{display:grid;grid-template-columns:repeat(3,1fr);background:#f7f9fb;border-bottom:1px solid #e4eaf0}.operational-gate span{padding:10px;border-right:1px solid #e2e8ee}.operational-gate small,.operational-gate b{display:block}.operational-gate small{font-size:7px;color:#728496}.operational-gate b{font-size:10px;margin-top:3px;color:#24384b}.history-panel{margin:0 12px 12px;border:1px solid #dce5ed;border-radius:8px}.history-panel>div article{padding:8px 9px;border-top:1px solid #e7edf2}.history-panel b,.history-panel small{display:block}.history-panel b{font-size:8px;color:#32485d}.history-panel small{font-size:7px;color:#7c8c9a;margin-top:2px}.history-panel p{font-size:8px;color:#768899;padding:8px}.completeness-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.completeness-grid article{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;padding:13px;border-right:1px solid #e4eaf0}.completeness-grid article:last-child{border-right:0}.completeness-grid svg{color:#327798}.completeness-grid small,.completeness-grid h4,.completeness-grid p,.completeness-grid em{display:block}.completeness-grid small{font-size:7px;font-weight:900;color:#6e8194}.completeness-grid h4{font-size:11px;margin:3px 0 5px;color:#1b3045}.completeness-grid p{font-size:8px;line-height:1.45;color:#687b8d;margin:0}.completeness-grid em{font-size:7px;line-height:1.4;color:#83909d;margin-top:5px;font-style:normal}.diagnostic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.diagnostic-grid>div{display:grid;grid-template-columns:24px minmax(0,1fr);gap:6px;padding:10px 11px;border-right:1px solid #e5ebf0;border-bottom:1px solid #e5ebf0}.diagnostic-grid svg{color:#2e8a75}.diagnostic-grid .error svg,.diagnostic-grid .degraded svg{color:#ad4654}.diagnostic-grid b,.diagnostic-grid small,.diagnostic-grid em{display:block}.diagnostic-grid b{font-size:8px}.diagnostic-grid small{font-size:7px;color:#778899;margin-top:2px}.diagnostic-grid em{font-size:7px;color:#a34550;margin-top:3px;font-style:normal}.scheduled-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#f8fafc}.scheduled-grid>div{display:grid;grid-template-columns:23px minmax(0,1fr);gap:6px;padding:10px;border-right:1px solid #e2e8ee}.scheduled-grid b,.scheduled-grid small{display:block}.scheduled-grid b{font-size:8px}.scheduled-grid small{font-size:7px;line-height:1.4;color:#718395}.readiness-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.readiness-list>div{display:grid;grid-template-columns:80px 1fr;column-gap:8px;padding:10px 12px;border-right:1px solid #e6ebf0;border-bottom:1px solid #e6ebf0}.readiness-list>div>span{font-size:7px;font-weight:950;color:#14705f}.readiness-list>div.scoped>span{color:#95661e}.readiness-list b{font-size:9px}.readiness-list p{grid-column:2;font-size:8px;line-height:1.45;color:#6d7f90;margin:3px 0 0}@media(max-width:1250px){.app-shell{grid-template-columns:190px minmax(0,1fr)}.metrics.six{grid-template-columns:repeat(3,1fr)}.metrics.five{grid-template-columns:repeat(3,1fr)}.alignment-grid{grid-template-columns:repeat(3,1fr)}.launch-grid{grid-template-columns:repeat(2,1fr)}.context-bar{grid-template-columns:minmax(220px,1.3fr) repeat(3,90px)}.context-links{grid-column:1/-1;border-top:1px solid #e1e7ed;justify-content:flex-end}.context-bar{top:72px}.execution-row{grid-template-columns:1fr 1fr 1fr}.execution-row>div:first-child,.execution-row .wide,.execution-row .row-actions{grid-column:1/-1}.completeness-grid{grid-template-columns:1fr}.completeness-grid article{border-right:0;border-bottom:1px solid #e4eaf0}.diagnostic-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:900px){.app-shell{display:block}.sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;height:58px;display:flex;flex-direction:row;padding:5px 8px;border-top:1px solid #203b52;border-right:0;z-index:50}.brand,.sidebar nav,.sidebar-status{display:none}.main{padding-bottom:62px}.topbar{top:0;display:block;padding:9px 12px}.page-title{display:none}.top-actions{display:grid;grid-template-columns:115px minmax(0,1fr) auto auto}.global-search{width:auto}.context-bar{top:57px;grid-template-columns:1fr 1fr}.context-bar>div:first-child{grid-column:1/-1}.context-links{display:none!important}.mobile-nav{display:block;position:fixed;bottom:7px;left:8px;right:8px;z-index:55}.mobile-nav select{width:100%;background:#10273b;color:#e5eef5;border-color:#345069}.page{padding:12px 10px 28px}.global-alert,.warning-strip{margin-left:10px;margin-right:10px}.hero{padding:14px;display:block}.hero-actions,.segmented{margin-top:10px;justify-content:flex-start}.grid-2,.decision-layout{grid-template-columns:1fr}.sticky-detail{position:static;max-height:none}.metrics,.metrics.six,.metrics.five{grid-template-columns:repeat(2,1fr)}.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-grid>div:nth-child(3n){border-right:1px solid #e6ebf0}.kpi-grid>div:nth-child(2n){border-right:0}.evidence-readiness .readiness-grid{grid-template-columns:1fr}.readiness-grid>div{border-right:0;border-bottom:1px solid #e5ebf0}.alignment-grid{grid-template-columns:repeat(2,1fr)}.launch-grid{grid-template-columns:1fr 1fr}.decision-operating{grid-template-columns:1fr}.posture-stats{margin-top:8px}.executive-posture{grid-template-columns:34px 1fr}.posture-stats{grid-column:1/-1;justify-content:flex-start}.deployment-lanes{grid-template-columns:1fr}.deployment-lanes>div{border-right:0;border-bottom:1px solid #e4eaf0}.form-grid.four{grid-template-columns:repeat(2,1fr)}.scheduled-grid{grid-template-columns:1fr}.scheduled-grid>div{border-right:0;border-bottom:1px solid #e2e8ee}.readiness-list{grid-template-columns:1fr}.compare-picker{grid-template-columns:1fr}.map-shell svg{min-width:650px}}@media(max-width:600px){.top-actions{grid-template-columns:100px minmax(0,1fr) 39px}.workspace-button{display:none}.context-bar{top:57px}.metrics,.metrics.six,.metrics.five{grid-template-columns:1fr 1fr}.metric{min-height:88px;padding:10px}.metric>b{font-size:14px}.launch-grid{grid-template-columns:1fr}.form-grid,.form-grid.four{grid-template-columns:1fr}.alignment-grid{grid-template-columns:1fr 1fr}.diagnostic-grid{grid-template-columns:1fr}.readiness-list>div{grid-template-columns:68px 1fr}.decision-card{grid-template-columns:35px minmax(0,1fr)}.decision-actions{display:grid}.global-search-results{position:fixed;left:8px;right:8px;top:58px;max-height:68vh}.completeness-grid article{grid-template-columns:28px 1fr}.map-shell{padding:4px}}
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/types.ts b/artifacts/spartan-coaching/src/components/medicare-platform/types.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..9f293a337886fc10e11e563cb490d328f305f9e1
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/types.ts
+@@ -0,0 +1,86 @@
++export type AnyRow = Record<string, any>;
++
++export type Provider = {
++  ccn: string;
++  name: string;
++  city: string;
++  county: string;
++  state: string;
++  zip: string;
++  address?: string;
++  phone?: string;
++  ownership?: string;
++  type?: string;
++  year?: string;
++  beneficiaries?: number | null;
++  days?: number | null;
++  adc?: number | null;
++  payment?: number | null;
++  daysPerBene?: number | null;
++  originalParticipationDate?: string;
++  staffing?: AnyRow;
++  clinical?: AnyRow;
++  diagnosis?: AnyRow;
++};
++
++export type County = {
++  fips: string;
++  name: string;
++  state?: string;
++  agedMedicare?: number | null;
++  totalMedicare?: number | null;
++  originalMedicare?: number | null;
++  ma?: number | null;
++  hospitals?: number | null;
++  hospices?: number | null;
++  snfs?: number | null;
++  snfResidents?: number | null;
++  opportunity?: number | null;
++  evidenceScore?: number | null;
++  signalCoveragePct?: number | null;
++  enrollmentPeriod?: string;
++};
++
++export type DashboardData = {
++  generatedAt: string;
++  state: string;
++  stateName: string;
++  focusCcn: string;
++  providers: Provider[];
++  counties: County[];
++  hospitals: AnyRow[];
++  snfs: AnyRow[];
++  sources: AnyRow[];
++  warnings: string[];
++  marketSummary: AnyRow;
++  dataQuality: AnyRow;
++  cache?: AnyRow;
++};
++
++export type ProviderDetail = {
++  provider: Provider;
++  utilization?: Provider;
++  quality: AnyRow[];
++  cahps: AnyRow[];
++  cahpsSummary: AnyRow;
++  qualitySummary: AnyRow;
++  zips: AnyRow[];
++  enrollments: AnyRow[];
++  owners: AnyRow[];
++  history: Provider[];
++  periods: AnyRow;
++  sources: AnyRow[];
++  confidence: number;
++  dataQuality: AnyRow;
++  warnings?: string[];
++  cache?: AnyRow;
++};
++
++export type User = {
++  userId: string;
++  email?: string;
++  name?: string;
++  scope?: string;
++};
++
++export type TabId = 'command'|'decision'|'intelligence'|'watchlist'|'growth'|'winloss'|'compare'|'hospice'|'territory'|'referral'|'network'|'sources';
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/utils.ts b/artifacts/spartan-coaching/src/components/medicare-platform/utils.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c8d5ca152980118b1680044e282420a2fcbefe3
+--- /dev/null
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/utils.ts
+@@ -0,0 +1,29 @@
++import type { AnyRow } from './types';
++
++export const finite = (value: unknown): number | null => value === null || value === undefined || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
++export const num = (value: unknown, digits = 0) => finite(value) === null ? 'NR' : new Intl.NumberFormat('en-US', { maximumFractionDigits: digits }).format(Number(value));
++export const pct = (value: unknown, digits = 1) => finite(value) === null ? 'NR' : `${Number(value).toFixed(digits)}%`;
++export const money = (value: unknown) => finite(value) === null ? 'NR' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(value));
++export const clean = (value: unknown, fallback = 'NR') => String(value ?? '').trim() || fallback;
++export const apiError = (error: unknown, fallback = 'Request failed.') => { const value = error as AnyRow; return String(value?.response?.data?.error || value?.response?.data?.message || value?.message || fallback); };
++export const statusClass = (value: unknown) => String(value || 'limited').toLowerCase().replace(/[^a-z0-9]+/g, '-');
++export const today = () => new Date().toISOString().slice(0, 10);
++export const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
++export const stateName = (code: string) => STATES.find((state) => state.code === code)?.name || code;
++
++export const STATES = [
++  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','District of Columbia'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
++].map(([code, name]) => ({ code, name }));
++
++export function csvDownload(filename: string, rows: unknown[][]) {
++  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
++  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
++  const href = URL.createObjectURL(blob);
++  const anchor = document.createElement('a');
++  anchor.href = href;
++  anchor.download = filename;
++  document.body.appendChild(anchor);
++  anchor.click();
++  anchor.remove();
++  URL.revokeObjectURL(href);
++}
+diff --git a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
+index 326a520349bb32a3b1971522355c3542877ffd7d..e1eb0c0b07625bb3e885d10c71bf40cca9645ffd 100644
+--- a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
++++ b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
+@@ -1,32 +1,13 @@
+-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { afterEach, describe, expect, it, vi } from "vitest";
+ import { primaryWorkspaceNav } from "@/lib/workspaceShell";
+ import { MEMBER_NAV } from "@/lib/memberNav";
+ import { US_STATES } from "@/lib/usStates";
+ import SpartanIntelligence from "./SpartanIntelligence";
+ 
+-vi.mock("@/components/FieldKitToolLayout", () => ({
+-  FieldKitToolLayout: ({ children }: { children: React.ReactNode }) => <main>{children}</main>,
+-}));
++vi.mock("@/components/FieldKitToolLayout", () => ({ FieldKitToolLayout: ({ children }: { children: React.ReactNode }) => <main>{children}</main> }));
+ vi.mock("@/components/SEO", () => ({ SEO: () => null }));
+-vi.mock("@/components/NpiLookupPanel", () => ({
+-  NpiLookupPanel: () => <div data-testid="referral-panel">Referral workspace</div>,
+-}));
+-vi.mock("@/components/PolicyNavigatorPanel", () => ({
+-  PolicyNavigatorPanel: () => <div data-testid="policy-panel">Policy workspace</div>,
+-}));
+-vi.mock("@/components/HospiceMarketPanel", () => ({
+-  HospiceMarketPanel: ({ onCompare, onDecide }: { onCompare?: (ccn: string) => void; onDecide?: (ccn: string) => void }) => <div data-testid="market-panel">Market workspace<button onClick={() => onCompare?.("123456")}>Send to compare</button><button onClick={() => onDecide?.("123456")}>Send to decision</button></div>,
+-}));
+-vi.mock("@/components/MedicareDecisionPanel", () => ({
+-  MedicareDecisionPanel: ({ initialCcn }: { initialCcn?: string }) => <div data-testid="decision-panel">Decision workspace {initialCcn}</div>,
+-}));
+-vi.mock("@/components/MedicareCommandCenter", () => ({
+-  MedicareCommandCenter: () => <div data-testid="command-center">Command Center</div>,
+-}));
+-vi.mock("@/components/MedicareComparePanel", () => ({
+-  MedicareComparePanel: ({ initialCcn }: { initialCcn?: string }) => <div data-testid="compare-panel">Compare workspace {initialCcn}</div>,
+-}));
++vi.mock("@/components/medicare-platform/TrustedMedicarePlatform", () => ({ default: () => <div data-testid="trusted-medicare-platform">Full Medicare decision platform</div> }));
+ 
+ afterEach(cleanup);
+ 
+@@ -47,58 +28,14 @@ describe("Spartan Intelligence workspace contract", () => {
+     expect(tools?.match("/tools/intelligence")).toBe(false);
+   });
+ 
+-  it("switches between every native intelligence mission", () => {
++  it("renders the full trusted platform natively inside Spartan", () => {
+     render(<SpartanIntelligence />);
+-
+-    expect(screen.getByTestId("command-center")).toBeTruthy();
+-    fireEvent.click(screen.getByTestId("intelligence-mission-referral"));
+-    expect(screen.getByTestId("referral-panel")).toBeTruthy();
+-    fireEvent.click(screen.getByTestId("intelligence-mission-policy"));
+-    expect(screen.getByTestId("policy-panel")).toBeTruthy();
+-    expect(screen.queryByTestId("referral-panel")).toBeNull();
+-
+-    fireEvent.click(screen.getByTestId("intelligence-mission-market"));
+-    expect(screen.getByTestId("market-panel")).toBeTruthy();
+-    expect(screen.queryByTestId("policy-panel")).toBeNull();
+-
+-    fireEvent.click(screen.getByTestId("intelligence-mission-decision"));
+-    expect(screen.getByTestId("decision-panel")).toBeTruthy();
+-    expect(screen.queryByTestId("market-panel")).toBeNull();
+-
+-    fireEvent.click(screen.getByTestId("intelligence-mission-compare"));
+-    expect(screen.getByTestId("compare-panel")).toBeTruthy();
+-  });
+-
+-  it("labels evidence and guidance so users can judge every answer", () => {
+-    render(<SpartanIntelligence />);
+-
+-    expect(screen.getByText("Verified fact")).toBeTruthy();
+-    expect(screen.getByText("Calculated result")).toBeTruthy();
+-    expect(screen.getByText("Coach guidance")).toBeTruthy();
+-    expect(screen.getByText("Missing evidence")).toBeTruthy();
+-  });
+-
+-  it("carries the selected provider from Market into Compare and Decision", () => {
+-    render(<SpartanIntelligence />);
+-    fireEvent.click(screen.getByTestId("intelligence-mission-market"));
+-    fireEvent.click(screen.getByRole("button", { name: "Send to compare" }));
+-    expect(screen.getByTestId("compare-panel").textContent).toContain("123456");
+-    fireEvent.click(screen.getByTestId("intelligence-mission-market"));
+-    fireEvent.click(screen.getByRole("button", { name: "Send to decision" }));
+-    expect(screen.getByTestId("decision-panel").textContent).toContain("123456");
+-  });
+-
+-  it("keeps the CMS workflows native to the Spartan workspace", () => {
+-    render(<SpartanIntelligence />);
+-
+-    expect(screen.getByText("Command Center")).toBeTruthy();
+-    expect(screen.getByTestId("intelligence-mission-compare")).toBeTruthy();
++    expect(screen.getByTestId("trusted-medicare-platform")).toBeTruthy();
+     expect(document.querySelector("iframe")).toBeNull();
+   });
+ 
+-  it("offers the complete United States state selector", () => {
++  it("offers every United States market", () => {
+     expect(US_STATES).toHaveLength(51);
+     expect(US_STATES).toContainEqual(["DC", "District of Columbia"]);
+-    expect(new Set(US_STATES.map(([code]) => code)).size).toBe(51);
+   });
+ });
+diff --git a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
+index f9260843e83de587da40d0a42841cee610a686d5..d45e0a89d39b878887712033e7b91e0ad3572403 100644
+--- a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
++++ b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
+@@ -1,108 +1,15 @@
+-import { AccentText } from "@/components/AccentText";
+-import { useState, type ComponentType } from "react";
+-import { BarChart3, BookOpen, Building2, Calculator, Crosshair, Map, Network, ShieldAlert, ShieldCheck, Sparkles, Target } from "lucide-react";
+ import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+-import { NpiLookupPanel } from "@/components/NpiLookupPanel";
+ import { SEO } from "@/components/SEO";
+-import { PolicyNavigatorPanel } from "@/components/PolicyNavigatorPanel";
+-import { HospiceMarketPanel } from "@/components/HospiceMarketPanel";
+-import { MedicareDecisionPanel } from "@/components/MedicareDecisionPanel";
+-import { MedicareCommandCenter } from "@/components/MedicareCommandCenter";
+-import { MedicareComparePanel } from "@/components/MedicareComparePanel";
+-import { cn } from "@/lib/utils";
+-import { MedicareOperationsPanel } from "@/components/MedicareOperationsPanel";
+-
+-type Mission = "overview" | "operations" | "referral" | "market" | "compare" | "decision" | "policy";
+-
+-const MISSIONS: Array<{ id: Mission; label: string; description: string; icon: ComponentType<{ className?: string }> }> = [
+-  { id: "overview", label: "Overview", description: "Choose the strongest next workflow.", icon: BarChart3 },
+-  { id: "operations", label: "Intelligence workspaces", description: "Open all national, provider, territory, and monitoring tools.", icon: Building2 },
+-  { id: "referral", label: "Research a provider", description: "Verify the account and prepare the conversation.", icon: Crosshair },
+-  { id: "market", label: "Analyze a market", description: "See enrolled hospices across a service area.", icon: Map },
+-  { id: "compare", label: "Compare providers", description: "Evaluate up to three verified hospices.", icon: Network },
+-  { id: "decision", label: "Build a decision brief", description: "Turn evidence into one defensible next move.", icon: Target },
+-  { id: "policy", label: "Answer a policy question", description: "Explain sourced CMS guidance clearly.", icon: BookOpen },
+-];
++import TrustedMedicarePlatform from "@/components/medicare-platform/TrustedMedicarePlatform";
+ 
+ export default function SpartanIntelligence() {
+-  const [mission, setMission] = useState<Mission>("overview");
+-  const [activeCcn, setActiveCcn] = useState("");
+-  const openWithCcn = (next: "compare" | "decision", ccn: string) => { setActiveCcn(ccn); setMission(next); };
+-
+   return (
+-    <FieldKitToolLayout toolPath="/tools/intelligence" className="max-w-[90rem]" showHowTo={false}>
++    <FieldKitToolLayout toolPath="/tools/intelligence" className="max-w-none" showHowTo={false}>
+       <SEO
+         title="CMS Medicare Knowledge Hub | Hospice Sales Pro"
+-        description="Turn verified Medicare provider, market, and policy evidence into focused hospice sales decisions."
++        description="National hospice market, provider, territory, referral, financial, and decision intelligence grounded in current public evidence."
+       />
+-
+-      <header className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm sm:p-7">
+-        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+-          <div className="max-w-3xl">
+-            <div className="flex flex-wrap items-center gap-2">
+-              <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary-foreground">CMS Medicare Knowledge Hub</span>
+-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+-                <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Verified public data
+-              </span>
+-            </div>
+-            <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-4xl"><AccentText>National hospice intelligence, inside your workspace.</AccentText></h1>
+-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+-              Verify providers, analyze markets, compare evidence, explain policy, and turn the result into one accountable next move without leaving Spartan.
+-            </p>
+-          </div>
+-          <div className="grid gap-2 text-xs font-semibold text-muted-foreground sm:grid-cols-2 lg:grid-cols-1">
+-            <TrustSignal icon={ShieldCheck} label="Verified fact" detail="CMS or NPPES source" />
+-            <TrustSignal icon={Calculator} label="Calculated result" detail="Rule-based analysis" />
+-            <TrustSignal icon={Sparkles} label="Coach guidance" detail="Clearly identified advice" />
+-            <TrustSignal icon={ShieldAlert} label="Missing evidence" detail="Never scored as zero" />
+-          </div>
+-        </div>
+-      </header>
+-
+-      <nav className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 xl:grid-cols-7" aria-label="Choose an intelligence mission">
+-        {MISSIONS.map((item) => {
+-          const Icon = item.icon;
+-          const selected = item.id === mission;
+-          return (
+-            <button
+-              key={item.id}
+-              type="button"
+-              onClick={() => setMission(item.id)}
+-              className={cn(
+-                "flex min-h-24 items-start gap-2 rounded-2xl border p-3 text-left transition sm:gap-3 sm:p-4",
+-                selected ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/20" : "border-border bg-card hover:border-primary/50 hover:bg-muted/30",
+-              )}
+-              aria-pressed={selected}
+-              data-testid={`intelligence-mission-${item.id}`}
+-            >
+-              <span className={cn("hidden rounded-xl p-2.5 sm:block", selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}><Icon className="h-5 w-5" /></span>
+-              <span>
+-                <span className="block font-black text-foreground">{item.label}</span>
+-                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{item.description}</span>
+-              </span>
+-            </button>
+-          );
+-        })}
+-      </nav>
+-
+-      <section className="mt-5" aria-live="polite" data-testid={`intelligence-workspace-${mission}`}>
+-        {mission === "overview" ? <MedicareCommandCenter onOpen={(next) => setMission(next)} /> : null}
+-        {mission === "operations" ? <MedicareOperationsPanel /> : null}
+-        {mission === "referral" ? <NpiLookupPanel className="p-5 sm:p-7" enableBrief /> : null}
+-        {mission === "policy" ? <PolicyNavigatorPanel /> : null}
+-        {mission === "market" ? <HospiceMarketPanel onCompare={(ccn) => openWithCcn("compare", ccn)} onDecide={(ccn) => openWithCcn("decision", ccn)} /> : null}
+-        {mission === "compare" ? <MedicareComparePanel key={`compare-${activeCcn}`} initialCcn={activeCcn} /> : null}
+-        {mission === "decision" ? <MedicareDecisionPanel key={`decision-${activeCcn}`} initialCcn={activeCcn} /> : null}
+-      </section>
++      <TrustedMedicarePlatform />
+     </FieldKitToolLayout>
+   );
+ }
+-
+-function TrustSignal({ icon: Icon, label, detail }: { icon: typeof ShieldCheck; label: string; detail: string }) {
+-  return (
+-    <div className="flex items-center gap-2 rounded-xl border border-border bg-background/80 px-3 py-2">
+-      <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+-      <span><strong className="text-foreground">{label}</strong><span className="block font-normal">{detail}</span></span>
+-    </div>
+-  );
+-}
+-- 
+2.51.1
+
