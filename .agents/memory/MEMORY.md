@@ -13,3 +13,4 @@
 - [Named theme coverage](named-theme-coverage.md) — semantic palette tokens do not retheme surfaces that still hard-code brand gradients or colors.
 - [Browser appearance assertions](browser-appearance-regressions.md) — compare saved appearance semantics, not the volatile sync timestamp, in browser refresh coverage.
 - [Shared field-work loop](shared-field-work-loop.md) — saved-work IDs unify web/iOS resume state; Calendly is the selected link-based pilot with Access Desk fallback.
+- [Premium workspace authentication](premium-workspace-auth.md) — premium workspace pages need explicit anonymous redirects even when their APIs are protected.
