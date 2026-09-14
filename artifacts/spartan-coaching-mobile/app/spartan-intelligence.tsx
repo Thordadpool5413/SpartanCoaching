@@ -12,7 +12,7 @@ import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 import { saveCoachHandoff } from "@/lib/coachHandoff";
 
-type Workspace = "platform" | "referral" | "market" | "decision" | "policy";
+type Workspace = "platform" | "operations" | "referral" | "market" | "decision" | "policy";
 type Choice = { value: string; label: string };
 type Source = { label: string; url?: string; checkedAt?: string };
 
@@ -69,6 +69,7 @@ type DecisionBrief = {
 
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
   { value: "platform", label: "Overview", icon: "grid" },
+  { value: "operations", label: "All tools", icon: "layers" },
   { value: "referral", label: "Provider", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
   { value: "decision", label: "Decide", icon: "target" },
@@ -150,6 +151,7 @@ export default function SpartanIntelligenceScreen() {
           })}
         </View>
         {workspace === "platform" ? <PlatformWorkspace colors={colors} onOpen={setWorkspace} /> : null}
+        {workspace === "operations" ? <OperationsWorkspace colors={colors} /> : null}
         {workspace === "referral" ? <ReferralWorkspace colors={colors} /> : null}
         {workspace === "market" ? <MarketWorkspace colors={colors} /> : null}
         {workspace === "decision" ? <DecisionWorkspace colors={colors} /> : null}
@@ -171,6 +173,55 @@ function PlatformWorkspace({ colors, onOpen }: { colors: ReturnType<typeof useCo
         </Pressable>)}
       </View>
       <SourceNote text="Public CMS and NPPES evidence. Sources, reporting periods, and limitations stay attached. Never enter patient information." colors={colors} />
+    </Panel>
+  </View>;
+}
+
+type MedicareOperation = readonly [string, string, string, keyof typeof Feather.glyphMap];
+const operations: MedicareOperation[] = [
+  ["National command", "State market, county, provider, and competition signals", "dashboard", "map"],
+  ["Provider 360", "Ownership, quality, utilization, and evidence", "intelligence", "home"],
+  ["HCRIS economics", "Cost report operating and financial coordinates", "hcris", "bar-chart-2"],
+  ["SSVI signals", "Service, utilization, and value indicators", "ssvi", "activity"],
+  ["Service geography", "Observed reach, concentration, and white space", "service-geography", "map-pin"],
+  ["Territory deployment", "Prioritized field deployment from verified evidence", "territory-deployment-private", "navigation"],
+  ["Physician 360", "NPI services, eligibility, and referral context", "physician", "user"],
+  ["Watchlist", "Tracked providers and current monitoring status", "watchlist", "bell"],
+  ["Decision actions", "Owners, dates, next actions, and status", "decision-actions", "check-square"],
+  ["Source diagnostics", "CMS freshness, cache, source, and model health", "system-diagnostics", "shield"],
+];
+
+function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const [selected, setSelected] = useState<MedicareOperation>(operations[0]);
+  const [state, setState] = useState("OK");
+  const [identifier, setIdentifier] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<unknown>(null);
+  const run = async () => {
+    setLoading(true); setResult(null);
+    try {
+      const key = selected[2];
+      const path = key === "dashboard" ? `/dashboard?state=${state}&ccn=${identifier}`
+        : key === "intelligence" ? `/intelligence?ccn=${identifier}&state=${state}`
+        : key === "physician" ? `/physician/${identifier}`
+        : key === "watchlist" ? "/watchlist"
+        : key === "decision-actions" ? `/decision-actions?ccn=${identifier}`
+        : key === "system-diagnostics" ? `/system-diagnostics?state=${state}&ccn=${identifier}`
+        : key === "territory-deployment-private" ? `/${key}/${identifier}?state=${state}`
+        : `/${key}/${identifier}`;
+      setResult(await apiGet(`/api/v1/medicare${path}`));
+    } catch (error) { setResult({ error: message(error) }); }
+    finally { setLoading(false); }
+  };
+  return <View style={styles.workspace}>
+    <WorkspaceIntro number="05" eyebrow="FULL MEDICARE OPERATIONS" title="Every intelligence tool, one secure workspace." text="Open national, provider, financial, geography, referral, monitoring, decision, and source-health operations from the same tenant-scoped platform used on web." colors={colors} />
+    <View style={styles.capabilityList}>{operations.map((item) => <Pressable key={item[2]} onPress={() => { setSelected(item); setResult(null); }} style={[styles.capability, { borderBottomColor: colors.border }]}><View style={[styles.capabilityNumber, { backgroundColor: selected[2] === item[2] ? colors.primary : colors.primaryMuted }]}><Feather name={item[3]} size={17} color={selected[2] === item[2] ? colors.primaryForeground : colors.readablePrimary} /></View><View style={styles.flex}><Text style={[styles.resultChoiceTitle, { color: colors.foreground }, font("bold")]}>{item[0]}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{item[1]}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>)}</View>
+    <Panel colors={colors}>
+      <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{selected[0]}</Text>
+      <View style={styles.fieldRow}><View style={styles.stateField}><Field label="State" value={state} onChangeText={(value) => setState(value.slice(0, 2).toUpperCase())} placeholder="OK" colors={colors} /></View><View style={styles.flex}><Field label={selected[2] === "physician" ? "Physician NPI" : "Provider CCN or county FIPS"} value={identifier} onChangeText={setIdentifier} placeholder={selected[2] === "physician" ? "10 digit NPI" : "CMS identifier"} colors={colors} /></View></View>
+      <SpartanButton title={loading ? "Loading intelligence…" : "Run verified analysis"} onPress={() => void run()} disabled={loading} />
+      {loading ? <Progress status="Retrieving and calculating CMS evidence" colors={colors} /> : null}
+      {result ? <View style={[styles.evidenceCard, { borderColor: colors.border, backgroundColor: colors.background }]}><Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>COMPLETE EVIDENCE RECORD</Text><Text selectable style={[styles.jsonRecord, { color: colors.foreground }, font("regular")]}>{JSON.stringify(result, null, 2)}</Text></View> : null}
     </Panel>
   </View>;
 }
@@ -672,6 +723,7 @@ const styles = StyleSheet.create({
   planRow: { borderTopWidth: 1, paddingTop: 14, flexDirection: "row", gap: 11 }, planTiming: { fontSize: 11, letterSpacing: 0.5, marginBottom: 3 },
   factGrid: { flexDirection: "row", flexWrap: "wrap", gap: 9 }, fact: { width: "48%", borderWidth: 1, borderRadius: 14, padding: 12, gap: 5 },
   measure: { borderTopWidth: 1, paddingTop: 13, gap: 4 }, evidenceCard: { borderWidth: 1, borderRadius: 16, padding: 14, gap: 7 }, measureTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 }, measureName: { fontSize: 14, lineHeight: 19 }, measureScore: { fontSize: 19 },
+  jsonRecord: { fontSize: 11, lineHeight: 17 },
   sourceNote: { borderTopWidth: 1, paddingTop: 15, flexDirection: "row", gap: 10 },
   savedPanel: { borderWidth: 1, borderRadius: 22, padding: 17, gap: 12 }, savedHeader: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12 }, savedItem: { borderTopWidth: 1, paddingTop: 12, flexDirection: "row", alignItems: "center", gap: 7 }, savedIcon: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
 });

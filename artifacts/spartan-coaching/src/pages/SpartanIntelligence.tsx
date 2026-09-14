@@ -10,11 +10,13 @@ import { MedicareDecisionPanel } from "@/components/MedicareDecisionPanel";
 import { MedicareCommandCenter } from "@/components/MedicareCommandCenter";
 import { MedicareComparePanel } from "@/components/MedicareComparePanel";
 import { cn } from "@/lib/utils";
+import { MedicareOperationsPanel } from "@/components/MedicareOperationsPanel";
 
-type Mission = "overview" | "referral" | "market" | "compare" | "decision" | "policy";
+type Mission = "overview" | "operations" | "referral" | "market" | "compare" | "decision" | "policy";
 
 const MISSIONS: Array<{ id: Mission; label: string; description: string; icon: ComponentType<{ className?: string }> }> = [
   { id: "overview", label: "Overview", description: "Choose the strongest next workflow.", icon: BarChart3 },
+  { id: "operations", label: "Intelligence workspaces", description: "Open all national, provider, territory, and monitoring tools.", icon: Building2 },
   { id: "referral", label: "Research a provider", description: "Verify the account and prepare the conversation.", icon: Crosshair },
   { id: "market", label: "Analyze a market", description: "See enrolled hospices across a service area.", icon: Map },
   { id: "compare", label: "Compare providers", description: "Evaluate up to three verified hospices.", icon: Network },
@@ -57,7 +59,7 @@ export default function SpartanIntelligence() {
         </div>
       </header>
 
-      <nav className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-6" aria-label="Choose an intelligence mission">
+      <nav className="mt-5 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 xl:grid-cols-7" aria-label="Choose an intelligence mission">
         {MISSIONS.map((item) => {
           const Icon = item.icon;
           const selected = item.id === mission;
@@ -85,6 +87,7 @@ export default function SpartanIntelligence() {
 
       <section className="mt-5" aria-live="polite" data-testid={`intelligence-workspace-${mission}`}>
         {mission === "overview" ? <MedicareCommandCenter onOpen={(next) => setMission(next)} /> : null}
+        {mission === "operations" ? <MedicareOperationsPanel /> : null}
         {mission === "referral" ? <NpiLookupPanel className="p-5 sm:p-7" enableBrief /> : null}
         {mission === "policy" ? <PolicyNavigatorPanel /> : null}
         {mission === "market" ? <HospiceMarketPanel onCompare={(ccn) => openWithCcn("compare", ccn)} onDecide={(ccn) => openWithCcn("decision", ccn)} /> : null}

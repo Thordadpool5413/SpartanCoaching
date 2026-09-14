@@ -934,6 +934,24 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0027_medicare_intelligence_runtime",
+    title: "Durable Medicare intelligence workspace and cache",
+    forwardPath: "lib/db/migrations/0027_medicare_intelligence_runtime.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.medicare_workspace_records') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.medicare_cache_objects') IS NOT NULL AS ok`,
+      `SELECT count(*) = 0 AS ok FROM medicare_workspace_records WHERE bucket IS NULL OR record IS NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the additive Medicare workspace and CMS cache tables during application rollback; restore the pre-deploy logical backup only after verifying saved watchlists and decisions have been exported.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["medicare_workspace_records", "medicare_cache_objects"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
