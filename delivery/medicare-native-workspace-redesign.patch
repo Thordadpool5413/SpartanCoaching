@@ -1,0 +1,261 @@
+From 43507021921fffc5ba44df8fc0ce34aec780b102 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Mon, 14 Sep 2026 18:25:40 -0500
+Subject: [PATCH] Redesign Medicare as a native Spartan workspace
+
+---
+ .../medicare-platform/NationalDashboard.tsx   |  12 +-
+ .../platform-enhancements.css                 | 151 ++++++++++++++++++
+ .../SpartanIntelligence.contract.test.tsx     |  11 ++
+ .../src/pages/SpartanIntelligence.tsx         |   5 +-
+ 4 files changed, 172 insertions(+), 7 deletions(-)
+
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx b/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
+index 5e5a79e84f343553425cb46ef4276ad39e65b206..2255df06403ff710fa663d276b83245409b535d6 100644
+--- a/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/NationalDashboard.tsx
+@@ -1,5 +1,5 @@
+ import { useEffect, useMemo, useRef, useState } from 'react';
+-import { AlertTriangle, ArrowUpRight, BarChart3, Bell, Building2, CheckCircle2, Database, DollarSign, Globe2, Home, LineChart, LoaderCircle, LockKeyhole, MapPinned, Network, RefreshCw, Save, Scale, Search, ShieldCheck, Stethoscope, Target, Trophy, X, Users } from 'lucide-react';
++import { AlertTriangle, ArrowUpRight, BarChart3, Bell, Building2, CheckCircle2, Database, DollarSign, Home, LineChart, LoaderCircle, MapPinned, Network, RefreshCw, Save, Scale, Search, ShieldCheck, Stethoscope, Target, Trophy, X, Users } from 'lucide-react';
+ import { api } from './api';
+ import GlobalProviderSearch from './GlobalProviderSearch';
+ import IntelligenceCenter from './IntelligenceCenter';
+@@ -79,11 +79,15 @@ export default function NationalDashboard() {
+   if (!data || !selected) return <div className='boot'><LoaderCircle className='spin' size={30}/><h2>Building national hospice intelligence...</h2><p>{error || 'Joining current CMS market and provider context.'}</p></div>;
+ 
+   return <div className='app-shell'>
+-    <aside className='sidebar'><div className='brand'><span>CMS</span><div><b>Hospice Intelligence</b><small>Decision Platform</small></div></div><nav>{['DECIDE','INTELLIGENCE','GROWTH','ACCOUNTS','DATA'].map((group) => <div key={group} className='nav-group'><span>{group}</span>{NAV.filter((item) => item.group === group).map(({ id, label, icon: Icon }) => <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}><Icon size={16}/>{label}</button>)}</div>)}</nav><div className='sidebar-footer'><button onClick={() => void loadMarket(state, focus, true)} disabled={loading}><RefreshCw size={15} className={loading ? 'spin' : ''}/>Refresh market</button><button onClick={() => void loadProvider(focus, state)} disabled={detailLoading}><ArrowUpRight size={15}/>{detailLoading ? 'Loading provider...' : 'Reload provider'}</button><div className='login-card'><LockKeyhole size={14}/><div><b>{user.name}</b><small>{user.scope}</small></div></div></div></aside>
+     <main className='main'>
+-      <header className='topbar'><div className='page-title'><span>NATIONAL HOSPICE EXPERT INTELLIGENCE & DECISION PLATFORM</span><h1>{NAV.find((item) => item.id === tab)?.label}</h1></div><div className='topbar-workspace'><label className='market-picker'><span>Market</span><select aria-label='Select Medicare market' value={state} disabled={loading} onChange={(event) => void loadMarket(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><GlobalProviderSearch currentState={state} onOpen={(result) => { setTab('intelligence'); if (result.state !== state) { void loadMarket(result.state, result.ccn); return; } void loadProvider(result.ccn, state); }}/></div><div className='topbar-actions'><button onClick={() => setTab('decision')} className={tab === 'decision' ? 'active' : ''}><ShieldCheck size={15}/>Decision view</button><button onClick={() => setTab('sources')} className={tab === 'sources' ? 'active' : ''}><Database size={15}/>Source health</button></div></header>
++      <header className='topbar'>
++        <div className='page-title'><span>CMS MEDICARE INTELLIGENCE</span><h1>{NAV.find((item) => item.id === tab)?.label}</h1><p>National hospice evidence translated into decisions and field action.</p></div>
++        <div className='topbar-workspace'><label className='market-picker'><span>Market</span><select aria-label='Select Medicare market' value={state} disabled={loading} onChange={(event) => void loadMarket(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><GlobalProviderSearch currentState={state} onOpen={(result) => { setTab('intelligence'); if (result.state !== state) { void loadMarket(result.state, result.ccn); return; } void loadProvider(result.ccn, state); }}/></div>
++        <div className='topbar-actions'><button onClick={() => void loadMarket(state, focus, true)} disabled={loading}><RefreshCw size={16} className={loading ? 'spin' : ''}/><span>Refresh</span></button><button onClick={() => setTab('sources')} className={tab === 'sources' ? 'active' : ''}><Database size={16}/><span>Data health</span></button></div>
++      </header>
+       <div className='context-bar'><div><span className={`status-dot ${statusClass(data.dataQuality?.status)}`}/><span><small>ACTIVE PROVIDER</small><b>{selected.name}</b><em>{selected.city}, {selected.state} · CCN {selected.ccn}</em></span></div><div><small>MARKET</small><b>{data.stateName}</b></div><div><small>LAST REFRESH</small><b>{today()}</b></div></div>
+-      <div className='mobile-nav'><select value={tab} onChange={(event) => setTab(event.target.value as TabId)}>{NAV.map((item) => <option key={item.id} value={item.id}>{item.group} · {item.label}</option>)}</select></div>
++      <nav className='workspace-nav' aria-label='Medicare Intelligence modules'>{NAV.map(({ id, label, icon: Icon }) => <button key={id} className={tab === id ? 'active' : ''} aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id)}><Icon size={16}/><span>{label}</span></button>)}</nav>
++      <div className='mobile-nav'><select aria-label='Choose Medicare Intelligence module' value={tab} onChange={(event) => setTab(event.target.value as TabId)}>{NAV.map((item) => <option key={item.id} value={item.id}>{item.group} · {item.label}</option>)}</select></div>
+       {error && <div className='alert global-alert'><AlertTriangle size={17}/><span>{error}</span><button onClick={() => setError('')}><X size={14}/></button></div>}
+       {data.warnings?.length > 0 && <div className='warning-strip'><AlertTriangle size={15}/><span><b>Source issue:</b> {data.warnings.join(' · ')} Successful evidence remains available.</span></div>}
+       {tab === 'command' && <CommandPage data={data} provider={selected} detail={detail} onNavigate={navigate} onProvider={(ccn, providerState) => { void loadProvider(ccn, providerState || state); }}/>} 
+diff --git a/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css b/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
+index 583a40be77f4db59c3c27b9281b8299a9756d584..4c00a048150daca26fe9966505911dc86a6e30da 100644
+--- a/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
++++ b/artifacts/spartan-coaching/src/components/medicare-platform/platform-enhancements.css
+@@ -81,3 +81,154 @@
+   .mobile-nav { bottom: 9px; }
+   .mobile-nav select { min-height: 46px; font-size: 12px; }
+ }
++
++/* Native Spartan workspace integration: one shell, one navigation system. */
++:host {
++  border: 0;
++  border-radius: 0;
++  overflow: visible;
++  box-shadow: none;
++  background: #f2f6f8;
++}
++
++.app-shell { display: block; min-height: 0; background: #f2f6f8; }
++.main { width: 100%; }
++.topbar {
++  position: relative;
++  top: auto;
++  display: grid;
++  grid-template-columns: minmax(240px, .75fr) minmax(500px, 1.5fr) auto;
++  align-items: end;
++  min-height: 0;
++  padding: 26px 30px 22px;
++  gap: 24px;
++  background: #fff;
++  border-bottom: 1px solid #dbe5eb;
++}
++.page-title span { color: #087f86; font-size: 10px; letter-spacing: .14em; }
++.page-title h1 { margin-top: 5px; font-size: 28px; line-height: 1.1; letter-spacing: -.025em; }
++.page-title p { margin: 7px 0 0; color: #607486; font-size: 12px; line-height: 1.45; }
++.topbar-workspace { width: 100%; min-width: 0; margin: 0; }
++.market-picker { flex-basis: 178px; }
++.market-picker > span { font-size: 10px; }
++.market-picker select, .global-search > label { min-height: 48px; border-radius: 12px; }
++.market-picker select, .global-search input { font-size: 13px; }
++.global-search { width: auto; flex-basis: auto; }
++.topbar-actions { display: flex; gap: 8px; }
++.topbar-actions button {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  gap: 7px;
++  min-height: 48px;
++  padding: 0 13px;
++  border: 1px solid #d4e0e7;
++  border-radius: 12px;
++  background: #fff;
++  color: #254158;
++  font-size: 12px;
++  font-weight: 800;
++}
++.topbar-actions button:hover, .topbar-actions button.active { background: #eaf6f5; border-color: #8fc7c5; color: #075e66; }
++
++.context-bar {
++  position: relative;
++  top: auto;
++  grid-template-columns: minmax(300px, 1fr) 190px 190px;
++  background: #f9fbfc;
++  box-shadow: none;
++}
++.context-bar > div { padding: 15px 30px; }
++.context-bar small { font-size: 9px; }
++.context-bar b { font-size: 13px; }
++.context-bar em { font-size: 11px; }
++
++.workspace-nav {
++  display: flex;
++  gap: 7px;
++  width: 100%;
++  padding: 12px 30px;
++  overflow-x: auto;
++  scrollbar-width: thin;
++  background: #0b2335;
++  border-bottom: 1px solid #173c52;
++}
++.workspace-nav button {
++  display: inline-flex;
++  align-items: center;
++  gap: 7px;
++  min-height: 42px;
++  flex: 0 0 auto;
++  padding: 0 13px;
++  border: 1px solid transparent;
++  border-radius: 10px;
++  background: transparent;
++  color: #b8cad6;
++  font-size: 12px;
++  font-weight: 750;
++}
++.workspace-nav button:hover { background: #13364c; color: #fff; }
++.workspace-nav button.active { background: #14717a; color: #fff; border-color: #4ba5aa; box-shadow: 0 6px 18px rgba(0,0,0,.16); }
++.mobile-nav { display: none; }
++
++.page { max-width: 1500px; padding: 28px 30px 60px; }
++.hero { padding: 28px 30px; margin-bottom: 20px; border-radius: 16px; }
++.hero h2 { max-width: 920px; font-size: 30px; line-height: 1.16; }
++.hero p { font-size: 13px; }
++.kicker { font-size: 9px; }
++.executive-posture { padding: 20px 22px; margin-bottom: 18px; border-radius: 14px; }
++.executive-posture h3 { font-size: 22px; }
++.executive-posture p { font-size: 11px; }
++.posture-stats b { font-size: 18px; }
++.posture-stats small { font-size: 9px; }
++.decision-layout { grid-template-columns: minmax(0, 1fr) 310px; gap: 18px; }
++.decision-card { grid-template-columns: 54px minmax(0, 1fr); margin-bottom: 14px; border-radius: 14px; }
++.decision-body { padding: 18px; }
++.decision-body h3 { font-size: 18px; }
++.decision-statement { font-size: 13px; }
++.decision-evidence span { font-size: 11px; }
++.decision-operating > div { padding: 12px; }
++.decision-operating span { font-size: 9px; }
++.decision-operating p { font-size: 11px; }
++.decision-actions button, .hero-actions button, .primary { min-height: 44px; font-size: 12px; }
++.panel-head h3 { font-size: 18px; }
++.panel-head p, .alignment-mini p, .debt-list p { font-size: 11px; }
++.evidence-ledger summary { font-size: 11px; }
++.evidence-ledger p { font-size: 11px; }
++.execution-queue { margin-top: 18px; }
++.empty { font-size: 13px; }
++
++@media (max-width: 1280px) {
++  .topbar { grid-template-columns: minmax(220px, .7fr) minmax(420px, 1.3fr); }
++  .topbar-actions { grid-column: 1 / -1; justify-content: flex-end; }
++  .decision-layout { grid-template-columns: minmax(0, 1fr) 270px; }
++}
++
++@media (max-width: 900px) {
++  :host { border-radius: 0; }
++  .topbar { display: block; padding: 20px 16px 16px; }
++  .page-title { display: block; }
++  .page-title h1 { font-size: 25px; }
++  .page-title p { display: block; }
++  .topbar-workspace { display: grid; grid-template-columns: 130px minmax(0, 1fr); margin-top: 16px; }
++  .topbar-actions { display: none; }
++  .context-bar { position: relative; top: auto; grid-template-columns: 1fr 1fr; }
++  .context-bar > div { padding: 12px 16px; }
++  .context-bar > div:first-child { grid-column: 1 / -1; }
++  .workspace-nav { display: none; }
++  .mobile-nav { display: block; position: relative; inset: auto; padding: 10px 16px; background: #0b2335; }
++  .mobile-nav select { width: 100%; min-height: 48px; border-radius: 11px; background: #fff; color: #173348; font-size: 13px; }
++  .page { padding: 18px 14px 40px; }
++  .hero { padding: 20px; }
++  .hero h2 { font-size: 24px; }
++  .decision-layout { grid-template-columns: 1fr; }
++}
++
++@media (max-width: 600px) {
++  .topbar-workspace { grid-template-columns: 1fr; }
++  .market-picker { width: 100%; }
++  .global-search { width: 100%; }
++  .hero h2 { font-size: 22px; }
++  .executive-posture { grid-template-columns: 34px 1fr; }
++  .decision-card { grid-template-columns: 38px minmax(0, 1fr); }
++}
+diff --git a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
+index e1eb0c0b07625bb3e885d10c71bf40cca9645ffd..aa2ce00b786d380491f5f4621323aaee9175e760 100644
+--- a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
++++ b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.contract.test.tsx
+@@ -1,5 +1,7 @@
+ import { cleanup, render, screen } from "@testing-library/react";
+ import { afterEach, describe, expect, it, vi } from "vitest";
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
+ import { primaryWorkspaceNav } from "@/lib/workspaceShell";
+ import { MEMBER_NAV } from "@/lib/memberNav";
+ import { US_STATES } from "@/lib/usStates";
+@@ -12,6 +14,9 @@ vi.mock("@/components/medicare-platform/TrustedMedicarePlatform", () => ({ defau
+ afterEach(cleanup);
+ 
+ describe("Spartan Intelligence workspace contract", () => {
++  const pageSource = readFileSync(resolve(process.cwd(), "src/pages/SpartanIntelligence.tsx"), "utf8");
++  const dashboardSource = readFileSync(resolve(process.cwd(), "src/components/medicare-platform/NationalDashboard.tsx"), "utf8");
++
+   it("is a visible primary workspace destination", () => {
+     const nav = primaryWorkspaceNav("member");
+     const tools = nav.find((item) => item.href === "/tools" && item.label === "Tools");
+@@ -34,6 +39,12 @@ describe("Spartan Intelligence workspace contract", () => {
+     expect(document.querySelector("iframe")).toBeNull();
+   });
+ 
++  it("uses one native workspace shell instead of nesting a second dashboard", () => {
++    expect(pageSource).not.toContain("FieldKitToolLayout");
++    expect(dashboardSource).not.toContain("<aside className='sidebar'");
++    expect(dashboardSource).toContain("className='workspace-nav'");
++  });
++
+   it("offers every United States market", () => {
+     expect(US_STATES).toHaveLength(51);
+     expect(US_STATES).toContainEqual(["DC", "District of Columbia"]);
+diff --git a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
+index d45e0a89d39b878887712033e7b91e0ad3572403..a7ea635f7c8fae3773a218b12c7488ee0cdc214f 100644
+--- a/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
++++ b/artifacts/spartan-coaching/src/pages/SpartanIntelligence.tsx
+@@ -1,15 +1,14 @@
+-import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+ import { SEO } from "@/components/SEO";
+ import TrustedMedicarePlatform from "@/components/medicare-platform/TrustedMedicarePlatform";
+ 
+ export default function SpartanIntelligence() {
+   return (
+-    <FieldKitToolLayout toolPath="/tools/intelligence" className="max-w-none" showHowTo={false}>
++    <div className="medicare-workspace-page">
+       <SEO
+         title="CMS Medicare Knowledge Hub | Hospice Sales Pro"
+         description="National hospice market, provider, territory, referral, financial, and decision intelligence grounded in current public evidence."
+       />
+       <TrustedMedicarePlatform />
+-    </FieldKitToolLayout>
++    </div>
+   );
+ }
+-- 
+2.51.1
+
