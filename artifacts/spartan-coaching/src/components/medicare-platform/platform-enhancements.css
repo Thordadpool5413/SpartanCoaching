@@ -1,0 +1,83 @@
+:host {
+  --nav: #071827;
+  --nav2: #0d2b42;
+  --ink: #13283b;
+  --muted: #526b80;
+  --line: #d4e1e9;
+  --panel: #ffffff;
+  --accent: #087f86;
+  display: block;
+  color: var(--ink);
+  background: #eef4f7;
+  border: 1px solid #ccdae3;
+  border-radius: 20px;
+  overflow: clip;
+  box-shadow: 0 24px 70px rgba(8, 32, 50, .13);
+}
+
+.app-shell { grid-template-columns: 252px minmax(0, 1fr); min-height: 860px; }
+.sidebar { padding: 24px 16px; background: linear-gradient(180deg, #061827, #0b2b42 72%, #0c3448); }
+.brand { padding: 2px 8px 22px; gap: 12px; }
+.brand > span { width: 48px; height: 48px; border-radius: 14px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.brand b { font-size: 14px; letter-spacing: -.01em; }
+.brand small { font-size: 10px; color: #9db4c6; }
+.nav-group { margin-bottom: 16px; }
+.nav-group > span { padding: 7px 10px; font-size: 9px; }
+.nav-group button { min-height: 42px; border-radius: 11px; padding: 10px 11px; font-size: 12px; }
+.sidebar-footer > button { width: 100%; min-height: 40px; margin-top: 7px; border: 1px solid #2b526a; border-radius: 10px; color: #d8e7f1; background: #102f44; font-size: 11px; font-weight: 800; }
+.login-card { margin-top: 12px; display: grid; grid-template-columns: 22px 1fr; gap: 9px; align-items: center; padding: 12px; border-radius: 12px; border: 1px solid #2d566e; background: rgba(255,255,255,.055); }
+.login-card b, .login-card small { display: block; }
+.login-card b { font-size: 11px; color: #fff; }
+.login-card small { margin-top: 2px; font-size: 9px; color: #9eb4c4; }
+.topbar { min-height: 104px; padding: 13px 24px; gap: 18px; }
+.page-title span, .kicker { font-size: 9px; }
+.page-title h1 { font-size: 21px; }
+.topbar-workspace { margin-left: auto; display: flex; align-items: end; gap: 10px; min-width: min(560px, 48vw); }
+.market-picker { display: grid; gap: 4px; flex: 0 0 150px; }
+.market-picker > span { color: var(--muted); font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.market-picker select { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 800; }
+.global-search { flex: 1 1 300px; }
+.global-search > label { min-height: 40px; }
+.topbar-actions button { min-height: 40px; font-size: 11px; }
+.context-bar { top: 104px; }
+.context-bar > div { padding: 12px 15px; }
+.context-bar small { font-size: 9px; }
+.context-bar b { font-size: 12px; }
+.context-bar em { font-size: 10px; }
+.page { padding: 24px 26px 48px; }
+.hero { padding: 25px 27px; margin-bottom: 18px; border-radius: 16px; box-shadow: 0 10px 30px rgba(16, 49, 72, .07); }
+.hero h2 { font-size: 27px; margin: 6px 0 9px; }
+.hero p { font-size: 13px; line-height: 1.6; }
+.panel { border-radius: 15px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(16, 45, 67, .06); }
+.panel-head { padding: 18px 19px; }
+.panel-head h3 { font-size: 17px; }
+.panel-head p { font-size: 12px; }
+.metric { min-height: 126px; border-radius: 14px; padding: 17px; }
+.metric > span { font-size: 10px; }
+.metric > b { font-size: 23px; margin: 7px 0; }
+.metric > small { font-size: 10px; }
+.launch-card { min-height: 88px; border-radius: 14px; padding: 16px; }
+.launch-card b { font-size: 13px; }
+.launch-card p, .launch-card small { font-size: 10px; line-height: 1.5; }
+.rank-table b, .simple-row b, .entity-list b, .capability-list b { font-size: 12px; }
+.rank-table small, .simple-row small, .entity-list small, .capability-list small { font-size: 10px; }
+.rank-table > button, .watch-row > button:first-child { padding: 13px 15px; }
+.simple-row > span { padding: 13px 15px; font-size: 11px; }
+.field > span, .compare-picker > div label { font-size: 10px; }
+.field input, .field select, .field textarea, .compare-picker select { min-height: 42px; font-size: 12px; }
+.primary, .hero-actions button, .workspace-button { min-height: 42px; font-size: 11px; }
+.guardrail, .scope-note, .alert, .warning-strip { font-size: 10px; line-height: 1.6; }
+.empty, .loading { font-size: 12px; }
+
+@media (max-width: 900px) {
+  :host { border-radius: 14px; }
+  .app-shell { min-height: 780px; }
+  .page { padding: 15px 12px 84px; }
+  .hero h2 { font-size: 23px; }
+  .hero p { font-size: 12px; }
+  .topbar { min-height: 66px; }
+  .topbar-workspace, .topbar-actions { display: none; }
+  .context-bar { top: 66px; }
+  .mobile-nav { bottom: 9px; }
+  .mobile-nav select { min-height: 46px; font-size: 12px; }
+}
