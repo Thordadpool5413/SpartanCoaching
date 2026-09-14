@@ -14,15 +14,16 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).not.toContain("One item per line");
   });
 
-  it("exposes the complete source platform as the default mobile workspace", () => {
+  it("exposes a native command center as the default mobile workspace", () => {
     expect(screen).toContain('useState<Workspace>("platform")');
-    expect(screen).toContain("Open complete CMS platform");
-    expect(screen).toContain("Command Center");
-    expect(screen).toContain("Provider 360");
-    expect(screen).toContain("Territory Deployment");
-    expect(screen).toContain("Referral Market");
-    expect(screen).toContain("Data Lab");
-    expect(screen).toContain("WebBrowser.openBrowserAsync");
+    expect(screen).toContain("Know what is true. Make the next move.");
+    expect(screen).toContain("COMMAND CENTER");
+    expect(screen).toContain("Verify identity and prepare the account");
+    expect(screen).toContain("Explore Care Compare records and profiles");
+    expect(screen).toContain("Build an evidence-backed next move");
+    expect(screen).toContain("Explain sourced CMS guidance clearly");
+    expect(screen).not.toContain("WebBrowser.openBrowserAsync");
+    expect(screen).not.toContain("appdeploy.ai");
   });
 
   it("connects verified search to an Elite account brief", () => {
@@ -65,5 +66,7 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).toContain("Clipboard.setStringAsync");
     expect(screen).toContain("Share.share");
     expect(screen).toContain("AsyncStorage.setItem");
+    expect(screen).toContain("/api/v1/member-work");
+    expect(screen).toContain("available on iPhone and web");
   });
 });

@@ -24,8 +24,8 @@ type DecisionBrief = {
   sources: Array<{ label: string; url: string; checkedAt: string }>;
 };
 
-export function MedicareDecisionPanel() {
-  const [ccn, setCcn] = useState("");
+export function MedicareDecisionPanel({ initialCcn = "" }: { initialCcn?: string }) {
+  const [ccn, setCcn] = useState(initialCcn);
   const [goal, setGoal] = useState("");
   const [brief, setBrief] = useState<DecisionBrief | null>(null);
   const [loading, setLoading] = useState(false);

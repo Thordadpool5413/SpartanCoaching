@@ -1,6 +1,6 @@
 import { AccentText } from "@/components/AccentText";
 import { useMemo, useState } from "react";
-import { BarChart3, Building2, Loader2, MapPin, Search, ShieldCheck } from "lucide-react";
+import { BarChart3, Building2, GitCompareArrows, Loader2, MapPin, Search, ShieldCheck, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ type Summary = { totalMatched: number; displayed: number; ownership: Array<{ lab
 type Measure = { code: string; name: string; displayScore: string; comparisonLabel: string; favorable: boolean | null; reportingPeriod: string; footnote: string };
 type Profile = { organization: Hospice; quality: Measure[]; familyExperience: Measure[]; serviceArea: { zipCodes: string[]; count: number }; strengths: string[]; questionsToAsk: string[]; interpretation: string; sources: Array<{ label: string; url: string; checkedAt: string }> };
 
-export function HospiceMarketPanel() {
+export function HospiceMarketPanel({ onCompare, onDecide }: { onCompare?: (ccn: string) => void; onDecide?: (ccn: string) => void } = {}) {
   const [state, setState] = useState(""); const [city, setCity] = useState(""); const [county, setCounty] = useState("");
   const [zipCode, setZipCode] = useState(""); const [name, setName] = useState(""); const [ownership, setOwnership] = useState("");
   const [results, setResults] = useState<Hospice[]>([]); const [summary, setSummary] = useState<Summary | null>(null);
@@ -84,7 +84,11 @@ export function HospiceMarketPanel() {
           <div className="grid gap-4 md:grid-cols-2"><MeasureGroup title="Quality measures" items={profile.quality} /><MeasureGroup title="Family experience" items={profile.familyExperience} /></div>
           <Section title="Questions to verify"><List items={profile.questionsToAsk} /></Section>
           <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 text-xs leading-relaxed text-muted-foreground">{profile.interpretation}</div>
-          <ToolResultActions toolId="spartan-intelligence" title="Keep this market profile" description="Save the verified CMS profile to My Work." saveResult={{ toolId: "spartan-intelligence", title: profile.organization.facilityName + " market profile", kind: "intelligence_brief", value: JSON.stringify(profile), input: { ccn: profile.organization.ccn, state, city, county, zipCode }, nextAction: { title: "Prepare the next account conversation", href: "/tools/intelligence" } }} actions={[{ id: "my-work", label: "Open My Work", href: "/my-work" }]} testId="market-profile-actions" />
+          <ToolResultActions toolId="spartan-intelligence" title="Move this evidence forward" description="Compare the provider, build a decision, or save the verified profile to My Work." saveResult={{ toolId: "spartan-intelligence", title: profile.organization.facilityName + " market profile", kind: "intelligence_brief", value: JSON.stringify(profile), input: { ccn: profile.organization.ccn, state, city, county, zipCode }, nextAction: { title: "Prepare the next account conversation", href: "/tools/intelligence" } }} actions={[
+            ...(onCompare ? [{ id: "compare", label: "Add to Compare", icon: GitCompareArrows, onClick: () => onCompare(profile.organization.ccn) }] : []),
+            ...(onDecide ? [{ id: "decide", label: "Build Decision", icon: Target, onClick: () => onDecide(profile.organization.ccn), variant: "outline" as const }] : []),
+            { id: "my-work", label: "Open My Work", href: "/my-work", variant: "outline" as const },
+          ]} testId="market-profile-actions" />
         </div>}
       </Card>
     </div> : null}

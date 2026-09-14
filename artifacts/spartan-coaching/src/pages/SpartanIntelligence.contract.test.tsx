@@ -16,10 +16,16 @@ vi.mock("@/components/PolicyNavigatorPanel", () => ({
   PolicyNavigatorPanel: () => <div data-testid="policy-panel">Policy workspace</div>,
 }));
 vi.mock("@/components/HospiceMarketPanel", () => ({
-  HospiceMarketPanel: () => <div data-testid="market-panel">Market workspace</div>,
+  HospiceMarketPanel: ({ onCompare, onDecide }: { onCompare?: (ccn: string) => void; onDecide?: (ccn: string) => void }) => <div data-testid="market-panel">Market workspace<button onClick={() => onCompare?.("123456")}>Send to compare</button><button onClick={() => onDecide?.("123456")}>Send to decision</button></div>,
 }));
 vi.mock("@/components/MedicareDecisionPanel", () => ({
-  MedicareDecisionPanel: () => <div data-testid="decision-panel">Decision workspace</div>,
+  MedicareDecisionPanel: ({ initialCcn }: { initialCcn?: string }) => <div data-testid="decision-panel">Decision workspace {initialCcn}</div>,
+}));
+vi.mock("@/components/MedicareCommandCenter", () => ({
+  MedicareCommandCenter: () => <div data-testid="command-center">Command Center</div>,
+}));
+vi.mock("@/components/MedicareComparePanel", () => ({
+  MedicareComparePanel: ({ initialCcn }: { initialCcn?: string }) => <div data-testid="compare-panel">Compare workspace {initialCcn}</div>,
 }));
 
 afterEach(cleanup);
@@ -41,11 +47,11 @@ describe("Spartan Intelligence workspace contract", () => {
     expect(tools?.match("/tools/intelligence")).toBe(false);
   });
 
-  it("switches between the four working intelligence missions", () => {
+  it("switches between every native intelligence mission", () => {
     render(<SpartanIntelligence />);
 
-    expect(screen.getByTestId("cms-national-platform")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Field assistant" }));
+    expect(screen.getByTestId("command-center")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("intelligence-mission-referral"));
     expect(screen.getByTestId("referral-panel")).toBeTruthy();
     fireEvent.click(screen.getByTestId("intelligence-mission-policy"));
     expect(screen.getByTestId("policy-panel")).toBeTruthy();
@@ -58,6 +64,9 @@ describe("Spartan Intelligence workspace contract", () => {
     fireEvent.click(screen.getByTestId("intelligence-mission-decision"));
     expect(screen.getByTestId("decision-panel")).toBeTruthy();
     expect(screen.queryByTestId("market-panel")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("intelligence-mission-compare"));
+    expect(screen.getByTestId("compare-panel")).toBeTruthy();
   });
 
   it("labels evidence and guidance so users can judge every answer", () => {
@@ -69,15 +78,22 @@ describe("Spartan Intelligence workspace contract", () => {
     expect(screen.getByText("Missing evidence")).toBeTruthy();
   });
 
-  it("integrates the complete national CMS platform instead of only renaming the tool", () => {
+  it("carries the selected provider from Market into Compare and Decision", () => {
+    render(<SpartanIntelligence />);
+    fireEvent.click(screen.getByTestId("intelligence-mission-market"));
+    fireEvent.click(screen.getByRole("button", { name: "Send to compare" }));
+    expect(screen.getByTestId("compare-panel").textContent).toContain("123456");
+    fireEvent.click(screen.getByTestId("intelligence-mission-market"));
+    fireEvent.click(screen.getByRole("button", { name: "Send to decision" }));
+    expect(screen.getByTestId("decision-panel").textContent).toContain("123456");
+  });
+
+  it("keeps the CMS workflows native to the Spartan workspace", () => {
     render(<SpartanIntelligence />);
 
     expect(screen.getByText("Command Center")).toBeTruthy();
-    expect(screen.getByText("Provider 360")).toBeTruthy();
-    expect(screen.getByText("Territory Deployment")).toBeTruthy();
-    expect(screen.getByText("Referral Market")).toBeTruthy();
-    expect(screen.getByText("Data Lab")).toBeTruthy();
-    expect(screen.getByTitle("CMS Medicare Knowledge Hub national intelligence platform")).toBeTruthy();
+    expect(screen.getByTestId("intelligence-mission-compare")).toBeTruthy();
+    expect(document.querySelector("iframe")).toBeNull();
   });
 
   it("offers the complete United States state selector", () => {
