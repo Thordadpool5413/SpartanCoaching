@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, DeviceEventEmitter, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -69,24 +68,18 @@ type DecisionBrief = {
 };
 
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
-  { value: "platform", label: "Full Hub", icon: "database" },
+  { value: "platform", label: "Overview", icon: "grid" },
   { value: "referral", label: "Provider", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
   { value: "decision", label: "Decide", icon: "target" },
   { value: "policy", label: "Policy", icon: "book-open" },
 ];
 
-const CMS_PLATFORM_URL = "https://oklahoma-hospice-intelligence-os-mogirs.v2.appdeploy.ai/";
 const platformCapabilities = [
-  ["Command Center", "National and state market signal"],
-  ["Decision Room", "Evidence, confidence, guardrails, action"],
-  ["Provider 360", "Utilization, quality, ownership, history"],
-  ["National Search", "Find Medicare-certified hospices"],
-  ["Provider Compare", "Compare three organizations"],
-  ["Growth Strategy", "Build a measurable 90-day plan"],
-  ["Territory Deployment", "County evidence and service geography"],
-  ["Referral Market", "Hospitals, SNFs, and physicians"],
-  ["Data Lab", "Source health, periods, and diagnostics"],
+  ["Provider", "Verify identity and prepare the account", "referral", "users"],
+  ["Market", "Explore Care Compare records and profiles", "market", "map"],
+  ["Decide", "Build an evidence-backed next move", "decision", "target"],
+  ["Policy", "Explain sourced CMS guidance clearly", "policy", "book-open"],
 ] as const;
 
 const policyTopics: Choice[] = [
@@ -139,7 +132,7 @@ export default function SpartanIntelligenceScreen() {
         <View style={styles.hero}>
           <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>CMS MEDICARE KNOWLEDGE HUB</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>National hospice intelligence in your field kit.</Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Open the complete CMS platform or use the focused field workflows below.</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Move through verified provider, market, decision, and policy workflows without leaving Spartan.</Text>
           <View style={styles.trustGrid}>
             <TrustItem icon="shield" label="Verified fact" colors={colors} />
             <TrustItem icon="bar-chart-2" label="Calculated result" colors={colors} />
@@ -156,7 +149,7 @@ export default function SpartanIntelligenceScreen() {
             </Pressable>;
           })}
         </View>
-        {workspace === "platform" ? <PlatformWorkspace colors={colors} /> : null}
+        {workspace === "platform" ? <PlatformWorkspace colors={colors} onOpen={setWorkspace} /> : null}
         {workspace === "referral" ? <ReferralWorkspace colors={colors} /> : null}
         {workspace === "market" ? <MarketWorkspace colors={colors} /> : null}
         {workspace === "decision" ? <DecisionWorkspace colors={colors} /> : null}
@@ -167,25 +160,17 @@ export default function SpartanIntelligenceScreen() {
   );
 }
 
-function PlatformWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
-  const openPlatform = async () => {
-    await WebBrowser.openBrowserAsync(CMS_PLATFORM_URL, {
-      presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-      controlsColor: colors.primary,
-    });
-  };
-
+function PlatformWorkspace({ colors, onOpen }: { colors: ReturnType<typeof useColors>; onOpen: (workspace: Workspace) => void }) {
   return <View style={styles.workspace}>
-    <WorkspaceIntro number="01" eyebrow="COMPLETE NATIONAL PLATFORM" title="Use every workspace from the CMS source system." text="The full platform includes the national dashboard, provider dossiers, comparisons, territory intelligence, referral markets, decision workflows, private evidence, and source diagnostics." colors={colors} />
+    <WorkspaceIntro number="00" eyebrow="COMMAND CENTER" title="Know what is true. Make the next move." text="One native Spartan workspace for verified public evidence, careful interpretation, field decisions, and accountable follow-through." colors={colors} />
     <Panel colors={colors}>
       <View style={styles.capabilityList}>
-        {platformCapabilities.map(([title, detail], index) => <View key={title} style={[styles.capability, { borderColor: colors.border }]}>
+        {platformCapabilities.map(([title, detail, destination, icon], index) => <Pressable accessibilityRole="button" onPress={() => onOpen(destination)} key={title} style={[styles.capability, { borderColor: colors.border }]}>
           <View style={[styles.capabilityNumber, { backgroundColor: colors.primaryMuted }]}><Text style={[styles.capabilityNumberText, { color: colors.readablePrimary }, font("bold")]}>{String(index + 1).padStart(2, "0")}</Text></View>
-          <View style={styles.flex}><Text selectable style={[styles.sectionHeading, { color: colors.foreground }, font("bold")]}>{title}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{detail}</Text></View>
-        </View>)}
+          <View style={styles.flex}><Text selectable style={[styles.sectionHeading, { color: colors.foreground }, font("bold")]}>{title}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{detail}</Text></View><Feather name={icon} size={18} color={colors.readablePrimary} />
+        </Pressable>)}
       </View>
-      <SpartanButton title="Open complete CMS platform" onPress={() => void openPlatform()} />
-      <SourceNote text="Public CMS and Census evidence. Private operating facts require sign-in. Never enter patient information." colors={colors} />
+      <SourceNote text="Public CMS and NPPES evidence. Sources, reporting periods, and limitations stay attached. Never enter patient information." colors={colors} />
     </Panel>
   </View>;
 }
@@ -585,7 +570,16 @@ function ResultPanel({ eyebrow, title, shareText, colors, children }: { eyebrow:
     const raw = await AsyncStorage.getItem(SAVED_STORAGE_NAME); const current = raw ? JSON.parse(raw) as unknown[] : [];
     await AsyncStorage.setItem(SAVED_STORAGE_NAME, encodeStorageJson([{ title, text: shareText, savedAt: new Date().toISOString() }, ...current].slice(0, 20)));
     DeviceEventEmitter.emit("spartan-intelligence-saved");
-    Alert.alert("Saved", "This intelligence brief is saved on your device.");
+    try {
+      await apiPost("/api/v1/member-work", {
+        kind: "intelligence_brief", toolId: "spartan-intelligence", title, status: "completed",
+        input: { workspace: eyebrow.toLowerCase() }, output: { text: shareText },
+        nextAction: { title: "Pressure-test this intelligence with Coach", href: "/portal/coach" }, sourcePlatform: "ios",
+      }, { retry: true });
+      Alert.alert("Saved to My Work", "This intelligence is available on iPhone and web.");
+    } catch {
+      Alert.alert("Saved on this iPhone", "Cross-device saving is temporarily unavailable. Your work is safe on this device.");
+    }
   };
   return <View style={[styles.resultPanel, { backgroundColor: colors.card, borderColor: colors.primary }]}>
     <Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>{eyebrow}</Text>

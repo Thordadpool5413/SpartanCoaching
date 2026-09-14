@@ -14,4 +14,4 @@ test("searchNpiProviders returns results for a common last name", async () => {
     expect(r.npi).toBeTruthy();
     expect(r.name).toBeTruthy();
   }
-});
+}, 15_000);

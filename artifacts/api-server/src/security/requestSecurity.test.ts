@@ -130,7 +130,7 @@ test("applies browser hardening headers to public pages and API responses", () =
   applySecurityHeaders({} as Request, response, (() => { called = true; }) as NextFunction);
   expect(called).toBe(true);
   expect(headers.get("Content-Security-Policy")).toContain("frame-ancestors 'none'");
-  expect(headers.get("Content-Security-Policy")).toContain("frame-src https://oklahoma-hospice-intelligence-os-mogirs.v2.appdeploy.ai");
+  expect(headers.get("Content-Security-Policy")).toContain("frame-src 'none'");
   expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
   expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
   expect(headers.get("Permissions-Policy")).toContain("camera=()");
