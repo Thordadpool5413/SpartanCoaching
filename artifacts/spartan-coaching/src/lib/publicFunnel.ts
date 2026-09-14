@@ -18,6 +18,7 @@ export const PUBLIC_FUNNEL_EVENT = {
   membershipPlanSelection: "membership_plan_selection",
   appInterest: "app_interest",
   appHandoff: "app_handoff",
+  workspaceHandoff: "workspace_handoff",
 } as const;
 
 export type PublicFunnelEvent =

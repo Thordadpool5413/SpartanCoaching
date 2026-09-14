@@ -96,6 +96,9 @@ components:
           type: string
         mobileHref:
           type: string
+        resumeWorkId:
+          type: string
+          format: uuid
     WorkspaceNextMoveContext:
       type: object
       required: [contextAvailable, hasJobRole, hasCommitment, hasDraftWork, hasReviewableWork, canUseElite, alsoLeadsTeam]

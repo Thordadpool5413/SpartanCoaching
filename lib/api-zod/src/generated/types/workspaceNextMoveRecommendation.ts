@@ -21,4 +21,5 @@ export interface WorkspaceNextMoveRecommendation {
   reason: string;
   webHref: string;
   mobileHref: string;
+  resumeWorkId?: string;
 }

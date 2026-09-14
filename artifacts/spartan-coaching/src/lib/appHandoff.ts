@@ -21,7 +21,7 @@ const WEB_APP_FALLBACKS: Record<AppHandoffDestination, string> = {
   tools: "/tools",
   coach: "/portal/coach",
   account: "/account",
-  "my-work": "/portal",
+  "my-work": "/my-work",
 };
 
 export function normalizeAppHandoffDestination(

@@ -1,4 +1,4 @@
-import { index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const memberWorkItems = pgTable("member_work_items", {
   id: uuid("id").primaryKey(),
@@ -13,6 +13,7 @@ export const memberWorkItems = pgTable("member_work_items", {
   output: jsonb("output").$type<Record<string, unknown>>().notNull(),
   nextAction: jsonb("next_action").$type<{ title: string; href?: string; dueAt?: string } | null>(),
   sourcePlatform: text("source_platform").notNull().default("web"),
+  idempotencyKey: text("idempotency_key"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   archivedAt: timestamp("archived_at", { withTimezone: true }),
@@ -20,4 +21,9 @@ export const memberWorkItems = pgTable("member_work_items", {
   ownerUpdatedIdx: index("member_work_owner_updated_idx").on(table.organizationId, table.memberId, table.updatedAt),
   accountIdx: index("member_work_account_idx").on(table.organizationId, table.accountId),
   toolIdx: index("member_work_tool_idx").on(table.organizationId, table.memberId, table.toolId),
+  idempotencyIdx: uniqueIndex("member_work_idempotency_uidx").on(
+    table.organizationId,
+    table.memberId,
+    table.idempotencyKey,
+  ),
 }));

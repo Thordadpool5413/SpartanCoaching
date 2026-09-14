@@ -47,6 +47,7 @@ export function PublicConversionPanel({
 
   const trackCta = (token: string) => {
     trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, `${source}:${token}`);
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.workspaceHandoff, `${source}:${token}`);
   };
 
   return (

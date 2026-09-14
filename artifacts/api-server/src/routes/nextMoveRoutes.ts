@@ -59,8 +59,23 @@ export function registerNextMoveRoutes(app: Express): void {
         alsoLeadsTeam: member.alsoLeadsTeam,
       };
       const decision = decideNextMove(context);
+      const resumeWorkId =
+        decision.recommendation.id === "continue-draft-work"
+          ? draft[0]?.id
+          : decision.recommendation.id === "review-recent-work"
+            ? reviewable[0]?.id
+            : undefined;
+      const recommendation = resumeWorkId
+        ? {
+            ...decision.recommendation,
+            resumeWorkId,
+            webHref: `${decision.recommendation.webHref}?work=${encodeURIComponent(resumeWorkId)}`,
+            mobileHref: `${decision.recommendation.mobileHref}?work=${encodeURIComponent(resumeWorkId)}`,
+          }
+        : decision.recommendation;
       const response = GetWorkspaceNextMoveResponse.parse({
         ...decision,
+        recommendation,
         generatedAt: new Date().toISOString(),
       });
       res.json(response);

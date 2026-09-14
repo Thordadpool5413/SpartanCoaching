@@ -18,6 +18,7 @@ export type NextMoveRecommendation = {
   reason: string;
   webHref: string;
   mobileHref: string;
+  resumeWorkId?: string;
 };
 
 export type NextMoveDecision = {

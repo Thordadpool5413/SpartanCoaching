@@ -12,6 +12,7 @@ export type NextMoveData = {
   description: string;
   reason: string;
   webHref: string;
+  resumeWorkId?: string;
 };
 
 type ElitePortalHomeProps = {

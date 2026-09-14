@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { StateBlock } from "@/components/StateBlock";
+import { loadMemberWork, type MemberWorkItem } from "@/lib/memberWorkClient";
 
 type ToolDraft = { value: Record<string, string>; updatedAt: string };
 type ToolResult = { value: string; updatedAt: string };
@@ -168,6 +169,7 @@ export function normalizeMemberSync(response: MemberSyncResponse): ContinuityRes
 export default function MyWork() {
   const [continuity, setContinuity] = useState<ContinuityResponse | null>(null);
   const [resourceWork, setResourceWork] = useState<ResourceWork[]>([]);
+  const [memberWork, setMemberWork] = useState<MemberWorkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
@@ -177,7 +179,7 @@ export default function MyWork() {
     setError("");
     setWarning("");
 
-    const [continuityResult, resourceResult] = await Promise.allSettled([
+    const [continuityResult, resourceResult, memberWorkResult] = await Promise.allSettled([
       fetch("/api/v1/member-sync", { credentials: "include" }).then(async (response) => {
         if (!response.ok) throw new Error("Saved tool continuity is unavailable.");
         return normalizeMemberSync(await response.json() as MemberSyncResponse);
@@ -186,12 +188,14 @@ export default function MyWork() {
         if (!response.ok) throw new Error("Interactive resource work is unavailable.");
         return response.json() as Promise<{ items?: ResourceWork[] }>;
       }),
+      loadMemberWork(),
     ]);
 
     if (continuityResult.status === "fulfilled") setContinuity(continuityResult.value);
     else setContinuity(null);
     if (resourceResult.status === "fulfilled") setResourceWork(resourceResult.value.items ?? []);
     else setResourceWork([]);
+    if (memberWorkResult.status === "fulfilled") setMemberWork(memberWorkResult.value);
 
     if (continuityResult.status === "rejected" && resourceResult.status === "rejected") {
       setError("Your saved work could not be loaded.");
@@ -223,7 +227,7 @@ export default function MyWork() {
     () => newestFirst(Object.values(continuity?.payload.downloads ?? {})),
     [continuity],
   );
-  const savedCount = reports.length + drafts.length + results.length + downloads.length + resourceWork.length;
+  const savedCount = reports.length + drafts.length + results.length + downloads.length + resourceWork.length + memberWork.length;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="page-my-work">
@@ -284,6 +288,19 @@ export default function MyWork() {
           <WorkSection title="Interactive resources" empty="No interactive resource work has been saved yet.">
             {newestFirst([...resourceWork]).map((item) => (
               <WorkLink key={item.id} href={RESOURCE_ROUTES[item.resourceKey] ?? "/resources"} icon={<BookOpen className="h-5 w-5" />} title={item.title} meta={`${item.status === "completed" ? "Completed" : "Draft"} · ${dateLabel(item.updatedAt)}`} />
+            ))}
+          </WorkSection>
+
+          <WorkSection title="Shared field work" empty="Saved tool results and next actions from web or iPhone will appear here.">
+            {memberWork.map((item) => (
+              <WorkLink
+                key={item.id}
+                href={item.nextAction?.href || TOOL_ROUTES[item.toolId]?.href || "/tools"}
+                icon={item.status === "completed" ? <Shield className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+                title={item.title}
+                description={item.nextAction?.title || "Resume this saved field-work item."}
+                meta={`${item.status === "completed" ? "Completed" : item.status === "failed" ? "Needs retry" : "Draft"} · ${dateLabel(item.updatedAt)}`}
+              />
             ))}
           </WorkSection>
 

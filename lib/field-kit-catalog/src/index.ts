@@ -5,6 +5,7 @@
 
 export * from "./membership-plans";
 export * from "./hhh-mac-jurisdictions";
+export * from "./field-work-contract";
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
 export type { CatalogDestinationOwner } from "./destination-contract";

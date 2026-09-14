@@ -40,7 +40,8 @@ export const GetWorkspaceNextMoveResponse = zod.object({
   "description": zod.string(),
   "reason": zod.string(),
   "webHref": zod.string(),
-  "mobileHref": zod.string()
+  "mobileHref": zod.string(),
+  "resumeWorkId": zod.string().uuid().optional()
 }),
   "context": zod.object({
   "contextAvailable": zod.boolean(),

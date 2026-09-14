@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -26,6 +27,7 @@ type MemberWorkItem = {
   status: string;
   nextAction?: { title: string; href?: string } | null;
   updatedAt: string;
+  syncState?: "synced" | "completed" | "failed";
 };
 
 type NextMoveResponse = {
@@ -36,14 +38,20 @@ type NextMoveResponse = {
     description: string;
     reason: string;
     mobileHref: string;
+    resumeWorkId?: string;
   };
 };
+
+const cachedWorkKey = (memberId: number | string) => `spartan:member-work:v1:${memberId}`;
 
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, canUseElite, user } = useAuth();
+  const params = typeof useLocalSearchParams === "function"
+    ? useLocalSearchParams<{ work?: string }>()
+    : {};
   const { reduceMotion } = useAccessibilityPrefs();
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
@@ -53,6 +61,7 @@ export default function MyWorkScreen() {
   const [loadingWork, setLoadingWork] = useState(false);
   const [loadingNextMove, setLoadingNextMove] = useState(false);
   const [workError, setWorkError] = useState("");
+  const [workDelivery, setWorkDelivery] = useState<"synced" | "unavailable">("synced");
   const [nextMoveError, setNextMoveError] = useState(false);
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
@@ -82,7 +91,17 @@ export default function MyWorkScreen() {
     try {
       const nextWork = await loadMemberWork();
       setMemberWork(nextWork);
+      setWorkDelivery("synced");
+      if (user?.member.id) {
+        await AsyncStorage.setItem(cachedWorkKey(user.member.id), JSON.stringify(nextWork));
+      }
     } catch (error) {
+      setWorkDelivery("unavailable");
+      if (user?.member.id) {
+        const raw = await AsyncStorage.getItem(cachedWorkKey(user.member.id)).catch(() => null);
+        const cached = raw ? JSON.parse(raw) as MemberWorkItem[] : [];
+        if (Array.isArray(cached)) setMemberWork(cached);
+      }
       setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
     } finally {
       setLoadingWork(false);
@@ -97,8 +116,21 @@ export default function MyWorkScreen() {
     void Promise.all([
       listDownloadedLibraryItems(),
       listCalculatorReports(),
-      loadMemberWork().catch((error) => {
-        if (!cancelled) setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
+       loadMemberWork().then(async (items) => {
+         if (cancelled) return items;
+         setWorkDelivery("synced");
+         if (user?.member.id) await AsyncStorage.setItem(cachedWorkKey(user.member.id), JSON.stringify(items));
+         return items;
+       }).catch(async (error) => {
+         if (!cancelled) {
+           setWorkDelivery("unavailable");
+           if (user?.member.id) {
+             const raw = await AsyncStorage.getItem(cachedWorkKey(user.member.id)).catch(() => null);
+             const cached = raw ? JSON.parse(raw) as MemberWorkItem[] : [];
+             if (Array.isArray(cached)) setMemberWork(cached);
+           }
+           setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
+         }
         return [];
       }),
       user?.member.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
@@ -117,6 +149,15 @@ export default function MyWorkScreen() {
 
     return () => { cancelled = true; };
   }, [user?.member.id, loadMemberWork, loadNextMove, canUseFieldKit]));
+
+  React.useEffect(() => {
+    const workId = typeof params.work === "string" ? params.work : "";
+    if (!workId || !memberWork.length) return;
+    const item = memberWork.find((candidate) => candidate.id === workId);
+    if (item) openMemberWork(item);
+    // The route parameter is a one-time resume instruction from the server.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.work, memberWork]);
 
   const openMemberWork = (item: MemberWorkItem) => {
     const classic = getToolById(item.toolId);
@@ -241,7 +282,7 @@ export default function MyWorkScreen() {
                   <Feather name="alert-circle" size={18} color={colors.destructive} />
                   <Text style={styles.errorTitle}>Connection failed</Text>
                 </View>
-                <Text style={styles.errorBody}>{workError}</Text>
+                <Text style={styles.errorBody}>{memberWork.length ? "Showing the last saved list from this iPhone. Reconnect to refresh it." : workError}</Text>
                 <Pressable accessibilityRole="button" style={styles.retryButton} onPress={refreshWork}>
                   <Feather name="refresh-cw" size={15} color={colors.foreground} />
                   <Text style={styles.retryButtonText}>Retry</Text>
@@ -259,6 +300,9 @@ export default function MyWorkScreen() {
             )) : (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Completed plans, tool results, and resource work from either device will appear here.</Text></View>
             )}
+            {workDelivery === "synced" && !workError ? (
+              <Text style={styles.deliveryNote}>Connected work is synced across web and iPhone.</Text>
+            ) : null}
 
             {reports.length ? (
               <>
@@ -383,7 +427,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     retryButton: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", gap: 6, marginTop: 14, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: colors.secondary },
     fallbackActions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
     retryButtonText: { color: colors.foreground, fontSize: 13, ...font("bold") },
-    downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
+     downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
+     deliveryNote: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 2, marginBottom: 8, ...font("regular") },
     emptyCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 20, marginTop: 30 },
     emptyTitle: { color: colors.foreground, fontSize: 20, marginTop: 16, ...font("heavy") },
     emptyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 6, ...font("regular") },

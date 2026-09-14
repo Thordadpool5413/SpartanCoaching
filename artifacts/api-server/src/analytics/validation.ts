@@ -12,6 +12,7 @@ const PUBLIC_FUNNEL_EVENT_NAMES = new Set([
   "membership_plan_selection",
   "app_interest",
   "app_handoff",
+  "workspace_handoff",
 ]);
 
 export function isSafeAnalyticsLabel(value: unknown): value is string {
