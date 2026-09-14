@@ -34,6 +34,18 @@ hard metrics or named testimonials.
 - [ ] Gates / Day Zero / Account use **Hospice Sales Pro** (not Field Kit, not generic Membership product).
 - [ ] Live meta/title mentions Hospice Sales Pro / Consulting (curl or view-source).
 
+## Consultation booking pilot
+
+- [ ] Keep `FF_CONSULTATION_BOOKING` at the server default or set it explicitly
+      to `true` only while the owner-approved Calendly URL/build flags are valid.
+- [ ] For an incident pause, set `FF_CONSULTATION_BOOKING=false` on the API,
+      restart/redeploy the API (no iOS rebuild), record operator/reason/UTC
+      evidence, and verify `/api/client-config` reports
+      `consultation_booking:false`.
+- [ ] On resume, set the flag to `true`, restart/redeploy the API, record the
+      verification, and confirm Access Desk requests and saved work were not
+      changed. Follow `docs/field-work-loop.md`.
+
 ## Mobile / App Store (D7)
 
 - [ ] Verify the Apple Developer team and App Store Connect app interactively

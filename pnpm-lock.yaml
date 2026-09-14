@@ -648,6 +648,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/api-contract':
+        specifier: workspace:*
+        version: link:../../lib/api-contract
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
@@ -916,6 +919,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/api-contract':
+        specifier: workspace:*
+        version: link:../../lib/api-contract
       '@workspace/branch-engine':
         specifier: workspace:*
         version: link:../../lib/branch-engine

@@ -12,6 +12,7 @@ describe("feature flags", () => {
     const base = resolveFeatureFlags({ NODE_ENV: "test" });
     expect(base.activation_loop).toBe(true);
     expect(base.clinical_phi_workspace).toBe(false);
+    expect(base.consultation_booking).toBe(true);
 
     const on = resolveFeatureFlags({
       NODE_ENV: "test",
@@ -22,8 +23,10 @@ describe("feature flags", () => {
     const off = resolveFeatureFlags({
       NODE_ENV: "production",
       FF_UNIVERSAL_SEARCH: "false",
+      FF_CONSULTATION_BOOKING: "false",
     });
     expect(off.universal_search).toBe(false);
+    expect(off.consultation_booking).toBe(false);
   });
 
   it("isFeatureEnabled matches map", () => {

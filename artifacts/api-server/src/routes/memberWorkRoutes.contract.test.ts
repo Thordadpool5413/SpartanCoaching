@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const source = readFileSync(resolve(process.cwd(), "src/routes/memberWorkRoutes.ts"), "utf8");
+const migration = readFileSync(resolve(process.cwd(), "../../lib/db/migrations/0026_member_work_idempotency.sql"), "utf8");
 
 describe("member work route contract", () => {
   it("scopes every read and write to the authenticated owner", () => {
@@ -13,6 +14,7 @@ describe("member work route contract", () => {
 
   it("creates immutable history records instead of overwriting a tool slot", () => {
     expect(source).toContain("id: randomUUID()");
+    expect(source).toContain("onConflictDoNothing");
     expect(source).not.toContain("onConflictDoUpdate");
   });
 
@@ -21,5 +23,10 @@ describe("member work route contract", () => {
     expect(source).toContain("POTENTIAL_PHI_DETECTED");
     expect(source).toContain("nextAction");
     expect(source).toContain("accountId");
+  });
+
+  it("keeps idempotency unique within an organization and member, not globally", () => {
+    expect(migration).toContain('("organization_id", "member_id", "idempotency_key")');
+    expect(migration).toContain('WHERE "idempotency_key" IS NOT NULL');
   });
 });

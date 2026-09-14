@@ -14,6 +14,37 @@ export type SharedApiPath = {
   notes?: string;
 };
 
+export const MEMBER_WORK_ERROR_CODES = [
+  "UNAUTHORIZED",
+  "INVALID_ID",
+  "INVALID_INPUT",
+  "INVALID_IDEMPOTENCY_KEY",
+  "POTENTIAL_PHI_DETECTED",
+  "NOT_FOUND",
+  "LIST_FAILED",
+  "GET_FAILED",
+  "SAVE_FAILED",
+  "UPDATE_FAILED",
+] as const;
+
+export type MemberWorkErrorCode = (typeof MEMBER_WORK_ERROR_CODES)[number];
+
+export type MemberWorkError = {
+  code: MemberWorkErrorCode;
+  message: string;
+};
+
+export type MemberWorkErrorResponse = {
+  error: MemberWorkError;
+};
+
+export function memberWorkError(
+  code: MemberWorkErrorCode,
+  message: string,
+): MemberWorkErrorResponse {
+  return { error: { code, message } };
+}
+
 export const SHARED_API_PATHS: readonly SharedApiPath[] = [
   {
     method: "GET",

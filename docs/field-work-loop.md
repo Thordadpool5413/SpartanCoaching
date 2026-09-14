@@ -42,9 +42,37 @@ recent result the recommendation referred to.
 | HubSpot | Useful only if Access Desk cannot provide the required lead/org handoff | Requires a new external lead copy and deletion/reconciliation policy | Duplicate lead, disconnected account, and partial-sync handling are not justified yet | Conditional review only |
 
 This is a selection for a controlled pilot, not an immediate connection or data
-migration. The first implementation should be a single owned Calendly event type
-linked from the existing consultation path, with the existing Access Desk inquiry
-remaining the fallback and system of record. No PHI or tool content is sent.
+migration. The first implementation uses one owner-approved Calendly event type
+linked after the existing consultation request is submitted, with the existing
+Access Desk inquiry remaining the fallback and source of truth. The pilot is
+disabled when its public URL or feature flag is absent, and can be switched off
+without changing access requests, entitlements, notifications, or saved work.
+No PHI or tool content is sent.
+
+## Operator pause and resume
+
+Consultation booking is controlled by the server-owned `consultation_booking`
+client-config flag. The API environment variable is
+`FF_CONSULTATION_BOOKING`; it defaults to `true` so the existing owner-approved
+URL/build configuration remains the final safety gate.
+
+To pause the external handoff without rebuilding iOS:
+
+1. Record the operator, UTC timestamp, incident or reason, and deployment/change
+   reference in the incident or release record.
+2. Set `FF_CONSULTATION_BOOKING=false` in the API deployment environment and
+   restart or redeploy the API.
+3. Verify `GET /api/client-config` returns
+   `flags.consultation_booking=false`. Use synthetic contact details to confirm
+   web and mobile keep the Access Desk request path.
+
+To resume, set `FF_CONSULTATION_BOOKING=true`, restart or redeploy the API, and
+record the same evidence after verifying
+`flags.consultation_booking=true`. Both clients fail closed to Access Desk when
+the flag is paused, absent, or the client-config request fails. Pausing this
+flag does not alter entitlements, notifications, saved work, or Access Desk
+requests. The build-time Calendly URL and enable flags remain independent
+guards, so restoring the server flag cannot bypass an unconfigured pilot.
 
 ## Outcome measures
 
@@ -60,7 +88,102 @@ remaining the fallback and system of record. No PHI or tool content is sent.
    actionable retry, never a silent empty state.
 6. Pilot health: booking completion, fallback-to-Access-Desk rate, and external
    scheduling failure rate. Do not count a booking as a product completion until
-   the internal inquiry remains attributable.
+    the internal inquiry remains attributable.
+
+The pilot uses fixed event names with source tokens only:
+`consultation_booking_click`, `consultation_booking_success`,
+`consultation_booking_fallback`, and `consultation_booking_failure`.
+Calendly success/failure redirects return to the public contact route with the
+fixed `consultation=booked` or `consultation=failed` token. Mobile success is
+user-confirmed in the in-app schedule screen. No booking URL carries contact
+form answers or field-work content.
+
+## Release smoke: Calendly consultation recovery
+
+Run this smoke after the public web deploy and again for every TestFlight build
+that has consultation scheduling enabled. Use synthetic test contact details
+only; never use PHI, prompts, transcripts, drafts, or generated tool output.
+The Access Desk inquiry must remain the source of truth in every scenario.
+
+### Owner configuration before the smoke
+
+- Confirm the owner-approved Calendly event type is the configured
+  `VITE_CALENDLY_CONSULTATION_URL` / `EXPO_PUBLIC_CALENDLY_CONSULTATION_URL`.
+- Confirm Calendly's success redirect is exactly
+  `https://spartanhospicecoaching.com/contact?consultation=booked`.
+- Confirm Calendly's failure/cancel redirect is exactly
+  `https://spartanhospicecoaching.com/contact?consultation=failed`.
+- Confirm the event type is available for the test window. If it is not,
+  disable the pilot rather than substituting an unapproved booking URL.
+
+### Web scenarios
+
+1. Submit the public contact form with synthetic details and confirm the
+   resulting Access Desk request is visible and attributable.
+2. Open Calendly from the submitted state and complete a test booking. Confirm
+   the browser returns to `/contact` with exactly one query key,
+   `consultation=booked`, and the success card says the Access Desk request
+   remains the source of truth.
+3. Repeat with a Calendly failure/cancel. Confirm the browser returns with
+   exactly `consultation=failed`, the failure card offers the Access Desk
+   recovery path, and the original inquiry is still attributable.
+4. Run once with the web pilot disabled/unconfigured. Confirm the submitted
+   state keeps Access Desk follow-up visible and does not show a dead booking
+   link.
+5. In the analytics request/queue evidence, verify only the fixed
+   `source=public_contact` and the expected outcome token are present. Contact
+   answers, email addresses, organization names, and field-work content must
+   not be present.
+
+### Mobile/TestFlight scenarios
+
+1. With the configured URL, open Account → consulting → Calendly, complete the
+   test booking, tap **I booked a time**, and confirm the completion message
+   says the Access Desk request remains saved.
+2. With a QA build where
+   `EXPO_PUBLIC_CALENDLY_CONSULTATION_ENABLED=false` (or the URL is absent),
+   confirm the screen shows **Scheduling is temporarily unavailable**, says
+   the Access Desk request is saved, and returns to consulting.
+3. With the URL configured, force a WebView load failure (for example, block
+   the test host or use an offline test window). Confirm the same Access Desk
+   recovery state appears and the user can return without losing the request.
+4. Verify mobile analytics contains only
+   `source=mobile_consulting_schedule` plus the fixed outcome token
+   (`schedule_opened`, `user_confirmed`, `pilot_disabled_or_unconfigured`,
+   `access_desk_selected`, `webview_error`, or `http_error`). It must never
+   contain contact answers or field-work content.
+
+Record the build/commit, Calendly event type, redirect result, disabled-link
+result, WebView-failure result, and analytics-redaction result in the release
+record. Any missing attribution, unexpected query parameter, privacy leak, or
+booking failure that lacks recovery is a rollback trigger: disable the
+Calendly URL/flag and keep Access Desk follow-up enabled.
+
+## Admin handoff-health view
+
+Platform administrators can read the aggregate-only endpoint
+`GET /api/admin/analytics/field-work-health`. It accepts `days` (1–400) and an
+optional numeric `organizationId` (`all` is the default). Tenant-scoped results
+join authenticated events to the server-owned member organization; anonymous
+public handoffs are omitted from an organization filter and appear only in the
+all-tenant view. Organization names, member IDs, and member identity are not
+returned.
+
+The response groups only these allow-listed outcome names by UTC day and
+normalized platform (`web`, `ios`, `android`, or `unknown`):
+`workspace_handoff` / `field_work_handoff`, `save_retry_failure`,
+`sync_unavailable`, `field_work_completion`, and
+`consultation_booking_fallback` (with the documented compatibility aliases).
+It returns counts and row rates; rates are the share of recorded health events
+in that day/platform row, so counts remain the primary rollout signal. Raw
+metadata is never returned or exported. Analytics rows are retained for 400
+days by the existing scheduled sweep.
+
+The admin table exports the aggregate rows as CSV. Set
+`FIELD_WORK_HEALTH_ANALYTICS_ENABLED=false` (or `0` / `off`) to disable this
+projection without changing access, saved work, sync, notifications, or the
+consultation fallback path. A disabled response is explicit and empty, making
+the flag safe for rollback and export jobs.
 
 ## Rollout and rollback
 

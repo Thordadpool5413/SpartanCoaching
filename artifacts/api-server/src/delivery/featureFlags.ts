@@ -67,6 +67,13 @@ export const FEATURE_FLAG_DEFS: FeatureFlagDef[] = [
     risk: "low",
     description: "Product outcome analytics events (privacy-sanitized).",
   },
+  {
+    key: "consultation_booking",
+    envKey: "FF_CONSULTATION_BOOKING",
+    defaultEnabled: true,
+    risk: "high",
+    description: "Calendly consultation handoff after the Access Desk request.",
+  },
 ];
 
 function parseBool(raw: string | undefined, fallback: boolean): boolean {

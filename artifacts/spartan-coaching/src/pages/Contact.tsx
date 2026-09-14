@@ -34,6 +34,13 @@ import { cn } from "@/lib/utils";
 import { PersuasionShell } from "@/components/PersuasionShell";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import {
+  CONSULTATION_BOOKING_EVENT,
+  CONSULTATION_BOOKING_OUTCOME,
+  getCalendlyConsultationUrl,
+  trackConsultationBookingEvent,
+} from "@/lib/consultingBookings";
+import { fetchConsultationBookingEnabled } from "@/lib/clientConfig";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -72,9 +79,23 @@ export default function Contact() {
   const [step, setStep] = useState(1);
   const [serviceParam, setServiceParam] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [bookingStatus, setBookingStatus] = useState<"booked" | "failed" | null>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const movedBetweenSteps = useRef(false);
   const hasTrackedStart = useRef(false);
+  const hasTrackedBookingFallback = useRef(false);
+  const [serverBookingEnabled, setServerBookingEnabled] = useState(false);
+  const calendlyUrl = getCalendlyConsultationUrl(serverBookingEnabled);
+
+  useEffect(() => {
+    let mounted = true;
+    void fetchConsultationBookingEnabled().then((enabled) => {
+      if (mounted) setServerBookingEnabled(enabled);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -86,6 +107,31 @@ export default function Contact() {
       if (prefill) {
         form.setValue("serviceType", prefill);
       }
+    }
+
+    const consultation = params.get("consultation");
+    if (consultation === "booked") {
+      setBookingStatus("booked");
+      trackConsultationBookingEvent(
+        CONSULTATION_BOOKING_EVENT.success,
+        CONSULTATION_BOOKING_OUTCOME.success,
+      );
+    } else if (consultation === "failed") {
+      setBookingStatus("failed");
+      trackConsultationBookingEvent(
+        CONSULTATION_BOOKING_EVENT.failure,
+        CONSULTATION_BOOKING_OUTCOME.failure,
+      );
+    }
+
+    if (consultation === "booked" || consultation === "failed") {
+      params.delete("consultation");
+      const query = params.toString();
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+      );
     }
   }, []);
 
@@ -132,6 +178,13 @@ export default function Contact() {
     },
     onSuccess: () => {
       trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactSubmit, "contact_form");
+      if (!calendlyUrl && !hasTrackedBookingFallback.current) {
+        hasTrackedBookingFallback.current = true;
+        trackConsultationBookingEvent(
+          CONSULTATION_BOOKING_EVENT.fallback,
+          CONSULTATION_BOOKING_OUTCOME.fallbackPrimary,
+        );
+      }
       setSubmitted(true);
       setSubmitError(null);
       form.reset();
@@ -148,6 +201,22 @@ export default function Contact() {
       });
     },
   });
+
+  const trackCalendlyClick = () => {
+    trackConsultationBookingEvent(
+      CONSULTATION_BOOKING_EVENT.click,
+      CONSULTATION_BOOKING_OUTCOME.click,
+    );
+  };
+
+  const keepAccessDeskFollowUp = () => {
+    if (hasTrackedBookingFallback.current) return;
+    hasTrackedBookingFallback.current = true;
+    trackConsultationBookingEvent(
+      CONSULTATION_BOOKING_EVENT.fallback,
+      CONSULTATION_BOOKING_OUTCOME.fallbackSelected,
+    );
+  };
 
   useEffect(() => {
     if (!movedBetweenSteps.current) return;
@@ -212,6 +281,38 @@ export default function Contact() {
           className="mb-10"
         />
 
+        {bookingStatus && (
+          <Card
+            className={cn(
+              "mb-6 border-2",
+              bookingStatus === "booked"
+                ? "border-primary/30 bg-primary/5"
+                : "border-destructive/30 bg-destructive/5",
+            )}
+            data-testid={`card-consultation-booking-${bookingStatus}`}
+          >
+            <CardContent className="flex items-start gap-3 p-5">
+              {bookingStatus === "booked" ? (
+                <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              ) : (
+                <X className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+              )}
+              <div>
+                <p className="font-semibold text-foreground">
+                  {bookingStatus === "booked"
+                    ? "Your consultation time is booked."
+                    : "Calendly could not confirm the booking."}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {bookingStatus === "booked"
+                    ? "Your Access Desk request remains the source of truth. Nick will use it for any follow-up."
+                    : "Your Access Desk request is still the reliable path. Nick will follow up directly to schedule."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <FadeIn delay={0.1}>
           {submitted ? (
             <Card className="spacing-card text-center border-2 bg-card shadow-sm" data-testid="card-contact-success">
@@ -223,6 +324,33 @@ export default function Contact() {
                 <p className="text-body-lg text-muted-foreground max-w-md">
                   Nick will review your submission and reach out within one business day to schedule a 30-minute discovery call.
                 </p>
+                 {calendlyUrl ? (
+                   <div className="flex flex-wrap justify-center gap-3">
+                     <Button asChild className="font-bold" data-testid="button-open-calendly">
+                       <a
+                         href={calendlyUrl}
+                         target="_blank"
+                         rel="noreferrer"
+                         onClick={trackCalendlyClick}
+                       >
+                         Choose a time in Calendly
+                       </a>
+                     </Button>
+                     <Button
+                       type="button"
+                       variant="outline"
+                       onClick={keepAccessDeskFollowUp}
+                       className="font-bold"
+                       data-testid="button-keep-access-desk"
+                     >
+                       Keep Access Desk follow-up
+                     </Button>
+                   </div>
+                 ) : (
+                   <p className="max-w-md text-sm text-muted-foreground" data-testid="text-calendly-disabled">
+                     Scheduling is being coordinated through Access Desk. No action is needed from you.
+                   </p>
+                 )}
                 <Button
                   variant="outline"
                   onClick={() => { setSubmitted(false); form.reset(); setStep(1); }}

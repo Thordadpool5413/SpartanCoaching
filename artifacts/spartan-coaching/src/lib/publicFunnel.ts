@@ -19,6 +19,10 @@ export const PUBLIC_FUNNEL_EVENT = {
   appInterest: "app_interest",
   appHandoff: "app_handoff",
   workspaceHandoff: "workspace_handoff",
+  consultationBookingClick: "consultation_booking_click",
+  consultationBookingSuccess: "consultation_booking_success",
+  consultationBookingFallback: "consultation_booking_fallback",
+  consultationBookingFailure: "consultation_booking_failure",
 } as const;
 
 export type PublicFunnelEvent =
