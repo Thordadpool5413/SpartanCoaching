@@ -19,6 +19,8 @@ export type ClientConfig = {
   rollback?: { ios?: string };
 };
 
+export const CONSULTATION_BOOKING_FLAG = "consultation_booking" as const;
+
 let cached: ClientConfig | null = null;
 
 export function getAppVersion(): string {
@@ -55,7 +57,10 @@ export function clientIdentityHeaders(): Record<string, string> {
 export async function fetchClientConfig(): Promise<ClientConfig | null> {
   try {
     const base = getBaseUrl();
-    if (!base) return null;
+    if (!base) {
+      cached = null;
+      return null;
+    }
     const token = await getSessionToken();
     const headers: Record<string, string> = {
       ...clientIdentityHeaders(),
@@ -63,11 +68,15 @@ export async function fetchClientConfig(): Promise<ClientConfig | null> {
     };
     if (token) headers.Authorization = `Bearer ${token}`;
     const res = await fetch(`${base}/api/client-config`, { headers });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      cached = null;
+      return null;
+    }
     const data = (await res.json()) as ClientConfig;
     cached = data;
     return data;
   } catch {
+    cached = null;
     return null;
   }
 }

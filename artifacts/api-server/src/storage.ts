@@ -4,6 +4,7 @@ import {
   articles,
   visitors,
   users,
+  clientMembers,
   resources,
   podcasts,
   eventTracking,
@@ -73,6 +74,13 @@ import {
 } from "@workspace/db";
 import { db } from "./db";
 import { and, desc, eq, gte, count, ilike, isNotNull, sql } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
+import {
+  aggregateFieldWorkHealth,
+  fieldWorkHealthEventNames,
+  type FieldWorkHealthEventRow,
+  type FieldWorkHealthResponse,
+} from "./analytics/fieldWorkHealth";
 
 // Storage interface for CRUD operations
 export interface IStorage {
@@ -105,6 +113,11 @@ export interface IStorage {
   deletePodcast(id: number): Promise<void>;
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
+  getFieldWorkHealth(options: {
+    organizationId: number | null;
+    days: number;
+    retentionDays: number;
+  }): Promise<FieldWorkHealthResponse>;
   getEventAnalytics(): Promise<EventAnalytics>;
   getMobileUsagePerMember(): Promise<MobileUsagePerMember[]>;
   // Role-play operations (tenant-safe — never returns unowned legacy rows)
@@ -442,6 +455,40 @@ export class DatabaseStorage implements IStorage {
       .groupBy(eventTracking.eventName)
       .orderBy(desc(count()));
     return results;
+  }
+
+  async getFieldWorkHealth(options: {
+    organizationId: number | null;
+    days: number;
+    retentionDays: number;
+  }): Promise<FieldWorkHealthResponse> {
+    const cutoff = Date.now() - options.days * 24 * 60 * 60 * 1000;
+    const rows = await db
+      .select({
+        createdAt: eventTracking.createdAt,
+        eventType: eventTracking.eventType,
+        eventName: eventTracking.eventName,
+        metadata: eventTracking.metadata,
+        organizationId: clientMembers.organizationId,
+      })
+      .from(eventTracking)
+      .leftJoin(clientMembers, eq(eventTracking.memberId, clientMembers.id))
+      .where(and(
+        gte(eventTracking.createdAt, cutoff),
+        inArray(eventTracking.eventName, fieldWorkHealthEventNames()),
+        ...(options.organizationId == null
+          ? []
+          : [eq(clientMembers.organizationId, options.organizationId)]),
+      ));
+
+    return aggregateFieldWorkHealth(
+      rows as FieldWorkHealthEventRow[],
+      {
+        type: options.organizationId == null ? "all" : "organization",
+        organizationId: options.organizationId,
+      },
+      options.retentionDays,
+    );
   }
 
   async getEventAnalytics(): Promise<EventAnalytics> {

@@ -122,6 +122,8 @@ const downloadCSV = (rows: string[][], filename: string) => {
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [fieldWorkOrganizationId, setFieldWorkOrganizationId] = useState("all");
+  const [fieldWorkDays, setFieldWorkDays] = useState("30");
   const { toast } = useToast();
 
   // Session platform admin OR validated admin flag
@@ -300,6 +302,44 @@ export default function Admin() {
       enabled: isAuthenticated,
       refetchInterval: 60000,
     });
+
+  type FieldWorkHealthBucket = {
+    day: string;
+    platform: string;
+    eventCount: number;
+    handoffs: number;
+    saveRetryFailures: number;
+    syncUnavailable: number;
+    completions: number;
+    consultationFallbacks: number;
+    handoffRate: number;
+    saveRetryFailureRate: number;
+    syncUnavailableRate: number;
+    completionRate: number;
+    consultationFallbackRate: number;
+  };
+  type FieldWorkHealthResponse = {
+    enabled: boolean;
+    retentionDays: number;
+    generatedAt: string;
+    tenantScope: { type: "all" | "organization"; organizationId: number | null };
+    rows: FieldWorkHealthBucket[];
+    totals: Omit<FieldWorkHealthBucket, "day" | "platform">;
+  };
+
+  const fieldWorkHealthQuery = useQuery<FieldWorkHealthResponse>({
+    queryKey: [
+      "/api/admin/analytics/field-work-health",
+      fieldWorkOrganizationId,
+      fieldWorkDays,
+    ],
+    queryFn: () =>
+      adminGet(
+        `/api/admin/analytics/field-work-health?days=${encodeURIComponent(fieldWorkDays)}&organizationId=${encodeURIComponent(fieldWorkOrganizationId)}`,
+      ),
+    enabled: isAuthenticated,
+    refetchInterval: 60000,
+  });
 
   const { data: aiUsageData } = useQuery<{
     count: number;
@@ -2415,6 +2455,189 @@ export default function Admin() {
             </CardContent>
           </Card>
         )}
+      </div>
+
+      <div className="mb-8" data-testid="section-field-work-health">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">
+              <AccentText>Field-work handoff health</AccentText>
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+              Aggregate outcome counts and rates only. Prompts, drafts, transcripts,
+              PHI, email addresses, and raw event metadata are never returned.
+            </p>
+          </div>
+          {fieldWorkHealthQuery.data?.enabled && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              data-testid="button-export-field-work-health"
+              onClick={() => {
+                const data = fieldWorkHealthQuery.data;
+                if (!data) return;
+                downloadCSV(
+                  [
+                    [
+                      "day",
+                      "platform",
+                      "event_count",
+                      "handoffs",
+                      "handoff_rate_percent",
+                      "save_retry_failures",
+                      "save_retry_failure_rate_percent",
+                      "sync_unavailable",
+                      "sync_unavailable_rate_percent",
+                      "completions",
+                      "completion_rate_percent",
+                      "consultation_fallbacks",
+                      "consultation_fallback_rate_percent",
+                    ],
+                    ...data.rows.map((row) => [
+                      row.day,
+                      row.platform,
+                      String(row.eventCount),
+                      String(row.handoffs),
+                      String(row.handoffRate),
+                      String(row.saveRetryFailures),
+                      String(row.saveRetryFailureRate),
+                      String(row.syncUnavailable),
+                      String(row.syncUnavailableRate),
+                      String(row.completions),
+                      String(row.completionRate),
+                      String(row.consultationFallbacks),
+                      String(row.consultationFallbackRate),
+                    ]),
+                  ],
+                  "field-work-health.csv",
+                );
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Export aggregate CSV
+            </Button>
+          )}
+        </div>
+
+        <Card data-testid="card-field-work-health">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Daily view by platform
+                </CardTitle>
+                <CardDescription>
+                  Rates are the share of recorded field-work health events in each row.
+                  Counts are the primary rollout signal.
+                </CardDescription>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:flex">
+                <div className="space-y-1">
+                  <Label htmlFor="field-work-days" className="text-xs">Window</Label>
+                  <Select value={fieldWorkDays} onValueChange={setFieldWorkDays}>
+                    <SelectTrigger id="field-work-days" className="h-9 min-w-[110px] text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">7 days</SelectItem>
+                      <SelectItem value="30">30 days</SelectItem>
+                      <SelectItem value="90">90 days</SelectItem>
+                      <SelectItem value="400">400 days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="field-work-organization" className="text-xs">Organization ID</Label>
+                  <Input
+                    id="field-work-organization"
+                    value={fieldWorkOrganizationId === "all" ? "" : fieldWorkOrganizationId}
+                    onChange={(event) => {
+                      const value = event.target.value.replace(/\D/g, "");
+                      setFieldWorkOrganizationId(value || "all");
+                    }}
+                    placeholder="All tenants"
+                    inputMode="numeric"
+                    className="h-9 w-[130px] text-sm"
+                    aria-label="Filter by organization ID"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {fieldWorkHealthQuery.isLoading ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Loading field-work health…
+              </p>
+            ) : fieldWorkHealthQuery.isError ? (
+              <p className="py-6 text-center text-sm text-destructive">
+                Field-work health is temporarily unavailable.
+              </p>
+            ) : fieldWorkHealthQuery.data && !fieldWorkHealthQuery.data.enabled ? (
+              <div className="rounded-md border border-dashed p-5 text-center">
+                <p className="text-sm font-medium">Field-work health is disabled</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  The rollback-safe feature flag is off. Existing member work and access flows are unchanged.
+                </p>
+              </div>
+            ) : fieldWorkHealthQuery.data ? (
+              <>
+                <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  {[
+                    ["Handoffs", fieldWorkHealthQuery.data.totals.handoffs, "handoffs"],
+                    ["Save retry failures", fieldWorkHealthQuery.data.totals.saveRetryFailures, "save-retry-failures"],
+                    ["Sync unavailable", fieldWorkHealthQuery.data.totals.syncUnavailable, "sync-unavailable"],
+                    ["Completions", fieldWorkHealthQuery.data.totals.completions, "completions"],
+                    ["Consult fallback", fieldWorkHealthQuery.data.totals.consultationFallbacks, "consultation-fallbacks"],
+                  ].map(([label, value, testId]) => (
+                    <div key={String(testId)} className="rounded-md border p-3 text-center">
+                      <div className="text-xl font-bold" data-testid={`text-field-work-${testId}`}>
+                        {value}
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                {fieldWorkHealthQuery.data.rows.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[900px] text-left text-xs">
+                      <thead className="border-b text-muted-foreground">
+                        <tr>
+                          {["Day", "Platform", "Handoffs", "Save retries", "Sync unavailable", "Completions", "Consult fallback"].map((label) => (
+                            <th key={label} className="px-3 py-2 font-medium">{label}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fieldWorkHealthQuery.data.rows.map((row) => (
+                          <tr key={`${row.day}-${row.platform}`} className="border-b last:border-0">
+                            <td className="px-3 py-2 font-medium">{row.day}</td>
+                            <td className="px-3 py-2 capitalize">{row.platform}</td>
+                            <td className="px-3 py-2">{row.handoffs} <span className="text-muted-foreground">({row.handoffRate}%)</span></td>
+                            <td className="px-3 py-2">{row.saveRetryFailures} <span className="text-muted-foreground">({row.saveRetryFailureRate}%)</span></td>
+                            <td className="px-3 py-2">{row.syncUnavailable} <span className="text-muted-foreground">({row.syncUnavailableRate}%)</span></td>
+                            <td className="px-3 py-2">{row.completions} <span className="text-muted-foreground">({row.completionRate}%)</span></td>
+                            <td className="px-3 py-2">{row.consultationFallbacks} <span className="text-muted-foreground">({row.consultationFallbackRate}%)</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    No allow-listed field-work outcomes in this window.
+                  </p>
+                )}
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Tenant scope: {fieldWorkHealthQuery.data.tenantScope.type === "all" ? "all organizations" : `organization ${fieldWorkHealthQuery.data.tenantScope.organizationId}`}.
+                  Retention: {fieldWorkHealthQuery.data.retentionDays} days. Anonymous public handoffs are included only in the all-tenant view.
+                </p>
+              </>
+            ) : null}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">

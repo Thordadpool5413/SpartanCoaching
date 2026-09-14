@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "wouter";
@@ -64,11 +64,11 @@ function StickyBookCallContent() {
             isMobile ? "bottom-[calc(80px+env(safe-area-inset-bottom,0px))] left-[calc(16px+env(safe-area-inset-left,0px))] p-0 w-12 h-12" : "bottom-8 left-8 px-5 py-3"
           )}
           data-testid="button-contact-sticky"
-          aria-label="Contact us"
+          aria-label="Book a consultation"
         >
-          <Link href="/contact">
-            <Phone className="w-5 h-5" />
-            <span className="hidden sm:inline">Contact</span>
+          <Link href="/contact?service=Consulting">
+            <CalendarDays className="w-5 h-5" />
+            <span className="hidden sm:inline">Book a consultation</span>
           </Link>
         </Button>
       )}

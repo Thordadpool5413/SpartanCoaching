@@ -108,6 +108,17 @@ const AUTOMATED_SUITES = [
     ],
   },
   {
+    id: "api_saved_work_postgres",
+    label: "Saved-work PostgreSQL migration setup, retry concurrency, tenant isolation",
+    cwd: "artifacts/api-server",
+    command: "pnpm",
+    args: ["run", "test:postgres-integration"],
+    env: {
+      RUN_POSTGRES_INTEGRATION: "true",
+    },
+    requiresDatabase: true,
+  },
+  {
     id: "web_contracts",
     label: "Web a11y, membership, dual-schema, org admin panels",
     critical: true,
@@ -119,6 +130,7 @@ const AUTOMATED_SUITES = [
       "run",
       "src/lib/a11y.contract.test.ts",
       "src/lib/complianceCopy.test.ts",
+      "src/lib/consultingBookings.test.ts",
       "src/lib/workspaceShell.test.ts",
       "src/pages/FieldKitMembership.eliteCopy.test.tsx",
       "src/shared/schema.dualSourceOfTruth.test.ts",
@@ -143,6 +155,7 @@ const AUTOMATED_SUITES = [
       "__tests__/command-center-roleplay.test.ts",
       "__tests__/command-center-integrations.test.ts",
       "__tests__/app-config.test.ts",
+      "__tests__/consulting-booking-smoke.test.ts",
       "__tests__/apple-subscriptions.test.ts",
       "__tests__/deep-links.test.ts",
       "__tests__/field-guide-home.test.ts",
@@ -158,11 +171,43 @@ const results = [];
 
 function runSuite(suite) {
   console.log(`\n══ ${suite.label} (${suite.id}) ══\n`);
+  if (suite.requiresDatabase && !process.env.DATABASE_URL) {
+    const note =
+      "migration setup: DATABASE_URL is required; refusing to run against an unspecified database";
+    console.error(`[${suite.id}] FAIL — ${note}`);
+    results.push({
+      id: suite.id,
+      label: suite.label,
+      critical: suite.critical,
+      status: "FAIL",
+      exitCode: 2,
+      note,
+    });
+    return false;
+  }
+  if (
+    suite.requiresDatabase &&
+    process.env.CI !== "true" &&
+    process.env.POSTGRES_INTEGRATION_ISOLATED !== "true"
+  ) {
+    const note =
+      "migration setup: refusing to run without CI or POSTGRES_INTEGRATION_ISOLATED=true; use a fresh disposable database";
+    console.error(`[${suite.id}] FAIL — ${note}`);
+    results.push({
+      id: suite.id,
+      label: suite.label,
+      critical: suite.critical,
+      status: "FAIL",
+      exitCode: 2,
+      note,
+    });
+    return false;
+  }
   const cwd = path.join(root, suite.cwd);
   const r = spawnSync(suite.command, suite.args, {
     cwd,
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, ...suite.env },
     shell: process.platform === "win32",
   });
   const code = r.status ?? 1;

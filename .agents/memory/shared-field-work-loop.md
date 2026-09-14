@@ -15,6 +15,17 @@ draft/result it referred to, and retrying a save could create duplicate work.
 creating a second cross-device state model. Keep external integrations outside
 the system of record.
 
+For retry identity, the owner scope must be part of the database uniqueness
+boundary, and the write must tolerate a concurrent duplicate by reading back
+the owner-scoped winner. A read-before-insert check alone is not sufficient.
+
+**Why:** Two clients can pass the initial duplicate lookup before either insert
+commits, turning a valid retry into a unique-constraint error or duplicate item.
+
+**How to apply:** Keep idempotency keys bounded to the authenticated
+organization/member pair, use a database-level conflict-safe insert, and return
+only the row selected with that same owner predicate.
+
 Calendly is the selected consultation scheduling pilot as a link-based event
 type, with the internal Access Desk inquiry retained as the fallback and source
 of truth. Google Calendar is deferred because its authorization scope and

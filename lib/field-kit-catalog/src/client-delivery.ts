@@ -95,6 +95,7 @@ export const PRODUCT_FEATURE_FLAG_KEYS = [
   "universal_search",
   "activation_loop",
   "product_outcome_analytics",
+  "consultation_booking",
 ] as const;
 
 export type ProductFeatureFlagKey = (typeof PRODUCT_FEATURE_FLAG_KEYS)[number];

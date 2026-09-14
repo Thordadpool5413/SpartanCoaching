@@ -46,6 +46,7 @@
     "@types/react-dom": "~19.2.3",
     "@ungap/structured-clone": "^1.3.0",
     "@workspace/api-client-react": "workspace:*",
+    "@workspace/api-contract": "workspace:*",
     "@workspace/branch-engine": "workspace:*",
     "@workspace/design-tokens": "workspace:*",
     "@workspace/field-kit-catalog": "workspace:*",

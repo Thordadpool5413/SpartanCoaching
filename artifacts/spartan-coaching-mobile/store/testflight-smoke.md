@@ -44,7 +44,7 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 - [ ] EAS env: `EXPO_PUBLIC_API_URL` + `EXPO_PUBLIC_DOMAIN` → production host  
 - [ ] Demo user: login works; `fieldKit.allowed` true when testing entitled paths  
 - [ ] Second user or signed out state available for public Home
-- [ ] Microsoft Bookings URL is configured if exact in app scheduling is part of this build
+- [ ] Calendly consultation URL is configured if exact in-app scheduling is part of this build
 
 ## Public Home
 
@@ -121,9 +121,42 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 - [ ] Company administrator opens the native Admin hub
 - [ ] Admin can manage seats but cannot see prompts, drafts, recordings, transcripts, or unshared outputs
 - [ ] Consulting intake submits inside the app
-- [ ] Microsoft Bookings opens inside the app when configured
+- [ ] Calendly opens inside the app when configured, and Access Desk remains available if it is disabled or unavailable
+- [ ] **Calendly release recovery (see the evidence table below):** configured success, disabled-link fallback, WebView failure fallback, and redacted analytics all pass
 - [ ] Sign out returns to public Home
 - [ ] Light, Dark, and System appearance all update the entire app
+
+## Consultation booking recovery (release smoke)
+
+Run this section on every TestFlight build that includes the configured
+Calendly URL. Use synthetic contact details only. The existing Access Desk
+request must remain attributable; Calendly is never the source of truth.
+
+### Owner-approved configuration
+
+- [ ] The build uses the owner-approved Calendly event type.
+- [ ] Success redirect is exactly `https://spartanhospicecoaching.com/contact?consultation=booked`
+- [ ] Failure/cancel redirect is exactly `https://spartanhospicecoaching.com/contact?consultation=failed`
+- [ ] No booking URL contains contact answers or field-work content.
+
+### Physical iPhone
+
+- [ ] Submit consulting intake, open Calendly, complete the test booking, tap **I booked a time**, and confirm the screen says the Access Desk request remains saved.
+- [ ] Install/use a QA build with `EXPO_PUBLIC_CALENDLY_CONSULTATION_ENABLED=false` or no URL; confirm **Scheduling is temporarily unavailable**, the saved-request message, and **Return to consulting**.
+- [ ] With the URL configured, force a WebView failure by blocking the test host or using an offline test window; confirm the same Access Desk recovery state and return action.
+- [ ] Confirm analytics has only `source=mobile_consulting_schedule` and one fixed outcome token; no names, emails, contact answers, or field-work content.
+
+### Paired web check
+
+- [ ] On the deployed public website, complete one test booking and one failure/cancel; verify `/contact` receives only `consultation=booked` or `consultation=failed`.
+- [ ] Verify both web states say the Access Desk request remains the recovery/source-of-truth path.
+- [ ] Confirm web analytics has only `source=public_contact` and the fixed consultation outcome token.
+
+### Evidence
+
+| Build / commit | Calendly event | Success redirect | Disabled URL | WebView failure | Analytics redaction | Tester / date |
+|---|---|---|---|---|---|---|
+| | | pass / fail | pass / fail | pass / fail | pass / fail | |
 
 ## Feel (required for craft sign-off)
 

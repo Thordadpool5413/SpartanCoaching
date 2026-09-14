@@ -2,10 +2,10 @@ import { lt } from "drizzle-orm";
 import { eventTracking, visitors } from "@workspace/db";
 import { db } from "../db";
 
-const RETENTION_DAYS = 400;
+export const ANALYTICS_RETENTION_DAYS = 400;
 
 export function analyticsRetentionCutoff(now = Date.now()): number {
-  return now - RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  return now - ANALYTICS_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 }
 
 /**

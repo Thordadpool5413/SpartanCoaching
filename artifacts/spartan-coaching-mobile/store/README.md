@@ -80,27 +80,33 @@ pnpm dlx eas-cli@21.0.2 env:list --environment production
 Both variables should resolve to the production host. The `testflight` and
 `production` profiles explicitly use the EAS `production` environment.
 
-### 1c. Set Microsoft Bookings for exact consulting times
+### 1c. Set the Calendly consultation event for exact consulting times
 
 Consulting remains separately contracted. The native intake and confirmation
 flow works without this value, but choosing an exact appointment time requires
-the public HTTPS URL for the Spartan Coaching Microsoft Bookings page.
+the public HTTPS URL for the one owner-approved Spartan Coaching Calendly event
+type. The Access Desk inquiry remains the source of truth.
 
 ```bash
 pnpm dlx eas-cli@21.0.2 env:create production \
   --scope project \
-  --name EXPO_PUBLIC_MICROSOFT_BOOKINGS_URL \
-  --value 'https://outlook.office.com/book/REPLACE_WITH_YOUR_BOOKINGS_PAGE' \
+  --name EXPO_PUBLIC_CALENDLY_CONSULTATION_URL \
+  --value 'https://calendly.com/REPLACE_WITH_YOUR_CONSULTATION_EVENT' \
   --visibility plaintext
 ```
 
-Replace the example value with the actual public Microsoft Bookings URL. This
+Replace the example value with the actual public Calendly event URL. This
 is public configuration, not a credential. Confirm the saved value before the
 next build:
 
 ```bash
 pnpm dlx eas-cli@21.0.2 env:list --environment production
 ```
+
+Set `EXPO_PUBLIC_CALENDLY_CONSULTATION_ENABLED=false` to disable the pilot
+without affecting Access Desk requests, entitlements, notifications, or saved
+work. Calendly receives only the details entered into its own booking form;
+never add PHI, prompts, transcripts, drafts, or generated outputs to the link.
 
 ### 2. One-time credential setup (run once from your Mac)
 

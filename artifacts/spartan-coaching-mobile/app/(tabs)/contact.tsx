@@ -19,7 +19,8 @@ import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { clearConsultingConfirmation, loadConsultingConfirmation, saveConsultingConfirmation, type ConsultingConfirmation } from "@/lib/consultingConfirmation";
-import { getMicrosoftBookingsUrl } from "@/lib/consultingBookings";
+import { getCalendlyConsultationUrl } from "@/lib/consultingBookings";
+import { fetchClientConfig, getCachedClientConfig } from "@/lib/clientConfig";
 
 const SERVICES = [
   {
@@ -81,11 +82,24 @@ export default function ConsultingScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [confirmation, setConfirmation] = useState<ConsultingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const bookingsAvailable = Boolean(getMicrosoftBookingsUrl());
+  const [clientConfigLoaded, setClientConfigLoaded] = useState(false);
 
   useEffect(() => {
     void loadConsultingConfirmation().then(setConfirmation);
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    void fetchClientConfig().then(() => {
+      if (mounted) setClientConfigLoaded(getCachedClientConfig() !== null);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const bookingsAvailable =
+    clientConfigLoaded && Boolean(getCalendlyConsultationUrl());
 
   const update = (key: keyof Form, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const selectedService = SERVICES.find((service) => service.id === form.serviceType);
@@ -148,7 +162,7 @@ export default function ConsultingScreen() {
             <SummaryRow label="Preferred time" value={confirmation.availability} />
             <SummaryRow label="Submitted" value={new Date(confirmation.submittedAt).toLocaleDateString()} />
           </View>
-          {bookingsAvailable ? <SpartanButton title="Choose an exact time" onPress={() => router.push("/consulting-schedule" as never)} /> : null}
+           {bookingsAvailable ? <SpartanButton title="Choose a time in Calendly" onPress={() => router.push("/consulting-schedule" as never)} /> : null}
           <SpartanButton title="Done" onPress={() => { setSubmitted(false); setForm(EMPTY_FORM); }} />
         </View>
       </View>

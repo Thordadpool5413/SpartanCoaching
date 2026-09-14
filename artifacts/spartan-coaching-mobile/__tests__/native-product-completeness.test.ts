@@ -133,13 +133,15 @@ describe("native product completeness", () => {
     expect(rootLayout).toContain('name="reset-password"');
   });
 
-  it("supports a separate Microsoft Bookings schedule inside the app", () => {
+  it("supports a reversible Calendly schedule inside the app", () => {
     const consulting = read("app/(tabs)/contact.tsx");
     const schedule = read("app/consulting-schedule.tsx");
     const config = read("lib/consultingBookings.ts");
-    expect(config).toContain("EXPO_PUBLIC_MICROSOFT_BOOKINGS_URL");
-    expect(consulting).toContain("Choose an exact time");
-    expect(schedule).toContain("Microsoft Bookings");
+    expect(config).toContain("EXPO_PUBLIC_CALENDLY_CONSULTATION_URL");
+    expect(config).toContain("consultation_booking_fallback");
+    expect(consulting).toContain("Choose a time in Calendly");
+    expect(schedule).toContain("Calendly");
+    expect(schedule).toContain("Use Access Desk instead");
     expect(schedule).toContain("<WebView");
     expect(schedule).toContain("Do not enter patient PHI");
   });

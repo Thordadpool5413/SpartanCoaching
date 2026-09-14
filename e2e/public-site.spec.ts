@@ -226,6 +226,40 @@ async function expectKeyboardFocus(locator: Locator, label: string) {
 }
 
 test.describe("public website release gate", () => {
+  test("renders Calendly recovery states and removes the consultation token from history", async ({
+    page,
+  }) => {
+    await isolatePublicPage(page);
+
+    await page.goto("/contact?consultation=booked", {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("card-consultation-booking-booked")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Your Access Desk request remains the source of truth. Nick will use it for any follow-up.",
+      ),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/\/contact$/);
+    expect(new URL(page.url()).searchParams.has("consultation")).toBe(false);
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    expect(page.url()).not.toContain("consultation=booked");
+
+    await page.goto("/contact?consultation=failed", {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("card-consultation-booking-failed")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Your Access Desk request is still the reliable path. Nick will follow up directly to schedule.",
+      ),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/\/contact$/);
+    expect(new URL(page.url()).searchParams.has("consultation")).toBe(false);
+    await page.goBack({ waitUntil: "domcontentloaded" });
+    expect(page.url()).not.toContain("consultation=failed");
+  });
+
   for (const entry of publicPages) {
     test(`${entry.name} is complete and fits the viewport`, async ({ page }, testInfo) => {
       const pageErrors: string[] = [];

@@ -24,5 +24,10 @@ export {
 export {
   SHARED_API_PATHS,
   fieldKitOrSessionGatedPaths,
+  MEMBER_WORK_ERROR_CODES,
+  memberWorkError,
   type SharedApiPath,
+  type MemberWorkError,
+  type MemberWorkErrorCode,
+  type MemberWorkErrorResponse,
 } from "./shared-paths";

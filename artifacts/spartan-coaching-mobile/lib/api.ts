@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import type { MemberWorkError } from "@workspace/api-contract";
 import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
@@ -85,7 +86,7 @@ async function readApiError(res: Response): Promise<ApiError> {
   const text = await res.text().catch(() => res.statusText);
   try {
     const json = JSON.parse(text) as {
-      error?: string | { message?: string; code?: string };
+      error?: string | Partial<MemberWorkError>;
       code?: string;
     };
     const message =

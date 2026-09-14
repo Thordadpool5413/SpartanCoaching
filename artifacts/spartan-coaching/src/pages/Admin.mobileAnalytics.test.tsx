@@ -32,9 +32,45 @@ const mockEventAnalytics = {
   },
 };
 
+const mockFieldWorkHealth = {
+  enabled: true,
+  retentionDays: 400,
+  generatedAt: "2026-09-14T12:00:00.000Z",
+  tenantScope: { type: "all", organizationId: null },
+  rows: [{
+    day: "2026-09-14",
+    platform: "web",
+    eventCount: 5,
+    handoffs: 2,
+    saveRetryFailures: 1,
+    syncUnavailable: 1,
+    completions: 1,
+    consultationFallbacks: 0,
+    handoffRate: 40,
+    saveRetryFailureRate: 20,
+    syncUnavailableRate: 20,
+    completionRate: 20,
+    consultationFallbackRate: 0,
+  }],
+  totals: {
+    eventCount: 5,
+    handoffs: 2,
+    saveRetryFailures: 1,
+    syncUnavailable: 1,
+    completions: 1,
+    consultationFallbacks: 0,
+    handoffRate: 40,
+    saveRetryFailureRate: 20,
+    syncUnavailableRate: 20,
+    completionRate: 20,
+    consultationFallbackRate: 0,
+  },
+};
+
 vi.mock("@/lib/adminApi", () => ({
   adminGet: vi.fn(async (url: string) => {
     if (url.includes("/api/analytics/events")) return mockEventAnalytics;
+    if (url.includes("/api/admin/analytics/field-work-health")) return mockFieldWorkHealth;
     if (url.includes("/api/analytics/visitors")) return { analytics: { day: 0, week: 0, month: 0, quarter: 0, year: 0 } };
     if (url.includes("/api/inquiries")) return { inquiries: [] };
     if (url.includes("/api/newsletter/subscribers")) return { subscribers: [] };
@@ -177,6 +213,23 @@ describe("Admin page — mobile analytics cards", () => {
     expect(card).toBeTruthy();
     expect(card.textContent).toContain("11");
     expect(card.textContent).toContain("tools home");
+  }, 15_000);
+
+  it("renders the aggregate field-work health view without member content", async () => {
+    const { getByTestId } = await renderAdmin();
+
+    await waitFor(() => {
+      expect(getByTestId("card-field-work-health").textContent).toContain("Handoffs");
+    }, { timeout: 4000 });
+
+    const card = getByTestId("card-field-work-health");
+    expect(card.textContent).toContain("Handoffs");
+    expect(card.textContent).toContain("Save retry failures");
+    expect(card.textContent).toContain("Sync unavailable");
+    expect(card.textContent).toContain("2026-09-14");
+    expect(card.textContent).not.toContain("prompt");
+    expect(card.textContent).not.toContain("transcript");
+    expect(card.textContent).not.toContain("@");
   }, 15_000);
 
   it("renders card-mobile-ai-tool-usage empty state when no events are recorded", async () => {

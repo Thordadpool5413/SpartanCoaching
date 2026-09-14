@@ -69,6 +69,7 @@ Details: `docs/replit-publish.md`, `docs/production-verification.md`, `docs/sche
 [ ] Submit to ASC (Expo Submit or dashboard) — Apple agreements / API key must be valid
 [ ] Internal TestFlight install on physical iPhone
 [ ] Run store/testflight-smoke.md (shells A/B/C + Tools + Command + Account + I8)
+[ ] Run the Calendly consultation recovery section (success, disabled URL, WebView failure, analytics redaction)
 [ ] Run store/testflight-feel-checklist.md (craft principles F1–F29)
 [ ] Same email as smoke-parity-auth: Account status matches web /account
 [ ] Optional: 60s day-in-the-life video (docs/product-craft/15-day-in-the-life-script.md)
