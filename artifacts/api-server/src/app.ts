@@ -20,6 +20,7 @@ import { registerMemberSyncRoutes } from "./routes/memberSyncRoutes";
 import { registerAnalyticsRoutes } from "./routes/analyticsRoutes";
 import { registerMemberWorkRoutes } from "./routes/memberWorkRoutes";
 import { registerNextMoveRoutes } from "./routes/nextMoveRoutes";
+import { registerMedicareIntelligenceRoutes } from "./routes/medicareIntelligenceRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession, type AuthedRequest } from "./auth/middleware";
 import { requireClinicalJurisdictionContext } from "./clinical/jurisdictionMiddleware";
@@ -175,6 +176,7 @@ registerMemberSyncRoutes(app);
 registerAnalyticsRoutes(app);
 registerMemberWorkRoutes(app);
 registerNextMoveRoutes(app);
+registerMedicareIntelligenceRoutes(app);
 registerRoutes(app);
 
 export default app;
