@@ -14,6 +14,17 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).not.toContain("One item per line");
   });
 
+  it("exposes the complete source platform as the default mobile workspace", () => {
+    expect(screen).toContain('useState<Workspace>("platform")');
+    expect(screen).toContain("Open complete CMS platform");
+    expect(screen).toContain("Command Center");
+    expect(screen).toContain("Provider 360");
+    expect(screen).toContain("Territory Deployment");
+    expect(screen).toContain("Referral Market");
+    expect(screen).toContain("Data Lab");
+    expect(screen).toContain("WebBrowser.openBrowserAsync");
+  });
+
   it("connects verified search to an Elite account brief", () => {
     expect(screen).toContain("/api/reference/npi");
     expect(screen).toContain("/api/intelligence/account-brief");

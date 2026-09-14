@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, DeviceEventEmitter, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,7 +13,7 @@ import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 import { saveCoachHandoff } from "@/lib/coachHandoff";
 
-type Workspace = "referral" | "market" | "decision" | "policy";
+type Workspace = "platform" | "referral" | "market" | "decision" | "policy";
 type Choice = { value: string; label: string };
 type Source = { label: string; url?: string; checkedAt?: string };
 
@@ -68,11 +69,25 @@ type DecisionBrief = {
 };
 
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
+  { value: "platform", label: "Full Hub", icon: "database" },
   { value: "referral", label: "Provider", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
   { value: "decision", label: "Decide", icon: "target" },
   { value: "policy", label: "Policy", icon: "book-open" },
 ];
+
+const CMS_PLATFORM_URL = "https://oklahoma-hospice-intelligence-os-mogirs.v2.appdeploy.ai/";
+const platformCapabilities = [
+  ["Command Center", "National and state market signal"],
+  ["Decision Room", "Evidence, confidence, guardrails, action"],
+  ["Provider 360", "Utilization, quality, ownership, history"],
+  ["National Search", "Find Medicare-certified hospices"],
+  ["Provider Compare", "Compare three organizations"],
+  ["Growth Strategy", "Build a measurable 90-day plan"],
+  ["Territory Deployment", "County evidence and service geography"],
+  ["Referral Market", "Hospitals, SNFs, and physicians"],
+  ["Data Lab", "Source health, periods, and diagnostics"],
+] as const;
 
 const policyTopics: Choice[] = [
   { value: "hospice-benefit", label: "Medicare hospice benefit" },
@@ -113,7 +128,7 @@ const SAVED_STORAGE_NAME = "spartan_intelligence_saved_v2";
 export default function SpartanIntelligenceScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const [workspace, setWorkspace] = useState<Workspace>("referral");
+  const [workspace, setWorkspace] = useState<Workspace>("platform");
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 48 }]}>
@@ -123,8 +138,8 @@ export default function SpartanIntelligenceScreen() {
         </Pressable>
         <View style={styles.hero}>
           <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>CMS MEDICARE KNOWLEDGE HUB</Text>
-          <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the evidence. Make the next move.</Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Official CMS and NPPES evidence turned into decisions, conversations, and next actions.</Text>
+          <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>National hospice intelligence in your field kit.</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Open the complete CMS platform or use the focused field workflows below.</Text>
           <View style={styles.trustGrid}>
             <TrustItem icon="shield" label="Verified fact" colors={colors} />
             <TrustItem icon="bar-chart-2" label="Calculated result" colors={colors} />
@@ -141,6 +156,7 @@ export default function SpartanIntelligenceScreen() {
             </Pressable>;
           })}
         </View>
+        {workspace === "platform" ? <PlatformWorkspace colors={colors} /> : null}
         {workspace === "referral" ? <ReferralWorkspace colors={colors} /> : null}
         {workspace === "market" ? <MarketWorkspace colors={colors} /> : null}
         {workspace === "decision" ? <DecisionWorkspace colors={colors} /> : null}
@@ -149,6 +165,29 @@ export default function SpartanIntelligenceScreen() {
       </ScrollView>
     </View>
   );
+}
+
+function PlatformWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const openPlatform = async () => {
+    await WebBrowser.openBrowserAsync(CMS_PLATFORM_URL, {
+      presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+      controlsColor: colors.primary,
+    });
+  };
+
+  return <View style={styles.workspace}>
+    <WorkspaceIntro number="01" eyebrow="COMPLETE NATIONAL PLATFORM" title="Use every workspace from the CMS source system." text="The full platform includes the national dashboard, provider dossiers, comparisons, territory intelligence, referral markets, decision workflows, private evidence, and source diagnostics." colors={colors} />
+    <Panel colors={colors}>
+      <View style={styles.capabilityList}>
+        {platformCapabilities.map(([title, detail], index) => <View key={title} style={[styles.capability, { borderColor: colors.border }]}>
+          <View style={[styles.capabilityNumber, { backgroundColor: colors.primaryMuted }]}><Text style={[styles.capabilityNumberText, { color: colors.readablePrimary }, font("bold")]}>{String(index + 1).padStart(2, "0")}</Text></View>
+          <View style={styles.flex}><Text selectable style={[styles.sectionHeading, { color: colors.foreground }, font("bold")]}>{title}</Text><Text selectable style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{detail}</Text></View>
+        </View>)}
+      </View>
+      <SpartanButton title="Open complete CMS platform" onPress={() => void openPlatform()} />
+      <SourceNote text="Public CMS and Census evidence. Private operating facts require sign-in. Never enter patient information." colors={colors} />
+    </Panel>
+  </View>;
 }
 
 function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
@@ -623,6 +662,7 @@ const styles = StyleSheet.create({
   hero: { gap: 10 }, kicker: { fontSize: 10, letterSpacing: 2.1 }, title: { fontSize: 34, lineHeight: 39, letterSpacing: -1.1 }, subtitle: { fontSize: 16, lineHeight: 24 }, trustGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 4 }, trustItem: { width: "48%", minHeight: 38, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", gap: 7 }, trustLabel: { flex: 1, fontSize: 11, lineHeight: 14 },
   workspaceTabs: { flexDirection: "row", flexWrap: "wrap", gap: 5, borderWidth: 1, borderRadius: 18, padding: 5 }, workspaceTab: { width: "48%", flexGrow: 1, minHeight: 48, borderRadius: 13, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6 }, workspaceLabel: { fontSize: 12 },
   workspace: { gap: 20 }, intro: { gap: 9, paddingTop: 4 }, workspaceTitle: { fontSize: 27, lineHeight: 33, letterSpacing: -0.5 },
+  capabilityList: { gap: 0 }, capability: { minHeight: 68, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: 12, flexDirection: "row", alignItems: "center", gap: 12 }, capabilityNumber: { width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" }, capabilityNumberText: { fontSize: 10, letterSpacing: 1 },
   panel: { borderWidth: 1, borderRadius: 22, padding: 18, gap: 16 }, step: { gap: 5 }, sectionHeading: { fontSize: 19, lineHeight: 24 }, helper: { fontSize: 13, lineHeight: 19 },
   field: { gap: 8 }, label: { fontSize: 14 }, input: { minHeight: 52, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontSize: 16 }, multiline: { minHeight: 92, paddingTop: 13, textAlignVertical: "top" },
   fieldRow: { flexDirection: "row", gap: 11 }, flex: { flex: 1 }, stateField: { width: 88 }, zipField: { width: 116 }, segmentRow: { flexDirection: "row", gap: 9 },
