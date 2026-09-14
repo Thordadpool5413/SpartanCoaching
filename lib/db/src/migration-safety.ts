@@ -917,6 +917,23 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0026_member_work_idempotency",
+    title: "Idempotent member work persistence",
+    forwardPath: "lib/db/migrations/0026_member_work_idempotency.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT column_name = 'idempotency_key' AS ok FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'member_work_items' AND column_name = 'idempotency_key'`,
+      `SELECT indexdef LIKE '%organization_id%, %member_id%, %idempotency_key%' AS ok FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'member_work_items' AND indexname = 'member_work_idempotency_uidx'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the additive idempotency column and partial unique index during application rollback; they prevent duplicate member work without changing existing rows.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_work_items"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
