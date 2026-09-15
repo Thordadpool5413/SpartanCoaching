@@ -10,6 +10,7 @@ import DataLab from './DataLab';
 import type { AnyRow, DashboardData, Provider, ProviderDetail, TabId, User } from './types';
 import { solveGrowth } from './intelligenceMath';
 import { apiError, clean, money, num, pct, STATES, statusClass, today } from './utils';
+import { useAuth } from '@/context/AuthContext';
 
 const NAV: Array<{ id: TabId; label: string; group: string; icon: typeof Home }> = [
   { id:'decision',label:'Decision Room',group:'DECIDE',icon:Target },{ id:'command',label:'Command Center',group:'DECIDE',icon:Home },
@@ -26,6 +27,7 @@ const parseHash = () => {
 };
 
 export default function NationalDashboard() {
+  const auth = useAuth();
   const initial = useMemo(parseHash, []);
   const [data, setData] = useState<DashboardData | null>(null);
   const [detail, setDetail] = useState<ProviderDetail | null>(null);
@@ -35,7 +37,7 @@ export default function NationalDashboard() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState('');
-  const [user] = useState<User>({ userId: 'spartan-elite-member', name: 'Spartan Elite', scope: 'Secure member workspace' });
+  const user: User | null = auth.member ? { userId: String(auth.member.id), email: auth.member.email, name: auth.member.name, scope: 'Secure member workspace' } : null;
   const request = useRef({ market: 0, provider: 0 });
 
   const loadProvider = async (ccn: string, expectedState = state) => {
@@ -59,6 +61,7 @@ export default function NationalDashboard() {
       const response = await api.get(`/api/dashboard?state=${encodeURIComponent(nextState)}&ccn=${encodeURIComponent(requestedCcn)}${force ? '&force=1' : ''}`), next = response.data as DashboardData;
       if (id !== request.current.market) return;
       if (String(next.state).toUpperCase() !== nextState.toUpperCase()) throw new Error(`Market context mismatch: requested ${nextState}, received ${next.state || 'no state'}.`);
+      if (!Array.isArray(next.providers) || next.providers.length === 0) throw new Error(`${next.stateName || nextState} returned no usable hospice providers. Retry the market refresh or choose another state.`);
       if (requestedCcn && next.focusCcn !== requestedCcn) throw new Error(`Provider ${requestedCcn} was not resolved inside the ${nextState} market.`);
       request.current.provider += 1;
       setData(next); setState(next.state); setFocus(next.focusCcn); setDetail(null);
@@ -76,7 +79,7 @@ export default function NationalDashboard() {
   const selected = data?.providers.find((provider) => provider.ccn === focus) || detail?.provider || data?.providers[0];
   const navigate = (next: TabId) => setTab(next);
 
-  if (!data || !selected) return <div className='boot'><LoaderCircle className='spin' size={30}/><h2>Building national hospice intelligence...</h2><p>{error || 'Joining current CMS market and provider context.'}</p></div>;
+  if (!data || !selected) return <div className={`boot ${error ? 'boot-error' : ''}`}>{error ? <AlertTriangle size={30}/> : <LoaderCircle className='spin' size={30}/>}<h2>{error ? 'Medicare Intelligence could not open this market' : 'Building national hospice intelligence...'}</h2><p>{error || 'Joining current CMS market and provider context.'}</p>{error ? <div className='boot-actions'><label className='market-picker'><span>Try another market</span><select aria-label='Recovery Medicare market' value={state} onChange={(event) => setState(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><button type='button' className='primary' onClick={() => void loadMarket(state, '', true)}>Retry market</button></div> : null}</div>;
 
   return <div className='app-shell'>
     <main className='main'>

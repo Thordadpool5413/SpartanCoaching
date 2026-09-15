@@ -1,15 +1,29 @@
 const API_ROOT = "/api/v1/medicare";
+const REQUEST_TIMEOUT_MS = 45_000;
 
 type ApiResponse<T = any> = { data: T };
 
 async function request<T>(method: string, sourcePath: string, body?: unknown): Promise<ApiResponse<T>> {
   const path = sourcePath.startsWith("/api/") ? sourcePath.slice(4) : sourcePath;
-  const response = await fetch(`${API_ROOT}${path}`, {
-    method,
-    credentials: "include",
-    headers: body === undefined ? undefined : { "content-type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(`${API_ROOT}${path}`, {
+      method,
+      credentials: "include",
+      signal: controller.signal,
+      headers: body === undefined ? undefined : { "content-type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch (cause) {
+    const timedOut = controller.signal.aborted;
+    const failure = new Error(timedOut ? "The Medicare data request timed out. Retry the market or choose another state." : "The Medicare workspace could not reach the server.") as Error & { response?: { status: number; data: unknown } };
+    failure.response = { status: timedOut ? 408 : 0, data: { error: failure.message, code: timedOut ? "MEDICARE_TIMEOUT" : "MEDICARE_NETWORK_ERROR" } };
+    throw failure;
+  } finally {
+    window.clearTimeout(timeout);
+  }
   const text = await response.text();
   let data: any = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = { error: text || response.statusText }; }

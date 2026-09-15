@@ -113,6 +113,10 @@
 .market-picker > span { font-size: 10px; }
 .market-picker select, .global-search > label { min-height: 48px; border-radius: 12px; }
 .market-picker select, .global-search input { font-size: 13px; }
+.boot-error { padding: 32px; color: var(--danger); }
+.boot-error p { max-width: 620px; line-height: 1.65; }
+.boot-actions { display: flex; align-items: end; gap: 12px; margin-top: 12px; color: var(--ink); }
+.boot-actions .market-picker { min-width: 230px; text-align: left; }
 .global-search { width: auto; flex-basis: auto; }
 .topbar-actions { display: flex; gap: 8px; }
 .topbar-actions button {

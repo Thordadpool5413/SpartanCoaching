@@ -119,6 +119,16 @@ function withFieldKit(Page: ComponentType): ComponentType {
   };
 }
 
+function withEliteFieldKit(Page: ComponentType): ComponentType {
+  return function EliteGatedPage() {
+    return (
+      <RequireFieldKit tier="elite">
+        <Page />
+      </RequireFieldKit>
+    );
+  };
+}
+
 const GatedPlaybooks = withFieldKit(Playbooks);
 const GatedObjections = withFieldKit(Objections);
 const GatedResearch = withFieldKit(Research);
@@ -132,7 +142,7 @@ const GatedBranch = withFieldKit(BranchProfitability);
 const GatedColdCall = withFieldKit(ColdCallScript);
 const GatedWeeklyPlan = withFieldKit(WeeklyPlanBuilder);
 const GatedSalesWorkflow = withFieldKit(SalesWorkflow);
-const GatedSpartanIntelligence = withFieldKit(SpartanIntelligence);
+const GatedSpartanIntelligence = withEliteFieldKit(SpartanIntelligence);
 const GatedDrills = withFieldKit(Drills);
 const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
