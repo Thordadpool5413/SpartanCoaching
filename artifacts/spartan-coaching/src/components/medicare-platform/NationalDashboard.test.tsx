@@ -7,7 +7,9 @@ const mockGet = vi.hoisted(() => vi.fn());
 const mockPost = vi.hoisted(() => vi.fn());
 const mockPut = vi.hoisted(() => vi.fn());
 const mockDelete = vi.hoisted(() => vi.fn());
-const auth = vi.hoisted(() => ({ value: { member: null } }));
+const auth = vi.hoisted(() => ({
+  value: { member: null as null | { id: number; email: string; name: string } },
+}));
 
 vi.mock("./api", () => ({
   api: {
@@ -192,7 +194,7 @@ describe("NationalDashboard provider selector", () => {
     render(<NationalDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText("Command Center")).toBeTruthy();
+      expect(screen.getByLabelText("Select Medicare provider")).toBeTruthy();
     });
     fireEvent.click(screen.getByText("Watchlist & Alerts"));
 

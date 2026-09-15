@@ -52,7 +52,7 @@ async function source() {
   return { datasetId: DATASET_ID, modified, version: hash(`${DATASET_ID}|${modified}`) };
 }
 
-async function readStatus() {
+async function readStatus(): Promise<Status | null> {
   return readJson<Status>(STATUS);
 }
 
@@ -60,10 +60,10 @@ async function writeStatus(status: Status) {
   await writeJson(STATUS, status);
 }
 
-async function readIndex(paths: string[]) {
+async function readIndex(paths: string[]): Promise<Map<string, string[]>> {
   const files = await storage.read(paths);
   return new Map(files.map((file) => {
-    try { return [file.path, file.content ? JSON.parse(file.content) as string[] : []] as const; } catch { return [file.path, []] as const; }
+    try { return [file.path, file.content ? JSON.parse(file.content) as string[] : ([] as string[])]; } catch { return [file.path, [] as string[]]; }
   }));
 }
 
@@ -75,7 +75,7 @@ async function fetchPage(offset: number) {
   return { rows: Array.isArray(raw?.results) ? raw.results as Row[] : [], count: Number(raw?.count ?? raw?.total ?? 0) || 0 };
 }
 
-export async function seedNationalCompetitionWarehouse() {
+export async function seedNationalCompetitionWarehouse(): Promise<Status> {
   const src = await source();
   const existing = await readStatus();
   if (existing?.status === 'complete' && existing.sourceVersion === src.version) return existing;
@@ -86,12 +86,15 @@ export async function seedNationalCompetitionWarehouse() {
 
 export async function processCompetitionWarehouseStep(maxPages = 1) {
   const [queued, src] = await Promise.all([readJson<{ queuedAt: string; sourceVersion: string }>(QUEUE), source()]);
-  if (!queued) return { processed: false, reason: 'no queued warehouse', status: { status: 'complete' } };
+  if (!queued) {
+    return { processed: false, reason: 'no queued warehouse', status: (await readStatus()) || await seedNationalCompetitionWarehouse() };
+  }
   let status = await readStatus();
   if (!status || status.sourceVersion !== src.version) status = await seedNationalCompetitionWarehouse();
+  if (!status) throw new Error('Competition warehouse status unavailable');
   try {
     for (let page = 0; page < Math.max(1, maxPages); page += 1) {
-      const current = status!;
+      const current: Status = status;
       const pulled = await fetchPage(current.offset);
       const byProvider = new Map<string, Set<string>>(), byZip = new Map<string, Set<string>>();
       for (const row of pulled.rows) {
