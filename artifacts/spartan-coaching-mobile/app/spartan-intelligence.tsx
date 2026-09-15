@@ -11,6 +11,7 @@ import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 import { saveCoachHandoff } from "@/lib/coachHandoff";
+import { buildMedicareRuntimePath, type MedicareRuntimeOperationKey } from "@workspace/api-contract";
 
 type Workspace = "platform" | "operations" | "referral" | "market" | "decision" | "policy";
 type Choice = { value: string; label: string };
@@ -177,7 +178,7 @@ function PlatformWorkspace({ colors, onOpen }: { colors: ReturnType<typeof useCo
   </View>;
 }
 
-type MedicareOperation = readonly [string, string, string, keyof typeof Feather.glyphMap];
+type MedicareOperation = readonly [string, string, MedicareRuntimeOperationKey, keyof typeof Feather.glyphMap];
 const operations: MedicareOperation[] = [
   ["National command", "State market, county, provider, and competition signals", "dashboard", "map"],
   ["Provider 360", "Ownership, quality, utilization, and evidence", "intelligence", "home"],
@@ -201,15 +202,12 @@ function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> 
     setLoading(true); setResult(null);
     try {
       const key = selected[2];
-      const path = key === "dashboard" ? `/dashboard?state=${state}&ccn=${identifier}`
-        : key === "intelligence" ? `/intelligence?ccn=${identifier}&state=${state}`
-        : key === "physician" ? `/physician/${identifier}`
-        : key === "watchlist" ? "/watchlist"
-        : key === "decision-actions" ? `/decision-actions?ccn=${identifier}`
-        : key === "system-diagnostics" ? `/system-diagnostics?state=${state}&ccn=${identifier}`
-        : key === "territory-deployment-private" ? `/${key}/${identifier}?state=${state}`
-        : `/${key}/${identifier}`;
-      setResult(await apiGet(`/api/v1/medicare${path}`));
+      const path = buildMedicareRuntimePath(key, {
+        ccn: identifier,
+        npi: identifier,
+        state,
+      });
+      setResult(await apiGet(path));
     } catch (error) { setResult({ error: message(error) }); }
     finally { setLoading(false); }
   };

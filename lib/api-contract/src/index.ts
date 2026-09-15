@@ -24,8 +24,13 @@ export {
 export {
   SHARED_API_PATHS,
   fieldKitOrSessionGatedPaths,
+  MEDICARE_API_ROOT,
+  MEDICARE_SHARED_API_PATHS,
   MEMBER_WORK_ERROR_CODES,
+  buildMedicareRuntimePath,
   memberWorkError,
+  type MedicareRuntimeOperationKey,
+  type MedicareRuntimePathInput,
   type SharedApiPath,
   type MemberWorkError,
   type MemberWorkErrorCode,

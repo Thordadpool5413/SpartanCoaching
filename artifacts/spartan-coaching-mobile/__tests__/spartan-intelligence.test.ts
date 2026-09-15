@@ -54,6 +54,11 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).toContain("Linking.openURL");
   });
 
+  it("uses the shared Medicare runtime contract for native operations", () => {
+    expect(screen).toContain("buildMedicareRuntimePath");
+    expect(screen).not.toContain('setResult(await apiGet(`/api/v1/medicare${path}`))');
+  });
+
   it("distinguishes sourced facts, calculations, guidance, and missing evidence", () => {
     expect(screen).toContain("Verified fact");
     expect(screen).toContain("Calculated result");

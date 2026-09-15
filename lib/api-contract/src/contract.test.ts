@@ -14,7 +14,10 @@ import {
   isPastRemovalDate,
 } from "./compatibility";
 import {
+  MEDICARE_API_ROOT,
+  MEDICARE_SHARED_API_PATHS,
   SHARED_API_PATHS,
+  buildMedicareRuntimePath,
   fieldKitOrSessionGatedPaths,
 } from "./shared-paths";
 
@@ -101,6 +104,8 @@ describe("shared web+iOS paths", () => {
         "/api/v1/sales-workflow/today",
         "/api/v1/sales-workflow/debrief/draft",
         "/api/objections",
+        `${MEDICARE_API_ROOT}/dashboard`,
+        `${MEDICARE_API_ROOT}/provider/:ccn`,
       ]),
     );
   });
@@ -121,5 +126,12 @@ describe("shared web+iOS paths", () => {
       true,
     );
     expect(gated.every((p) => p.auth !== "none")).toBe(true);
+  });
+
+  it("publishes one shared Medicare runtime contract for web and iOS", () => {
+    expect(MEDICARE_SHARED_API_PATHS.every((path) => path.clients.includes("web") && path.clients.includes("ios"))).toBe(true);
+    expect(buildMedicareRuntimePath("dashboard", { state: "TX", ccn: "123456" })).toBe("/api/v1/medicare/dashboard?state=TX&ccn=123456");
+    expect(buildMedicareRuntimePath("territory-deployment-private", { state: "OK", ccn: "123456" })).toBe("/api/v1/medicare/territory-deployment-private/123456?state=OK");
+    expect(buildMedicareRuntimePath("alerts")).toBe("/api/v1/medicare/alerts");
   });
 });

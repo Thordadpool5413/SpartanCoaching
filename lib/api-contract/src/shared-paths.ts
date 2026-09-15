@@ -14,6 +14,133 @@ export type SharedApiPath = {
   notes?: string;
 };
 
+export const MEDICARE_API_ROOT = "/api/v1/medicare";
+export type MedicareRuntimeOperationKey =
+  | "dashboard"
+  | "provider"
+  | "county"
+  | "hospital"
+  | "physicians"
+  | "physician"
+  | "physician-warehouse-status"
+  | "provider-search"
+  | "intelligence"
+  | "ssvi"
+  | "hcris"
+  | "hcris-routing"
+  | "service-geography"
+  | "white-space"
+  | "expansion-screening"
+  | "territory-deployment"
+  | "territory-map"
+  | "territory-deployment-private"
+  | "capabilities"
+  | "provider-history"
+  | "source-health"
+  | "competition-coverage-status"
+  | "system-diagnostics"
+  | "decision-actions"
+  | "watchlist"
+  | "alerts"
+  | "winloss";
+
+export type MedicareRuntimePathInput = {
+  ccn?: string;
+  fips?: string;
+  npi?: string;
+  state?: string;
+  q?: string;
+  force?: boolean;
+  detail?: boolean;
+  deep?: boolean;
+};
+
+function withQuery(path: string, query: Record<string, string | undefined>) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (typeof value === "string" && value.trim()) params.set(key, value);
+  }
+  return params.size ? `${path}?${params.toString()}` : path;
+}
+
+export function buildMedicareRuntimePath(
+  operation: MedicareRuntimeOperationKey,
+  input: MedicareRuntimePathInput = {},
+) {
+  switch (operation) {
+    case "dashboard":
+      return withQuery(`${MEDICARE_API_ROOT}/dashboard`, { state: input.state, ccn: input.ccn });
+    case "provider":
+      return `${MEDICARE_API_ROOT}/provider/${encodeURIComponent(String(input.ccn || ""))}`;
+    case "county":
+      return `${MEDICARE_API_ROOT}/county/${encodeURIComponent(String(input.fips || ""))}`;
+    case "hospital":
+      return `${MEDICARE_API_ROOT}/hospital/${encodeURIComponent(String(input.ccn || ""))}`;
+    case "physicians":
+      return `${MEDICARE_API_ROOT}/physicians/${encodeURIComponent(String(input.state || ""))}`;
+    case "physician":
+      return `${MEDICARE_API_ROOT}/physician/${encodeURIComponent(String(input.npi || ""))}`;
+    case "physician-warehouse-status":
+      return `${MEDICARE_API_ROOT}/physician-warehouse-status`;
+    case "provider-search":
+      return withQuery(`${MEDICARE_API_ROOT}/provider-search`, { q: input.q, state: input.state });
+    case "intelligence":
+      return withQuery(`${MEDICARE_API_ROOT}/intelligence`, { ccn: input.ccn, state: input.state, force: input.force ? "1" : undefined });
+    case "ssvi":
+      return withQuery(`${MEDICARE_API_ROOT}/ssvi/${encodeURIComponent(String(input.ccn || ""))}`, { force: input.force ? "1" : undefined });
+    case "hcris":
+      return withQuery(`${MEDICARE_API_ROOT}/hcris/${encodeURIComponent(String(input.ccn || ""))}`, { detail: input.detail ? "1" : undefined, force: input.force ? "1" : undefined });
+    case "hcris-routing":
+      return `${MEDICARE_API_ROOT}/hcris-routing/${encodeURIComponent(String(input.ccn || ""))}`;
+    case "service-geography":
+      return withQuery(`${MEDICARE_API_ROOT}/service-geography/${encodeURIComponent(String(input.ccn || ""))}`, { force: input.force ? "1" : undefined });
+    case "white-space":
+      return withQuery(`${MEDICARE_API_ROOT}/white-space/${encodeURIComponent(String(input.ccn || ""))}`, { state: input.state, force: input.force ? "1" : undefined });
+    case "expansion-screening":
+      return withQuery(`${MEDICARE_API_ROOT}/expansion-screening/${encodeURIComponent(String(input.ccn || ""))}`, { state: input.state });
+    case "territory-deployment":
+      return withQuery(`${MEDICARE_API_ROOT}/territory-deployment/${encodeURIComponent(String(input.ccn || ""))}`, { state: input.state });
+    case "territory-map":
+      return withQuery(`${MEDICARE_API_ROOT}/territory-map/${encodeURIComponent(String(input.state || ""))}`, { force: input.force ? "1" : undefined });
+    case "territory-deployment-private":
+      return withQuery(`${MEDICARE_API_ROOT}/territory-deployment-private/${encodeURIComponent(String(input.ccn || ""))}`, { state: input.state });
+    case "capabilities":
+      return withQuery(`${MEDICARE_API_ROOT}/capabilities/${encodeURIComponent(String(input.ccn || ""))}`, { deep: input.deep ? "1" : undefined });
+    case "provider-history":
+      return `${MEDICARE_API_ROOT}/provider-history/${encodeURIComponent(String(input.ccn || ""))}`;
+    case "source-health":
+      return withQuery(`${MEDICARE_API_ROOT}/source-health`, { force: input.force ? "1" : undefined });
+    case "competition-coverage-status":
+      return `${MEDICARE_API_ROOT}/competition-coverage-status`;
+    case "system-diagnostics":
+      return withQuery(`${MEDICARE_API_ROOT}/system-diagnostics`, { state: input.state, ccn: input.ccn });
+    case "decision-actions":
+      return withQuery(`${MEDICARE_API_ROOT}/decision-actions`, { ccn: input.ccn });
+    case "watchlist":
+      return withQuery(`${MEDICARE_API_ROOT}/watchlist`, { ccn: input.ccn });
+    case "alerts":
+      return `${MEDICARE_API_ROOT}/alerts`;
+    case "winloss":
+      return withQuery(`${MEDICARE_API_ROOT}/winloss`, { ccn: input.ccn });
+  }
+}
+
+export const MEDICARE_SHARED_API_PATHS: readonly SharedApiPath[] = [
+  { method: "GET", path: `${MEDICARE_API_ROOT}/dashboard`, auth: "field_kit", clients: ["web", "ios"], notes: "Shared Medicare market context" },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/provider/:ccn`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/intelligence`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/hcris/:ccn`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/service-geography/:ccn`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/territory-deployment/:ccn`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/territory-deployment-private/:ccn`, auth: "field_kit", clients: ["web", "ios"], notes: "Requires signed-in private operating context" },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/watchlist`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/decision-actions`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/system-diagnostics`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/competition-coverage-status`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/provider-history/:ccn`, auth: "field_kit", clients: ["web", "ios"] },
+  { method: "GET", path: `${MEDICARE_API_ROOT}/alerts`, auth: "field_kit", clients: ["web", "ios"] },
+] as const;
+
 export const MEMBER_WORK_ERROR_CODES = [
   "UNAUTHORIZED",
   "INVALID_ID",
@@ -212,6 +339,7 @@ export const SHARED_API_PATHS: readonly SharedApiPath[] = [
     auth: "none",
     clients: ["web", "ios"],
   },
+  ...MEDICARE_SHARED_API_PATHS,
 ] as const;
 
 /** Paths smoke-parity expects to return 401/403 without auth. */

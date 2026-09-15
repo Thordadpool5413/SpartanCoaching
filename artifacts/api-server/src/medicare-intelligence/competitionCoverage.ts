@@ -1,31 +1,16 @@
-import { storage } from './runtime';
-
-async function countPrefix(prefix: string, maxPages = 6) {
-  let nextToken: string | undefined;
-  let count = 0;
-  let pages = 0;
-  do {
-    const page = await storage.list({ prefix, limit: 500, nextToken });
-    count += page.paths.length;
-    nextToken = page.nextToken;
-    pages += 1;
-  } while (nextToken && pages < maxPages);
-  return { count, capped: Boolean(nextToken), inspectedPages: pages };
-}
+import { getCompetitionWarehouseStatus } from './competitionWarehouse';
 
 export async function getCompetitionCoverageStatus() {
-  const [providerIntelligence, providerZipFootprints, zipCollisionCells] = await Promise.all([
-    countPrefix('cms-cache/intelligence-v10/'),
-    countPrefix('cms-cache/provider-zips/'),
-    countPrefix('cms-cache/hospice-zip/'),
-  ]);
+  const status = await getCompetitionWarehouseStatus();
+  const complete = status?.status === 'complete';
   return {
     checkedAt: new Date().toISOString(),
-    mode: 'incremental-provider-centric-cache',
-    providerIntelligence,
-    providerZipFootprints,
-    zipCollisionCells,
-    nationallyComplete: false,
-    caveat: 'These counts describe cached competitive evidence created as providers and ZIPs are evaluated. They are not a completed national hospice-competition warehouse. Capped counts are lower bounds, never assumed totals.',
+    mode: complete ? 'national-competition-warehouse' : 'incremental-provider-centric-cache',
+    providerIntelligence: { count: Number(status?.providerCount || 0), capped: false, inspectedPages: Number(status?.shardCount || 0) },
+    providerZipFootprints: { count: Number(status?.providerCount || 0), capped: false, inspectedPages: Number(status?.shardCount || 0) },
+    zipCollisionCells: { count: Number(status?.zipCount || 0), capped: false, inspectedPages: Number(status?.shardCount || 0) },
+    nationallyComplete: complete,
+    warehouse: status,
+    caveat: complete ? 'National hospice ZIP competition indexes were fully built from CMS Hospice ZIP source rows.' : 'The national competition warehouse is still building. Until it completes, provider-centric caches remain the live fallback.',
   };
 }

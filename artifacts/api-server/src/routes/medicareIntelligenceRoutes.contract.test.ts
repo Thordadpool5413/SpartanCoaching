@@ -20,4 +20,11 @@ describe("Medicare Intelligence route bridge", () => {
     expect(route).toContain("catch (error)");
     expect(route).toContain("next(error)");
   });
+
+  it("normalizes provider snapshot failures inside the Medicare runtime contract", () => {
+    expect(route).toContain('app.use("/api/v1/medicare", requireElite');
+    expect(app).toContain("registerMedicareIntelligenceRoutes(app)");
+    expect(readFileSync(resolve(process.cwd(), "src/medicare-intelligence/index.ts"), "utf8")).toContain("'POST /api/provider-snapshot/:ccn': [requireAuth(), async");
+    expect(readFileSync(resolve(process.cwd(), "src/medicare-intelligence/index.ts"), "utf8")).toContain("catch (e) { return error(errText(e),400); }");
+  });
 });
