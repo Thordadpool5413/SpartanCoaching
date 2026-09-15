@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/queryClient";
+import { MEDICARE_API_ROOT } from "@workspace/api-contract";
 
-export const MEDICARE_API = "/api/v1/medicare";
+export const MEDICARE_API = MEDICARE_API_ROOT;
 
 export async function getMedicareIntelligence<T = unknown>(path: string, query: Record<string, string> = {}): Promise<T> {
   const params = new URLSearchParams(Object.entries(query).filter(([, value]) => value.trim()));

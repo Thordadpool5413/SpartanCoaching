@@ -4,14 +4,17 @@ import NationalDashboard from "./NationalDashboard";
 import type { DashboardData, Provider, ProviderDetail } from "./types";
 
 const mockGet = vi.hoisted(() => vi.fn());
+const mockPost = vi.hoisted(() => vi.fn());
+const mockPut = vi.hoisted(() => vi.fn());
+const mockDelete = vi.hoisted(() => vi.fn());
 const auth = vi.hoisted(() => ({ value: { member: null } }));
 
 vi.mock("./api", () => ({
   api: {
     get: mockGet,
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
+    post: mockPost,
+    put: mockPut,
+    delete: mockDelete,
   },
 }));
 
@@ -87,6 +90,10 @@ describe("NationalDashboard provider selector", () => {
   beforeEach(() => {
     window.location.hash = "";
     mockGet.mockReset();
+    mockPost.mockReset();
+    mockPut.mockReset();
+    mockDelete.mockReset();
+    auth.value = { member: null };
   });
 
   afterEach(() => {
@@ -167,6 +174,38 @@ describe("NationalDashboard provider selector", () => {
 
     await waitFor(() => {
       expect((screen.getByLabelText("Select Medicare provider") as HTMLSelectElement).disabled).toBe(false);
+    });
+  });
+
+  it("renders alert records from the runtime contract and marks them read", async () => {
+    const okProviders = [provider("OK", "371653", "Oklahoma Hospice Alpha")];
+    auth.value = { member: { id: 7, email: "member@example.com", name: "Member" } };
+    mockGet.mockImplementation(async (path: string) => {
+      if (path === "/api/dashboard?state=OK&ccn=371653") return { data: dashboard("OK", "371653", okProviders) };
+      if (path === "/api/provider/371653") return { data: detail(okProviders[0]) };
+      if (path === "/api/watchlist") return { data: { records: [{ id: "watch-1", ccn: "371653", state: "OK", label: "Oklahoma Hospice Alpha", monitor: { lastStatus: "changed" } }] } };
+      if (path === "/api/alerts") return { data: { alerts: [{ id: "alert-1", providerLabel: "Oklahoma Hospice Alpha", summary: "ADC +5.0%", severity: "medium", readAt: null }] } };
+      throw new Error(`Unexpected request: ${path}`);
+    });
+    mockPut.mockResolvedValue({ data: { id: "alert-1", readAt: "2026-09-15T00:00:00.000Z" } });
+
+    render(<NationalDashboard />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Command Center")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByText("Watchlist & Alerts"));
+
+    await waitFor(() => {
+      expect(screen.getByText("ADC +5.0%")).toBeTruthy();
+      expect(screen.getByText("Mark read")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Mark read"));
+
+    await waitFor(() => {
+      expect(mockPut).toHaveBeenCalledWith("/api/alerts/alert-1", {});
+      expect(screen.getByText("Read")).toBeTruthy();
     });
   });
 });

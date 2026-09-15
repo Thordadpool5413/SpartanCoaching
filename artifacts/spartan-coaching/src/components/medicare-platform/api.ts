@@ -1,4 +1,6 @@
-const API_ROOT = "/api/v1/medicare";
+import { MEDICARE_API_ROOT } from "@workspace/api-contract";
+
+const API_ROOT = MEDICARE_API_ROOT;
 const REQUEST_TIMEOUT_MS = 45_000;
 
 type ApiResponse<T = any> = { data: T };

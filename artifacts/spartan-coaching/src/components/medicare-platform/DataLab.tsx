@@ -46,8 +46,8 @@ export default function DataLab({ state, provider, providerStatus }: { state: st
     ['Internal deployment truth','operational','Private serviceability, travel, staffing, same-day admission and relationship evidence can change the effective gate and now retains an audit trail.'],
     ['Physician Opportunity 3.0','operational','Clinician ranking uses peer Medicare volume, serious-illness evidence, service intensity and specialty relevance with evidence coverage.'],
     ['National physician warehouse pipeline','operational','Checkpointed ingestion is implemented; actual completion is reported below rather than assumed from the architecture.'],
-    ['National competition precompute','scoped','Provider/ZIP competitive evidence is cached incrementally. A completed all-provider national competition warehouse is not claimed.'],
-    ['Based-provider financial normalization','scoped','Freestanding hospice HCRIS is normalized. Hospital- and HHA-based parent cost-report models remain scoped until validated.'],
+    ['National competition precompute',competition?.nationallyComplete ? 'operational' : 'scoped',competition?.nationallyComplete ? 'A nationally complete provider/ZIP competition warehouse is available and backs overlap scoring before runtime fallbacks are needed.' : 'Provider/ZIP competitive evidence is cached incrementally while the national competition warehouse continues building.'],
+    ['Based-provider financial normalization',String(hcrisRouting?.status || '').includes('PARENT FORM') ? 'operational' : 'scoped',String(hcrisRouting?.status || '').includes('PARENT FORM') ? 'Based-provider parent-form routing is normalized so hospital- and HHA-based hospices no longer stop at freestanding-only form detection.' : 'Freestanding hospice HCRIS is normalized. Based-provider parent-form routing is still resolving for this provider.'],
     ['Native executive document generation','scoped','Print and CSV workflows are available. Native server-generated PDF/XLSX/PPTX intelligence books are not part of this runtime.'],
   ];
 

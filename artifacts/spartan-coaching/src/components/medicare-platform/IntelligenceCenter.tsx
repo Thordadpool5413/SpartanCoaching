@@ -70,7 +70,7 @@ export default function IntelligenceCenter({ state, stateName, provider, detail,
   };
 
   const exportCsv = () => csvDownload(`hospice-intelligence-${ccn}.csv`, [
-    ['Provider 360', provider.name], ['CCN', ccn], ['State', stateName], ['Evidence coverage', detail?.confidence ?? 'NR'], ['CAHPS summary star', detail?.cahpsSummary?.summaryStar ?? 'NR'], ['Hospital readmission proxy', detail?.qualitySummary?.hospitalReadmission ?? 'NR'],
+    ['Provider 360', provider.name], ['CCN', ccn], ['State', stateName], ['Evidence coverage', detail?.confidence ?? 'NR'], ['CAHPS summary star', detail?.cahpsSummary?.summaryStar ?? 'NR'], ['Visits near death', detail?.qualitySummary?.visitsNearDeath ?? 'NR'],
   ]);
 
   return <section className='page'>
@@ -103,7 +103,7 @@ export default function IntelligenceCenter({ state, stateName, provider, detail,
         {whiteRows[0] && <div><b>Growth geography</b><p>{whiteRows[0].name} leads the current local-relative White Space screen at {num(whiteRows[0].whiteSpaceScore)}/100. Serviceability and operating truth still govern execution.</p></div>}
         <div><b>Evidence boundary</b><p>Provider evidence coverage is {detail?.confidence ?? 'NR'}%. Reporting periods remain separate, and missing inputs are not converted to zero.</p></div>
       </div></div>
-      <div className='panel'><div className='panel-head'><div><span className='kicker'>CHANGE INTELLIGENCE</span><h3>Stored provider history</h3></div><History size={18}/></div><div className='change-list'>{(history?.records || []).slice(0, 5).map((row: AnyRow) => <div key={String(row.id || row.timestamp)}><b>{row.label || row.changeType || 'Update'}</b><p>{row.detail || row.description || 'Historical provider event'}</p></div>)}</div></div>
+      <div className='panel'><div className='panel-head'><div><span className='kicker'>CHANGE INTELLIGENCE</span><h3>Stored provider history</h3></div><History size={18}/></div><div className='change-list'>{(history?.records || history?.changes || []).slice(0, 5).map((row: AnyRow) => <div key={String(row.id || row.timestamp || row.key)}><b>{row.label || row.changeType || 'Update'}</b><p>{row.detail || row.description || (row.percentDelta === null || row.percentDelta === undefined ? 'Historical provider event' : `${row.from} → ${row.to} (${row.percentDelta > 0 ? '+' : ''}${Number(row.percentDelta).toFixed(1)}%)`)}</p></div>)}</div></div>
     </div>}
 
     <div className='grid-2'>
