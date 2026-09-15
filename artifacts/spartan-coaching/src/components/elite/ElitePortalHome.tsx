@@ -1,9 +1,8 @@
 import { Link } from "wouter";
-import { ArrowRight, BrainCircuit, Crosshair, FolderOpen, MessageCircle, Search, Target, BookOpen, CheckCircle2 } from "lucide-react";
+import { ArrowRight, BrainCircuit, Crosshair, MessageCircle, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StateBlock } from "@/components/StateBlock";
 import { recordPersonalizationEvent } from "@/lib/personalizationClient";
-import "@/styles/workspace.css";
 
 export type NextMoveData = {
   id: string;
@@ -24,9 +23,6 @@ type ElitePortalHomeProps = {
 };
 
 export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }: ElitePortalHomeProps) {
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
-
   const effectiveMove = error ? {
     id: "fallback-command-center",
     stage: "Execute" as const,
@@ -35,9 +31,6 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
     reason: "",
     webHref: "/tools/sales-workflow",
   } : nextMove;
-
-  const STAGES = ["Prepare", "Practice", "Execute", "Review"];
-  const activeStageIndex = effectiveMove ? STAGES.indexOf(effectiveMove.stage) : -1;
 
   const handleNextMoveClick = () => {
     if (effectiveMove) {
@@ -58,148 +51,110 @@ export function ElitePortalHome({ firstName, nextMove, loading, error, onRetry }
     }
   };
 
+  const today = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
+
   return (
-    <div className="field-home" data-testid="elite-portal-home">
-      <header className="field-home-header">
-        <span className="field-kicker">Private field workspace</span>
-        <h1 className="field-greeting">Good {greeting}{firstName ? `, ${firstName}` : ""}.</h1>
-        <p className="field-subtitle">Clarity before the conversation. Discipline through the follow-up.</p>
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8" data-testid="elite-portal-home">
+      <header className="mb-10 border-b border-border pb-6">
+        <h1 className="field-greeting text-3xl font-bold tracking-tight text-foreground">Daily Operating Brief</h1>
+        <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase">{today}</p>
       </header>
 
-      <div className="field-grid">
-        <section className="field-card flex flex-col" aria-labelledby="workspace-priority-heading">
-          <div className="field-card-header">
-            <span className="field-card-title">
-              <Target aria-hidden /> Today’s objective
-            </span>
-            <span className="text-[11px] leading-relaxed font-mono font-bold uppercase tracking-[0.1em] text-primary hidden sm:inline-block">
-              {effectiveMove ? `${effectiveMove.stage} stage` : "Calculating"}
-            </span>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          <section aria-labelledby="heading-now">
+            <h2 id="heading-now" className="mb-4 text-xs font-mono font-bold tracking-widest text-primary uppercase">Now / Active Objective</h2>
 
-          <div className="field-objective-content flex-1 flex flex-col">
-            {loading ? (
-              <StateBlock variant="loading" title="Analyzing context" description="Building your recommended next move..." className="flex-1 rounded-none border-0 bg-transparent px-0 py-8" />
-            ) : effectiveMove ? (
-              <>
-                {error && (
-                  <StateBlock
-                    variant="warning"
-                    title="Using the daily Command fallback"
-                    description="Personalized context is temporarily unavailable. Your core field workflow is still ready."
-                    action={{ label: "Retry personalization", onClick: onRetry }}
-                    className="mb-5 rounded-none px-4 py-5 text-left [&_svg]:mx-0 [&_h2]:text-sm [&_p]:mx-0 [&_p]:mb-2 [&>div]:justify-start"
-                  />
-                )}
-                <span className="field-objective-index">01 / PRIORITY</span>
-                <h2 id="workspace-priority-heading" className="field-objective-heading">{effectiveMove.title}</h2>
-                <p className="field-objective-desc">{effectiveMove.description}</p>
+            <div className="rounded-none border border-border bg-card shadow-sm">
+              {loading ? (
+                <StateBlock variant="loading" title="Analyzing context" description="Building your recommended next move..." className="p-8" />
+              ) : effectiveMove ? (
+                <div className="p-6 sm:p-8">
+                  {error && (
+                    <StateBlock
+                      variant="warning"
+                      title="Using the daily Command fallback"
+                      description="Personalized context is temporarily unavailable. Your core field workflow is still ready."
+                      action={{ label: "Retry personalization", onClick: onRetry }}
+                      className="mb-6 rounded-none px-4 py-4 text-left [&_svg]:mx-0 [&_h2]:text-sm [&_p]:mx-0 [&_p]:mb-2 [&>div]:justify-start"
+                    />
+                  )}
 
-                {effectiveMove.reason && (
-                  <p className="mt-4 text-[13px] leading-relaxed font-medium text-primary bg-primary/5 p-3 border-l-2 border-primary">
-                    <span className="block font-bold uppercase tracking-[0.08em] mb-1.5">Why this matters:</span>
-                    {effectiveMove.reason}
-                  </p>
-                )}
+                  <div className="flex items-center gap-3 text-xs font-mono font-bold text-muted-foreground uppercase tracking-wider mb-4">
+                    <Target className="h-4 w-4 text-primary" aria-hidden />
+                    {effectiveMove.stage} Stage
+                  </div>
 
-                <div className="field-sequence" aria-label="Conversation operating sequence">
-                  {STAGES.map((step, index) => (
-                    <div key={step} className={`field-sequence-step ${index === activeStageIndex ? "ring-2 ring-primary bg-primary/10" : ""}`}>
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <strong className={index === activeStageIndex ? "text-primary" : ""}>{step}</strong>
+                  <h3 className="field-objective-heading text-xl sm:text-2xl font-bold text-foreground mb-3">{effectiveMove.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-6 max-w-2xl">{effectiveMove.description}</p>
+
+                  {effectiveMove.reason && (
+                    <div className="mb-6 border-l-2 border-primary bg-primary/5 p-4 text-[13px] leading-relaxed text-foreground">
+                      <span className="block font-mono font-bold uppercase tracking-widest text-primary mb-1 text-[10px]">Context</span>
+                      {effectiveMove.reason}
                     </div>
-                  ))}
+                  )}
+
+                  <Button asChild onClick={handleNextMoveClick} className="w-full sm:w-auto rounded-none font-bold uppercase tracking-widest text-xs h-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors">
+                    <Link href={effectiveMove.webHref}>Open next action <ArrowRight className="ml-3 h-4 w-4" aria-hidden /></Link>
+                  </Button>
                 </div>
+              ) : (
+                <StateBlock variant="empty" title="Ready for input" description="No urgent commitments found. Choose a tool to begin." className="p-8" />
+              )}
+            </div>
+          </section>
 
-                <Button asChild size="lg" onClick={handleNextMoveClick} className="w-full sm:w-auto font-bold uppercase tracking-widest text-xs h-14 rounded-none bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors mt-auto">
-                  <Link href={effectiveMove.webHref}>Open next move <ArrowRight className="ml-3 w-4 h-4" aria-hidden /></Link>
-                </Button>
-              </>
-            ) : (
-              <StateBlock variant="empty" title="Ready for input" description="No urgent commitments found. Choose a tool to begin." className="flex-1 rounded-none border-0 bg-transparent px-0 py-8" />
-            )}
-          </div>
-        </section>
+          {effectiveMove?.resumeWorkId ? (
+            <section aria-labelledby="heading-continue">
+              <h2 id="heading-continue" className="mb-4 text-xs font-mono font-bold tracking-widest text-muted-foreground uppercase">Continue</h2>
+              <Link href="/my-work" className="flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50">
+                <span>
+                  <span className="block text-sm font-bold text-foreground">Resume saved work</span>
+                  <span className="mt-1 block text-xs text-muted-foreground">Open the durable work connected to your next move.</span>
+                </span>
+                <ArrowRight className="h-4 w-4 text-primary" aria-hidden />
+              </Link>
+            </section>
+          ) : null}
+        </div>
 
-        <aside className="field-card flex flex-col" aria-label="Supporting workspace channels">
-          <div className="field-card-header">
-            <span className="field-card-title">Field Support</span>
-          </div>
-
-          <div className="field-channel-list flex-1">
-            <Link href="/portal/coach" className="field-channel group">
-              <div className="field-channel-icon"><MessageCircle aria-hidden className="w-5 h-5" /></div>
-              <div className="field-channel-content">
-                <strong>Private Coach</strong>
-                <small>Pressure-test language.</small>
-              </div>
-              <ArrowRight className="field-channel-arrow" aria-hidden />
-            </Link>
-
-            <Link href="/tools/intelligence" className="field-channel group">
-              <div className="field-channel-icon"><BrainCircuit aria-hidden className="w-5 h-5" /></div>
-              <div className="field-channel-content">
-                <strong>CMS Medicare Knowledge Hub</strong>
-                <small>Verify providers, markets, and policy.</small>
-              </div>
-              <ArrowRight className="field-channel-arrow" aria-hidden />
-            </Link>
-
-            <Link href="/my-work" className="field-channel group">
-              <div className="field-channel-icon"><FolderOpen aria-hidden className="w-5 h-5" /></div>
-              <div className="field-channel-content">
-                <strong>My Work</strong>
-                <small>Resume thinking.</small>
-              </div>
-              <ArrowRight className="field-channel-arrow" aria-hidden />
-            </Link>
-          </div>
-          <div className="p-6 bg-muted/20 border-t border-border flex items-start gap-3 mt-auto">
-             <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden />
-             <div>
-               <strong className="block text-sm font-bold uppercase tracking-wide text-foreground mb-1">Operating Standard</strong>
-                <p className="text-[13px] text-muted-foreground leading-relaxed">Leave every conversation with a defined next commitment.</p>
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <section aria-labelledby="heading-next">
+             <h2 id="heading-next" className="mb-4 text-xs font-mono font-bold tracking-widest text-muted-foreground uppercase">Next / Resources</h2>
+             <div className="rounded-none border border-border bg-card shadow-sm divide-y divide-border">
+                <Link href="/tools/sales-workflow" className="flex items-start p-4 hover:bg-muted/50 transition-colors group">
+                  <Crosshair className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 group-hover:text-primary transition-colors" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Command Center</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Daily field execution spine</p>
+                  </div>
+                </Link>
+                <Link href="/portal/coach" className="flex items-start p-4 hover:bg-muted/50 transition-colors group">
+                  <MessageCircle className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 group-hover:text-primary transition-colors" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Private Coach</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Pressure-test language and strategy</p>
+                  </div>
+                </Link>
+                <Link href="/tools/intelligence" className="flex items-start p-4 hover:bg-muted/50 transition-colors group">
+                  <BrainCircuit className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 group-hover:text-primary transition-colors" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Medicare Intelligence</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Verify provider and market evidence</p>
+                  </div>
+                </Link>
+                <Link href="/tools" className="flex items-start p-4 hover:bg-muted/50 transition-colors group">
+                  <Search className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 group-hover:text-primary transition-colors" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Tool Catalog</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Find the right instrument for the job</p>
+                  </div>
+                </Link>
              </div>
-          </div>
-        </aside>
+          </section>
+        </div>
       </div>
-
-      <section className="field-lanes-section" aria-labelledby="workspace-lanes-heading">
-        <div className="field-lanes-header">
-          <span className="field-kicker">Choose the work</span>
-          <h2 id="workspace-lanes-heading">Move with intent.</h2>
-          <p className="text-muted-foreground font-serif text-lg">One objective at a time. Finish it. Keep the result.</p>
-        </div>
-
-        <div className="field-lane-grid">
-          <Link href="/tools/sales-workflow" className="field-lane group">
-            <span className="field-lane-number">01</span>
-            <div className="field-lane-icon"><Crosshair aria-hidden className="w-6 h-6" /></div>
-            <small>Plan and execute</small>
-            <strong>Command</strong>
-            <p>Organize the account, prepare the conversation, capture the outcome, and protect the next move.</p>
-            <span className="field-lane-action">Run today <ArrowRight aria-hidden /></span>
-          </Link>
-
-          <Link href="/tools" className="field-lane group">
-            <span className="field-lane-number">02</span>
-            <div className="field-lane-icon"><Search aria-hidden className="w-6 h-6" /></div>
-            <small>Find the right instrument</small>
-            <strong>Tools</strong>
-            <p>Open the focused tool, resource, or intelligence workflow for the job in front of you.</p>
-            <span className="field-lane-action">Find a tool <ArrowRight aria-hidden /></span>
-          </Link>
-
-          <Link href="/portal/learn" className="field-lane group">
-            <span className="field-lane-number">03</span>
-            <div className="field-lane-icon"><BookOpen aria-hidden className="w-6 h-6" /></div>
-            <small>Build field judgment</small>
-            <strong>Library</strong>
-            <p>Study the principle, practice the scenario, and test the decision before it becomes live.</p>
-            <span className="field-lane-action">Build the skill <ArrowRight aria-hidden /></span>
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

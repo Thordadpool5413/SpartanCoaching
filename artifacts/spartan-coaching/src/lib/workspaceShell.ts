@@ -436,5 +436,14 @@ export function pushWorkspaceRecent(entry: Omit<WorkspaceRecentEntry, "at">): vo
   }
 }
 
+export function clearWorkspaceRecent(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(WORKSPACE_RECENT_KEY);
+  } catch {
+    // Storage may be unavailable; auth state and query cache are still cleared.
+  }
+}
+
 /** Search icon re-export convenience for shell */
 export { Search as WorkspaceSearchIcon };

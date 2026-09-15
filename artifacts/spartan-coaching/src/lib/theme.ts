@@ -38,6 +38,8 @@ export interface BgPreset {
   secondary: string;
   border: string;
   sidebar: string;
+  sidebarFg: string;
+  sidebarBorder: string;
 }
 
 export interface ThemePreset {
@@ -102,6 +104,8 @@ export const BG_PRESETS: BgPreset[] = [
     secondary: "0 0% 17%",
     border: "0 0% 24%",
     sidebar: "0 0% 6%",
+    sidebarFg: "0 0% 97%",
+    sidebarBorder: "0 0% 20%",
   },
   {
     key: "soft",
@@ -116,7 +120,9 @@ export const BG_PRESETS: BgPreset[] = [
     mutedFg: "220 16% 26%",
     secondary: "210 14% 91%",
     border: "214 14% 80%",
-    sidebar: "210 20% 96%",
+    sidebar: "222 47% 11%",
+    sidebarFg: "0 0% 98%",
+    sidebarBorder: "222 30% 25%",
   },
   {
     key: "warm",
@@ -131,7 +137,9 @@ export const BG_PRESETS: BgPreset[] = [
     mutedFg: "25 18% 24%",
     secondary: "36 24% 88%",
     border: "34 18% 78%",
-    sidebar: "38 35% 94%",
+    sidebar: "217 64% 9%",
+    sidebarFg: "40 33% 96%",
+    sidebarBorder: "215 24% 25%",
   },
   {
     key: "cool",
@@ -146,7 +154,9 @@ export const BG_PRESETS: BgPreset[] = [
     mutedFg: "210 18% 24%",
     secondary: "200 18% 89%",
     border: "200 16% 78%",
-    sidebar: "200 28% 95%",
+    sidebar: "222 48% 9%",
+    sidebarFg: "214 40% 98%",
+    sidebarBorder: "222 28% 22%",
   },
   {
     key: "ink",
@@ -162,6 +172,8 @@ export const BG_PRESETS: BgPreset[] = [
     secondary: "0 0% 14%",
     border: "0 0% 22%",
     sidebar: "0 0% 4%",
+    sidebarFg: "0 0% 98%",
+    sidebarBorder: "0 0% 20%",
   },
   {
     key: "midnight",
@@ -177,6 +189,8 @@ export const BG_PRESETS: BgPreset[] = [
     secondary: "222 32% 17%",
     border: "222 28% 22%",
     sidebar: "222 50% 7%",
+    sidebarFg: "214 40% 98%",
+    sidebarBorder: "222 28% 22%",
   },
   {
     key: "charcoal",
@@ -192,6 +206,8 @@ export const BG_PRESETS: BgPreset[] = [
     secondary: "0 0% 26%",
     border: "0 0% 34%",
     sidebar: "0 0% 14%",
+    sidebarFg: "0 0% 98%",
+    sidebarBorder: "0 0% 30%",
   },
   {
     key: "forest",
@@ -207,6 +223,8 @@ export const BG_PRESETS: BgPreset[] = [
     secondary: "152 18% 21%",
     border: "152 16% 28%",
     sidebar: "152 30% 10%",
+    sidebarFg: "140 25% 97%",
+    sidebarBorder: "152 16% 24%",
   },
 ];
 
@@ -224,6 +242,8 @@ const MAMBA_DARK_SURFACE: BgPreset = {
   secondary: "271 55% 33%",
   border: "0 0% 20%",
   sidebar: "0 0% 9%",
+  sidebarFg: "0 0% 96%",
+  sidebarBorder: "0 0% 20%",
 };
 
 const MAMBA_LIGHT_SURFACE: BgPreset = {
@@ -240,6 +260,8 @@ const MAMBA_LIGHT_SURFACE: BgPreset = {
   secondary: "0 0% 90%",
   border: "0 0% 83%",
   sidebar: "0 0% 94%",
+  sidebarFg: "0 0% 10%",
+  sidebarBorder: "0 0% 83%",
 };
 
 const SPARTAN_LIGHT_SURFACE: BgPreset = {
@@ -255,7 +277,9 @@ const SPARTAN_LIGHT_SURFACE: BgPreset = {
   mutedFg: "216 20% 26%",
   secondary: "216 24% 90%",
   border: "216 16% 76%",
-  sidebar: "40 25% 95%",
+  sidebar: "217 64% 9%",
+  sidebarFg: "40 33% 96%",
+  sidebarBorder: "215 24% 25%",
 };
 
 const SPARTAN_DARK_SURFACE: BgPreset = {
@@ -272,6 +296,8 @@ const SPARTAN_DARK_SURFACE: BgPreset = {
   secondary: "216 30% 18%",
   border: "215 24% 25%",
   sidebar: "218 67% 6%",
+  sidebarFg: "40 33% 96%",
+  sidebarBorder: "215 24% 25%",
 };
 
 export function resolveThemeSurface(
@@ -459,8 +485,8 @@ export function applyAppearance(
   setVar("--border", surface.border);
   setVar("--input", surface.border);
   setVar("--sidebar", surface.sidebar);
-  setVar("--sidebar-foreground", surface.fg);
-  setVar("--sidebar-border", surface.border);
+  setVar("--sidebar-foreground", surface.sidebarFg);
+  setVar("--sidebar-border", surface.sidebarBorder);
 
   // 4) Accent / brand — primary-foreground always contrasts with primary fill
   const primary = themePreset === "mamba"

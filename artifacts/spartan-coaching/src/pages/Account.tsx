@@ -285,17 +285,20 @@ export default function Account() {
     (canCheckout || org?.status === "suspended" || org?.status === "expired");
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-6 sm:space-y-8 surface-page min-h-[70vh]" data-testid="page-account">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-account">
       <SEO />
-      <div>
-        <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Account</p>
-        <h1 className="text-h1 font-display font-black"><AccentText>{showDayZero ? "Finish setup" : "Your access"}</AccentText></h1>
-        {showDayZero && (
-          <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-xl">
-            One checkout unlocks Hospice Sales Pro tools and resources. Preview is free; live runs need an active subscription.
+      <header className="mb-10 border-b border-border pb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display"><AccentText>{showDayZero ? "Finish setup" : "Account Access"}</AccentText></h1>
+        {showDayZero ? (
+          <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase leading-relaxed max-w-xl">
+            Preview is free; live runs need an active subscription.
+          </p>
+        ) : (
+          <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase leading-relaxed max-w-xl">
+            Manage your subscription and billing details.
           </p>
         )}
-      </div>
+      </header>
 
       {showDayZero && (
         <AccountDayZero
@@ -331,11 +334,11 @@ export default function Account() {
 
       {canUseFieldKit ? <ValueReceipt /> : null}
 
-      <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-membership-status">
+      <div className="space-y-5 rounded-lg border border-border bg-card p-6 sm:p-8" data-testid="card-membership-status">
         <div className="flex flex-wrap items-center gap-2" data-testid="account-entitlement-chips">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
-            <Badge className="bg-primary/15 text-primary border-primary/30">Tools unlocked</Badge>
+            <Badge className="border-primary/20 bg-primary/10 text-primary">Tools unlocked</Badge>
           ) : (
             <Badge variant="destructive">Tools locked</Badge>
           )}
@@ -343,10 +346,10 @@ export default function Account() {
           {isPersonal && <Badge variant="outline">Individual</Badge>}
           {hasPaidSub && !isPlatform && !isReviewer && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
+        <p className="text-[13px] text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
         </p>
-        <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
+        <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
           {isPlatform
             ? platformCopy.crossSurface
             : isReviewer
@@ -645,15 +648,15 @@ export default function Account() {
             </>
           )}
         </p>
-      </Card>
+      </div>
 
       {/* ── Active subscriber confirmation card ── */}
       {canUseFieldKit && (hasPaidSub || isReviewer) && (
-        <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-membership">
+        <div className="space-y-5 rounded-lg border border-border bg-card p-6 sm:p-8" data-testid="card-your-membership">
           <div>
-            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your Hospice Sales Pro</p>
-            <h2 className="text-lg font-bold text-foreground"><AccentText>13 private tools — all unlocked</AccentText></h2>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase mb-1">Your Hospice Sales Pro</p>
+            <h2 className="text-xl font-bold text-foreground font-display uppercase tracking-tight"><AccentText>13 private tools — all unlocked</AccentText></h2>
+            <p className="text-[13px] text-muted-foreground mt-1 leading-relaxed">
               Access everything below from the{" "}
               <Link href="/portal" className="text-primary hover:underline font-semibold">
                 Portal home
@@ -690,11 +693,11 @@ export default function Account() {
             })}
           </div>
           <div className="pt-2 border-t border-border/60">
-            <Button asChild className="font-bold">
+            <Button asChild className="font-semibold">
               <Link href="/portal">Open portal</Link>
             </Button>
           </div>
-        </Card>
+        </div>
       )}
 
       {member.role === "org_admin" && organization?.type === "company" && (

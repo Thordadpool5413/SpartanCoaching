@@ -154,15 +154,15 @@ export default function SalesWorkflow() {
         title="Sales Command Center | Spartan Coaching"
         description="Plan calls, practice objections, complete visits, review coaching, and schedule the next step."
       />
-        <section className="command-focus-bar mb-6" aria-labelledby="command-next-action">
+        <section className="mb-8 border-b border-border pb-6" aria-labelledby="command-next-action">
           <div>
-            <p className="command-dashboard-label">Today’s command</p>
-            <h1 id="command-next-action"><AccentText>Schedule → prepare → close the loop.</AccentText></h1>
-            <p>Choose the next account, prepare the outcome, then record what happened. Never enter patient information.</p>
+            <p className="mb-4 text-xs font-mono font-bold tracking-widest text-primary uppercase">Today’s Command</p>
+            <h1 id="command-next-action" className="text-3xl font-bold tracking-tight text-foreground uppercase font-display mb-3"><AccentText>Schedule → prepare → close the loop.</AccentText></h1>
+            <p className="text-muted-foreground leading-relaxed">Choose the next account, prepare the outcome, then record what happened. Never enter patient information.</p>
           </div>
-          <div className="command-focus-actions">
-            <Button asChild><a href="#hsw-main">Open today</a></Button>
-            <Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild className="rounded-none font-bold uppercase tracking-widest text-xs h-10 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors"><a href="#hsw-main">Open today</a></Button>
+            <Button asChild variant="outline" className="rounded-none font-bold uppercase tracking-widest text-xs h-10"><Link href="/portal/coach">Ask Coach</Link></Button>
           </div>
         </section>
       <div className="command-surface space-y-5">

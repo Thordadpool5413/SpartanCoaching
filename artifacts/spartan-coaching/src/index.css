@@ -599,6 +599,7 @@ body {
   .bg-muted { background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
   .bg-popover { background-color: hsl(var(--popover)); color: hsl(var(--popover-foreground)); }
   .bg-secondary { background-color: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+  .bg-sidebar { background-color: hsl(var(--sidebar)); color: hsl(var(--sidebar-foreground)); }
   .text-foreground { color: hsl(var(--foreground)); }
   .text-muted-foreground { color: hsl(var(--muted-foreground)); }
   .text-card-foreground { color: hsl(var(--card-foreground)); }

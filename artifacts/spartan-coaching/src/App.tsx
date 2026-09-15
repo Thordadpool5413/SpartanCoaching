@@ -321,7 +321,7 @@ function Router() {
 function AppLayout() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
-  const { accent, background, themePreset } = useTheme();
+  const { mode, accent, background, themePreset } = useTheme();
   const isBrandedAssessment = location.startsWith("/assess/");
   const isWelcome = location === "/welcome";
   const isAuthShell =
@@ -335,16 +335,17 @@ function AppLayout() {
   const onWorkspace =
     isAuthenticated && !isLoading && isWorkspacePath(location);
 
-  // Public pages are always paper/ink/Spartan red. Workspace pages are always
-  // dark, while still honoring the member's selected accent and preset. This
-  // is route-scoped rather than persisted, so visiting a public page cannot
+  // Public pages are always forced to light/spartan. Workspace pages honor
+  // the user's genuine persisted mode (light/dark) and accent preferences.
+  // This is route-scoped rather than persisted, so visiting a public page cannot
   // rewrite the user's saved workspace appearance.
   useLayoutEffect(() => {
     const routeSurface = onWorkspace ? "workspace" : "public";
     document.documentElement.dataset.routeSurface = routeSurface;
 
     if (onWorkspace) {
-      applyAppearance("dark", accent, background, themePreset, {
+      // Use the user's genuine theme preference for the authenticated workspace
+      applyAppearance(mode, accent, background, themePreset, {
         persist: false,
         notify: false,
       });
@@ -354,7 +355,7 @@ function AppLayout() {
         notify: false,
       });
     }
-  }, [accent, background, onWorkspace, themePreset]);
+  }, [mode, accent, background, onWorkspace, themePreset]);
 
   // Deep link / refresh with expired session: send to login with return path.
   // Public tool previews remain available when not authenticated.

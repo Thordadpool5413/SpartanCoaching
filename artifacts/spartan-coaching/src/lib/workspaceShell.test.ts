@@ -12,6 +12,9 @@ import {
   normalizePath,
   workspaceNavContractErrors,
   requiresAuthenticationPath,
+  pushWorkspaceRecent,
+  readWorkspaceRecent,
+  clearWorkspaceRecent,
 } from "./workspaceShell";
 
 describe("workspace shell (HSP-32)", () => {
@@ -149,5 +152,15 @@ describe("workspace shell (HSP-32)", () => {
     expect(saved?.href).toBe("/my-work");
     expect(saved?.label).toBe("My Work");
     expect(saved?.match("/my-work/elite-outputs")).toBe(true);
+  });
+
+  it("clears browser recent activity when an authenticated identity changes", () => {
+    window.localStorage.clear();
+    pushWorkspaceRecent({ path: "/my-work", label: "My Work" });
+    expect(readWorkspaceRecent()).toHaveLength(1);
+
+    clearWorkspaceRecent();
+
+    expect(readWorkspaceRecent()).toEqual([]);
   });
 });

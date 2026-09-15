@@ -144,14 +144,13 @@ export default function OrgAdmin() {
   if (!canUseFieldKit || !isOrgAdmin || !isCompany) {
     return (
       <PageShell width="md" className="py-12">
-        <SEO title="Organization admin | Hospice Sales Pro" noIndex />
-        <Card className="p-6 space-y-3">
-          <h1 className="text-xl font-bold"><AccentText>Organization admin</AccentText></h1>
-          <p className="text-sm text-muted-foreground">
-            Available to organization administrators on company accounts with active Hospice Sales Pro
-            access.
+        <SEO title="Organization admin | Spartan Coaching" noIndex />
+        <Card className="rounded-lg border border-border/70 p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold tracking-tight"><AccentText>Organization administration</AccentText></h1>
+          <p className="text-sm text-muted-foreground mt-3 mb-6">
+            Available to organization administrators on company accounts with active Spartan Coaching access.
           </p>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="font-semibold">
             <Link href="/account">Back to Account</Link>
           </Button>
         </Card>
@@ -185,12 +184,11 @@ export default function OrgAdmin() {
   const patch = async (url: string, body?: unknown) => requestJson(url, "PATCH", body);
 
   return (
-    <PageShell width="lg" className="py-10 space-y-8" testId="page-org-admin">
-      <SEO title="Organization admin | Hospice Sales Pro" noIndex />
-      <header className="space-y-2">
-        <p className="text-kicker">Provider administration</p>
-        <h1 className="text-h1 font-display font-black"><AccentText>Organization admin</AccentText></h1>
-        <p className="text-sm text-muted-foreground max-w-2xl">
+    <PageShell width="lg" className="py-10 space-y-10" testId="page-org-admin">
+      <SEO title="Organization admin | Spartan Coaching" noIndex />
+      <header className="border-b border-border pb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display"><AccentText>Organization Admin</AccentText></h1>
+        <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase leading-relaxed max-w-2xl">
           Manage seats, roles, invitations, and review audit history for your tenant. Individual tool
           results stay private to each member.
         </p>

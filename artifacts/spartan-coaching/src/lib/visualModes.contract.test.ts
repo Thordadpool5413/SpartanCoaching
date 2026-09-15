@@ -48,7 +48,7 @@ describe("route-family visual contracts", () => {
     const theme = read("lib/theme.ts");
 
     expect(app).toMatch(/dataset\.routeSurface/);
-    expect(app).toMatch(/applyAppearance\("dark", accent, background, themePreset/);
+    expect(app).toMatch(/applyAppearance\(mode, accent, background, themePreset/);
     expect(app).toMatch(/applyAppearance\("light", "red", "soft", "spartan"/);
     expect(theme).toMatch(/options:\s*\{\s*persist\?: boolean;\s*notify\?: boolean/);
     expect(theme).toMatch(/Route scopes use the same[\s\S]{0,40}renderer/);

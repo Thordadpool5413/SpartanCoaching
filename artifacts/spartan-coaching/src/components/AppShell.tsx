@@ -44,6 +44,7 @@ import {
   type UniversalSearchHit,
 } from "@/lib/universalSearchClient";
 import { recordPersonalizationEvent } from "@/lib/personalizationClient";
+import "@/styles/workspace.css";
 
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
@@ -85,7 +86,7 @@ function SidebarBody({
   );
 
   return (
-    <div className="flex flex-col h-full bg-card">
+    <div className="flex flex-col h-full bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-foreground))]">
       <div className="field-brand-zone">
         <Link href="/portal" onClick={onNavigate} className="flex items-center gap-3 w-full" data-testid="workspace-brand">
           <img
@@ -136,7 +137,7 @@ function SidebarBody({
         )}
       </nav>
 
-      <div className="p-4 border-t border-border space-y-2">
+      <div className="p-4 border-t border-[hsl(var(--sidebar-border))] space-y-2">
         <NavLinkRow
           href="/account"
           label="Account settings"
@@ -348,14 +349,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="field-workspace"
+      className="field-workspace workspace-premium"
       data-testid="app-shell"
       data-workspace-shell={WORKSPACE_SHELL_VERSION}
     >
       <aside
         className={cn(
           "field-sidebar hidden md:flex",
-          collapsed ? "w-[4.5rem]" : "w-[16rem]"
+          collapsed ? "w-[4.5rem]" : "w-[15.5rem]"
         )}
         data-testid="workspace-sidebar"
       >
@@ -376,7 +377,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[min(100vw,20rem)] border-r border-border bg-card">
+            <SheetContent side="left" className="p-0 w-[min(100vw,20rem)] border-r border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar))]">
               <SheetHeader className="sr-only">
                 <SheetTitle>Workspace menu</SheetTitle>
               </SheetHeader>

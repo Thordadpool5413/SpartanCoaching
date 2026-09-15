@@ -4,9 +4,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { queryClient } from "@/lib/queryClient";
+import { clearWorkspaceRecent } from "@/lib/workspaceShell";
 
 export type AuthMember = {
   id: number;
@@ -93,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<AuthOrganization | null>(null);
   const [fieldKit, setFieldKit] = useState<FieldKitState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const identityRef = useRef<string | null>(null);
 
   const apply = useCallback(
     (data: {
@@ -100,6 +104,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       organization: AuthOrganization | null;
       fieldKit: FieldKitState;
     } | null) => {
+      const nextIdentity = data ? `${data.member.id}:${data.member.organizationId}` : null;
+      if (identityRef.current !== nextIdentity) {
+        queryClient.clear();
+        clearWorkspaceRecent();
+        identityRef.current = nextIdentity;
+      }
       if (!data) {
         setMember(null);
         setOrganization(null);

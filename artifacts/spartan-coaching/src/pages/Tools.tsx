@@ -101,6 +101,7 @@ export default function Tools() {
   );
 
   const showCatalogGate = !isLoading && !canUseFieldKit;
+  const isWorkspace = isAuthenticated;
 
   const byCategory = useMemo(() => {
     const map = new Map<string, FieldKitTool[]>();
@@ -119,7 +120,7 @@ export default function Tools() {
       <StaggerItem key={tool.path}>
         <Card
           className={cn(
-            "flex flex-col group relative p-5 sm:p-6 h-full border border-border/80 bg-card shadow-none hover:shadow-sm hover:border-border overflow-hidden",
+            "flex flex-col group relative p-5 sm:p-6 h-full border border-border/80 bg-card shadow-none hover:shadow-sm hover:border-border overflow-hidden rounded-none",
             locked && "opacity-95",
           )}
           data-testid={`card-tool-${tool.id}`}
@@ -127,35 +128,35 @@ export default function Tools() {
           <div className="relative flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2.5 rounded-xl bg-muted/80 text-foreground shrink-0">
+                <div className="p-2.5 rounded-none bg-muted text-foreground shrink-0 border border-border">
                   {TOOL_ICONS[tool.id] ?? <Calculator className="w-6 h-6" />}
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight tracking-tight"><AccentText>{tool.title}</AccentText></h3>
+                <h3 className="text-base sm:text-lg font-bold text-foreground leading-tight tracking-tight uppercase font-display"><AccentText>{tool.title}</AccentText></h3>
               </div>
               {locked && (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border/70 bg-muted/80 px-2.5 py-1.5 text-xs font-bold uppercase leading-none tracking-[0.06em] text-muted-foreground">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-none border border-border/70 bg-muted/80 px-2.5 py-1.5 text-[10px] font-bold uppercase leading-none tracking-widest text-muted-foreground">
                   <Lock className="w-3 h-3" /> Preview
                 </span>
               )}
             </div>
             <div className="mb-3">
-              <Badge variant="secondary" className="rounded-full font-semibold">
+              <span className="inline-flex items-center rounded-none border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-muted text-foreground">
                 {tool.category}
-              </Badge>
+              </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
-              <span className="font-semibold uppercase tracking-wide text-highlight">
+            <p className="text-[11px] text-muted-foreground leading-relaxed mb-2 uppercase tracking-wide">
+              <span className="font-bold text-primary">
                 {getToolWorkGuide(tool).phase}
               </span>
               {" · "}
               {getToolWorkGuide(tool).audience}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
-              <span className="font-semibold text-foreground">When: </span>
+            <p className="text-[11px] text-muted-foreground leading-relaxed flex-1 mb-6 uppercase tracking-wide">
+              <span className="font-bold text-foreground">When: </span>
               {tool.whenToUse}
             </p>
-            <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[48px]" size="lg">
+            <Button asChild className="w-full font-bold uppercase tracking-widest text-xs touch-manipulation py-3 min-h-[44px] rounded-none bg-foreground text-background hover:bg-primary hover:text-primary-foreground" size="lg">
               <Link
                 href={href}
                 data-testid={`button-tool-${idx}`}
@@ -172,6 +173,92 @@ export default function Tools() {
       </StaggerItem>
     );
   };
+
+  if (isWorkspace) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-tools">
+        <SEO title="Tools | Spartan Coaching" />
+
+        <header className="mb-10 border-b border-border pb-6">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display">Tools</h1>
+          <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase">What are you trying to accomplish?</p>
+        </header>
+
+        <section className="mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border">
+            <Link href="/tools/sales-workflow" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
+               <Crosshair className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Prepare for a meeting</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Open Command Center to plan the visit, handle the objective, and protect the next move.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Open Command <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+
+            <Link href="/tools/objections" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
+               <ChatIcon className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Handle an objection</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Get precise response language for common field objections.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Find a response <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+
+            <Link href="/tools/intelligence" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
+               <BrainCircuit className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Research an account</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Verify provider evidence and CMS policy.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Search CMS <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+
+            <Link href="/tools/email-templates" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
+               <Mail className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Write a follow-up</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Generate professional post-visit communications.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Draft email <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+
+            <Link href="/tools/role-play" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
+               <Users className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Practice a conversation</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Pressure-test your script against an active scenario.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Start role-play <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+
+            <Link href="/tools/activity-calculator" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
+               <Calculator className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
+               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Measure activity</h3>
+               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Determine required field volume based on close rates.</p>
+               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Calculate targets <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+            </Link>
+          </div>
+        </section>
+
+        <div className="flex items-center justify-between mb-6 pb-2 border-b border-border">
+           <h2 className="text-lg font-bold text-foreground uppercase tracking-widest">Browse Catalog</h2>
+        </div>
+
+        <div className="mb-8 relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Search all tools..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 rounded-none bg-card border-border font-mono text-sm h-11"
+            />
+        </div>
+
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTools.map((tool, idx) => renderCard(tool, idx))}
+        </StaggerContainer>
+
+        {filteredTools.length === 0 && (
+          <div className="text-center py-14 mt-10 border border-border bg-card">
+            <p className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+              No tools found matching &quot;{searchQuery}&quot;.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="page-persuasion w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">

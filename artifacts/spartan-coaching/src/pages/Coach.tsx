@@ -190,79 +190,100 @@ export default function Coach() {
   }
 
   return (
-    <div className="coach-premium w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-coach">
       <SEO title="Spartan Coach | Hospice Sales Pro Elite" noIndex />
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
-        <div className="space-y-3">
-          <p className="text-kicker">Elite private coaching</p>
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl"><AccentText>Spartan Coach</AccentText></h1>
-          <p className="text-muted-foreground max-w-2xl leading-relaxed">
-            Prepare, rehearse, review, and keep the conversation going. Your private history follows your account on the website and iPhone for 90 days.
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-10 border-b border-border pb-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display"><AccentText>Spartan Coach</AccentText></h1>
+          <p className="text-[13px] font-mono tracking-widest text-muted-foreground uppercase max-w-2xl leading-relaxed">
+            Prepare, rehearse, and review. History follows you for 90 days.
           </p>
         </div>
-        <Button onClick={() => void createConversation()} className="font-bold min-h-11">
+        <Button onClick={() => void createConversation()} className="font-bold min-h-10 rounded-none uppercase tracking-widest text-xs bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors">
           <MessageSquarePlus className="mr-2 w-4 h-4" /> New conversation
         </Button>
       </div>
 
       <div className="grid lg:grid-cols-[240px_minmax(0,1fr)] gap-4 items-start">
-        <Card className="p-3 lg:sticky lg:top-24 border border-border">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">Conversation history</p>
-          <div className="space-y-1 max-h-64 lg:max-h-[64vh] overflow-y-auto">
-            {conversations.length === 0 ? <p className="text-sm text-muted-foreground p-3">Your first conversation starts here.</p> : conversations.map((item) => (
-              <button key={item.id} onClick={() => void openConversation(item.id).catch((cause: Error) => setError(cause.message))} className={`w-full text-left rounded-xl p-3 transition-colors ${conversationId === item.id ? "bg-primary/10 ring-1 ring-primary/30" : "hover:bg-muted"}`}>
-                <span className="block text-sm font-bold text-foreground line-clamp-2">{item.title}</span>
-                <span className="block text-xs text-muted-foreground mt-1">{conversationDate(item.updatedAt)}</span>
+        <Card className="p-3 lg:sticky lg:top-24 border border-border rounded-none shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-3 py-3 border-b border-border mb-2">History</p>
+          <div className="space-y-1 max-h-64 lg:max-h-[64vh] overflow-y-auto pr-1">
+            {conversations.length === 0 ? <p className="text-[13px] text-muted-foreground p-3">Your first conversation starts here.</p> : conversations.map((item) => (
+              <button key={item.id} onClick={() => void openConversation(item.id).catch((cause: Error) => setError(cause.message))} className={`w-full text-left rounded-none p-3 transition-colors ${conversationId === item.id ? "bg-muted border-l-2 border-primary" : "hover:bg-muted/50 border-l-2 border-transparent"}`}>
+                <span className="block text-[13px] font-bold text-foreground line-clamp-2 leading-relaxed">{item.title}</span>
+                <span className="block text-[11px] font-mono uppercase tracking-widest text-muted-foreground mt-1">{conversationDate(item.updatedAt)}</span>
               </button>
             ))}
           </div>
-          <div className="flex items-start gap-2 px-3 pt-4 mt-3 border-t border-border text-xs text-muted-foreground leading-relaxed">
-            <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Private by default. Do not enter PHI. Conversations expire after 90 days.
+          <div className="flex items-start gap-2 px-3 pt-4 mt-3 border-t border-border text-[11px] text-muted-foreground leading-relaxed font-mono uppercase tracking-widest">
+            <ShieldCheck className="w-4 h-4 text-primary shrink-0 -mt-0.5" /> Private by default. Expires after 90 days.
           </div>
         </Card>
 
-        <Card className="border border-border overflow-hidden min-h-[620px] flex flex-col">
-          <div className="flex items-center justify-between gap-4 px-5 sm:px-7 py-5 border-b border-border bg-muted/30">
+        <Card className="border border-border overflow-hidden min-h-[620px] flex flex-col rounded-none shadow-sm">
+          <div className="flex items-center justify-between gap-4 px-5 sm:px-8 py-5 border-b border-border bg-card">
             <div>
-              <p className="font-display font-extrabold text-lg">One conversation, continued</p>
-              <p className="text-xs text-muted-foreground mt-1">Ask a follow up. Challenge the answer. Rehearse the next move.</p>
+              <p className="font-display font-bold uppercase text-lg tracking-tight">Active Objective</p>
+              <p className="text-[13px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Ask a follow up. Challenge the answer. Rehearse the next move.</p>
             </div>
-            {conversationId && <Button variant="ghost" size="icon" onClick={() => void deleteConversation()} aria-label="Delete conversation"><Trash2 className="w-4 h-4" /></Button>}
+            {conversationId && <Button variant="ghost" size="icon" onClick={() => void deleteConversation()} aria-label="Delete conversation"><Trash2 className="w-4 h-4 text-muted-foreground" /></Button>}
           </div>
 
-          <div className="flex-1 p-5 sm:p-7 space-y-6">
+          <div className="flex-1 p-5 sm:p-8 space-y-6">
             {error ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm" role="alert"><span>{error}</span><Button type="button" size="sm" variant="outline" onClick={() => void refresh(true).catch((cause: Error) => setError(cause.message))}>Try again</Button></div> : null}
             {messages.length === 0 && (
               <div className="max-w-2xl mx-auto text-center py-10 space-y-5">
-                <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground grid place-items-center mx-auto shadow-elite-red"><MessageSquarePlus className="w-6 h-6" /></div>
-                <h2 className="text-2xl font-display font-extrabold"><AccentText>What are you walking into?</AccentText></h2>
-                <p className="text-muted-foreground leading-relaxed">Give Coach the situation, the outcome you want, and what feels difficult. Use general professional context only.</p>
-                <div className="grid gap-2 text-left sm:grid-cols-2" aria-label="Coach conversation starters">
+                <div className="w-14 h-14 rounded-none border border-border bg-muted text-muted-foreground grid place-items-center mx-auto"><MessageSquarePlus className="w-6 h-6" /></div>
+                <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-foreground"><AccentText>What are you walking into?</AccentText></h2>
+                <p className="text-muted-foreground leading-relaxed text-sm">Give Coach the situation, the outcome you want, and what feels difficult. Use general professional context only.</p>
+                <div className="grid gap-2 text-left sm:grid-cols-2 mt-8" aria-label="Coach conversation starters">
                   {["Help me prepare for a difficult referral-source conversation", "Coach me through an objection I keep hearing", "Review my follow-up approach", "Help me decide the strongest next move"].map((prompt) => (
-                    <button key={prompt} type="button" onClick={() => setDraft(prompt)} className="rounded-xl border border-border bg-background/60 p-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/5">{prompt}</button>
+                    <button key={prompt} type="button" onClick={() => setDraft(prompt)} className="rounded-none border border-border bg-card p-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-muted">{prompt}</button>
                   ))}
                 </div>
               </div>
             )}
             {messages.map((message) => (
-              <div key={message.id} className={message.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                <div className={message.role === "user" ? "max-w-[88%] rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-5 py-4" : "w-full rounded-2xl rounded-bl-sm border border-border bg-card px-5 sm:px-7 py-6 shadow-none"}>
-                  {message.role === "assistant" ? <><div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p><p className="mt-1 text-xs text-muted-foreground">Scan the move, adapt the language, then act.</p></div><div className="flex gap-2 no-print"><Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>{copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}{copiedMessageId === message.id ? "Copied" : "Copy brief"}</Button><Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}><Printer className="mr-1.5 h-4 w-4" /> Print</Button></div></div><MarkdownContent content={presentCoachResponse(message.content)} className="text-sm leading-7 [&_h2]:mt-6 [&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:text-lg [&_h2]:tracking-tight [&_p]:max-w-3xl [&_li]:mb-1.5" /></> : <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>}
-                </div>
+              <div key={message.id} className="border-b border-border/60 pb-8 mb-8 last:border-0 last:pb-0 last:mb-0">
+                {message.role === "user" ? (
+                  <div className="mb-4">
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">You</p>
+                     <p className="text-sm font-semibold text-foreground leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                ) : (
+                  <div className="bg-card border border-border p-6 sm:p-8">
+                     <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
+                        <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Your field coaching brief</p>
+                           <p className="mt-1 text-xs text-muted-foreground">Scan the move, adapt the language, then act.</p>
+                        </div>
+                        <div className="flex gap-2 no-print">
+                           <Button type="button" variant="outline" size="sm" onClick={() => void copyResponse(message)} data-testid={`button-copy-coach-${message.id}`}>
+                              {copiedMessageId === message.id ? <Check className="mr-1.5 h-4 w-4" /> : <Copy className="mr-1.5 h-4 w-4" />}
+                              {copiedMessageId === message.id ? "Copied" : "Copy brief"}
+                           </Button>
+                           <Button type="button" variant="outline" size="sm" onClick={() => printResponse(message)} data-testid={`button-print-coach-${message.id}`}>
+                              <Printer className="mr-1.5 h-4 w-4" /> Print
+                           </Button>
+                        </div>
+                     </div>
+                     <MarkdownContent content={presentCoachResponse(message.content)} className="text-[15px] leading-relaxed [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:border-l-2 [&_h2]:border-primary [&_h2]:pl-3 [&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-widest [&_p]:max-w-3xl [&_li]:mb-2 [&_ul]:pl-5 [&_ul]:list-disc" />
+                  </div>
+                )}
               </div>
             ))}
             {sending && <p className="text-sm text-muted-foreground" role="status">Coach is thinking through your next move.</p>}
             <div ref={endRef} />
           </div>
 
-          <div className="border-t border-border bg-background p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-3 items-end">
+          <div className="border-t border-border bg-muted/20 p-5 sm:p-8">
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
               <Textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); }
-              }} placeholder="Describe the situation or ask a follow up" maxLength={4000} className="min-h-24 resize-none" aria-label="Message Spartan Coach" />
-              <Button onClick={() => void sendMessage()} disabled={!draft.trim() || sending} size="lg" className="font-bold w-full sm:w-auto min-h-12">Send <Send className="ml-2 w-4 h-4" /></Button>
+              }} placeholder="Describe the situation or ask a follow up" maxLength={4000} className="min-h-[120px] resize-none rounded-none bg-card border-border shadow-sm text-[15px] p-4" aria-label="Message Spartan Coach" />
+              <Button onClick={() => void sendMessage()} disabled={!draft.trim() || sending} size="lg" className="font-bold w-full sm:w-auto min-h-[120px] rounded-none uppercase tracking-widest text-xs px-8">Send <Send className="ml-2 w-4 h-4" /></Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">Enter sends. Shift and Enter adds a new line. Coach supports sales preparation only. Confirm patient or family outreach with admissions, clinical leadership, and your organization’s policy.</p>
+            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mt-4 leading-relaxed">Enter sends. Shift+Enter adds a new line. Do not enter PHI. Coach supports sales preparation only. Confirm patient or family outreach with admissions and your organization’s policy.</p>
           </div>
         </Card>
       </div>

@@ -230,27 +230,18 @@ export default function MyWork() {
   const savedCount = reports.length + drafts.length + results.length + downloads.length + resourceWork.length + memberWork.length;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="page-my-work">
-      <SEO title="My Work | Hospice Sales Pro" description="Resume saved Hospice Sales Pro work from web or iPhone." />
-      <header className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Saved continuity</p>
-            <h1 className="text-4xl font-display font-black tracking-tight sm:text-5xl"><AccentText>My Work</AccentText></h1>
-            <p className="max-w-2xl text-muted-foreground leading-7">
-              Resume approved work from the website or iPhone without rebuilding your thinking.
-            </p>
-          </div>
-          <Button type="button" variant="outline" onClick={() => void load()} disabled={loading} className="min-h-11">
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-my-work">
+      <SEO title="My Work | Spartan Coaching" noIndex />
+      <header className="mb-10 border-b border-border pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display"><AccentText>My Work</AccentText></h1>
+          <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase leading-relaxed max-w-2xl">
+            Recent activity and saved field resources. Secure continuity across iPhone and Web.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{savedCount} saved items</Badge>
-          <Badge variant="outline"><Smartphone className="mr-1 h-3 w-3" /> Same account as iPhone</Badge>
-          <Badge variant="outline"><Shield className="mr-1 h-3 w-3" /> Nonclinical continuity only</Badge>
-        </div>
+        <Button variant="outline" size="sm" onClick={() => void load()} disabled={loading} className="rounded-none uppercase tracking-widest text-[10px] font-bold h-10">
+          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Sync iPhone work
+        </Button>
       </header>
 
       {loading ? (
@@ -339,25 +330,35 @@ export default function MyWork() {
 function WorkSection({ title, empty, children }: { title: string; empty: string; children: ReactNode }) {
   const items = Array.isArray(children) ? children.filter(Boolean) : children ? [children] : [];
   return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-black"><AccentText>{title}</AccentText></h2>
-      {items.length ? <div className="grid gap-3 md:grid-cols-2">{children}</div> : <Card className="p-5 text-sm text-muted-foreground">{empty}</Card>}
+    <section className="space-y-4">
+      <h2 className="text-lg font-bold uppercase tracking-tight text-foreground font-display mb-2"><AccentText>{title}</AccentText></h2>
+      {items.length ? (
+        <div className="flex flex-col border-t border-border">{children}</div>
+      ) : (
+        <div className="rounded-none border border-border/70 bg-card p-6 shadow-sm"><p className="text-sm text-muted-foreground">{empty}</p></div>
+      )}
     </section>
   );
 }
 
 function WorkLink({ href, icon, title, description, meta }: { href: string; icon: ReactNode; title: string; description?: string; meta: string }) {
   return (
-    <Link href={href} className="block">
-      <Card className="flex h-full min-h-28 items-center gap-4 p-5 transition hover:border-primary hover:shadow-sm">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent-foreground">{icon}</span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-bold">{title}</span>
-          {description ? <span className="mt-1 block break-words text-sm text-muted-foreground">{description}</span> : null}
-          <span className="mt-2 block text-xs font-semibold text-highlight">{meta}</span>
+    <Link href={href} className="block group">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-border bg-card hover:bg-muted/30 transition-colors min-h-24">
+        <div className="flex-1 min-w-0">
+           <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-muted text-foreground">
+                 {meta.split(' · ')[0]}
+              </span>
+           </div>
+           <h3 className="text-[15px] font-bold text-foreground truncate"><AccentText>{title}</AccentText></h3>
+           {description ? <p className="text-[13px] text-muted-foreground truncate mt-0.5 max-w-2xl">{description}</p> : null}
+           <p className="text-[11px] text-muted-foreground truncate font-mono uppercase tracking-wide mt-1.5">{meta.split(' · ')[1] || meta}</p>
+        </div>
+        <span className="inline-flex min-h-9 shrink-0 items-center rounded-md border border-border px-3 text-xs font-bold text-foreground transition-colors group-hover:border-primary/40 group-hover:bg-primary/5">
+          Open <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
         </span>
-        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-      </Card>
+      </div>
     </Link>
   );
 }

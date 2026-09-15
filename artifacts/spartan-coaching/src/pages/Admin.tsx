@@ -1993,7 +1993,7 @@ export default function Admin() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 mt-4">
-            <Button asChild className="w-full bg-spartan-gradient hover:glow-primary">
+            <Button asChild className="w-full font-semibold">
               <Link href="/login">Go to secure sign-in</Link>
             </Button>
             <p className="text-center text-xs text-muted-foreground">
@@ -2006,123 +2006,105 @@ export default function Admin() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-admin">
       <SEO />
-      <div className="flex items-center justify-between mb-8">
-        <BackButton />
-        <Button
-          variant="outline"
-          onClick={handleLogout}
-          className="gap-2"
-          data-testid="button-logout"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 border-b border-border pb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground" data-testid="text-admin-title"><AccentText>Platform administration</AccentText></h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Review access, intervene in operations, and maintain platform content.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button asChild variant="outline" className="h-10 rounded-md font-semibold">
+            <Link href="/account">Account</Link>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="h-10 gap-2 rounded-md font-semibold"
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title"><AccentText>Admin Dashboard</AccentText></h1>
-        <p className="text-xl text-muted-foreground">
-          Manage inquiries, subscribers, articles, resources, podcasts,
-          testimonials, and more
-        </p>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4"><AccentText>Visitor Statistics</AccentText></h2>
+      <div className="mb-12">
+        <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground"><AccentText>Visitor activity</AccentText></h2>
         {analyticsLoading ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">
-              Loading visitor statistics...
+          <div className="text-center py-8 border border-border bg-card">
+            <p className="text-muted-foreground text-[11px] font-mono uppercase tracking-widest">
+              Loading metrics...
             </p>
           </div>
         ) : analytics ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            <Card data-testid="card-visitors-day">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Today
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className="text-3xl font-bold"
+          <div className="admin-metric-list overflow-hidden rounded-lg border border-border bg-card">
+            <div className="p-5" data-testid="card-visitors-day">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                Today
+              </p>
+              <div
+                className="text-3xl font-bold font-display"
                   data-testid="text-visitors-day"
                 >
                   {analytics.day}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">visitors</p>
-              </CardContent>
-            </Card>
+            </div>
 
-            <Card data-testid="card-visitors-week">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  This Week
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className="text-3xl font-bold"
-                  data-testid="text-visitors-week"
-                >
-                  {analytics.week}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">visitors</p>
-              </CardContent>
-            </Card>
+            <div className="p-5" data-testid="card-visitors-week">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                This Week
+              </p>
+              <div
+                className="text-3xl font-bold font-display"
+                data-testid="text-visitors-week"
+              >
+                {analytics.week}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">visitors</p>
+            </div>
 
-            <Card data-testid="card-visitors-month">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  This Month
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className="text-3xl font-bold"
-                  data-testid="text-visitors-month"
-                >
-                  {analytics.month}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">visitors</p>
-              </CardContent>
-            </Card>
+            <div className="p-5" data-testid="card-visitors-month">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                This Month
+              </p>
+              <div
+                className="text-3xl font-bold font-display"
+                data-testid="text-visitors-month"
+              >
+                {analytics.month}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">visitors</p>
+            </div>
 
-            <Card data-testid="card-visitors-quarter">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  This Quarter
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className="text-3xl font-bold"
-                  data-testid="text-visitors-quarter"
-                >
-                  {analytics.quarter}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">visitors</p>
-              </CardContent>
-            </Card>
+            <div className="p-5" data-testid="card-visitors-quarter">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                This Quarter
+              </p>
+              <div
+                className="text-3xl font-bold font-display"
+                data-testid="text-visitors-quarter"
+              >
+                {analytics.quarter}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">visitors</p>
+            </div>
 
-            <Card data-testid="card-visitors-year">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  This Year
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className="text-3xl font-bold"
-                  data-testid="text-visitors-year"
-                >
-                  {analytics.year}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">visitors</p>
-              </CardContent>
-            </Card>
+            <div className="p-5" data-testid="card-visitors-year">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                This Year
+              </p>
+              <div
+                className="text-3xl font-bold font-display"
+                data-testid="text-visitors-year"
+              >
+                {analytics.year}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">visitors</p>
+            </div>
           </div>
         ) : (
           <Card>
