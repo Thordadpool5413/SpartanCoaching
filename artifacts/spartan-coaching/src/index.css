@@ -14,8 +14,8 @@
   overflow: hidden;
   background-image: url("/spartan-logo.png");
   background-repeat: no-repeat;
-  background-position: center -0.2rem;
-  background-size: 250% 250%;
+  background-position: center;
+  background-size: contain;
 }
 
 /* Premium workspace language: shared by every authenticated surface. */
