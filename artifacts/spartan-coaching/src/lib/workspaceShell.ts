@@ -372,6 +372,10 @@ export function requiresAuthenticationPath(pathname: string): boolean {
   return (
     p === "/portal" ||
     p.startsWith("/portal/") ||
+    p === "/tools/intelligence" ||
+    p.startsWith("/tools/intelligence/") ||
+    p === "/spartan-intelligence" ||
+    p.startsWith("/spartan-intelligence/") ||
     p === "/account" ||
     p.startsWith("/account/") ||
     p === "/my-work" ||

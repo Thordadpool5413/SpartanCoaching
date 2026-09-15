@@ -1,5 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { primaryWorkspaceNav } from "@/lib/workspaceShell";
 import { MEMBER_NAV } from "@/lib/memberNav";
 import { US_STATES } from "@/lib/usStates";
@@ -12,6 +14,9 @@ vi.mock("@/components/medicare-platform/TrustedMedicarePlatform", () => ({ defau
 afterEach(cleanup);
 
 describe("Spartan Intelligence workspace contract", () => {
+  const pageSource = readFileSync(resolve(process.cwd(), "src/pages/SpartanIntelligence.tsx"), "utf8");
+  const dashboardSource = readFileSync(resolve(process.cwd(), "src/components/medicare-platform/NationalDashboard.tsx"), "utf8");
+
   it("is a visible primary workspace destination", () => {
     const nav = primaryWorkspaceNav("member");
     const tools = nav.find((item) => item.href === "/tools" && item.label === "Tools");
@@ -32,6 +37,12 @@ describe("Spartan Intelligence workspace contract", () => {
     render(<SpartanIntelligence />);
     expect(screen.getByTestId("trusted-medicare-platform")).toBeTruthy();
     expect(document.querySelector("iframe")).toBeNull();
+  });
+
+  it("uses one native workspace shell instead of nesting a second dashboard", () => {
+    expect(pageSource).not.toContain("FieldKitToolLayout");
+    expect(dashboardSource).not.toContain("<aside className='sidebar'");
+    expect(dashboardSource).toContain("className='workspace-nav'");
   });
 
   it("offers every United States market", () => {

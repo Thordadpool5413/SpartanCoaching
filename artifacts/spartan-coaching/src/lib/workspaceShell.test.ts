@@ -115,7 +115,11 @@ describe("workspace shell (HSP-32)", () => {
     expect(requiresAuthenticationPath("/my-work")).toBe(true);
     expect(requiresAuthenticationPath("/org/admin")).toBe(true);
     expect(requiresAuthenticationPath("/admin/access-desk")).toBe(true);
+    expect(requiresAuthenticationPath("/tools/intelligence")).toBe(true);
+    expect(requiresAuthenticationPath("/tools/intelligence?ccn=371653")).toBe(true);
+    expect(requiresAuthenticationPath("/spartan-intelligence")).toBe(true);
     expect(requiresAuthenticationPath("/tools/objections")).toBe(false);
+    expect(requiresAuthenticationPath("/tools")).toBe(false);
   });
 
   it("role helpers", () => {
