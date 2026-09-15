@@ -76,6 +76,9 @@ export default function NationalDashboard() {
   useEffect(() => { const params = new URLSearchParams({ state, ccn: focus, tab }); history.replaceState(null, '', `#${params.toString()}`); }, [state, focus, tab]);
 
   const signIn = () => setError('Your Spartan Elite session protects this workspace. Sign in again from the main account menu if access expires.');
+  const providers = data?.providers || [];
+  const providerValue = providers.some((provider) => provider.ccn === focus) ? focus : '';
+  const providerPlaceholder = loading || detailLoading ? 'Loading providers…' : 'Select provider';
   const selected = data?.providers.find((provider) => provider.ccn === focus) || detail?.provider || data?.providers[0];
   const navigate = (next: TabId) => setTab(next);
 
@@ -85,7 +88,7 @@ export default function NationalDashboard() {
     <main className='main'>
       <header className='topbar'>
         <div className='page-title'><span>CMS MEDICARE INTELLIGENCE</span><h1>{NAV.find((item) => item.id === tab)?.label}</h1><p>National hospice evidence translated into decisions and field action.</p></div>
-        <div className='topbar-workspace'><label className='market-picker'><span>Market</span><select aria-label='Select Medicare market' value={state} disabled={loading} onChange={(event) => void loadMarket(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><GlobalProviderSearch currentState={state} onOpen={(result) => { setTab('intelligence'); if (result.state !== state) { void loadMarket(result.state, result.ccn); return; } void loadProvider(result.ccn, state); }}/></div>
+        <div className='topbar-workspace'><label className='market-picker'><span>Market</span><select aria-label='Select Medicare market' value={state} disabled={loading} onChange={(event) => void loadMarket(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><label className='market-picker'><span>Provider</span><select aria-label='Select Medicare provider' value={providerValue} disabled={loading || detailLoading || providers.length === 0} onChange={(event) => { if (!event.target.value) return; void loadProvider(event.target.value, state); }}><option value=''>{providerPlaceholder}</option>{providers.map((provider) => <option key={provider.ccn} value={provider.ccn}>{provider.name} · {provider.ccn}</option>)}</select></label><GlobalProviderSearch currentState={state} onOpen={(result) => { setTab('intelligence'); if (result.state !== state) { void loadMarket(result.state, result.ccn); return; } void loadProvider(result.ccn, state); }}/></div>
         <div className='topbar-actions'><button onClick={() => void loadMarket(state, focus, true)} disabled={loading}><RefreshCw size={16} className={loading ? 'spin' : ''}/><span>Refresh</span></button><button onClick={() => setTab('sources')} className={tab === 'sources' ? 'active' : ''}><Database size={16}/><span>Data health</span></button></div>
       </header>
       <div className='context-bar'><div><span className={`status-dot ${statusClass(data.dataQuality?.status)}`}/><span><small>ACTIVE PROVIDER</small><b>{selected.name}</b><em>{selected.city}, {selected.state} · CCN {selected.ccn}</em></span></div><div><small>MARKET</small><b>{data.stateName}</b></div><div><small>LAST REFRESH</small><b>{today()}</b></div></div>
