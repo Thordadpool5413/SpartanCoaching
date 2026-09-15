@@ -1,0 +1,1965 @@
+TITLE
+SPARTAN HOSPICE SALES PRO
+PAID WEB WORKSPACE REDESIGN
+FINAL PRODUCT + ENGINEERING IMPLEMENTATION CONTRACT
+
+
+======================================================================
+GOAL
+======================================================================
+
+Redesign and implement the COMPLETE PAID WEB WORKSPACE for Spartan Hospice Sales Pro.
+
+This is a full product-system redesign of the authenticated WEB workspace.
+
+It is NOT:
+
+- a public website redesign
+- a marketing-site redesign
+- an iOS redesign
+- an Expo redesign
+- a backend rewrite
+- a database redesign
+- a route rewrite
+- a static prototype
+- a dashboard refresh
+- a card refresh
+- a simple theme change
+
+The objective is to transform the paid web workspace into ONE coherent, restrained, precise, professional operating environment for hospice sales work.
+
+The primary unit of experience is:
+
+THE USER'S CURRENT OBJECTIVE
++
+THE REAL WORK, CONTEXT, INTELLIGENCE, AND NEXT ACTION ATTACHED TO IT.
+
+Every major screen should help the user answer:
+
+1. What am I trying to accomplish?
+2. What matters now?
+3. What do I already know?
+4. What information is uncertain?
+5. What work already exists?
+6. What can actually be resumed?
+7. What action is genuinely supported?
+8. What happens next?
+
+
+======================================================================
+PRIORITY SYSTEM
+======================================================================
+
+Instructions are not all equal.
+
+Use this priority order:
+
+MUST
+Non-negotiable product, security, compatibility, truth, accessibility, and scope requirements.
+
+SHOULD
+Strong design/UX preferences. Follow unless actual product content or verified usability demonstrates a better solution.
+
+MAY
+Optional implementation patterns that are acceptable when useful.
+
+When instructions conflict:
+
+1. Security / privacy / tenant isolation
+2. Data truth
+3. Verified business behavior
+4. Persistence truth
+5. API and route compatibility
+6. Accessibility
+7. Existing workspace architecture
+8. Design system
+9. Visual preference
+
+
+======================================================================
+REPOSITORY CONTEXT
+======================================================================
+
+MUST verify the current checkout before editing.
+
+Expected canonical structure:
+
+Web application:
+artifacts/spartan-coaching
+
+Shared packages:
+lib/*
+
+Native mobile:
+artifacts/spartan-coaching-mobile
+
+Do not trust repository search alone.
+
+Before editing:
+
+- inspect pnpm-workspace.yaml
+- inspect root/package manifests
+- inspect Vite configuration
+- inspect imports
+- identify generated files
+- identify real build inputs
+- identify shared packages
+- identify mobile-owned code
+
+Do not edit:
+
+- archival copies
+- generated output
+- attached_assets copies
+- stale mirrors
+- unrelated nested app copies
+
+When duplicate/generated files exist:
+
+1. identify source of truth
+2. identify generator if applicable
+3. change source
+4. regenerate normally
+
+
+======================================================================
+SCOPE
+======================================================================
+
+MUST redesign ONLY the paid web workspace.
+
+Use the existing application boundaries to determine scope.
+
+Prefer the existing workspace surface ownership including:
+
+data-route-surface="workspace"
+
+and AppShell / .field-workspace ownership.
+
+Do not create another competing global surface system unless technically necessary.
+
+
+OUT OF SCOPE:
+
+- public homepage
+- public marketing pages
+- About
+- Services
+- Programs
+- Method
+- public Hospice Sales Pro marketing
+- Contact
+- Articles
+- Podcasts
+- FAQ
+- Brand Video
+- public legal content
+- public SEO
+- native iOS
+- Expo UI
+- TestFlight
+
+
+======================================================================
+CRITICAL: DUAL-USE ROUTES AND COMPONENTS
+======================================================================
+
+Some real tool components are also used in:
+
+- signed-out previews
+- locked membership previews
+- expired/evaluation states
+
+Therefore URL alone does not determine redesign scope.
+
+BEFORE implementation create a RENDERING-MODE MATRIX.
+
+For every major route determine behavior for:
+
+SIGNED OUT
+AUTHENTICATED / NO ACCESS
+STANDARD
+ELITE
+ORG ADMIN
+PLATFORM ADMIN
+
+Classify each render as:
+
+PUBLIC
+PREVIEW
+LOCKED
+WORKSPACE
+REDIRECT
+
+
+If the SAME component appears in both workspace and public/preview contexts:
+
+MUST NOT globally redesign it in a way that changes the public preview.
+
+Instead use one of:
+
+- workspace-specific composition
+- workspace variant
+- workspace wrapper
+- workspace-scoped styling
+- route-surface conditional presentation
+
+The authenticated workspace may be redesigned substantially.
+
+The public/preview presentation must remain outside this redesign except for fixes required to prevent regression.
+
+
+======================================================================
+MUST PRESERVE
+======================================================================
+
+Do not casually change:
+
+- APIs
+- response semantics
+- database schema
+- billing behavior
+- membership behavior
+- authorization
+- tenant boundaries
+- Medicare calculations
+- source provenance
+- provider identity semantics
+- search ranking
+- persistence semantics
+- analytics meaning
+- route compatibility
+- deep links
+- exports
+- downloads
+- tool-generation behavior
+
+
+MUST NOT:
+
+- create database migrations
+- run database migrations for this redesign
+- redesign backend APIs for frontend convenience
+- replace the router
+- replace state-management architecture
+- replace the component framework
+- replace the icon system
+- rewrite billing logic
+- rewrite membership logic
+- change native mobile behavior
+- deploy or publish without explicit authorization
+
+
+======================================================================
+VERIFIED DEFECT EXCEPTION
+======================================================================
+
+Preserve existing behavior unless testing identifies a verified:
+
+- security defect
+- privacy defect
+- tenant-isolation defect
+- stale private-state defect
+- correctness defect
+- broken existing web behavior
+
+directly affecting the paid web workspace.
+
+If found:
+
+fix the SMALLEST SAFE ROOT CAUSE.
+
+Do not preserve a verified defect merely because it existed before the redesign.
+
+Do not turn that exception into permission for architecture replacement.
+
+
+======================================================================
+DATA TRUTH
+======================================================================
+
+MUST preserve meaningful distinctions.
+
+Never silently convert:
+
+UNKNOWN
+MISSING
+NULL
+UNAVAILABLE
+NOT LOADED
+NOT AUTHORIZED
+NOT REPORTABLE
+UNRESOLVED
+PARTIAL
+
+into:
+
+0
+NONE
+NO ACTIVITY
+COMPLETE
+
+
+Zero means zero.
+
+Unknown means unknown.
+
+Missing evidence is not evidence of zero.
+
+
+======================================================================
+PERSISTENCE TRUTH
+======================================================================
+
+Never claim something is:
+
+SAVED
+SYNCED
+COMPLETED
+AVAILABLE EVERYWHERE
+RESUMABLE
+
+unless actual behavior guarantees it.
+
+Audit:
+
+- server persistence
+- localStorage
+- sessionStorage
+- React Query/cache state
+- drafts
+- My Work integration
+- reload behavior
+- logout behavior
+- account-switch behavior
+- cross-device behavior
+
+
+Create a PERSISTENCE MATRIX for every work-producing surface:
+
+SURFACE
+SERVER?
+BROWSER?
+SESSION ONLY?
+DOWNLOAD ONLY?
+MY WORK?
+SURVIVES RELOAD?
+SURVIVES LOGOUT?
+SURVIVES ACCOUNT SWITCH?
+AVAILABLE OTHER DEVICE?
+
+
+UI copy must reflect this matrix.
+
+
+======================================================================
+BROWSER-STATE OWNERSHIP
+======================================================================
+
+Classify browser-persisted state as:
+
+GLOBAL PRODUCT
+WORKSPACE GLOBAL
+USER-SCOPED
+ORGANIZATION-SCOPED
+EPHEMERAL
+
+
+For every important stored value document:
+
+KEY / STORE
+PURPOSE
+OWNER
+SCOPE
+LOGOUT BEHAVIOR
+ACCOUNT-CHANGE BEHAVIOR
+MIGRATION NEED
+
+
+If storage formats change:
+
+- support old valid values
+- safely handle malformed JSON
+- safely handle obsolete values
+- migrate deliberately
+- do not repeatedly remigrate
+- fail safely rather than crashing
+
+
+======================================================================
+CROSS-ACCOUNT PRIVACY
+======================================================================
+
+MUST test:
+
+1. Sign in as User/Org A.
+2. Load private workspace content.
+3. Sign out.
+4. Sign in as User/Org B using the same browser.
+5. Verify no Org A/private content remains visible through:
+
+- React Query cache
+- workspace shell
+- search
+- Recent
+- inspector
+- drafts
+- forms
+- browser storage
+- client stores
+
+
+Also test:
+
+private page
+→ logout
+→ browser Back
+
+Private content must not resume as a valid authenticated workspace.
+
+
+======================================================================
+FIRST DELIVERABLES BEFORE IMPLEMENTATION
+======================================================================
+
+Before major visual changes create/update:
+
+docs/workspace-redesign-system.md
+
+and
+
+docs/workspace-redesign-progress.md
+
+
+WORKSPACE REDESIGN SYSTEM must define:
+
+- design principles
+- workspace IA
+- route/rendering-mode model
+- lifecycle terminology
+- capability taxonomy
+- semantic tokens
+- typography
+- spacing
+- density
+- shell geometry
+- buttons
+- controls
+- forms
+- tables
+- charts
+- overlays
+- feedback
+- state patterns
+- inspector
+- light/dark behavior
+- responsive behavior
+- accessibility
+- print/export
+
+
+PROGRESS LEDGER must track:
+
+ROUTE / SURFACE
+STATUS
+PHASE
+FILES CHANGED
+STATES COVERED
+TESTS RUN
+BLOCKERS
+NOTES
+
+
+Update the progress ledger throughout implementation.
+
+Update the design-system document again at the end so documentation matches what was actually built.
+
+
+======================================================================
+DESIGN NORTH STAR
+======================================================================
+
+The workspace should feel:
+
+QUIETLY AUTHORITATIVE
+
+DISCIPLINED
+
+PRECISE
+
+INTELLIGENT
+
+CONFIDENT
+
+CALM
+
+PROFESSIONAL
+
+FAST
+
+FOCUSED
+
+
+Spartan identity should come from:
+
+- discipline
+- hierarchy
+- precise spacing
+- strong typography
+- decisive actions
+- restrained red
+- clear state
+
+NOT:
+
+- giant helmets
+- tactical decoration
+- gamer aesthetics
+- cyberpunk visuals
+- motivational slogans
+- black/red overload
+
+
+Mental test:
+
+If the Spartan logo disappeared, the workspace should still feel Spartan.
+
+
+======================================================================
+ABSOLUTE VISUAL EXCLUSIONS
+======================================================================
+
+MUST NOT use inside functional workspace surfaces:
+
+- houses
+- real-estate imagery
+- facility exterior photos
+- hospital photos
+- senior-living exterior photos
+- stock healthcare photography
+- fake employee headshots
+- fake facility logos
+- mountains
+- landscapes
+- motivational artwork
+- giant hero images
+- giant greeting banners
+- inspirational quotes
+- decorative gradients
+- glassmorphism
+- neon
+- gamer-style glow
+- giant KPI strips
+- giant generic metric cards
+- Kanban-style boards unless a real workflow absolutely requires one
+
+
+This is hospice sales operating software.
+
+It must not resemble:
+
+- Zillow
+- a realtor CRM
+- Salesforce clone
+- HubSpot clone
+- Trello
+- Asana
+- Monday.com
+- generic project management
+- a financial trading terminal
+
+
+======================================================================
+UNIVERSAL LAYOUT PRINCIPLE
+======================================================================
+
+SHOULD:
+
+Every screen has ONE visually dominant working region.
+
+Supporting context must remain subordinate.
+
+Do not divide a page into a mosaic of equally weighted modules.
+
+Empty space is allowed.
+
+Do not fill empty space with:
+
+- statistics
+- shortcuts
+- charts
+- slogans
+- decorative content
+- branding
+
+
+Use a contained surface only when content genuinely needs independent grouping, interaction, state, or elevation.
+
+Otherwise prefer:
+
+- spacing
+- typography
+- rows
+- dividers
+- subtle tonal separation
+
+
+======================================================================
+SHELL GEOMETRY
+======================================================================
+
+SHOULD use a consistent desktop shell.
+
+Approximate design ranges:
+
+Expanded navigation:
+232–256px
+
+Collapsed navigation:
+68–76px
+
+Top utility bar:
+52–56px
+
+Desktop work-canvas gutter:
+~24px
+
+Narrow web gutter:
+~16px
+
+Context inspector:
+roughly 300–340px when useful
+
+These are bounded design guides, not pixel-perfect laws.
+
+
+Do not put data-heavy screens inside narrow marketing-style max-width containers.
+
+
+======================================================================
+NAVIGATION
+======================================================================
+
+Primary workspace destinations:
+
+Today
+Command
+Medicare
+Tools
+Coach
+Library
+My Work
+
+
+Utilities as appropriate:
+
+Search
+Notifications
+Account
+Organization
+Platform Admin
+
+
+Navigation SHOULD:
+
+- orient the user
+- visually recede
+- use restrained line icons
+- use a subtle active marker
+- avoid oversized selected pills
+- avoid decorative gradients
+- avoid oversized icon tiles
+
+
+======================================================================
+TOP BAR
+======================================================================
+
+Keep compact.
+
+Only globally useful controls belong here, such as:
+
+- workspace search
+- notifications
+- appearance
+- account
+
+Do not stack multiple redundant application bars.
+
+
+======================================================================
+LIGHT + DARK
+======================================================================
+
+MUST explicitly implement genuine user-selectable LIGHT and DARK modes for the AUTHENTICATED WEB WORKSPACE.
+
+This is an intentional change from the current forced-dark workspace behavior.
+
+Preserve:
+
+- public pages' existing route-controlled presentation
+- public pages not overwriting the user's saved workspace appearance
+- native iOS behavior
+- existing theme/storage semantics where safe
+
+
+LIGHT WORKSPACE:
+
+- dark/navy structural navigation
+- warm off-white canvas
+- deep charcoal/navy text
+- subtle warm-gray separation
+- restrained red
+
+
+DARK WORKSPACE:
+
+- near-black/navy shell
+- charcoal working surfaces
+- warm/off-white typography
+- restrained red
+- no neon
+
+
+Use red semantically for:
+
+- primary action
+- active state
+- meaningful attention
+- small brand signature
+
+
+Do not use red as the default for:
+
+- every heading
+- every border
+- every icon
+- every link
+- whole panels
+
+
+======================================================================
+TYPOGRAPHY
+======================================================================
+
+Use a modern highly readable sans-serif for functional UI.
+
+Display/condensed brand type MAY be used sparingly.
+
+Do NOT use display type for:
+
+- body
+- navigation
+- forms
+- tables
+- Medicare evidence
+- Admin
+- long Coach answers
+
+
+Define roles:
+
+PAGE TITLE
+SECTION
+WORK TITLE
+BODY
+SMALL BODY
+LABEL
+METADATA
+DATA / NUMBER
+
+
+Avoid:
+
+- giant titles
+- excessive uppercase
+- tiny metadata
+- excessive letter spacing
+
+
+======================================================================
+SURFACE STYLE
+======================================================================
+
+SHOULD use:
+
+- small professional radius
+- subtle borders
+- low visual noise
+- spacing-led hierarchy
+
+Normal contained surfaces should generally use modest radii, approximately 6–10px.
+
+Large SaaS-style 20px+ card rounding should not dominate the workspace.
+
+Use shadows primarily for:
+
+- menus
+- drawers
+- modals
+- transient raised elements
+
+Normal working regions should not float on dramatic shadows.
+
+
+======================================================================
+PAGE-SPECIFIC ACCEPTANCE CRITERIA
+======================================================================
+
+
+----------------------------------------------------------------------
+TODAY
+----------------------------------------------------------------------
+
+Today is a DAILY OPERATING BRIEF.
+
+It is NOT:
+
+- a KPI dashboard
+- a Kanban board
+- an app launcher
+- a motivational homepage
+
+
+It should answer:
+
+What needs attention?
+What should I do next?
+What real work can I resume?
+What happens later?
+
+
+Potential hierarchy:
+
+NOW
+CONTINUE
+NEXT
+WAITING
+
+only when actual product state supports them.
+
+Prefer vertical operational rows/timeline structure.
+
+No giant greeting.
+
+No motivational quote.
+
+No metric strip.
+
+
+----------------------------------------------------------------------
+COMMAND
+----------------------------------------------------------------------
+
+Command is the FIELD EXECUTION SPINE.
+
+It should feel chronological and action-oriented.
+
+Prefer:
+
+- timeline
+- rows
+- progressive detail
+- focused active item
+
+over:
+
+- CRM pipeline
+- opportunity cards
+- Kanban
+
+
+Show where available:
+
+TIME
+ACCOUNT
+CONTACT / TYPE
+OBJECTIVE
+READINESS
+CURRENT STATE
+NEXT ACTION
+
+
+Workflow progress such as:
+
+Prepare
+Practice
+Execute
+Review
+
+may appear only when real state exists.
+
+Do not infer completion from page visits.
+
+
+----------------------------------------------------------------------
+MEDICARE
+----------------------------------------------------------------------
+
+Medicare is a healthcare intelligence environment.
+
+It must NOT resemble:
+
+- a realtor profile
+- a consumer provider directory
+- a financial trading terminal
+- a wall of charts
+
+
+No facility photographs.
+
+No building photography.
+
+No property imagery.
+
+
+Prioritize:
+
+PROVIDER IDENTITY
+MARKET IDENTITY
+EVIDENCE
+SOURCE
+FRESHNESS
+COVERAGE
+UNCERTAINTY
+COMPARISON
+DATA HEALTH
+
+
+Must clearly distinguish:
+
+0
+UNKNOWN
+UNAVAILABLE
+PARTIAL
+NOT REPORTABLE
+UNRESOLVED
+ESTIMATED
+CONTEXT ONLY
+
+
+It should help answer:
+
+What do we know?
+How reliable is it?
+What does it mean?
+What should I investigate next?
+
+
+Maps should appear only on geography/territory-oriented views where analytically necessary.
+
+
+----------------------------------------------------------------------
+TOOLS
+----------------------------------------------------------------------
+
+Tools should start from:
+
+WHAT ARE YOU TRYING TO ACCOMPLISH?
+
+Prefer job/outcome entry points such as:
+
+Prepare for a meeting
+Handle an objection
+Research an account
+Write a follow-up
+Practice a conversation
+Measure activity
+Plan the week
+
+
+Do not make the main Tools screen an App Store-style icon grid.
+
+Browse All can expose the actual catalog.
+
+
+----------------------------------------------------------------------
+TOOL WORKBENCH
+----------------------------------------------------------------------
+
+All tools should share recognizable grammar:
+
+HEADER
+INPUT
+PRIMARY ACTION
+PROCESS
+RESULT
+REVIEW
+NEXT ACTION
+
+
+But different tool categories may use distinct compositions:
+
+GENERATIVE
+RESEARCH
+CONVERSATIONAL
+PROCESSING
+PLANNING
+MEASUREMENT
+WORKFLOW
+
+
+Do not force all tools into one generic two-column template.
+
+
+----------------------------------------------------------------------
+PLAYBOOK
+----------------------------------------------------------------------
+
+Clearly structure actual:
+
+context
+objective
+strategy
+talking points
+discovery questions
+precise ask
+next supported action
+
+
+----------------------------------------------------------------------
+OBJECTION HANDLER
+----------------------------------------------------------------------
+
+Clearly structure:
+
+objection
+context
+response
+rationale where provided
+practice
+copy
+supported Role-Play action
+
+
+----------------------------------------------------------------------
+GROUNDED RESEARCH
+----------------------------------------------------------------------
+
+Clearly separate:
+
+QUESTION
+EVIDENCE
+SOURCES
+ANSWER
+RECOMMENDATION
+NEXT ACTION
+
+
+Never visually blur sourced evidence and generated recommendation.
+
+
+----------------------------------------------------------------------
+EMAIL TEMPLATES
+----------------------------------------------------------------------
+
+Support actual:
+
+context
+purpose
+draft
+editing
+copy
+follow-up/reminder where supported
+
+Do not imply email sending if Spartan does not send email.
+
+
+----------------------------------------------------------------------
+ROLE-PLAY
+----------------------------------------------------------------------
+
+Differentiate:
+
+USER
+SIMULATED CONTACT
+COACH FEEDBACK
+
+Where available conclude with:
+
+what worked
+what to improve
+language to reuse
+behavior to change
+next action
+
+
+----------------------------------------------------------------------
+TRANSCRIBER
+----------------------------------------------------------------------
+
+Support:
+
+upload
+file validation
+processing
+progress
+transcript
+coaching moments
+long-content navigation
+privacy
+error
+retry
+
+
+----------------------------------------------------------------------
+WEEKLY PLAN
+----------------------------------------------------------------------
+
+Clearly expose:
+
+weekly objective
+priority accounts
+daily work
+win conditions
+review
+actual persistence behavior
+actual print/export behavior
+
+
+----------------------------------------------------------------------
+COLD CALL
+----------------------------------------------------------------------
+
+Clearly expose:
+
+opener
+transition
+objection response
+ask
+practice action
+
+
+----------------------------------------------------------------------
+MEASUREMENT TOOLS
+----------------------------------------------------------------------
+
+Activity
+Rep Cost
+ROI
+Branch Profitability
+
+should share a measurement grammar:
+
+grouped inputs
+assumptions
+result hierarchy
+formula/explanation where available
+comparison where supported
+leadership-ready output
+
+Do not turn every result into a huge KPI tile.
+
+
+----------------------------------------------------------------------
+COACH
+----------------------------------------------------------------------
+
+Coach must feel like a PROFESSIONAL COACHING SESSION.
+
+Not generic ChatGPT.
+
+Prefer a model such as:
+
+SITUATION
+OBJECTIVE
+COACHING CONVERSATION
+COACH NOTES / COMMITMENT
+NEXT ACTION
+
+
+History may exist, but the active coaching objective should dominate.
+
+Avoid cartoon chat bubbles.
+
+Avoid AI gradients/glowing AI branding.
+
+If backend output is structured, structured sections may be shown.
+
+If output is freeform:
+
+improve typography and readability.
+
+Do not invent semantic sections through brittle parsing.
+
+
+Preserve safe generated-content rendering.
+
+Do not introduce unsafe raw HTML or dangerouslySetInnerHTML for AI output.
+
+
+If AI currently streams:
+preserve streaming.
+
+If not:
+do not fake streaming.
+
+
+----------------------------------------------------------------------
+LIBRARY
+----------------------------------------------------------------------
+
+Library should feel editorial.
+
+Not like Dropbox.
+
+Not like a file manager.
+
+
+Use:
+
+SEARCH
+RECENT if real
+RECOMMENDED if real
+BROWSE
+
+
+Resource row SHOULD communicate:
+
+TITLE
+ONE-LINE USE CASE
+TYPE
+RELATED JOB
+
+
+Preserve resource distinctions:
+
+TEMPLATE
+SCRIPT
+CHECKLIST
+GUIDE
+
+
+Do not use folder icons as the primary Library metaphor.
+
+
+----------------------------------------------------------------------
+MY WORK
+----------------------------------------------------------------------
+
+My Work is a CONTINUITY CENTER.
+
+Not:
+
+- project management
+- backlog management
+- file storage
+
+
+Focus on:
+
+what was I working on?
+what survives?
+where did it come from?
+what can I reopen?
+what requires action?
+
+
+Use real states only.
+
+Potential:
+
+ACTIVE
+WAITING
+SAVED
+COMPLETED
+
+
+Do not invent:
+
+priority
+assignee
+due date
+workflow state
+
+unless genuinely supported.
+
+
+----------------------------------------------------------------------
+ACCOUNT
+----------------------------------------------------------------------
+
+Account should be a calm management surface.
+
+Organize real:
+
+Profile
+Account
+Appearance
+Notifications
+Privacy
+Membership
+Billing
+Sign out
+
+
+No marketing hero.
+
+No giant upsell panel unless current billing behavior requires it.
+
+
+----------------------------------------------------------------------
+ORG ADMIN
+----------------------------------------------------------------------
+
+Prefer:
+
+tabs
+tables
+inspection drawers
+focused forms
+
+
+Operational summaries should be compact.
+
+Avoid hero KPI tiles.
+
+
+Preserve tenant isolation.
+
+
+----------------------------------------------------------------------
+PLATFORM ADMIN
+----------------------------------------------------------------------
+
+Prioritize:
+
+CRITICAL
+ACTIONABLE
+MONITOR
+REFERENCE
+
+
+Use tables/rows and focused inspection.
+
+Avoid dashboard-card walls.
+
+
+======================================================================
+GLOBAL STATE SYSTEM
+======================================================================
+
+Design consistent states for:
+
+LOADING
+EMPTY
+FILTERED EMPTY
+NO RESULTS
+ERROR
+TIMEOUT
+PARTIAL
+STALE
+LOCKED
+NO ACCESS
+RATE LIMITED
+AI UNAVAILABLE
+NETWORK UNAVAILABLE
+SYNC FAILURE
+SUCCESS
+FIRST USE
+
+
+Do not show Empty before initial load resolves.
+
+Skeletons should approximate final geometry.
+
+Do not flash loaders for trivial operations.
+
+
+======================================================================
+RUNTIME CORRECTNESS
+======================================================================
+
+MUST prevent stale async results.
+
+Example:
+
+Provider A request begins.
+User selects Provider B.
+Provider B becomes current.
+Provider A returns later.
+
+Provider A must NOT overwrite Provider B.
+
+
+Prevent accidental duplicate mutations while requests are pending.
+
+
+After successful mutation:
+
+update dependent visible state using the existing cache/state architecture.
+
+
+Do not display success before server confirmation unless existing safe optimistic behavior already exists.
+
+
+Preserve user input after recoverable:
+
+- validation errors
+- network errors
+- server errors
+
+
+======================================================================
+URL STATE
+======================================================================
+
+MAY place safe navigational state in the URL:
+
+- provider ID
+- tab
+- filter
+- date
+- comparison IDs
+
+
+MUST NEVER place in URL:
+
+- Coach prompt
+- transcript text
+- PHI
+- private notes
+- private generated content
+- credentials
+- secrets
+- sensitive freeform text
+
+
+Remember that location may be observed by analytics.
+
+
+For query-driven state test:
+
+URL → UI
+UI → URL where intended
+Reload
+Back
+Forward
+active nav state
+
+
+======================================================================
+SCROLL + FOCUS
+======================================================================
+
+Audit current global ScrollToTop behavior.
+
+Preserve public-site behavior.
+
+Within the workspace:
+
+- preserve useful list position where practical
+- avoid unnecessary top resets on query-only changes
+- focus new generated results intentionally
+- restore focus after modal/drawer/popover close
+- set logical focus after SPA navigation
+
+
+======================================================================
+RESPONSIVE WEB
+======================================================================
+
+Test at least:
+
+320
+390
+430
+480
+768
+1024
+1366 × 768
+1440 × 900
+1920 × 1080
+
+
+Test HEIGHT as well as width.
+
+
+Desktop:
+
+navigation
+work canvas
+optional inspector
+
+
+Narrow web:
+
+single-column working flow
+secondary context moves to drawer/sheet
+
+
+Do not turn serious tables into endless cards merely because the viewport is smaller.
+
+
+======================================================================
+ACCESSIBILITY
+======================================================================
+
+MUST meet WCAG 2.2 AA expectations applicable to the workspace.
+
+Test:
+
+- keyboard access
+- visible focus
+- focus not obscured
+- route-change focus
+- skip navigation
+- heading structure
+- form labels
+- accessible names
+- status not conveyed by color alone
+- reduced motion
+- 200% zoom
+- reflow around 320 CSS px where practical
+
+
+Use WCAG AA target-size requirements as the compliance floor.
+
+For touch-oriented important controls, SHOULD aim around 44px where practical.
+
+
+Dynamic completion/error events should be announced appropriately.
+
+Do not announce every AI streaming token.
+
+
+======================================================================
+PERFORMANCE
+======================================================================
+
+Use the existing repository performance budget as the mandatory baseline.
+
+Do not add:
+
+- unnecessary dependencies
+- giant assets
+- heavy decorative blur
+- excessive shadow
+- duplicate requests
+- uncontrolled rerenders
+- huge unvirtualized collections
+
+
+For heavily redesigned:
+
+Medicare
+Admin
+My Work
+Coach
+
+inspect real runtime interaction performance where appropriate.
+
+
+======================================================================
+IMPLEMENTATION PHASES
+======================================================================
+
+PHASE 1
+Audit and mapping
+
+- source tree
+- workspace route matrix
+- rendering-mode matrix
+- current capability parity
+- browser-state ownership
+- persistence matrix
+- feature flags
+- IA
+- baseline screenshots
+- design system
+- progress ledger
+
+
+PHASE 2
+Global workspace foundation
+
+- semantic workspace tokens
+- light/dark
+- shell
+- navigation
+- top bar
+- search
+- notifications
+- inspector
+- shared states
+
+
+PHASE 3
+Shared UI primitives
+
+- buttons
+- forms
+- tables
+- overlays
+- feedback
+- state blocks
+- tool workbench primitives
+
+
+PHASE 4
+Core workflow
+
+- Command
+- Today
+- Tools
+
+
+PHASE 5
+Tool suite
+
+
+PHASE 6
+Coach
+Library
+Resources
+My Work
+Account
+
+
+PHASE 7
+Medicare
+
+
+PHASE 8
+Organization Admin
+Platform Admin
+
+
+PHASE 9
+Refinement
+
+- responsive
+- accessibility
+- performance
+- visual QA
+- cleanup
+- documentation reconciliation
+
+
+======================================================================
+PHASE GATES
+======================================================================
+
+After each phase:
+
+1. run targeted type/test checks
+2. build affected package where appropriate
+3. visually inspect affected surfaces
+4. update progress ledger
+5. fix NEW regressions
+
+
+Do not move forward with unexplained new failures.
+
+A new failure must be:
+
+FIXED
+
+or
+
+PROVEN UNRELATED
+
+or
+
+EXPLICITLY ACCEPTED
+
+
+======================================================================
+TEST STRATEGY
+======================================================================
+
+Use the repository's EXISTING test/release infrastructure.
+
+Do not invent a parallel QA framework.
+
+
+DERIVE exact commands from current package.json.
+
+Expected relevant commands currently include:
+
+pnpm test:web
+pnpm test:e2e
+pnpm build
+pnpm budget
+pnpm audit:public
+pnpm test:release-gate
+pnpm release-gate
+
+
+During development:
+
+run targeted tests.
+
+At major milestones:
+
+run broader web/E2E checks.
+
+At final verification:
+
+run the applicable full local automated suite.
+
+
+Do NOT run:
+
+release-gate:live
+production smoke tests
+billable production AI tests
+production deployments
+
+without explicit authorization.
+
+
+======================================================================
+RELEASE CLAIM LANGUAGE
+======================================================================
+
+Distinguish:
+
+WORKSPACE REDESIGN IMPLEMENTATION COMPLETE
+
+from:
+
+FULL PRODUCT PRODUCTION-READY
+
+
+You MAY state the scoped web redesign is implementation-complete when its scoped requirements and available automated/local gates pass.
+
+You MUST NOT claim the entire Spartan product is production-ready unless the existing release contract's required:
+
+- live environment
+- manual device
+- external evidence
+
+has also been satisfied.
+
+
+======================================================================
+VISUAL REGRESSION
+======================================================================
+
+Capture deterministic BEFORE and AFTER screenshots.
+
+Use:
+
+- same browser engine
+- same viewport
+- same theme
+- stable test data
+- fixed time where relevant
+- animations disabled where practical
+- same font environment
+
+
+Workspace baseline screens should include:
+
+Command
+Medicare
+Coach
+one major tool
+My Work
+Library
+Tools
+Today
+Account
+Org Admin
+Platform Admin
+
+
+Also capture important states such as:
+
+loading
+empty
+error
+locked
+modal
+drawer
+generated result
+long content
+data-dense state
+
+
+Visual regression is not only pixel testing.
+
+Perform a HUMAN PRODUCT REVIEW for:
+
+- hierarchy
+- density
+- CRM drift
+- realtor/property drift
+- marketing decoration
+- excessive cards
+- excessive red
+- wrong context
+- light/dark quality
+- next-action clarity
+
+
+======================================================================
+PUBLIC/PREVIEW REGRESSION GUARD
+======================================================================
+
+Because some components are shared with public/preview experiences:
+
+capture representative safe baselines for:
+
+- signed-out Tools
+- one signed-out/locked tool preview
+- one expired/evaluation state if available
+
+Verify workspace-specific changes did not unintentionally redesign those experiences.
+
+
+======================================================================
+DONE WHEN
+======================================================================
+
+The work is complete only when:
+
+- every in-scope workspace route is inventoried
+- every major workspace route has been redesigned or intentionally documented
+- every tool follows the shared workbench system
+- light/dark workspace modes work
+- public presentation remains isolated
+- dual-use preview components are protected
+- routes still work
+- permissions still work
+- tenant boundaries remain intact
+- persistence labels are truthful
+- missing data remains truthful
+- browser account switching does not expose prior private state
+- loading/error/empty/locked states are coherent
+- keyboard/focus/accessibility passes applicable checks
+- responsive web works
+- performance budget passes
+- relevant existing automated tests pass
+- visual before/after QA has been completed
+- progress ledger is complete
+- design-system documentation matches final implementation
+
+
+======================================================================
+FINAL PRODUCT REVIEW
+======================================================================
+
+Before declaring the redesign implementation complete, ask:
+
+1. Does this look generic?
+2. Does it resemble real-estate software?
+3. Does it resemble a generic CRM?
+4. Are there too many cards?
+5. Are there too many borders?
+6. Is red overused?
+7. Is display typography overused?
+8. Is one working region clearly dominant?
+9. Is the current objective obvious?
+10. Is the next action obvious?
+11. Is the user's location obvious?
+12. Is context unnecessarily lost?
+13. Is any progress fabricated?
+14. Is persistence ever implied falsely?
+15. Is missing data honest?
+16. Does Today feel like an operating brief?
+17. Does Command feel like field execution?
+18. Does Medicare communicate evidence and uncertainty?
+19. Does Coach feel like coaching rather than generic AI chat?
+20. Do Tools start from user intent?
+21. Does Library feel editorial rather than like a file manager?
+22. Does My Work feel resumable rather than like project management?
+23. Does Admin emphasize operational intervention?
+24. Are errors actionable?
+25. Are loading states calm?
+26. Does touch web work?
+27. Does light mode feel intentional?
+28. Does dark mode feel intentional?
+29. Did useful functionality disappear?
+30. Did public/preview presentation change accidentally?
+31. Did iOS behavior change accidentally?
+32. Does the entire workspace feel like ONE PRODUCT?
+33. Does the interface disappear behind the user's objective?
+
+
+If an important answer is NO:
+
+continue refining.
+
+
+======================================================================
+AUTONOMY
+======================================================================
+
+Do not stop for routine visual decisions.
+
+Make the strongest conservative design decision and continue.
+
+Do not repeatedly ask approval for:
+
+- spacing
+- radius
+- typography size
+- normal layout
+- component composition
+- minor responsive decisions
+
+
+STOP and request clarification only when proceeding requires guessing about:
+
+- security
+- privacy
+- billing
+- business logic
+- data interpretation
+- destructive data changes
+- clinical/regulatory meaning
+- cross-platform behavior
+
+
+======================================================================
+FINAL DIRECTIVE
+======================================================================
+
+Do not simply make Hospice Sales Pro prettier.
+
+Create a paid web workspace that is:
+
+easier to understand
+faster to operate
+more coherent
+more precise
+more trustworthy
+easier to resume
+harder to misuse
+
+
+The user should consistently understand:
+
+WHAT AM I TRYING TO ACCOMPLISH?
+
+WHAT MATTERS NOW?
+
+WHAT DO I KNOW?
+
+WHAT IS UNCERTAIN?
+
+WHAT WORK ALREADY EXISTS?
+
+WHAT CAN I RESUME?
+
+WHAT SHOULD I DO NEXT?
+
+
+Do not stop after redesigning:
+
+the shell
+
+Today
+
+Command
+
+or a few attractive screens.
+
+
+Complete the ENTIRE paid web workspace as one intentional professional system.
+
+Preserve the real product underneath it.
+
+Then prove both things are true through actual testing and visual evidence.
