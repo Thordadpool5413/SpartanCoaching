@@ -23,7 +23,7 @@ const NAV: Array<{ id: TabId; label: string; group: string; icon: typeof Home }>
 const parseHash = () => {
   const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
   const tab = params.get('tab') as TabId;
-  return { state: (params.get('state') || 'OK').toUpperCase(), ccn: params.get('ccn') || '371653', tab: NAV.some((item) => item.id === tab) ? tab : 'command' as TabId };
+  return { state: (params.get('state') || 'OK').toUpperCase(), ccn: params.get('ccn') || '371653', tab: NAV.some((item) => item.id === tab) ? tab : 'command' as TabId, physician: params.get('physician') || '' };
 };
 
 export default function NationalDashboard() {
@@ -34,6 +34,7 @@ export default function NationalDashboard() {
   const [state, setState] = useState(initial.state);
   const [focus, setFocus] = useState(initial.ccn);
   const [tab, setTab] = useState<TabId>(initial.tab);
+  const [selectedPhysicianNpi, setSelectedPhysicianNpi] = useState(initial.physician);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState('');
@@ -64,7 +65,7 @@ export default function NationalDashboard() {
       if (!Array.isArray(next.providers) || next.providers.length === 0) throw new Error(`${next.stateName || nextState} returned no usable hospice providers. Retry the market refresh or choose another state.`);
       if (requestedCcn && next.focusCcn !== requestedCcn) throw new Error(`Provider ${requestedCcn} was not resolved inside the ${nextState} market.`);
       request.current.provider += 1;
-      setData(next); setState(next.state); setFocus(next.focusCcn); setDetail(null);
+      setData(next); setState(next.state); setFocus(next.focusCcn); setDetail(null); setSelectedPhysicianNpi('');
       if (next.focusCcn) await loadProvider(next.focusCcn, next.state);
     } catch (requestError) { if (id === request.current.market) setError(apiError(requestError, 'CMS market refresh is temporarily unavailable.')); }
     finally { if (id === request.current.market) setLoading(false); }
@@ -73,14 +74,14 @@ export default function NationalDashboard() {
   useEffect(() => {
     void loadMarket(initial.state, initial.ccn);
   }, []);
-  useEffect(() => { const params = new URLSearchParams({ state, ccn: focus, tab }); history.replaceState(null, '', `#${params.toString()}`); }, [state, focus, tab]);
+  useEffect(() => { const params = new URLSearchParams({ state, ccn: focus, tab }); if (selectedPhysicianNpi) params.set('physician', selectedPhysicianNpi); history.replaceState(null, '', `#${params.toString()}`); }, [state, focus, tab, selectedPhysicianNpi]);
 
   const signIn = () => setError('Your Spartan Elite session protects this workspace. Sign in again from the main account menu if access expires.');
   const providers = data?.providers || [];
   const providerValue = providers.some((provider) => provider.ccn === focus) ? focus : '';
   const providerPlaceholder = loading || detailLoading ? 'Loading providers…' : 'Select provider';
   const selected = data?.providers.find((provider) => provider.ccn === focus) || detail?.provider || data?.providers[0];
-  const navigate = (next: TabId) => setTab(next);
+  const navigate = (next: TabId, options?: { physicianNpi?: string }) => { setTab(next); if (options?.physicianNpi) setSelectedPhysicianNpi(options.physicianNpi); };
 
   if (!data || !selected) return <div className={`boot ${error ? 'boot-error' : ''}`}>{error ? <AlertTriangle size={30}/> : <LoaderCircle className='spin' size={30}/>}<h2>{error ? 'Medicare Intelligence could not open this market' : 'Building national hospice intelligence...'}</h2><p>{error || 'Joining current CMS market and provider context.'}</p>{error ? <div className='boot-actions'><label className='market-picker'><span>Try another market</span><select aria-label='Recovery Medicare market' value={state} onChange={(event) => setState(event.target.value)}>{STATES.map((item) => <option key={item.code} value={item.code}>{item.code} · {item.name}</option>)}</select></label><button type='button' className='primary' onClick={() => void loadMarket(state, '', true)}>Retry market</button></div> : null}</div>;
 
@@ -105,7 +106,7 @@ export default function NationalDashboard() {
       {tab === 'watchlist' && <WatchlistPage user={user} current={selected} onSignIn={() => void signIn()} onOpen={(ccn, providerState) => { setTab('intelligence'); if (providerState && providerState !== state) { void loadMarket(providerState, ccn); return; } void loadProvider(ccn, providerState || state); }}/>} 
       {tab === 'growth' && <GrowthPage data={data} provider={selected}/>} 
       {tab === 'territory' && <TerritoryView state={state} stateName={data.stateName} market={data} provider={selected} user={user} onSignIn={() => void signIn()}/>} 
-      {tab === 'referral' && <ReferralMarket state={state} stateName={data.stateName} market={data}/>} 
+      {tab === 'referral' && <ReferralMarket state={state} stateName={data.stateName} market={data} provider={selected} selectedPhysicianNpi={selectedPhysicianNpi} onSelectPhysician={setSelectedPhysicianNpi}/>} 
       {tab === 'winloss' && <WinLossPage user={user} provider={selected} counties={data.counties} onSignIn={() => void signIn()}/>} 
       {tab === 'sources' && <DataLab state={state} provider={selected} providerStatus={String(detail?.dataQuality?.status || 'limited')}/>} 
     </main>
