@@ -46,8 +46,8 @@ const market: DashboardData = {
 describe('ReferralMarket physician workflow', () => {
   it('loads provider-scoped physicians and auto-opens a selected physician', async () => {
     mockGet.mockImplementation(async (path: string) => {
-      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inFootprint: true }] } };
-      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 10 }, opportunities: [{ id: 'opp-1', title: 'Increase referrals' }] } };
+      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inServiceArea: true }], marketContext: { providerCcn: '371653' } } };
+      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 10 }, ranking: { score: 91 }, marketContext: { county: 'Tulsa', inServiceArea: true }, services: [] } };
       throw new Error(`Unexpected request: ${path}`);
     });
 
@@ -65,8 +65,8 @@ describe('ReferralMarket physician workflow', () => {
 
   it('clears stale physician detail when a new detail request fails', async () => {
     mockGet.mockImplementation(async (path: string) => {
-      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inFootprint: true }, { npi: '0987654321', name: 'Dr. Ben', specialty: 'Cardiology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 30, score: 80, inFootprint: false }] } };
-      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 12 }, opportunities: [{ id: 'opp-2', title: 'Boundary.' }] } };
+      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inServiceArea: true }, { npi: '0987654321', name: 'Dr. Ben', specialty: 'Cardiology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 30, score: 80, inServiceArea: false }] } };
+      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 12 }, services: [], caveat: 'Boundary.' } };
       if (path === '/api/physician/0987654321?state=OK&ccn=371653') throw new Error('Physician 360 failed');
       throw new Error(`Unexpected request: ${path}`);
     });
