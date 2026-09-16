@@ -217,6 +217,10 @@ module.exports = {
         {
           microphonePermission:
             "Spartan Coach uses the microphone only while you record a private rehearsal for transcription and feedback.",
+          // This app records short, foreground-only rehearsals. Do not add
+          // UIBackgroundModes audio, which Apple reserves for persistent audio.
+          enableBackgroundPlayback: false,
+          enableBackgroundRecording: false,
         },
       ],
       "expo-web-browser",
