@@ -46,8 +46,8 @@ const market: DashboardData = {
 describe('ReferralMarket physician workflow', () => {
   it('loads provider-scoped physicians and auto-opens a selected physician', async () => {
     mockGet.mockImplementation(async (path: string) => {
-      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inServiceArea: true }], marketContext: { providerCcn: '371653' } } };
-      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 88 }, eligibility: { hospice: { raw: 'Y' }, partB: { raw: 'Y' } }, ranking: { score: 91 }, marketContext: { county: 'Tulsa', inServiceArea: true }, services: [], warnings: [], caveat: 'Boundary.' } };
+      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inFootprint: true }] } };
+      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 10 }, opportunities: [{ id: 'opp-1', title: 'Increase referrals' }] } };
       throw new Error(`Unexpected request: ${path}`);
     });
 
@@ -55,7 +55,7 @@ describe('ReferralMarket physician workflow', () => {
     fireEvent.click(screen.getByText('Physicians'));
 
     await waitFor(() => {
-      expect(screen.getByText('Dr. Ada')).toBeTruthy();
+      expect(screen.getAllByText('Dr. Ada').length).toBeGreaterThan(0);
       expect(screen.getByText('IN FOOTPRINT')).toBeTruthy();
     });
 
@@ -65,8 +65,8 @@ describe('ReferralMarket physician workflow', () => {
 
   it('clears stale physician detail when a new detail request fails', async () => {
     mockGet.mockImplementation(async (path: string) => {
-      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91 }, { npi: '0987654321', name: 'Dr. Ben', specialty: 'Cardiology', city: 'Broken Arrow', county: 'Wagoner', beneficiaries: 39, score: 89 }] } };
-      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 88 }, eligibility: { hospice: { raw: 'Y' }, partB: { raw: 'Y' } }, services: [], warnings: [], caveat: 'Boundary.' } };
+      if (path === '/api/physicians/OK?ccn=371653') return { data: { physicians: [{ npi: '0123456789', name: 'Dr. Ada', specialty: 'Oncology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 42, score: 91, inFootprint: true }, { npi: '0987654321', name: 'Dr. Ben', specialty: 'Cardiology', city: 'Tulsa', county: 'Tulsa', beneficiaries: 30, score: 80, inFootprint: false }] } };
+      if (path === '/api/physician/0123456789?state=OK&ccn=371653') return { data: { npi: '0123456789', profile: { name: 'Dr. Ada', specialty: 'Oncology', beneficiaries: 42 }, summary: { totalServices: 12 }, opportunities: [{ id: 'opp-2', title: 'Boundary.' }] } };
       if (path === '/api/physician/0987654321?state=OK&ccn=371653') throw new Error('Physician 360 failed');
       throw new Error(`Unexpected request: ${path}`);
     });
@@ -75,7 +75,7 @@ describe('ReferralMarket physician workflow', () => {
     fireEvent.click(screen.getByText('Physicians'));
 
     await waitFor(() => {
-      expect(screen.getByText('Dr. Ada')).toBeTruthy();
+      expect(screen.getAllByText('Dr. Ada').length).toBeGreaterThan(0);
     });
     fireEvent.click(screen.getAllByText('Dr. Ada')[0]);
 
@@ -86,7 +86,7 @@ describe('ReferralMarket physician workflow', () => {
     fireEvent.click(screen.getAllByText('Dr. Ben')[0]);
 
     await waitFor(() => {
-      expect(screen.getByText('Physician 360 could not be loaded.')).toBeTruthy();
+      expect(screen.getByText('Physician 360 failed')).toBeTruthy();
       expect(screen.queryByText('Boundary.')).toBeNull();
     });
   });
