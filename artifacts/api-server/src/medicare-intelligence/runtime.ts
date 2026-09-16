@@ -45,8 +45,14 @@ export function router(routes: Record<string, Middleware[]>) {
       if (!params) continue;
       const ctx: RuntimeContext = { ...event, params };
       for (const fn of route.middleware) {
-        const result = await fn(ctx);
-        if (result) return result;
+        try {
+          const result = await fn(ctx);
+          if (result) return result;
+        } catch (cause) {
+          const message = cause instanceof Error ? cause.message : "Unexpected Medicare Intelligence error";
+          console.error("medicare_intelligence_handler_failed", { method: event.method, path: event.path, message });
+          return error(message, 500);
+        }
       }
       return error("Route did not return a response", 500);
     }

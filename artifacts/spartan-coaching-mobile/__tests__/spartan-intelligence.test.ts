@@ -74,4 +74,25 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).toContain("/api/v1/member-work");
     expect(screen).toContain("available on iPhone and web");
   });
+
+  it("gives every Medicare operation a readable evidence summary instead of a raw JSON wall", () => {
+    expect(screen).toContain("function summarizeRecord");
+    expect(screen).toContain("EVIDENCE SUMMARY");
+    expect(screen).toContain("complete evidence record");
+  });
+
+  it("provides a native Monitor workspace for watchlist and alerts", () => {
+    expect(screen).toContain('{ value: "monitor", label: "Monitor", icon: "bell" }');
+    expect(screen).toContain("function MonitorWorkspace");
+    expect(screen).toContain("/api/watchlist");
+    expect(screen).toContain("/api/alerts");
+    expect(screen).toContain("Watch what matters. Act on what changes.");
+  });
+
+  it("tracks committed decision actions alongside the decision brief", () => {
+    expect(screen).toContain("function ExecutionQueue");
+    expect(screen).toContain("/api/decision-actions");
+    expect(screen).toContain("Execution queue");
+    expect(screen).toContain("<ExecutionQueue ccn={ccn} colors={colors} />");
+  });
 });

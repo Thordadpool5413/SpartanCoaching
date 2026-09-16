@@ -7,13 +7,13 @@ import { ActivityIndicator, Alert, DeviceEventEmitter, Linking, Pressable, Scrol
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
-import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
+import { AI_REQUEST_TIMEOUT_MS, apiDelete, apiGet, apiPost, apiPut } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { encodeStorageJson } from "@/lib/storageJson";
 import { saveCoachHandoff } from "@/lib/coachHandoff";
 import { buildMedicareRuntimePath, type MedicareRuntimeOperationKey } from "@workspace/api-contract";
 
-type Workspace = "platform" | "operations" | "referral" | "market" | "decision" | "policy";
+type Workspace = "platform" | "operations" | "referral" | "market" | "decision" | "policy" | "monitor";
 type Choice = { value: string; label: string };
 type Source = { label: string; url?: string; checkedAt?: string };
 
@@ -68,12 +68,33 @@ type DecisionBrief = {
   limitations: string[]; sources: Source[];
 };
 
+type WatchRecord = {
+  id: string; ccn: string; state: string; label: string; createdAt: string;
+  monitor: { lastCheckedAt?: string; lastChangeAt?: string; lastStatus?: string; lastError?: string } | null;
+};
+
+type AlertRecord = {
+  id: string; providerCcn: string; providerLabel: string; state: string; createdAt: string;
+  severity: "low" | "medium" | "high"; summary: string; readAt: string | null;
+};
+
+type DecisionStatus = "Committed" | "In progress" | "Blocked" | "Complete" | "Deferred";
+type DecisionActionRecord = {
+  id: string; providerCcn: string; recommendationKey: string; title: string; category: string; gate: string;
+  priority: number; status: DecisionStatus; owner: string; dueDate: string; note: string; createdAt: string; updatedAt: string;
+};
+const decisionStatuses: Choice[] = [
+  { value: "Committed", label: "Committed" }, { value: "In progress", label: "In progress" },
+  { value: "Blocked", label: "Blocked" }, { value: "Complete", label: "Complete" }, { value: "Deferred", label: "Deferred" },
+];
+
 const workspaceChoices: Array<{ value: Workspace; label: string; icon: keyof typeof Feather.glyphMap }> = [
   { value: "platform", label: "Overview", icon: "grid" },
   { value: "operations", label: "All tools", icon: "layers" },
   { value: "referral", label: "Provider", icon: "users" },
   { value: "market", label: "Market", icon: "map" },
   { value: "decision", label: "Decide", icon: "target" },
+  { value: "monitor", label: "Monitor", icon: "bell" },
   { value: "policy", label: "Policy", icon: "book-open" },
 ];
 
@@ -81,6 +102,7 @@ const platformCapabilities = [
   ["Provider", "Verify identity and prepare the account", "referral", "users"],
   ["Market", "Explore Care Compare records and profiles", "market", "map"],
   ["Decide", "Build an evidence-backed next move", "decision", "target"],
+  ["Monitor", "Track providers and act on real change", "monitor", "bell"],
   ["Policy", "Explain sourced CMS guidance clearly", "policy", "book-open"],
 ] as const;
 
@@ -156,6 +178,7 @@ export default function SpartanIntelligenceScreen() {
         {workspace === "referral" ? <ReferralWorkspace colors={colors} /> : null}
         {workspace === "market" ? <MarketWorkspace colors={colors} /> : null}
         {workspace === "decision" ? <DecisionWorkspace colors={colors} /> : null}
+        {workspace === "monitor" ? <MonitorWorkspace colors={colors} /> : null}
         {workspace === "policy" ? <PolicyWorkspace colors={colors} /> : null}
         <SavedBriefs colors={colors} />
       </ScrollView>
@@ -192,14 +215,56 @@ const operations: MedicareOperation[] = [
   ["Source diagnostics", "CMS freshness, cache, source, and model health", "system-diagnostics", "shield"],
 ];
 
+function summarizeRecord(data: unknown): Array<{ label: string; value: string }> {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return [];
+  return Object.entries(data as Record<string, unknown>).map(([label, value]) => {
+    if (Array.isArray(value)) return { label, value: `${value.length} record${value.length === 1 ? "" : "s"}` };
+    if (value && typeof value === "object") return { label, value: `${Object.keys(value).length} field${Object.keys(value).length === 1 ? "" : "s"}` };
+    return { label, value: value === null || value === undefined || value === "" ? "Not reported" : String(value) };
+  }).filter((row) => row.value !== "0 fields");
+}
+
+function fieldTitle(field: string) { const spaced = field.replace(/([A-Z])/g, " $1"); return spaced.charAt(0).toUpperCase() + spaced.slice(1); }
+function pickTitle(row: Record<string, unknown>): string {
+  for (const key of ["name", "title", "label", "providerLabel", "facilityName", "organizationName", "doingBusinessAs", "county"]) {
+    const value = row[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  const id = row.ccn ?? row.npi ?? row.fips ?? row.id;
+  return id !== undefined && id !== null && id !== "" ? String(id) : "Record";
+}
+function pickSubtitle(row: Record<string, unknown>): string {
+  const parts: string[] = [];
+  for (const key of ["city", "state", "county", "status", "type", "ownership"]) {
+    const value = row[key];
+    if (typeof value === "string" && value.trim() && !parts.includes(value.trim())) parts.push(value.trim());
+  }
+  for (const key of ["ccn", "npi", "score", "adc", "rating"]) {
+    const value = row[key];
+    if (typeof value === "number" && Number.isFinite(value)) parts.push(`${key.toUpperCase()} ${Math.round(value * 100) / 100}`);
+  }
+  return parts.slice(0, 3).join("  •  ");
+}
+function previewArrays(data: unknown): Array<{ field: string; total: number; items: Array<{ title: string; subtitle: string }> }> {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return [];
+  return Object.entries(data as Record<string, unknown>)
+    .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]) && entry[1].length > 0 && typeof entry[1][0] === "object" && entry[1][0] !== null)
+    .map(([field, value]) => {
+      const rows = value as Array<Record<string, unknown>>;
+      return { field, total: rows.length, items: rows.slice(0, 5).map((row) => ({ title: pickTitle(row), subtitle: pickSubtitle(row) })) };
+    });
+}
+
 function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
   const [selected, setSelected] = useState<MedicareOperation>(operations[0]);
   const [state, setState] = useState("OK");
   const [identifier, setIdentifier] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<unknown>(null);
+  const [showRaw, setShowRaw] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("");
   const run = async () => {
-    setLoading(true); setResult(null);
+    setLoading(true); setResult(null); setShowRaw(false);
     try {
       const key = selected[2];
       const path = buildMedicareRuntimePath(key, {
@@ -211,15 +276,49 @@ function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> 
     } catch (error) { setResult({ error: message(error) }); }
     finally { setLoading(false); }
   };
+  const shareText = () => JSON.stringify(result, null, 2);
+  const save = async () => {
+    setSaveStatus("Saving to My Work");
+    try {
+      await apiPost("/api/v1/member-work", {
+        kind: "intelligence_brief", toolId: "spartan-intelligence", title: `${selected[0]} evidence record`, status: "completed",
+        input: { workspace: "operations", operation: selected[2], state, identifier },
+        output: { text: shareText() }, nextAction: { title: "Pressure-test this evidence with Coach", href: "/portal/coach" }, sourcePlatform: "ios",
+      }, { retry: true });
+      Alert.alert("Saved to My Work", "This evidence record is available on iPhone and web.");
+    } catch { Alert.alert("Saved on this iPhone", "Cross-device saving is temporarily unavailable. Your work is safe on this device."); }
+    finally { setSaveStatus(""); }
+  };
+  const summary = summarizeRecord(result);
+  const preview = previewArrays(result);
   return <View style={styles.workspace}>
     <WorkspaceIntro number="05" eyebrow="FULL MEDICARE OPERATIONS" title="Every intelligence tool, one secure workspace." text="Open national, provider, financial, geography, referral, monitoring, decision, and source-health operations from the same tenant-scoped platform used on web." colors={colors} />
-    <View style={styles.capabilityList}>{operations.map((item) => <Pressable key={item[2]} onPress={() => { setSelected(item); setResult(null); }} style={[styles.capability, { borderBottomColor: colors.border }]}><View style={[styles.capabilityNumber, { backgroundColor: selected[2] === item[2] ? colors.primary : colors.primaryMuted }]}><Feather name={item[3]} size={17} color={selected[2] === item[2] ? colors.primaryForeground : colors.readablePrimary} /></View><View style={styles.flex}><Text style={[styles.resultChoiceTitle, { color: colors.foreground }, font("bold")]}>{item[0]}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{item[1]}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>)}</View>
+    <View style={styles.capabilityList}>{operations.map((item) => <Pressable key={item[2]} onPress={() => { setSelected(item); setResult(null); setShowRaw(false); }} style={[styles.capability, { borderBottomColor: colors.border }]}><View style={[styles.capabilityNumber, { backgroundColor: selected[2] === item[2] ? colors.primary : colors.primaryMuted }]}><Feather name={item[3]} size={17} color={selected[2] === item[2] ? colors.primaryForeground : colors.readablePrimary} /></View><View style={styles.flex}><Text style={[styles.resultChoiceTitle, { color: colors.foreground }, font("bold")]}>{item[0]}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{item[1]}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>)}</View>
     <Panel colors={colors}>
       <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{selected[0]}</Text>
       <View style={styles.fieldRow}><View style={styles.stateField}><Field label="State" value={state} onChangeText={(value) => setState(value.slice(0, 2).toUpperCase())} placeholder="OK" colors={colors} /></View><View style={styles.flex}><Field label={selected[2] === "physician" ? "Physician NPI" : "Provider CCN or county FIPS"} value={identifier} onChangeText={setIdentifier} placeholder={selected[2] === "physician" ? "10 digit NPI" : "CMS identifier"} colors={colors} /></View></View>
       <SpartanButton title={loading ? "Loading intelligence…" : "Run verified analysis"} onPress={() => void run()} disabled={loading} />
       {loading ? <Progress status="Retrieving and calculating CMS evidence" colors={colors} /> : null}
-      {result ? <View style={[styles.evidenceCard, { borderColor: colors.border, backgroundColor: colors.background }]}><Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>COMPLETE EVIDENCE RECORD</Text><Text selectable style={[styles.jsonRecord, { color: colors.foreground }, font("regular")]}>{JSON.stringify(result, null, 2)}</Text></View> : null}
+      {result ? <View style={styles.block}>
+        <Text style={[styles.eyebrow, { color: colors.primary }, font("bold")]}>EVIDENCE SUMMARY</Text>
+        {summary.length ? <View style={styles.factGrid}>{summary.map((row) => <Fact key={row.label} label={row.label} value={row.value} colors={colors} />)}</View> : <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>No structured fields were returned.</Text>}
+        {preview.map((group) => <View key={group.field} style={styles.block}>
+          <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{fieldTitle(group.field)} ({group.total})</Text>
+          {group.items.map((item, index) => <LineItem key={`${group.field}-${index}`} text={item.subtitle ? `${item.title}  —  ${item.subtitle}` : item.title} icon="arrow-up-right" colors={colors} />)}
+          {group.total > group.items.length ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>+{group.total - group.items.length} more in the complete evidence record.</Text> : null}
+        </View>)}
+        <View style={styles.actions}>
+          <Action icon="copy" label="Copy" onPress={async () => { await Clipboard.setStringAsync(shareText()); Alert.alert("Copied", "Ready to paste."); }} colors={colors} />
+          <Action icon="share-2" label="Share" onPress={() => void Share.share({ title: selected[0], message: shareText() })} colors={colors} />
+          <Action icon="bookmark" label="Save" onPress={() => void save()} colors={colors} />
+        </View>
+        {saveStatus ? <Progress status={saveStatus} colors={colors} /> : null}
+        <Pressable accessibilityRole="button" onPress={() => setShowRaw(!showRaw)} style={styles.line}>
+          <Feather name={showRaw ? "chevron-up" : "chevron-down"} size={18} color={colors.readablePrimary} />
+          <Text style={[styles.body, { color: colors.readablePrimary }, font("bold")]}>{showRaw ? "Hide" : "View"} complete evidence record</Text>
+        </Pressable>
+        {showRaw ? <View style={[styles.evidenceCard, { borderColor: colors.border, backgroundColor: colors.background }]}><Text selectable style={[styles.jsonRecord, { color: colors.foreground }, font("regular")]}>{shareText()}</Text></View> : null}
+      </View> : null}
     </Panel>
   </View>;
 }
@@ -231,147 +330,6 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
   const [state, setState] = useState("");
   const [results, setResults] = useState<NpiHit[]>([]);
   const [selected, setSelected] = useState<NpiHit | null>(null);
-  /*
-  const [stage, setStage] = useState<(typeof stages)[number]["value"]>("new");
-  const [purpose, setPurpose] = useState("");
-  const [brief, setBrief] = useState<Brief | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [briefLoading, setBriefLoading] = useState(false);
-  const [policyTopic, setPolicyTopic] = useState<PolicyTopic>("hospice-benefit");
-  const [policyBrief, setPolicyBrief] = useState<PolicyBrief | null>(null);
-  const [policyLoading, setPolicyLoading] = useState(false);
-  const [marketState, setMarketState] = useState("");
-  const [marketCity, setMarketCity] = useState("");
-  const [marketResults, setMarketResults] = useState<HospiceOrganization[]>([]);
-  const [marketLoading, setMarketLoading] = useState(false);
-
-  const search = async () => {
-    if (!name.trim()) {
-      Alert.alert("Add a name", mode === "person" ? "Enter the provider's last name." : "Enter the organization name.");
-      return;
-    }
-    setLoading(true);
-    setBrief(null);
-    setSelected(null);
-    try {
-      const params = new URLSearchParams();
-      params.set(mode === "person" ? "lastName" : "organization", name.trim());
-      if (city.trim()) params.set("city", city.trim());
-      if (state.trim()) params.set("state", state.trim().toUpperCase());
-      params.set("limit", "10");
-      const response = await apiGet<{ results: NpiHit[] }>(`/api/reference/npi?${params.toString()}`);
-      setResults(response.results || []);
-      if (!response.results?.length) Alert.alert("No verified match", "Try a broader name or remove the city.");
-    } catch (error) {
-      Alert.alert("Search unavailable", error instanceof Error ? error.message : "Try again in a moment.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createBrief = async () => {
-    if (!selected) return;
-    setBriefLoading(true);
-    try {
-      const response = await apiPost<{ brief: Brief }>(
-        "/api/intelligence/account-brief",
-        { provider: selected, relationshipStage: stage, meetingPurpose: purpose },
-        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
-      );
-      setBrief(response.brief);
-    } catch (error) {
-      Alert.alert("Brief unavailable", error instanceof Error ? error.message : "Try again in a moment.");
-    } finally {
-      setBriefLoading(false);
-    }
-  };
-
-  const createPolicyBrief = async () => {
-    setPolicyLoading(true);
-    try {
-      const response = await apiPost<{ brief: PolicyBrief }>(
-        "/api/intelligence/policy-brief",
-        { topic: policyTopic },
-        { retry: true, timeoutMs: AI_REQUEST_TIMEOUT_MS },
-      );
-      setPolicyBrief(response.brief);
-    } catch (error) {
-      Alert.alert("Guide unavailable", error instanceof Error ? error.message : "Try again in a moment.");
-    } finally {
-      setPolicyLoading(false);
-    }
-  };
-
-  const searchMarket = async () => {
-    if (!/^[A-Z]{2}$/.test(marketState)) {
-      Alert.alert("Add a state", "Use the two letter state abbreviation.");
-      return;
-    }
-    setMarketLoading(true);
-    try {
-      const params = new URLSearchParams({ state: marketState, limit: "25" });
-      if (marketCity.trim()) params.set("city", marketCity.trim());
-      const response = await apiGet<{ results: HospiceOrganization[] }>(`/api/intelligence/hospice-market?${params}`);
-      setMarketResults(response.results || []);
-      if (!response.results?.length) Alert.alert("No verified matches", "Try the state without a city.");
-    } catch (error) {
-      Alert.alert("Market data unavailable", error instanceof Error ? error.message : "Try again in a moment.");
-    } finally {
-      setMarketLoading(false);
-    }
-  };
-
-  return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingTop: insets.top + 18, paddingBottom: insets.bottom + 40 }]}>
-        <Pressable onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={18} color={colors.readablePrimary} /><Text style={[styles.backText, { color: colors.readablePrimary }, font("bold")]}>Tools</Text></Pressable>
-        <Text style={[styles.kicker, { color: colors.readablePrimary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the account before you enter the room.</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Verify the public provider record, then build a focused meeting brief grounded in your relationship.</Text>
-
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
-          <Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>CMS POLICY NAVIGATOR</Text>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Prepare the explanation before the conversation.</Text>
-          <Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>Choose a topic. Get plain language, a field ready talk track, review points, and visible source status.</Text>
-          <View style={styles.stageWrap}>{policyTopics.map((item) => <Pressable key={item.value} onPress={() => { setPolicyTopic(item.value); setPolicyBrief(null); }} style={[styles.stage, { backgroundColor: policyTopic === item.value ? colors.primary : colors.background, borderColor: policyTopic === item.value ? colors.primary : colors.border }]}><Text style={[styles.stageText, { color: policyTopic === item.value ? colors.primaryForeground : colors.foreground }, font("semibold")]}>{item.label}</Text></Pressable>)}</View>
-          <SpartanButton title="Build policy guide" loading={policyLoading} onPress={createPolicyBrief} />
-          {policyBrief ? <View style={[styles.policyResult, { backgroundColor: colors.background, borderColor: colors.primary }]}><Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>READY TO EXPLAIN</Text><Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{policyBrief.title}</Text><BriefBlock title="Plain language" text={policyBrief.answer} colors={colors} /><BriefBlock title="Say it this way" text={`“${policyBrief.talkTrack}”`} colors={colors} strong /><Text style={[styles.briefLabel, { color: colors.readablePrimary }, font("bold")]}>REVIEW BEFORE USE</Text>{policyBrief.reviewChecklist.map((item) => <View key={item} style={styles.question}><Feather name="check-circle" size={18} color={colors.readablePrimary} /><Text style={[styles.briefText, { color: colors.foreground }, font("regular")]}>{item}</Text></View>)}<View style={[styles.note, { borderTopColor: colors.border }]}><Feather name="shield" size={16} color={colors.readablePrimary} /><Text style={[styles.noteText, { color: colors.mutedForeground }, font("regular")]}>{policyBrief.source.liveCmsSnapshot ? "Live CMS snapshot connected. " : "Educational baseline in use. "}{policyBrief.boundary}</Text></View></View> : null}
-        </View>
-
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
-          <Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>LIVE CMS MARKET EXPLORER</Text>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>See the enrolled hospice landscape.</Text>
-          <Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>Search official CMS hospice enrollment data by state and city. Use it for market orientation, not performance claims.</Text>
-          <View style={styles.fieldRow}><View style={{ width: 92 }}><Field label="State" value={marketState} onChangeText={(value) => setMarketState(value.toUpperCase().slice(0, 2))} placeholder="FL" colors={colors} /></View><View style={{ flex: 1 }}><Field label="City" value={marketCity} onChangeText={setMarketCity} placeholder="Optional" colors={colors} /></View></View>
-          <SpartanButton title="Explore market" loading={marketLoading} onPress={searchMarket} />
-          {marketResults.length ? <View style={styles.section}><Text style={[styles.briefLabel, { color: colors.readablePrimary }, font("bold")]}>VERIFIED ORGANIZATIONS</Text>{marketResults.map((item) => <View key={`${item.npi}-${item.ccn}`} style={[styles.marketResult, { backgroundColor: colors.background, borderColor: colors.border }]}><View style={[styles.icon, { backgroundColor: colors.primaryMuted }]}><Feather name="home" size={18} color={colors.readablePrimary} /></View><View style={{ flex: 1 }}><Text style={[styles.resultTitle, { color: colors.foreground }, font("bold")]}>{item.doingBusinessAs || item.organizationName}</Text>{item.doingBusinessAs && item.doingBusinessAs !== item.organizationName ? <Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>{item.organizationName}</Text> : null}<Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>{item.city}, {item.state} • {item.ownership}</Text><Text style={[styles.source, { color: colors.mutedForeground }, font("regular")]}>NPI {item.npi}{item.ccn ? ` • CCN ${item.ccn}` : ""}</Text></View></View>)}</View> : null}
-        </View>
-
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Find a referral source</Text>
-          <View style={styles.segmentRow}>{(["person", "organization"] as const).map((item) => <Pressable key={item} onPress={() => setMode(item)} style={[styles.segment, { backgroundColor: mode === item ? colors.primary : colors.background, borderColor: mode === item ? colors.primary : colors.border }]}><Text style={[styles.segmentText, { color: mode === item ? colors.primaryForeground : colors.foreground }, font("bold")]}>{item === "person" ? "Provider" : "Organization"}</Text></Pressable>)}</View>
-          <Field label={mode === "person" ? "Provider last name" : "Organization name"} value={name} onChangeText={setName} placeholder={mode === "person" ? "Example: Ortiz" : "Example: Coastal Medical Group"} colors={colors} />
-          <View style={styles.fieldRow}><View style={{ flex: 1 }}><Field label="City" value={city} onChangeText={setCity} placeholder="Optional" colors={colors} /></View><View style={{ width: 92 }}><Field label="State" value={state} onChangeText={(value) => setState(value.toUpperCase().slice(0, 2))} placeholder="FL" colors={colors} /></View></View>
-          <SpartanButton title="Search verified providers" loading={loading} onPress={search} />
-        </View>
-
-        {results.length ? <View style={styles.section}><Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>VERIFIED RESULTS</Text>{results.map((result) => <Pressable key={result.npi} onPress={() => { setSelected(result); setBrief(null); }} style={[styles.result, { backgroundColor: colors.card, borderColor: selected?.npi === result.npi ? colors.primary : colors.border }]}><View style={[styles.icon, { backgroundColor: colors.primaryMuted }]}><Feather name={result.taxonomy?.toLowerCase().includes("organization") ? "home" : "user"} size={18} color={colors.readablePrimary} /></View><View style={{ flex: 1 }}><Text style={[styles.resultTitle, { color: colors.foreground }, font("bold")]}>{result.name}{result.credential ? `, ${result.credential}` : ""}</Text><Text style={[styles.resultMeta, { color: colors.mutedForeground }, font("regular")]}>{[result.taxonomy, result.city, result.state].filter(Boolean).join(" • ")}</Text><Text style={[styles.source, { color: colors.mutedForeground }, font("regular")]}>NPI {result.npi} • CMS NPPES</Text></View><Feather name={selected?.npi === result.npi ? "check-circle" : "chevron-right"} size={20} color={colors.readablePrimary} /></Pressable>)}</View> : null}
-
-        {selected ? <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}><Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>ELITE ACCOUNT BRIEF</Text><Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Prepare for {selected.name}</Text><Text style={[styles.label, { color: colors.foreground }, font("bold")]}>Relationship</Text><View style={styles.stageWrap}>{stages.map((item) => <Pressable key={item.value} onPress={() => setStage(item.value)} style={[styles.stage, { backgroundColor: stage === item.value ? colors.primary : colors.background, borderColor: stage === item.value ? colors.primary : colors.border }]}><Text style={[styles.stageText, { color: stage === item.value ? colors.primaryForeground : colors.foreground }, font("semibold")]}>{item.label}</Text></Pressable>)}</View><Field label="What needs to happen in this meeting?" value={purpose} onChangeText={setPurpose} placeholder="Optional. Use the recommended objective or add your own." colors={colors} multiline /><SpartanButton title="Build account brief" loading={briefLoading} onPress={createBrief} /></View> : null}
-
-        {brief ? <View style={[styles.brief, { backgroundColor: colors.card, borderColor: colors.primary }]}><Text style={[styles.eyebrow, { color: colors.readablePrimary }, font("bold")]}>READY FOR THE ROOM</Text><Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{brief.headline}</Text><BriefBlock title="Meeting objective" text={brief.meetingObjective} colors={colors} /><BriefBlock title="How to open" text={brief.opening} colors={colors} /><Text style={[styles.briefLabel, { color: colors.readablePrimary }, font("bold")]}>QUESTIONS WORTH ASKING</Text>{brief.discoveryQuestions.map((question, index) => <View key={question} style={styles.question}><View style={[styles.number, { backgroundColor: colors.primary }]}><Text style={[styles.numberText, font("bold")]}>{index + 1}</Text></View><Text style={[styles.briefText, { color: colors.foreground }, font("regular")]}>{question}</Text></View>)}<BriefBlock title="Walk out with this" text={brief.nextMove} colors={colors} strong /><View style={[styles.note, { borderTopColor: colors.border }]}><Feather name="shield" size={16} color={colors.readablePrimary} /><Text style={[styles.noteText, { color: colors.mutedForeground }, font("regular")]}>{brief.limitations[0]}</Text></View></View> : null}
-      </ScrollView>
-    </View>
-  );
-}
-
-function Field({ label, value, onChangeText, placeholder, colors, multiline = false }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; colors: ReturnType<typeof useColors>; multiline?: boolean }) { return <View style={styles.field}><Text style={[styles.label, { color: colors.foreground }, font("bold")]}>{label}</Text><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor={colors.mutedForeground} multiline={multiline} style={[styles.input, multiline && styles.multiline, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.borderStrong }, font("regular")]} /></View>; }
-
-function BriefBlock({ title, text, colors, strong = false }: { title: string; text: string; colors: ReturnType<typeof useColors>; strong?: boolean }) { return <View style={styles.block}><Text style={[styles.briefLabel, { color: colors.readablePrimary }, font("bold")]}>{title.toUpperCase()}</Text><Text style={[styles.briefText, { color: colors.foreground }, font(strong ? "bold" : "regular")]}>{text}</Text></View>; }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1 }, content: { paddingHorizontal: 22, gap: 20 }, back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 }, backText: { fontSize: 15 }, kicker: { fontSize: 11, letterSpacing: 2.2, marginTop: 4 }, title: { fontSize: 37, lineHeight: 41, letterSpacing: -1.2, maxWidth: 560 }, subtitle: { fontSize: 17, lineHeight: 25, maxWidth: 620 }, card: { borderWidth: 1, borderRadius: 24, padding: 20, gap: 16 }, policyResult: { borderWidth: 1, borderRadius: 18, padding: 16, gap: 15 }, marketResult: { borderWidth: 1, borderRadius: 16, padding: 14, flexDirection: "row", alignItems: "center", gap: 12 }, section: { gap: 10 }, sectionTitle: { fontSize: 23, lineHeight: 29 }, eyebrow: { fontSize: 10, letterSpacing: 2 }, segmentRow: { flexDirection: "row", gap: 10 }, segment: { flex: 1, minHeight: 44, borderWidth: 1, borderRadius: 14, alignItems: "center", justifyContent: "center" }, segmentText: { fontSize: 14, textTransform: "capitalize" }, fieldRow: { flexDirection: "row", gap: 12 }, field: { gap: 8 }, label: { fontSize: 14 }, input: { minHeight: 52, borderWidth: 1, borderRadius: 15, paddingHorizontal: 15, fontSize: 16 }, multiline: { minHeight: 96, paddingTop: 14, textAlignVertical: "top" }, result: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "center", gap: 12 }, icon: { width: 40, height: 40, borderRadius: 13, alignItems: "center", justifyContent: "center" }, resultTitle: { fontSize: 16, lineHeight: 21 }, resultMeta: { fontSize: 13, lineHeight: 19, marginTop: 3 }, source: { fontSize: 11, marginTop: 5 }, stageWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, stage: { borderWidth: 1, borderRadius: 999, minHeight: 40, paddingHorizontal: 14, alignItems: "center", justifyContent: "center" }, stageText: { fontSize: 13 }, brief: { borderWidth: 1, borderRadius: 24, padding: 20, gap: 18 }, block: { gap: 7 }, briefLabel: { fontSize: 10, letterSpacing: 1.8 }, briefText: { flex: 1, fontSize: 16, lineHeight: 24 }, question: { flexDirection: "row", alignItems: "flex-start", gap: 12 }, number: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" }, numberText: { color: "#FFFFFF", fontSize: 12 }, note: { borderTopWidth: 1, paddingTop: 16, flexDirection: "row", gap: 10 }, noteText: { flex: 1, fontSize: 12, lineHeight: 18 },
-  */
   const [accountType, setAccountType] = useState("physician-practice");
   const [stage, setStage] = useState("new");
   const [purpose, setPurpose] = useState("");
@@ -516,6 +474,171 @@ function DecisionWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
       <Progress status={status} colors={colors} />
     </Panel>
     {brief ? <DecisionResult brief={brief} colors={colors} /> : null}
+    {/^\d{6}$/.test(ccn) ? <ExecutionQueue ccn={ccn} colors={colors} /> : null}
+  </View>;
+}
+
+function ExecutionQueue({ ccn, colors }: { ccn: string; colors: ReturnType<typeof useColors> }) {
+  const [records, setRecords] = useState<DecisionActionRecord[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [status, setStatus] = useState("");
+  const [title, setTitle] = useState("");
+  const [owner, setOwner] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [note, setNote] = useState("");
+
+  const load = async () => {
+    setStatus("Loading the execution queue");
+    try {
+      const response = await apiGet<{ records: DecisionActionRecord[] }>(`/api/decision-actions?ccn=${ccn}`);
+      setRecords(response.records || []);
+      setLoaded(true);
+    } catch (error) { Alert.alert("Execution queue unavailable", message(error)); }
+    finally { setStatus(""); }
+  };
+
+  const add = async () => {
+    if (!title.trim()) return Alert.alert("Add a title", "Name the action you are committing to.");
+    setStatus("Adding to the execution queue");
+    try {
+      const response = await apiPost<DecisionActionRecord>("/api/decision-actions", {
+        providerCcn: ccn, recommendationKey: `manual-${Date.now()}`, title: title.trim(), owner: owner.trim(), dueDate: dueDate.trim(), note: note.trim(),
+      });
+      setRecords((prev) => [response, ...prev]);
+      setTitle(""); setOwner(""); setDueDate(""); setNote("");
+    } catch (error) { Alert.alert("Could not add action", message(error)); }
+    finally { setStatus(""); }
+  };
+
+  const setActionStatus = async (record: DecisionActionRecord, next: DecisionStatus) => {
+    try {
+      const response = await apiPut<DecisionActionRecord>(`/api/decision-actions/${record.id}`, { providerCcn: ccn, status: next });
+      setRecords((prev) => prev.map((item) => (item.id === record.id ? response : item)));
+    } catch (error) { Alert.alert("Could not update status", message(error)); }
+  };
+
+  const remove = async (record: DecisionActionRecord) => {
+    try {
+      await apiDelete(`/api/decision-actions/${record.id}?ccn=${ccn}`);
+      setRecords((prev) => prev.filter((item) => item.id !== record.id));
+    } catch (error) { Alert.alert("Could not remove action", message(error)); }
+  };
+
+  return <Panel colors={colors}>
+    <Step title="Execution queue" text="Owners, due dates, and status for this hospice's committed decisions." colors={colors} />
+    <SpartanButton title={loaded ? "Refresh execution queue" : "Load execution queue"} variant={loaded ? "outline" : undefined} loading={status.includes("Loading")} onPress={() => void load()} />
+    {records.map((record) => <View key={record.id} style={[styles.listRow, { borderColor: colors.border, backgroundColor: colors.background }]}>
+      <View style={styles.flex}>
+        <Text style={[styles.body, { color: colors.foreground }, font("bold")]}>{record.title}</Text>
+        {record.owner || record.dueDate ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{[record.owner, record.dueDate].filter(Boolean).join("  •  ")}</Text> : null}
+        <View style={styles.statusWrap}>{decisionStatuses.map((item) => <Pressable key={item.value} onPress={() => void setActionStatus(record, item.value as DecisionStatus)} style={[styles.statusChip, { backgroundColor: record.status === item.value ? colors.primary : colors.background, borderColor: record.status === item.value ? colors.primary : colors.border }]}><Text style={[styles.statusChipText, { color: record.status === item.value ? colors.primaryForeground : colors.foreground }, font("semibold")]}>{item.label}</Text></Pressable>)}</View>
+      </View>
+      <Pressable accessibilityLabel={`Remove ${record.title}`} onPress={() => void remove(record)} style={styles.savedIcon}><Feather name="trash-2" size={17} color={colors.mutedForeground} /></Pressable>
+    </View>)}
+    {loaded && !records.length ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>No committed actions yet for this hospice.</Text> : null}
+    <Field label="New action" value={title} onChangeText={setTitle} placeholder="Example: Schedule staff education with DON" colors={colors} />
+    <View style={styles.fieldRow}><View style={styles.flex}><Field label="Owner" value={owner} onChangeText={setOwner} placeholder="Optional" colors={colors} /></View><View style={styles.stateField}><Field label="Due" value={dueDate} onChangeText={setDueDate} placeholder="YYYY-MM-DD" colors={colors} /></View></View>
+    <Field label="Note" value={note} onChangeText={setNote} placeholder="Optional context" colors={colors} multiline />
+    <SpartanButton title="Add to execution queue" variant="outline" loading={status.includes("Adding")} onPress={() => void add()} />
+    <Progress status={status} colors={colors} />
+  </Panel>;
+}
+
+function MonitorWorkspace({ colors }: { colors: ReturnType<typeof useColors> }) {
+  const [watchlist, setWatchlist] = useState<WatchRecord[]>([]);
+  const [alerts, setAlerts] = useState<AlertRecord[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [status, setStatus] = useState("");
+  const [ccn, setCcn] = useState("");
+  const [state, setState] = useState("");
+  const [label, setLabel] = useState("");
+
+  const load = async () => {
+    setStatus("Loading watchlist and alerts");
+    try {
+      const [watchResponse, alertResponse] = await Promise.all([
+        apiGet<{ records: WatchRecord[] }>("/api/watchlist"),
+        apiGet<{ alerts: AlertRecord[] }>("/api/alerts"),
+      ]);
+      setWatchlist(watchResponse.records || []);
+      setAlerts(alertResponse.alerts || []);
+      setLoaded(true);
+    } catch (error) { Alert.alert("Monitoring unavailable", message(error)); }
+    finally { setStatus(""); }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const addWatch = async () => {
+    if (!/^\d{6}$/.test(ccn)) return Alert.alert("Add a hospice CCN", "Enter the six-digit CCN from a verified hospice profile.");
+    setStatus("Adding to the watchlist");
+    try {
+      const response = await apiPost<WatchRecord>("/api/watchlist", { ccn, state: state.toUpperCase(), label: label.trim() || ccn });
+      setWatchlist((prev) => [response, ...prev.filter((item) => item.id !== response.id)]);
+      setCcn(""); setState(""); setLabel("");
+    } catch (error) { Alert.alert("Could not add to watchlist", message(error)); }
+    finally { setStatus(""); }
+  };
+
+  const checkNow = async (watch: WatchRecord) => {
+    setStatus(`Checking ${watch.label}`);
+    try {
+      await apiPost(`/api/watchlist/${watch.id}/check`, {});
+      await load();
+    } catch (error) { Alert.alert("Check failed", message(error)); }
+    finally { setStatus(""); }
+  };
+
+  const removeWatch = async (watch: WatchRecord) => {
+    try {
+      await apiDelete(`/api/watchlist/${watch.id}`);
+      setWatchlist((prev) => prev.filter((item) => item.id !== watch.id));
+    } catch (error) { Alert.alert("Could not remove", message(error)); }
+  };
+
+  const markRead = async (alert: AlertRecord) => {
+    try {
+      const response = await apiPut<AlertRecord>(`/api/alerts/${alert.id}`, {});
+      setAlerts((prev) => prev.map((item) => (item.id === alert.id ? response : item)));
+    } catch (error) { Alert.alert("Could not update alert", message(error)); }
+  };
+
+  const unread = alerts.filter((item) => !item.readAt).length;
+
+  return <View style={styles.workspace}>
+    <WorkspaceIntro number="06" eyebrow="MONITORING" title="Watch what matters. Act on what changes." text="Track hospices, receive verified change alerts, and clear them once addressed." colors={colors} />
+    <Panel colors={colors}>
+      <Step title="Add a hospice to your watchlist" text="Monitoring runs automatically once a hospice is added." colors={colors} />
+      <View style={styles.fieldRow}><View style={styles.flex}><Field label="Hospice CCN" value={ccn} onChangeText={(value) => setCcn(value.replace(/\D/g, "").slice(0, 6))} placeholder="Six digits" colors={colors} /></View><View style={styles.stateField}><Field label="State" value={state} onChangeText={(value) => setState(value.toUpperCase().slice(0, 2))} placeholder="OK" colors={colors} /></View></View>
+      <Field label="Label" value={label} onChangeText={setLabel} placeholder="Optional. Example: Regional Hospice - Tulsa" colors={colors} />
+      <SpartanButton title="Add to watchlist" loading={status.includes("Adding")} onPress={() => void addWatch()} />
+      <Progress status={status} colors={colors} />
+    </Panel>
+    <Panel colors={colors}>
+      <Step title="Watched hospices" text={`${watchlist.length} tracked. Tap refresh to pull current evidence now.`} colors={colors} />
+      {watchlist.map((watch) => <View key={watch.id} style={[styles.listRow, { borderColor: colors.border, backgroundColor: colors.background }]}>
+        <View style={styles.flex}>
+          <Text style={[styles.body, { color: colors.foreground }, font("bold")]}>{watch.label}</Text>
+          <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>CCN {watch.ccn}{watch.state ? `  •  ${watch.state}` : ""}</Text>
+          <Text style={[styles.source, { color: colors.mutedForeground }, font("regular")]}>{watch.monitor?.lastCheckedAt ? `Last checked ${formatCheckedAt(watch.monitor.lastCheckedAt)}` : "Not yet checked"}</Text>
+        </View>
+        <Pressable accessibilityLabel={`Check ${watch.label} now`} onPress={() => void checkNow(watch)} style={styles.savedIcon}><Feather name="refresh-cw" size={17} color={colors.readablePrimary} /></Pressable>
+        <Pressable accessibilityLabel={`Remove ${watch.label}`} onPress={() => void removeWatch(watch)} style={styles.savedIcon}><Feather name="trash-2" size={17} color={colors.mutedForeground} /></Pressable>
+      </View>)}
+      {loaded && !watchlist.length ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>No hospices tracked yet.</Text> : null}
+    </Panel>
+    <Panel colors={colors}>
+      <Step title="Alerts" text={`${unread} unread of ${alerts.length} total.`} colors={colors} />
+      {alerts.map((alert) => <View key={alert.id} style={[styles.listRow, { borderColor: alert.readAt ? colors.border : colors.primary, backgroundColor: colors.background }]}>
+        <View style={styles.flex}>
+          <Text style={[styles.body, { color: colors.foreground }, font("bold")]}>{alert.providerLabel}</Text>
+          <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{alert.summary}</Text>
+          <Text style={[styles.source, { color: colors.mutedForeground }, font("regular")]}>{alert.severity.toUpperCase()}  •  {formatCheckedAt(alert.createdAt)}</Text>
+        </View>
+        {!alert.readAt ? <Pressable accessibilityLabel={`Mark ${alert.providerLabel} read`} onPress={() => void markRead(alert)} style={styles.savedIcon}><Feather name="check" size={17} color={colors.readablePrimary} /></Pressable> : null}
+      </View>)}
+      {loaded && !alerts.length ? <Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>No alerts yet.</Text> : null}
+    </Panel>
   </View>;
 }
 
@@ -724,4 +847,6 @@ const styles = StyleSheet.create({
   jsonRecord: { fontSize: 11, lineHeight: 17 },
   sourceNote: { borderTopWidth: 1, paddingTop: 15, flexDirection: "row", gap: 10 },
   savedPanel: { borderWidth: 1, borderRadius: 22, padding: 17, gap: 12 }, savedHeader: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12 }, savedItem: { borderTopWidth: 1, paddingTop: 12, flexDirection: "row", alignItems: "center", gap: 7 }, savedIcon: { width: 38, height: 38, alignItems: "center", justifyContent: "center" },
+  listRow: { borderWidth: 1, borderRadius: 16, padding: 14, flexDirection: "row", alignItems: "center", gap: 11 },
+  statusWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: 8 }, statusChip: { borderWidth: 1, borderRadius: 999, minHeight: 34, paddingHorizontal: 11, alignItems: "center", justifyContent: "center" }, statusChipText: { fontSize: 11 },
 });
