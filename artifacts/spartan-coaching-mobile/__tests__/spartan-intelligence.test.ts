@@ -59,6 +59,13 @@ describe("Spartan Intelligence native workflow", () => {
     expect(screen).not.toContain('setResult(await apiGet(`/api/v1/medicare${path}`))');
   });
 
+  it("validates Medicare identifiers before making a CMS request", () => {
+    expect(screen).toContain("function operationIdentifier");
+    expect(screen).toContain("Enter the physician's 10 digit NPI.");
+    expect(screen).toContain("Enter the provider's 6 digit CCN.");
+    expect(screen).toContain('"Provider CCN (optional)"');
+  });
+
   it("distinguishes sourced facts, calculations, guidance, and missing evidence", () => {
     expect(screen).toContain("Verified fact");
     expect(screen).toContain("Calculated result");

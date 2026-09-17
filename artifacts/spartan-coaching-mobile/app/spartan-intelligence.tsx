@@ -215,6 +215,12 @@ const operations: MedicareOperation[] = [
   ["Source diagnostics", "CMS freshness, cache, source, and model health", "system-diagnostics", "shield"],
 ];
 
+function operationIdentifier(key: MedicareRuntimeOperationKey): { label: string; placeholder: string; pattern: RegExp; message: string } | null {
+  if (key === "dashboard") return null;
+  if (key === "physician") return { label: "Physician NPI", placeholder: "10 digit NPI", pattern: /^\d{10}$/, message: "Enter the physician's 10 digit NPI." };
+  return { label: "Provider CCN", placeholder: "6 digit CCN", pattern: /^\d{6}$/, message: "Enter the provider's 6 digit CCN." };
+}
+
 function summarizeRecord(data: unknown): Array<{ label: string; value: string }> {
   if (!data || typeof data !== "object" || Array.isArray(data)) return [];
   return Object.entries(data as Record<string, unknown>).map(([label, value]) => {
@@ -264,15 +270,20 @@ function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> 
   const [showRaw, setShowRaw] = useState(false);
   const [saveStatus, setSaveStatus] = useState("");
   const run = async () => {
+    const key = selected[2];
+    const identifierRule = operationIdentifier(key);
+    if (identifierRule && !identifierRule.pattern.test(identifier.trim())) {
+      Alert.alert("Check the identifier", identifierRule.message);
+      return;
+    }
     setLoading(true); setResult(null); setShowRaw(false);
     try {
-      const key = selected[2];
       const path = buildMedicareRuntimePath(key, {
         ccn: identifier,
         npi: identifier,
         state,
       });
-      setResult(await apiGet(path));
+      setResult(await apiGet(path, { timeoutMs: AI_REQUEST_TIMEOUT_MS }));
     } catch (error) { setResult({ error: message(error) }); }
     finally { setLoading(false); }
   };
@@ -296,7 +307,7 @@ function OperationsWorkspace({ colors }: { colors: ReturnType<typeof useColors> 
     <View style={styles.capabilityList}>{operations.map((item) => <Pressable key={item[2]} onPress={() => { setSelected(item); setResult(null); setShowRaw(false); }} style={[styles.capability, { borderBottomColor: colors.border }]}><View style={[styles.capabilityNumber, { backgroundColor: selected[2] === item[2] ? colors.primary : colors.primaryMuted }]}><Feather name={item[3]} size={17} color={selected[2] === item[2] ? colors.primaryForeground : colors.readablePrimary} /></View><View style={styles.flex}><Text style={[styles.resultChoiceTitle, { color: colors.foreground }, font("bold")]}>{item[0]}</Text><Text style={[styles.helper, { color: colors.mutedForeground }, font("regular")]}>{item[1]}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>)}</View>
     <Panel colors={colors}>
       <Text style={[styles.sectionHeading, { color: colors.foreground }, font("heavy")]}>{selected[0]}</Text>
-      <View style={styles.fieldRow}><View style={styles.stateField}><Field label="State" value={state} onChangeText={(value) => setState(value.slice(0, 2).toUpperCase())} placeholder="OK" colors={colors} /></View><View style={styles.flex}><Field label={selected[2] === "physician" ? "Physician NPI" : "Provider CCN or county FIPS"} value={identifier} onChangeText={setIdentifier} placeholder={selected[2] === "physician" ? "10 digit NPI" : "CMS identifier"} colors={colors} /></View></View>
+      <View style={styles.fieldRow}><View style={styles.stateField}><Field label="State" value={state} onChangeText={(value) => setState(value.slice(0, 2).toUpperCase())} placeholder="OK" colors={colors} /></View><View style={styles.flex}><Field label={operationIdentifier(selected[2])?.label || "Provider CCN (optional)"} value={identifier} onChangeText={(value) => setIdentifier(value.replace(/\D/g, "").slice(0, 10))} placeholder={operationIdentifier(selected[2])?.placeholder || "Optional"} colors={colors} keyboardType="number-pad" /></View></View>
       <SpartanButton title={loading ? "Loading intelligence…" : "Run verified analysis"} onPress={() => void run()} disabled={loading} />
       {loading ? <Progress status="Retrieving and calculating CMS evidence" colors={colors} /> : null}
       {result ? <View style={styles.block}>
@@ -803,7 +814,7 @@ function message(error: unknown) { return error instanceof Error ? error.message
 function formatCheckedAt(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? "date unavailable" : date.toLocaleDateString(); }
 function TrustItem({ icon, label, colors }: { icon: keyof typeof Feather.glyphMap; label: string; colors: ReturnType<typeof useColors> }) { return <View style={[styles.trustItem, { backgroundColor: colors.card, borderColor: colors.border }]}><Feather name={icon} size={14} color={colors.readablePrimary} /><Text style={[styles.trustLabel, { color: colors.foreground }, font("semibold")]}>{label}</Text></View>; }
 
-function Field({ label, value, onChangeText, placeholder, colors, multiline = false }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; colors: ReturnType<typeof useColors>; multiline?: boolean }) { return <View style={styles.field}><Text style={[styles.label, { color: colors.foreground }, font("bold")]}>{label}</Text><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor={colors.mutedForeground} multiline={multiline} style={[styles.input, multiline && styles.multiline, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.borderStrong }, font("regular")]} /></View>; }
+function Field({ label, value, onChangeText, placeholder, colors, multiline = false, keyboardType }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; colors: ReturnType<typeof useColors>; multiline?: boolean; keyboardType?: React.ComponentProps<typeof TextInput>["keyboardType"] }) { return <View style={styles.field}><Text style={[styles.label, { color: colors.foreground }, font("bold")]}>{label}</Text><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor={colors.mutedForeground} multiline={multiline} keyboardType={keyboardType} style={[styles.input, multiline && styles.multiline, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.borderStrong }, font("regular")]} /></View>; }
 
 function ChoiceField({ label, value, choices, onChange, colors }: { label: string; value: string; choices: Choice[]; onChange: (value: string) => void; colors: ReturnType<typeof useColors> }) {
   const [open, setOpen] = useState(false); const selected = choices.find((item) => item.value === value) || choices[0];

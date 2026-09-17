@@ -174,10 +174,13 @@ export async function apiPost<T>(
   return res.json() as Promise<T>;
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+export async function apiGet<T>(
+  path: string,
+  options?: { timeoutMs?: number; retry?: boolean },
+): Promise<T> {
   const res = await fetchApi(path, {
     headers: await authHeaders(),
-  }, { retry: true });
+  }, { retry: options?.retry ?? true, timeoutMs: options?.timeoutMs });
   if (!res.ok) {
     throw await readApiError(res);
   }

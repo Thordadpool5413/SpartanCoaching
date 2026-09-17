@@ -9,6 +9,7 @@ describe("native AI runtime reliability", () => {
     const api = read("lib/api.ts");
     expect(api).toContain("export const AI_REQUEST_TIMEOUT_MS = 90_000");
     expect(api).toContain("timeoutMs: options?.timeoutMs");
+    expect(api).toContain("options?: { timeoutMs?: number; retry?: boolean }");
 
     for (const file of [
       "lib/coachApi.ts",
@@ -25,6 +26,11 @@ describe("native AI runtime reliability", () => {
     ]) {
       expect(read(file)).toContain("AI_REQUEST_TIMEOUT_MS");
     }
+  });
+
+  it("gives native Medicare operations the same long-running timeout", () => {
+    const screen = read("app/spartan-intelligence.tsx");
+    expect(screen).toContain("apiGet(path, { timeoutMs: AI_REQUEST_TIMEOUT_MS })");
   });
 
   it("times out transcription without losing the recording or hanging forever", () => {

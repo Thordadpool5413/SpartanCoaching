@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { json, requireAuth, router } from "./runtime";
+import { router } from "./runtime";
 
 describe("Medicare Intelligence runtime router", () => {
   it("returns a JSON error when a handler throws", async () => {
@@ -15,7 +15,8 @@ describe("Medicare Intelligence runtime router", () => {
       body: JSON.stringify({ error: "CMS source unavailable" }),
     });
   });
-});
+});import { describe, expect, it } from "vitest";
+import { json, requireAuth, router } from "./runtime";
 
 describe("Medicare intelligence runtime bridge", () => {
   const handler = router({
