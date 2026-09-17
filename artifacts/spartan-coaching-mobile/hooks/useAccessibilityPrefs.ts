@@ -29,9 +29,6 @@ export function useAccessibilityPrefs(): AccessibilityPrefs {
       AccessibilityInfo.addEventListener("boldTextChanged", (v) => {
         setPrefs((prev) => ({ ...prev, boldText: v }));
       }),
-      AccessibilityInfo.addEventListener("screenReaderChanged", (v) => {
-        setPrefs((prev) => ({ ...prev, screenReaderEnabled: v }));
-      }),
     ];
 
     return () => {

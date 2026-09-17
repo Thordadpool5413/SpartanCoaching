@@ -24,12 +24,12 @@ export default function TabLayout() {
         tabBarItemStyle: { paddingTop: 5, minHeight: 44 },
         tabBarStyle: {
           display: "flex",
-          height: 58 + insets.bottom,
+          height: 64 + insets.bottom,
           paddingBottom: Math.max(insets.bottom, 6),
-          paddingTop: 4,
+          paddingTop: 6,
           backgroundColor: colors.tabBar,
           borderTopWidth: StyleSheet.hairlineWidth,
-           borderTopColor: colors.mission,
+          borderTopColor: colors.borderStrong,
           elevation: 0,
         },
       }}

@@ -415,7 +415,7 @@ Motion supports understanding and never delays access to the work.
 
 Before release, each major journey is checked for:
 
-1. VoiceOver labels and order.
+1. Touch, contrast, Dynamic Type, and native control behavior.
 2. Dynamic Type.
 3. Large accessibility text sizes.
 4. Contrast in Light and Dark appearances.

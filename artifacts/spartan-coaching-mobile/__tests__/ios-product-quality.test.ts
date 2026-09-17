@@ -42,7 +42,7 @@ describe("iOS product quality (HSP-33)", () => {
 
   it("default prefs are conservative", () => {
     expect(DEFAULT_ACCESSIBILITY_PREFS.reduceMotion).toBe(false);
-    expect(DEFAULT_ACCESSIBILITY_PREFS.screenReaderEnabled).toBe(false);
+    expect(DEFAULT_ACCESSIBILITY_PREFS.boldText).toBe(false);
   });
 
   it("assertQualityChecklistComplete requires full set", () => {

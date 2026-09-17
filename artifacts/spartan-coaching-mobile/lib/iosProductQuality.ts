@@ -9,7 +9,7 @@
 import { AccessibilityInfo, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
 
-export const IOS_PRODUCT_QUALITY_VERSION = "ios-product-quality-v1";
+export const IOS_PRODUCT_QUALITY_VERSION = "ios-product-quality-v2";
 
 /** Cap Dynamic Type so dense field tools stay usable without clipping. */
 export const MAX_FONT_SIZE_MULTIPLIER = 1.45;
@@ -30,12 +30,9 @@ export const IOS_QUALITY_CHECKLIST = [
   "share_and_copy",
   "deep_links",
   "dark_light_mode",
-  "voiceover_labels",
   "dynamic_type_caps",
   "reduce_motion",
   "reduce_transparency_tab_bar",
-  // HSP-35 accessibility extensions
-  "voiceover_traits_and_values",
   "touch_target_min_44",
   "result_panel_status_announcements",
 ] as const;
@@ -46,14 +43,12 @@ export type AccessibilityPrefs = {
   reduceMotion: boolean;
   reduceTransparency: boolean;
   boldText: boolean;
-  screenReaderEnabled: boolean;
 };
 
 export const DEFAULT_ACCESSIBILITY_PREFS: AccessibilityPrefs = {
   reduceMotion: false,
   reduceTransparency: false,
   boldText: false,
-  screenReaderEnabled: false,
 };
 
 /** Read current AccessibilityInfo flags (async). */
@@ -61,18 +56,16 @@ export async function readAccessibilityPrefs(): Promise<AccessibilityPrefs> {
   if (Platform.OS === "web") {
     return { ...DEFAULT_ACCESSIBILITY_PREFS };
   }
-  const [reduceMotion, reduceTransparency, boldText, screenReaderEnabled] =
+  const [reduceMotion, reduceTransparency, boldText] =
     await Promise.all([
       AccessibilityInfo.isReduceMotionEnabled().catch(() => false),
       AccessibilityInfo.isReduceTransparencyEnabled().catch(() => false),
       AccessibilityInfo.isBoldTextEnabled().catch(() => false),
-      AccessibilityInfo.isScreenReaderEnabled().catch(() => false),
     ]);
   return {
     reduceMotion: !!reduceMotion,
     reduceTransparency: !!reduceTransparency,
     boldText: !!boldText,
-    screenReaderEnabled: !!screenReaderEnabled,
   };
 }
 
