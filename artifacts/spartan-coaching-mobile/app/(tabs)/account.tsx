@@ -122,7 +122,7 @@ export default function AccountScreen() {
         territoryNote: territoryNote.trim() || null,
         topObjections: topObjections.trim() || null,
       });
-      await refresh();
+      await refresh({ force: true });
       setProfileMessage("Profile saved");
     } catch (error: any) {
       setProfileMessage(error?.message || "Profile could not be saved");
