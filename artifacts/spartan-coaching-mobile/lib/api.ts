@@ -5,6 +5,11 @@ import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
 const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com";
+/**
+ * Screen loads should fail fast instead of locking the entire app for minutes.
+ * A single hung GET on a navigated screen should not block the user behind a
+ * double retry timer while they wait for a route to mount.
+ */
 const DEFAULT_TIMEOUT_MS = 12_000;
 export const AI_REQUEST_TIMEOUT_MS = 90_000;
 
