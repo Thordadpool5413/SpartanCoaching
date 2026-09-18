@@ -62,6 +62,12 @@ export function AppHandoffPanel({
       data-testid="app-handoff-panel"
     >
       <div className="absolute inset-0 bg-spartan-gradient-radial opacity-10 pointer-events-none" />
+      <span
+        className="absolute right-3 top-3 z-20 rotate-3 rounded-sm border-2 border-white bg-primary px-3 py-1 font-mono text-[10px] font-black uppercase tracking-[0.14em] text-primary-foreground shadow-[3px_3px_0_hsl(var(--foreground))] sm:right-4 sm:top-4 sm:text-xs"
+        data-testid="app-coming-soon-sticker"
+      >
+        Coming soon
+      </span>
       <div className={cn("relative z-10", compact ? "p-5 sm:p-6" : "p-8 sm:p-10")}>
         <div className={cn("flex flex-col md:flex-row gap-6 md:gap-10", compact ? "items-start" : "items-center")}>
           <div className="flex-1 space-y-3 sm:space-y-4">
