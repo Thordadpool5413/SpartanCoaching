@@ -1,20 +1,8 @@
-import { StyleSheet, View } from "react-native";
-import { useColors } from "@/hooks/useColors";
-
+/**
+ * Decorative imagery must never participate in the native launch path.
+ * The prior visual overlay was introduced in the first crashing release.
+ * Keep this boundary intentionally inert until it has device-level coverage.
+ */
 export function BrandBackdrop() {
-  const colors = useColors();
-  return (
-    <View pointerEvents="none" style={styles.root}>
-      <View style={[styles.topWash, { backgroundColor: colors.heroBackground }]} />
-      <View style={[styles.signalRule, { backgroundColor: colors.primary }]} />
-      <View style={[styles.gridRule, { borderColor: colors.border }]} />
-    </View>
-  );
+  return null;
 }
-
-const styles = StyleSheet.create({
-  root: { ...StyleSheet.absoluteFill, overflow: "hidden" },
-  topWash: { position: "absolute", top: 0, left: 0, right: 0, height: 168, opacity: 0.035 },
-  signalRule: { position: "absolute", top: 0, left: 20, width: 48, height: 2, opacity: 0.8 },
-  gridRule: { position: "absolute", top: 26, left: 20, right: 20, borderTopWidth: StyleSheet.hairlineWidth, opacity: 0.55 },
-});
