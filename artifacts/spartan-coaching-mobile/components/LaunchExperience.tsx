@@ -1,11 +1,12 @@
+import { useVideoPlayer, VideoView } from "expo-video";
 import React, { useCallback, useEffect, useRef } from "react";
-import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { font } from "@/lib/typography";
 import { useColors } from "@/hooks/useColors";
 
-const launchMark = require("@/assets/images/helmet-mark.png");
+const launchFilm = require("@/assets/videos/spartan-launch-film.mp4");
 
 export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
   const { reduceMotion } = useAccessibilityPrefs();
@@ -25,13 +26,30 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
     }).start(onComplete);
   }, [onComplete, opacity, reduceMotion]);
 
-  // Do not initialize a native media player during application startup. A codec or
-  // player initialization failure here closes a release build before React can render
-  // an error boundary. The branded launch treatment is intentionally asset only.
+  const player = useVideoPlayer(launchFilm, (videoPlayer) => {
+    videoPlayer.loop = false;
+    videoPlayer.muted = false;
+    videoPlayer.play();
+  });
+
   useEffect(() => {
-    const timer = setTimeout(finish, reduceMotion ? 450 : 1_250);
-    return () => clearTimeout(timer);
-  }, [finish, reduceMotion]);
+    if (reduceMotion) {
+      const reducedMotionTimer = setTimeout(finish, 450);
+      return () => clearTimeout(reducedMotionTimer);
+    }
+
+    const ended = player.addListener("playToEnd", finish);
+    const status = player.addListener("statusChange", ({ status: nextStatus }) => {
+      if (nextStatus === "error") finish();
+    });
+    const safetyTimer = setTimeout(finish, 12_000);
+
+    return () => {
+      ended.remove();
+      status.remove();
+      clearTimeout(safetyTimer);
+    };
+  }, [finish, player, reduceMotion]);
 
   return (
     <Animated.View
@@ -40,11 +58,14 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
        style={[styles.root, { opacity, backgroundColor: colors.heroBackground }]}
       testID="launch-experience"
     >
-      <View accessibilityLabel="Spartan Coaching introduction" style={styles.brandStage}>
-        <Image accessibilityIgnoresInvertColors resizeMode="contain" source={launchMark} style={styles.mark} />
-        <Text style={[styles.brandTitle, { color: colors.heroForeground }]}>SPARTAN</Text>
-        <Text style={[styles.brandSubtitle, { color: colors.heroMuted }]}>HOSPICE SALES PRO</Text>
-      </View>
+      <VideoView
+        accessibilityLabel="Spartan Coaching introduction"
+        allowsPictureInPicture={false}
+        contentFit="contain"
+        nativeControls={false}
+        player={player}
+        style={StyleSheet.absoluteFill}
+      />
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
         <Pressable
           accessibilityHint="Opens the app immediately"
@@ -68,16 +89,8 @@ const styles = StyleSheet.create({
   root: {
     ...StyleSheet.absoluteFill,
     zIndex: 1000,
-    backgroundColor: "#07111F",
+     backgroundColor: "#1A1A1A",
   },
-  brandStage: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  mark: { width: 112, height: 112 },
-  brandTitle: { marginTop: 20, fontSize: 28, letterSpacing: 3, ...font("heavy") },
-  brandSubtitle: { marginTop: 6, fontSize: 10, letterSpacing: 2.4, ...font("bold") },
   skip: {
     position: "absolute",
     right: 18,
