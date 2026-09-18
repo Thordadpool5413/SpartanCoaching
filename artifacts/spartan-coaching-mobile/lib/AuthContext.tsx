@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchMeMobile,
@@ -26,6 +27,27 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const AUTH_CACHE_KEY = "spartan_mobile_auth_cache_v1";
+
+async function readCachedUser(): Promise<MobileAuthUser | null> {
+  try {
+    const raw = await AsyncStorage.getItem(AUTH_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as MobileAuthUser;
+    return parsed?.member?.id ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+async function cacheUser(user: MobileAuthUser | null): Promise<void> {
+  try {
+    if (user) await AsyncStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(user));
+    else await AsyncStorage.removeItem(AUTH_CACHE_KEY);
+  } catch {
+    // A cache failure must never block authentication.
+  }
+}
 
 function shouldClaimApplePurchase(data: MobileAuthUser) {
   return data.organization?.type === "personal";
@@ -45,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const me = await fetchMeMobile();
         setUser(me);
+        void cacheUser(me);
         setActiveSyncMember(me?.member.id ?? null);
         if (me?.member.id) void syncMemberData(me.member.id);
         lastRefreshAt.current = Date.now();
@@ -61,22 +84,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    refresh();
+    let active = true;
+
+    void readCachedUser().then((cached) => {
+      if (!active || !cached) return;
+      // Render a last-known account shell immediately, then verify it in the background.
+      setUser(cached);
+      setActiveSyncMember(cached.member.id);
+      setIsLoading(false);
+      void syncMemberData(cached.member.id);
+    });
+    void refresh({ force: true });
+
+    return () => {
+      active = false;
+    };
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await loginMobile(email, password);
-    setUser({
+    const nextUser = {
       member: data.member,
       organization: data.organization,
       fieldKit: data.fieldKit,
-    });
+    };
+    setUser(nextUser);
+    void cacheUser(nextUser);
     setActiveSyncMember(data.member.id);
     void syncMemberData(data.member.id);
     try {
       if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
-        if (refreshed) setUser(refreshed);
+        if (refreshed) {
+          setUser(refreshed);
+          void cacheUser(refreshed);
+        }
       }
     } catch {
       // Signing in must still succeed if StoreKit is temporarily unavailable.
@@ -85,11 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
     const data = await registerMobile(input);
-    setUser({
+    const nextUser = {
       member: data.member,
       organization: data.organization,
       fieldKit: data.fieldKit,
-    });
+    };
+    setUser(nextUser);
+    void cacheUser(nextUser);
     setActiveSyncMember(data.member.id);
     void syncMemberData(data.member.id);
     try {
@@ -105,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await logoutMobile();
     setUser(null);
+    void cacheUser(null);
     setActiveSyncMember(null);
   }, []);
 
