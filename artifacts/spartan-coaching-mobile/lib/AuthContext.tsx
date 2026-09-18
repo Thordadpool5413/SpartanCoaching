@@ -86,15 +86,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
 
-    void readCachedUser().then((cached) => {
-      if (!active || !cached) return;
-      // Render a last-known account shell immediately, then verify it in the background.
-      setUser(cached);
-      setActiveSyncMember(cached.member.id);
-      setIsLoading(false);
-      void syncMemberData(cached.member.id);
-    });
-    void refresh({ force: true });
+    void (async () => {
+      const cached = await readCachedUser();
+      if (active && cached) {
+        // Render a last-known account shell immediately, then verify it in the background.
+        setUser(cached);
+        setActiveSyncMember(cached.member.id);
+        setIsLoading(false);
+        void syncMemberData(cached.member.id);
+      }
+      if (active) void refresh({ force: true });
+    })();
 
     return () => {
       active = false;
