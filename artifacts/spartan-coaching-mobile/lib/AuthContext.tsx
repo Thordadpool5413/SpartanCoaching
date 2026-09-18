@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchMeMobile,
@@ -31,7 +31,7 @@ const AUTH_CACHE_KEY = "spartan_mobile_auth_cache_v1";
 
 async function readCachedUser(): Promise<MobileAuthUser | null> {
   try {
-    const raw = await AsyncStorage.getItem(AUTH_CACHE_KEY);
+    const raw = await SecureStore.getItemAsync(AUTH_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as MobileAuthUser;
     return parsed?.member?.id ? parsed : null;
@@ -42,8 +42,13 @@ async function readCachedUser(): Promise<MobileAuthUser | null> {
 
 async function cacheUser(user: MobileAuthUser | null): Promise<void> {
   try {
-    if (user) await AsyncStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(user));
-    else await AsyncStorage.removeItem(AUTH_CACHE_KEY);
+    if (user) {
+      await SecureStore.setItemAsync(AUTH_CACHE_KEY, JSON.stringify(user), {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+    } else {
+      await SecureStore.deleteItemAsync(AUTH_CACHE_KEY);
+    }
   } catch {
     // A cache failure must never block authentication.
   }
