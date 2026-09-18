@@ -113,35 +113,47 @@ export default function MyWorkScreen() {
     let cancelled = false;
     setLoadingWork(true);
     setWorkError("");
-    void Promise.all([
-      listDownloadedLibraryItems(),
-      listCalculatorReports(),
-       loadMemberWork().then(async (items) => {
-         if (cancelled) return items;
-         setWorkDelivery("synced");
-         if (user?.member.id) await AsyncStorage.setItem(cachedWorkKey(user.member.id), JSON.stringify(items));
-         return items;
-       }).catch(async (error) => {
-         if (!cancelled) {
-           setWorkDelivery("unavailable");
-           if (user?.member.id) {
-             const raw = await AsyncStorage.getItem(cachedWorkKey(user.member.id)).catch(() => null);
-             const cached = raw ? JSON.parse(raw) as MemberWorkItem[] : [];
-             if (Array.isArray(cached)) setMemberWork(cached);
-           }
-           setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
-         }
-        return [];
-      }),
-      user?.member.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
-    ]).then(([nextDownloads, nextReports, nextWork, nextCommitment]) => {
-      if (cancelled) return;
-      setDownloads(nextDownloads);
-      setReports(nextReports);
-      setMemberWork(nextWork);
-      setCommitment(nextCommitment);
-      setLoadingWork(false);
+
+    // Local content is immediately useful. Do not hold it behind a remote
+    // account request when a field user opens My Work.
+    void listDownloadedLibraryItems().then((items) => {
+      if (!cancelled) setDownloads(items);
     });
+    void listCalculatorReports().then((items) => {
+      if (!cancelled) setReports(items);
+    });
+    if (user?.member.id) {
+      void loadCachedCommitment(user.member.id).then((value) => {
+        if (!cancelled) setCommitment(value);
+      });
+    } else {
+      setCommitment(null);
+    }
+
+    void loadMemberWork()
+      .then((items) => {
+        if (cancelled) return;
+        setWorkDelivery("synced");
+        setMemberWork(items);
+        if (user?.member.id) {
+          void AsyncStorage.setItem(cachedWorkKey(user.member.id), JSON.stringify(items));
+        }
+      })
+      .catch(async (error) => {
+        if (cancelled) return;
+        setWorkDelivery("unavailable");
+        if (user?.member.id) {
+          const raw = await AsyncStorage.getItem(cachedWorkKey(user.member.id)).catch(() => null);
+          const cached = raw ? JSON.parse(raw) as MemberWorkItem[] : [];
+          if (!cancelled && Array.isArray(cached)) setMemberWork(cached);
+        }
+        if (!cancelled) {
+          setWorkError(error instanceof Error ? error.message : "Connected work is unavailable.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingWork(false);
+      });
 
     if (canUseFieldKit) {
       void loadNextMove();
