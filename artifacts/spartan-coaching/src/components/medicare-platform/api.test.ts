@@ -30,7 +30,7 @@ describe("Medicare Intelligence API client", () => {
     });
   });
 
-  it("aborts a stalled CMS bridge request and returns a recoverable timeout", async () => {
+  it("allows evidence-heavy reads more time before returning a recoverable timeout", async () => {
     vi.useFakeTimers();
     const request = vi.fn((_url: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
       init?.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
@@ -45,7 +45,9 @@ describe("Medicare Intelligence API client", () => {
         data: expect.objectContaining({ code: "MEDICARE_TIMEOUT" }),
       },
     });
-    await vi.advanceTimersByTimeAsync(45_000);
+    await vi.advanceTimersByTimeAsync(89_999);
+    expect(request.mock.calls[0]?.[1]?.signal?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
     await rejection;
     expect(request).toHaveBeenCalledWith(
       "/api/v1/medicare/dashboard?state=TX",

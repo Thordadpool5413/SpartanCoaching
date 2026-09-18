@@ -1,14 +1,16 @@
 import { MEDICARE_API_ROOT } from "@workspace/api-contract";
 
 const API_ROOT = MEDICARE_API_ROOT;
-const REQUEST_TIMEOUT_MS = 45_000;
+const READ_REQUEST_TIMEOUT_MS = 90_000;
+const WRITE_REQUEST_TIMEOUT_MS = 45_000;
 
 type ApiResponse<T = any> = { data: T };
 
 async function request<T>(method: string, sourcePath: string, body?: unknown): Promise<ApiResponse<T>> {
   const path = sourcePath.startsWith("/api/") ? sourcePath.slice(4) : sourcePath;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeoutMs = method === "GET" ? READ_REQUEST_TIMEOUT_MS : WRITE_REQUEST_TIMEOUT_MS;
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   let response: Response;
   try {
     response = await fetch(`${API_ROOT}${path}`, {
