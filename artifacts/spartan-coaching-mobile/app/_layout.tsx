@@ -10,7 +10,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -39,20 +39,55 @@ function AppOpenTracker() {
   return null;
 }
 
-function ClientConfigBootstrap() {
+const APP_STORE_URL = "https://apps.apple.com/app/id6795266551";
+
+function ClientConfigGate({ children }: { children: React.ReactNode }) {
+  const [updateReason, setUpdateReason] = useState<string | null>(null);
+  const [minimumVersion, setMinimumVersion] = useState<string | null>(null);
+
   useEffect(() => {
+    if (Platform.OS !== "ios") return;
     void fetchClientConfig().then((cfg) => {
       if (cfg?.compatibility?.ios && !cfg.compatibility.ios.ok) {
-        console.warn(
-          "[client-config] iOS build may be below server min",
-          cfg.compatibility.ios.reason,
-          cfg.minIosAppVersion,
-        );
+        setUpdateReason(cfg.compatibility.ios.reason || "This version is no longer supported.");
+        setMinimumVersion(cfg.minIosAppVersion || null);
       }
     });
   }, []);
-  return null;
+
+  if (!updateReason) return <>{children}</>;
+
+  return (
+    <View style={updateStyles.screen} accessibilityViewIsModal>
+      <View style={updateStyles.card}>
+        <Text style={updateStyles.kicker}>UPDATE REQUIRED</Text>
+        <Text style={updateStyles.title}>A newer version of Hospice Sales Pro is ready.</Text>
+        <Text style={updateStyles.body}>
+          {updateReason}{minimumVersion ? ` Update to version ${minimumVersion} or later to continue.` : ""}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Open the App Store to update Hospice Sales Pro"
+          onPress={() => void Linking.openURL(APP_STORE_URL)}
+          style={({ pressed }) => [updateStyles.button, pressed && updateStyles.buttonPressed]}
+        >
+          <Text style={updateStyles.buttonText}>OPEN APP STORE</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 }
+
+const updateStyles = StyleSheet.create({
+  screen: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#07111F", padding: 24 },
+  card: { width: "100%", maxWidth: 420, borderRadius: 24, borderCurve: "continuous", backgroundColor: "#10243C", padding: 24 },
+  kicker: { color: "#FDB927", fontSize: 11, fontWeight: "800", letterSpacing: 1.6 },
+  title: { color: "#FFFFFF", fontSize: 26, fontWeight: "800", lineHeight: 32, marginTop: 12 },
+  body: { color: "#D5DFEA", fontSize: 15, lineHeight: 22, marginTop: 12 },
+  button: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 14, backgroundColor: "#C8102E", marginTop: 24, paddingHorizontal: 18 },
+  buttonPressed: { opacity: 0.78 },
+  buttonText: { color: "#FFFFFF", fontSize: 12, fontWeight: "800", letterSpacing: 1.1 },
+});
 
 function RootLayoutNav() {
   return (
@@ -121,18 +156,19 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <CoachSessionProvider>
-                <ClientConfigBootstrap />
-                <AppOpenTracker />
-                <DeepLinkRouter />
-                <ActivationCeremony />
-                <NativeChrome />
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <KeyboardProvider>
-                    <VoiceActivityBanner />
-                    <RootLayoutNav />
-                  </KeyboardProvider>
-                  {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
-                </GestureHandlerRootView>
+                <ClientConfigGate>
+                  <AppOpenTracker />
+                  <DeepLinkRouter />
+                  <ActivationCeremony />
+                  <NativeChrome />
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <KeyboardProvider>
+                      <VoiceActivityBanner />
+                      <RootLayoutNav />
+                    </KeyboardProvider>
+                    {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+                  </GestureHandlerRootView>
+                </ClientConfigGate>
               </CoachSessionProvider>
             </AuthProvider>
           </QueryClientProvider>
