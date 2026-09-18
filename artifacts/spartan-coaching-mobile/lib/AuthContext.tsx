@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchMeMobile,
   loginMobile,
@@ -18,7 +18,7 @@ type AuthContextValue = {
   canUseElite: boolean;
   canManageOrganization: boolean;
   membershipTier: MembershipTier;
-  refresh: () => Promise<void>;
+  refresh: (options?: { force?: boolean }) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (input: { name: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
@@ -34,18 +34,30 @@ function shouldClaimApplePurchase(data: MobileAuthUser) {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MobileAuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshInFlight = useRef<Promise<void> | null>(null);
+  const lastRefreshAt = useRef(0);
 
-  const refresh = useCallback(async () => {
-    try {
-      const me = await fetchMeMobile();
-      setUser(me);
-      setActiveSyncMember(me?.member.id ?? null);
-      if (me?.member.id) void syncMemberData(me.member.id);
-    } catch {
-      // Keep last known session on network/5xx (fetchMeMobile only nulls on 401).
-    } finally {
-      setIsLoading(false);
-    }
+  const refresh = useCallback(async (options?: { force?: boolean }) => {
+    if (refreshInFlight.current) return refreshInFlight.current;
+    if (!options?.force && Date.now() - lastRefreshAt.current < 15_000) return;
+
+    const request = (async () => {
+      try {
+        const me = await fetchMeMobile();
+        setUser(me);
+        setActiveSyncMember(me?.member.id ?? null);
+        if (me?.member.id) void syncMemberData(me.member.id);
+        lastRefreshAt.current = Date.now();
+      } catch {
+        // Keep last known session on network/5xx (fetchMeMobile only nulls on 401).
+      } finally {
+        setIsLoading(false);
+        refreshInFlight.current = null;
+      }
+    })();
+
+    refreshInFlight.current = request;
+    return request;
   }, []);
 
   useEffect(() => {
