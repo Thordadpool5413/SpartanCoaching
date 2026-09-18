@@ -5,7 +5,7 @@ import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
 const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com";
-const DEFAULT_TIMEOUT_MS = 45_000;
+const DEFAULT_TIMEOUT_MS = 12_000;
 export const AI_REQUEST_TIMEOUT_MS = 90_000;
 
 /**
@@ -180,7 +180,7 @@ export async function apiGet<T>(
 ): Promise<T> {
   const res = await fetchApi(path, {
     headers: await authHeaders(),
-  }, { retry: options?.retry ?? true, timeoutMs: options?.timeoutMs });
+  }, { retry: options?.retry ?? false, timeoutMs: options?.timeoutMs });
   if (!res.ok) {
     throw await readApiError(res);
   }
