@@ -20,6 +20,7 @@ export type ClientConfig = {
 };
 
 export const CONSULTATION_BOOKING_FLAG = "consultation_booking" as const;
+const CLIENT_CONFIG_TIMEOUT_MS = 12_000;
 
 let cached: ClientConfig | null = null;
 
@@ -67,14 +68,24 @@ export async function fetchClientConfig(): Promise<ClientConfig | null> {
       Accept: "application/json",
     };
     if (token) headers.Authorization = `Bearer ${token}`;
-    const res = await fetch(`${base}/api/client-config`, { headers });
-    if (!res.ok) {
-      cached = null;
-      return null;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), CLIENT_CONFIG_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${base}/api/client-config`, {
+        headers,
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        cached = null;
+        return null;
+      }
+      const data = (await res.json()) as ClientConfig;
+      cached = data;
+      return data;
+    } finally {
+      clearTimeout(timeout);
     }
-    const data = (await res.json()) as ClientConfig;
-    cached = data;
-    return data;
   } catch {
     cached = null;
     return null;
