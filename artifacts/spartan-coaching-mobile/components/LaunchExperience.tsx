@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#07111F",
   },
   brandStage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },
