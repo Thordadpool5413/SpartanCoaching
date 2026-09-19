@@ -30,6 +30,8 @@ import {
    FIELD_KIT_CAPABILITY_DECLARATIONS,
    getToolCapability,
    validateFieldKitCapabilityMatrix,
+   FIELD_KIT_BEHAVIORAL_EVIDENCE,
+   validateBehavioralEvidence,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -88,6 +90,36 @@ describe("Membership mobile parity", () => {
     expect(
       validateFieldKitCapabilityMatrix([newTool], FIELD_KIT_CAPABILITY_DECLARATIONS),
     ).toContain("future-tool has no explicit capability declaration");
+  });
+
+  it("requires independent behavioral proof on both real platforms", () => {
+    expect(validateBehavioralEvidence(FIELD_KIT_TOOLS)).toEqual([]);
+    const proposed = {
+      ...FIELD_KIT_TOOLS[0],
+      id: "future-tool",
+    };
+    expect(validateBehavioralEvidence([proposed])).toEqual([
+      "future-tool has no explicit web behavioral evidence",
+      "future-tool has no explicit iphone behavioral evidence",
+    ]);
+  });
+
+  it("rejects newly declared states or actions without platform evidence", () => {
+    const tool = FIELD_KIT_TOOLS.find((item) => item.id === "roi")!;
+    const evidence = FIELD_KIT_BEHAVIORAL_EVIDENCE.map((item) =>
+      item.toolId === "roi" && item.platform === "web"
+        ? { ...item, actions: [...item.actions, "export report"] }
+        : item,
+    );
+    expect(
+      validateBehavioralEvidence(
+        [{ ...tool, requiredActions: [...tool.requiredActions!, "email report"] }],
+        evidence,
+      ),
+    ).toEqual([
+      "roi web behavioral evidence does not cover every required action",
+      "roi iphone behavioral evidence does not cover every required action",
+    ]);
   });
 
   it("keeps behavior-specific declarations for video, calculators, and workflow", () => {

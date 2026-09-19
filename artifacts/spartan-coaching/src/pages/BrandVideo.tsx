@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
-import { Copy, Check, ExternalLink, Share2 } from "lucide-react";
+import { Copy, Check, ExternalLink, RefreshCw, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function getVideoUrl(): string {
@@ -14,6 +14,8 @@ function getVideoUrl(): string {
 
 export default function BrandVideo() {
   const [copied, setCopied] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [videoAttempt, setVideoAttempt] = useState(0);
   const { toast } = useToast();
 
   const handleCopyLink = async () => {
@@ -61,8 +63,9 @@ export default function BrandVideo() {
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <div className="rounded-2xl overflow-hidden bg-muted shadow-2xl border border-border mb-8" data-testid="container-brand-video">
+        <div className="relative rounded-2xl overflow-hidden bg-muted shadow-2xl border border-border mb-8" data-testid="container-brand-video">
           <iframe
+            key={videoAttempt}
             src="/spartan-video/"
             title="Spartan Coaching Brand Video"
             className="w-full"
@@ -70,7 +73,45 @@ export default function BrandVideo() {
             allow="autoplay; fullscreen"
             allowFullScreen
             data-testid="iframe-brand-video"
+            onError={() => setVideoError(true)}
           />
+          {!videoError ? (
+            <button
+              type="button"
+              className="absolute bottom-3 right-3 rounded-full bg-background/90 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm ring-1 ring-border hover:bg-background"
+              onClick={() => setVideoError(true)}
+            >
+              Video not loading?
+            </button>
+          ) : null}
+          {videoError ? (
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-foreground/95 px-6 text-center text-background"
+              role="alert"
+            >
+              <p className="text-lg font-bold">The video could not load.</p>
+              <p className="max-w-md text-sm text-background/75">
+                Retry the embedded player or open the public video in a new tab.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setVideoError(false);
+                    setVideoAttempt((attempt) => attempt + 1);
+                  }}
+                  aria-label="Retry brand video"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retry
+                </Button>
+                <Button type="button" variant="secondary" onClick={handleOpenInTab}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Open video
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </FadeIn>
 

@@ -138,6 +138,14 @@ const AUTOMATED_SUITES = [
     ],
   },
   {
+    id: "web_catalog_behavior",
+    label: "Catalog-wide web Field Kit behavioral evidence",
+    critical: true,
+    cwd: "artifacts/spartan-coaching",
+    command: "pnpm",
+    args: ["exec", "vitest", "run", "src/lib/field-kit-catalog.behavioral.test.tsx"],
+  },
+  {
     id: "mobile_contracts",
     label: "iOS product quality, App Store readiness, Command Center helpers",
     critical: true,
@@ -164,6 +172,14 @@ const AUTOMATED_SUITES = [
       "__tests__/complete-native-journeys.test.ts",
       "__tests__/company-offboarding-recovery.test.ts",
     ],
+  },
+  {
+    id: "iphone_catalog_behavior",
+    label: "Catalog-wide iPhone Field Kit behavioral evidence",
+    critical: true,
+    cwd: "artifacts/spartan-coaching-mobile",
+    command: "pnpm",
+    args: ["exec", "jest", "--runInBand", "__tests__/field-kit-catalog.behavioral.test.tsx"],
   },
 ];
 

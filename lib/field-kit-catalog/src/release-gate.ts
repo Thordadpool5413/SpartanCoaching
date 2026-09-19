@@ -234,6 +234,26 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
       "field-kit-catalog parity.test.ts COMMAND_CENTER_CAPABILITIES; mobile jest command-center-* helpers",
   },
   {
+    id: "field_kit_catalog_web_behavior",
+    persona: "individual_subscriber",
+    domain: "web_responsive",
+    title: "Catalog-wide web Field Kit behavioral journeys",
+    critical: true,
+    mode: "automated",
+    evidence:
+      "field-kit-catalog behavioral manifest → spartan-coaching src/lib/field-kit-catalog.behavioral.test.tsx (real routes, states, and actions)",
+  },
+  {
+    id: "field_kit_catalog_iphone_behavior",
+    persona: "individual_subscriber",
+    domain: "iphone",
+    title: "Catalog-wide iPhone Field Kit behavioral journeys",
+    critical: true,
+    mode: "automated",
+    evidence:
+      "field-kit-catalog behavioral manifest → spartan-coaching-mobile __tests__/field-kit-catalog.behavioral.test.tsx (real screens, states, and actions)",
+  },
+  {
     id: "dual_schema",
     persona: "provider_admin",
     domain: "migrations",
@@ -518,6 +538,14 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
     ],
   },
   {
+    id: "web_catalog_behavior",
+    label: "Catalog-wide web Field Kit behavioral evidence",
+    critical: true,
+    cwd: "artifacts/spartan-coaching",
+    command: "pnpm",
+    args: ["exec", "vitest", "run", "src/lib/field-kit-catalog.behavioral.test.tsx"],
+  },
+  {
     id: "mobile_contracts",
     label: "iOS product quality, App Store readiness, Command Center helpers",
     critical: true,
@@ -535,6 +563,14 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
       "__tests__/command-center-roleplay.test.ts",
       "__tests__/command-center-integrations.test.ts",
     ],
+  },
+  {
+    id: "iphone_catalog_behavior",
+    label: "Catalog-wide iPhone Field Kit behavioral evidence",
+    critical: true,
+    cwd: "artifacts/spartan-coaching-mobile",
+    command: "pnpm",
+    args: ["exec", "jest", "--runInBand", "__tests__/field-kit-catalog.behavioral.test.tsx"],
   },
 ];
 
