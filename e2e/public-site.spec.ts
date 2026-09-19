@@ -363,7 +363,7 @@ test.describe("public website release gate", () => {
     await expect(consulting).toHaveAttribute("href", "/services");
     await expect(platform).toHaveAttribute("href", "/hospice-sales-pro");
 
-    await page.reload({ waitUntil: "networkidle" });
+    await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("section-pathways")).toBeVisible();
     await expect(page.getByRole("link", { name: /explore consulting services/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /explore the platform/i })).toBeVisible();
