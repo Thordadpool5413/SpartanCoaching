@@ -339,14 +339,18 @@ test.describe("public website release gate", () => {
     await prepareHomepageVisualTest(page);
 
     await expect(page.getByTestId("hero-animation")).toHaveCount(0);
-    const frame = page.getByTestId("hero-video-frame");
-    await expect(frame.locator("video, img").first()).toBeVisible();
-    const video = frame.locator("video");
-    if (await video.count()) {
-      await expect(video).toHaveAttribute("poster", /hero-poster\.jpg$/);
-      await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
+    const frames = page.getByTestId("hero-video-frame");
+    await expect(frames.first().locator("video, img").first()).toBeVisible();
+    const videos = page.getByTestId("hero-video");
+    const videoCount = await videos.count();
+    if (videoCount) {
+      for (let index = 0; index < videoCount; index += 1) {
+        const video = videos.nth(index);
+        await expect(video).toHaveAttribute("poster", /hero-poster\.jpg$/);
+        await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
+      }
     } else {
-      await expect(frame.locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
+      await expect(frames.first().locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
     }
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
