@@ -180,11 +180,17 @@ export default function Tools() {
         <SEO title="Tools | Spartan Coaching" />
 
         <header className="mb-10 border-b border-border pb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display">Tools</h1>
-          <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase">What are you trying to accomplish?</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display">Tool Catalog</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Choose the workspace that matches the result you need. Nothing opens until you select a tool below.
+          </p>
         </header>
 
         <section className="mb-12">
+          <div className="mb-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">Common outcomes</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Command Center is one option alongside the rest of your field tools.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border">
             <Link href="/tools/sales-workflow" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
                <Crosshair className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
@@ -231,7 +237,7 @@ export default function Tools() {
         </section>
 
         <div className="flex items-center justify-between mb-6 pb-2 border-b border-border">
-           <h2 className="text-lg font-bold text-foreground uppercase tracking-widest">Browse Catalog</h2>
+           <h2 className="text-lg font-bold text-foreground uppercase tracking-widest">All tools</h2>
         </div>
 
         <div className="mb-8 relative max-w-md">

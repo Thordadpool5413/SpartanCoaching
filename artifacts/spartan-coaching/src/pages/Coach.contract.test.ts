@@ -39,7 +39,8 @@ describe("web and iPhone Coach parity", () => {
   });
 
   it("routes workspace Coach navigation to the private product", () => {
-    expect(app).toContain('<Route path="/portal/coach" component={Coach} />');
+    expect(app).toContain('<Route path="/portal/coach" component={GatedCoach} />');
+    expect(app).toContain('"Spartan Coach"');
     expect(memberNav).toContain('href: "/portal/coach"');
     expect(memberNav).not.toContain('href: "/contact?service=Hospice+Sales+Pro+Debrief"');
   });

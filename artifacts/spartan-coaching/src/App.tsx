@@ -119,10 +119,14 @@ function withFieldKit(Page: ComponentType): ComponentType {
   };
 }
 
-function withEliteFieldKit(Page: ComponentType): ComponentType {
+function withEliteFieldKit(
+  Page: ComponentType,
+  featureName = "Medicare Intelligence",
+  featureDescription = "this national provider, market, territory, and decision workspace is included with Hospice Sales Pro Elite.",
+): ComponentType {
   return function EliteGatedPage() {
     return (
-      <RequireFieldKit tier="elite">
+      <RequireFieldKit tier="elite" featureName={featureName} featureDescription={featureDescription}>
         <Page />
       </RequireFieldKit>
     );
@@ -143,6 +147,11 @@ const GatedColdCall = withFieldKit(ColdCallScript);
 const GatedWeeklyPlan = withFieldKit(WeeklyPlanBuilder);
 const GatedSalesWorkflow = withFieldKit(SalesWorkflow);
 const GatedSpartanIntelligence = withEliteFieldKit(SpartanIntelligence);
+const GatedCoach = withEliteFieldKit(
+  Coach,
+  "Spartan Coach",
+  "your private AI field coach and conversation history are included with Hospice Sales Pro Elite.",
+);
 const GatedDrills = withFieldKit(Drills);
 const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
@@ -236,7 +245,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/portal" component={Portal} />
           <Route path="/portal/learn" component={GatedPortalLearn} />
-          <Route path="/portal/coach" component={Coach} />
+          <Route path="/portal/coach" component={GatedCoach} />
           <Route path="/account" component={Account} />
           <Route path="/org/admin" component={OrgAdmin} />
           <Route path="/magic-login" component={MagicLogin} />

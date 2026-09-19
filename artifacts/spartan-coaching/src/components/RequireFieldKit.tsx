@@ -17,7 +17,17 @@ import { Crown } from "lucide-react";
  * - No access: real tool UI in view-only preview (cannot submit / generate / save)
  *   Server routes remain membership-gated at the matching tier.
  */
-export function RequireFieldKit({ children, tier = "standard" }: { children: ReactNode; tier?: "standard" | "elite" }) {
+export function RequireFieldKit({
+  children,
+  tier = "standard",
+  featureName = "Medicare Intelligence",
+  featureDescription = "This workspace is included with Hospice Sales Pro Elite.",
+}: {
+  children: ReactNode;
+  tier?: "standard" | "elite";
+  featureName?: string;
+  featureDescription?: string;
+}) {
   const { isLoading, canUseFieldKit, member, organization } = useAuth();
   const [location] = useLocation();
   const aiToolId = location.match(/^\/tools\/ai\/([^/?#]+)/)?.[1];
@@ -42,8 +52,10 @@ export function RequireFieldKit({ children, tier = "standard" }: { children: Rea
       <div className="flex min-h-[60vh] items-center justify-center px-4 py-16" data-testid="elite-access-gate">
         <Card className="w-full max-w-xl border border-border bg-card p-8 text-center sm:p-10">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary"><Crown className="h-6 w-6" /></div>
-          <h1 className="mt-5 text-2xl font-black text-foreground">Medicare Intelligence requires Elite</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">Your account is active, but this national provider, market, territory, and decision workspace is included with Hospice Sales Pro Elite.</p>
+          <h1 className="mt-5 text-2xl font-black text-foreground">{featureName} requires Elite</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+            Your account is active, but {featureDescription}
+          </p>
           <Button asChild className="mt-6 font-bold"><Link href="/account?subscribe=1&plan=elite_weekly">Upgrade to Elite</Link></Button>
         </Card>
       </div>
