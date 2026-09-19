@@ -347,3 +347,277 @@ export const GetMedicareIntelligenceQueryParams = zod.object({
 })
 
 export const GetMedicareIntelligenceResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetBillingStatusResponse = zod.object({
+  "configured": zod.boolean(),
+  "appleBillingConfigured": zod.boolean().optional(),
+  "individualWeeklyPriceConfigured": zod.boolean(),
+  "individualWeeklyElitePriceConfigured": zod.boolean(),
+  "organization": zod.object({
+  "id": zod.number(),
+  "type": zod.string(),
+  "status": zod.string(),
+  "billingPlan": zod.string().nullable(),
+  "billingProvider": zod.string().nullable(),
+  "billingStatus": zod.string().nullable(),
+  "currentPeriodEnd": zod.coerce.date().nullable(),
+  "cancelAtPeriodEnd": zod.boolean(),
+  "hasStripeCustomer": zod.boolean(),
+  "hasStripeSubscription": zod.boolean(),
+  "billableSeats": zod.number().nullable(),
+  "seatLimit": zod.number(),
+  "contractRef": zod.string().nullable()
+}),
+  "canCheckoutIndividual": zod.boolean(),
+  "canOpenPortal": zod.boolean()
+})
+
+export const CreateBillingCheckoutBody = zod.object({
+  "plan": zod.enum(['standard_weekly', 'elite_weekly']).optional(),
+  "successUrl": zod.string().optional(),
+  "cancelUrl": zod.string().optional()
+})
+
+export const CreateBillingCheckoutResponse = zod.object({
+  "url": zod.string(),
+  "sessionId": zod.string().optional()
+})
+
+export const CreateBillingPortalBody = zod.object({
+  "returnUrl": zod.string().optional()
+})
+
+export const CreateBillingPortalResponse = zod.object({
+  "url": zod.string(),
+  "sessionId": zod.string().optional()
+})
+
+export const GetAppleBillingCatalogResponse = zod.object({
+  "configured": zod.boolean(),
+  "appAccountToken": zod.string().uuid().nullish(),
+  "products": zod.array(zod.object({
+  "id": zod.string(),
+  "tier": zod.enum(['standard', 'elite'])
+}))
+})
+
+export const GetAppleBillingConfigResponse = zod.object({
+  "configured": zod.boolean(),
+  "appAccountToken": zod.string().uuid().nullish(),
+  "products": zod.array(zod.object({
+  "id": zod.string(),
+  "tier": zod.enum(['standard', 'elite'])
+}))
+})
+
+export const verifyAppleBillingTransactionBodySignedTransactionMin = 80;
+export const verifyAppleBillingTransactionBodySignedTransactionMax = 80000;
+
+export const VerifyAppleBillingTransactionBody = zod.object({
+  "signedTransaction": zod.string().min(verifyAppleBillingTransactionBodySignedTransactionMin).max(verifyAppleBillingTransactionBodySignedTransactionMax)
+})
+
+export const VerifyAppleBillingTransactionResponse = zod.object({
+  "applied": zod.boolean().optional(),
+  "verified": zod.boolean().optional(),
+  "active": zod.boolean(),
+  "tier": zod.enum(['standard', 'elite']).optional(),
+  "productId": zod.string().optional(),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+export const verifyGuestAppleBillingTransactionBodySignedTransactionMin = 80;
+export const verifyGuestAppleBillingTransactionBodySignedTransactionMax = 80000;
+
+export const VerifyGuestAppleBillingTransactionBody = zod.object({
+  "signedTransaction": zod.string().min(verifyGuestAppleBillingTransactionBodySignedTransactionMin).max(verifyGuestAppleBillingTransactionBodySignedTransactionMax),
+  "appAccountToken": zod.string().uuid().nullish()
+})
+
+export const VerifyGuestAppleBillingTransactionResponse = zod.object({
+  "applied": zod.boolean().optional(),
+  "verified": zod.boolean().optional(),
+  "active": zod.boolean(),
+  "tier": zod.enum(['standard', 'elite']).optional(),
+  "productId": zod.string().optional(),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+export const claimAppleBillingTransactionBodySignedTransactionMin = 80;
+export const claimAppleBillingTransactionBodySignedTransactionMax = 80000;
+
+export const ClaimAppleBillingTransactionBody = zod.object({
+  "signedTransaction": zod.string().min(claimAppleBillingTransactionBodySignedTransactionMin).max(claimAppleBillingTransactionBodySignedTransactionMax),
+  "appAccountToken": zod.string().uuid().nullish()
+})
+
+export const ClaimAppleBillingTransactionResponse = zod.object({
+  "applied": zod.boolean().optional(),
+  "verified": zod.boolean().optional(),
+  "active": zod.boolean(),
+  "tier": zod.enum(['standard', 'elite']).optional(),
+  "productId": zod.string().optional(),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+export const ListAdminAccessRequestsResponse = zod.object({
+  "requests": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+export const ApproveAdminAccessRequestParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ApproveAdminAccessRequestBody = zod.object({
+  "trialHours": zod.number().optional(),
+  "seats": zod.number().optional(),
+  "adminNote": zod.string().optional()
+})
+
+export const ApproveAdminAccessRequestResponse = zod.record(zod.string(), zod.unknown())
+
+export const RejectAdminAccessRequestParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RejectAdminAccessRequestBody = zod.object({
+  "reason": zod.string().optional(),
+  "adminNote": zod.string().optional()
+})
+
+export const RejectAdminAccessRequestResponse = zod.record(zod.string(), zod.unknown())
+
+export const ConvertAdminAccessRequestToInquiryParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ConvertAdminAccessRequestToInquiryResponse = zod.record(zod.string(), zod.unknown())
+
+export const ResendAdminAccessRequestInviteParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ResendAdminAccessRequestInviteResponse = zod.record(zod.string(), zod.unknown())
+
+export const ListAdminOrganizationsResponse = zod.object({
+  "organizations": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+export const GetAdminOrganizationParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetAdminOrganizationResponse = zod.record(zod.string(), zod.unknown())
+
+export const UpdateAdminOrganizationParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpdateAdminOrganizationBody = zod.object({
+  "name": zod.string().optional(),
+  "notes": zod.string().nullish(),
+  "type": zod.string().optional()
+})
+
+export const UpdateAdminOrganizationResponse = zod.record(zod.string(), zod.unknown())
+
+export const UpdateAdminOrganizationPipelineParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpdateAdminOrganizationPipelineBody = zod.object({
+  "pipelineStatus": zod.string().optional(),
+  "nextFollowUpAt": zod.string().nullish(),
+  "lostReason": zod.string().nullish()
+})
+
+export const UpdateAdminOrganizationPipelineResponse = zod.record(zod.string(), zod.unknown())
+
+export const AddAdminOrganizationNoteParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const AddAdminOrganizationNoteBody = zod.object({
+  "body": zod.string()
+})
+
+export const AddAdminOrganizationNoteResponse = zod.record(zod.string(), zod.unknown())
+
+export const UpdateAdminOrganizationStatusParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpdateAdminOrganizationStatusBody = zod.object({
+  "status": zod.string(),
+  "trialHours": zod.number().optional(),
+  "notes": zod.string().nullish()
+})
+
+export const UpdateAdminOrganizationStatusResponse = zod.record(zod.string(), zod.unknown())
+
+export const ExtendAdminOrganizationTrialParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ExtendAdminOrganizationTrialBody = zod.object({
+  "hours": zod.number().optional()
+})
+
+export const ExtendAdminOrganizationTrialResponse = zod.record(zod.string(), zod.unknown())
+
+export const CreateAdminOrganizationBillingContractParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const CreateAdminOrganizationBillingContractBody = zod.object({
+  "seats": zod.number(),
+  "unitAmountCents": zod.number(),
+  "contractRef": zod.string().optional(),
+  "currency": zod.string().optional(),
+  "collectionMode": zod.enum(['send_invoice', 'charge_automatically', 'offline']).optional(),
+  "billingEmail": zod.string().optional(),
+  "billingName": zod.string().optional(),
+  "daysUntilDue": zod.number().optional()
+})
+
+export const CreateAdminOrganizationBillingContractResponse = zod.record(zod.string(), zod.unknown())
+
+export const UpdateAdminOrganizationBillingSeatsParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpdateAdminOrganizationBillingSeatsBody = zod.object({
+  "seats": zod.number()
+})
+
+export const UpdateAdminOrganizationBillingSeatsResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetAdminAccessMetricsResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetAdminSubscriberMobileUsageResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetAdminBillingEmailHealthResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetAdminStripeWebhookHealthResponse = zod.record(zod.string(), zod.unknown())
+
+export const TrackAnalyticsEventBody = zod.object({
+  "eventType": zod.string(),
+  "eventName": zod.string(),
+  "metadata": zod.string().nullish()
+})
+
+export const TrackAnalyticsEventResponse = zod.object({
+  "success": zod.boolean()
+})
+
+export const GetAnalyticsEventsResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetAnalyticsVisitorsResponse = zod.record(zod.string(), zod.unknown())
+
+export const TrackAnalyticsVisitorBody = zod.object({
+  "pagePath": zod.string()
+})
+
+export const TrackAnalyticsVisitorResponse = zod.object({
+  "success": zod.boolean()
+})

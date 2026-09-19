@@ -1,6 +1,23 @@
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import type { MemberWorkError } from "@workspace/api-contract";
+import type {
+  AppleBillingCatalog,
+  AppleBillingConfig,
+  AppleTransactionClaimInput,
+  AppleTransactionInput,
+  AppleVerificationResult,
+  BillingStatus,
+} from "@workspace/api-client-react";
+import {
+  getClaimAppleBillingTransactionUrl,
+  getGetAppleBillingCatalogUrl,
+  getGetAppleBillingConfigUrl,
+  getGetBillingStatusUrl,
+  getVerifyAppleBillingTransactionUrl,
+  getVerifyGuestAppleBillingTransactionUrl,
+} from "@workspace/api-client-react";
+export type { AppleBillingConfig, AppleVerificationResult, BillingStatus } from "@workspace/api-client-react";
 import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
@@ -328,81 +345,44 @@ export type MobileAuthUser = {
   };
 };
 
-/** Billing status from GET /api/billing/status */
-export type BillingStatus = {
-  configured: boolean;
-  appleBillingConfigured?: boolean;
-  individualWeeklyPriceConfigured: boolean;
-  individualWeeklyElitePriceConfigured?: boolean;
-  canCheckoutIndividual: boolean;
-  canOpenPortal: boolean;
-  organization: {
-    id: number;
-    type: string;
-    status: string;
-    billingPlan: string | null;
-    billingProvider?: string | null;
-    billingStatus: string | null;
-    currentPeriodEnd: string | null;
-    cancelAtPeriodEnd: boolean;
-    hasStripeCustomer: boolean;
-    hasStripeSubscription: boolean;
-    billableSeats: number | null;
-    seatLimit: number;
-    contractRef: string | null;
-  };
-};
-
-export type AppleBillingConfig = {
-  configured: boolean;
-  appAccountToken?: string;
-  products: Array<{ id: string; tier: "standard" | "elite" }>;
-};
-
-export type AppleVerificationResult = {
-  applied: boolean;
-  verified?: boolean;
-  active?: boolean;
-  tier?: "standard" | "elite";
-  productId?: string;
-  expiresAt?: string;
-};
-
-export async function fetchAppleBillingCatalog(): Promise<AppleBillingConfig> {
-  return apiGet<AppleBillingConfig>("/api/billing/apple/catalog");
+export async function fetchAppleBillingCatalog(): Promise<AppleBillingCatalog> {
+  return apiGet<AppleBillingCatalog>(getGetAppleBillingCatalogUrl());
 }
 
 export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
-  return apiGet<AppleBillingConfig>("/api/billing/apple/config");
+  return apiGet<AppleBillingConfig>(getGetAppleBillingConfigUrl());
 }
 
 export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
-  return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
+  const input: AppleTransactionInput = { signedTransaction };
+  return apiPost<AppleVerificationResult>(getVerifyAppleBillingTransactionUrl(), input);
 }
 
 export async function verifyGuestAppleTransaction(
   signedTransaction: string,
   appAccountToken?: string,
 ): Promise<AppleVerificationResult> {
-  return apiPost<AppleVerificationResult>("/api/billing/apple/guest-verify", {
+  const input: AppleTransactionClaimInput = {
     signedTransaction,
     ...(appAccountToken ? { appAccountToken } : {}),
-  });
+  };
+  return apiPost<AppleVerificationResult>(getVerifyGuestAppleBillingTransactionUrl(), input);
 }
 
 export async function claimAppleTransaction(
   signedTransaction: string,
   appAccountToken?: string,
 ): Promise<AppleVerificationResult> {
-  return apiPost<AppleVerificationResult>("/api/billing/apple/claim", {
+  const input: AppleTransactionClaimInput = {
     signedTransaction,
     ...(appAccountToken ? { appAccountToken } : {}),
-  });
+  };
+  return apiPost<AppleVerificationResult>(getClaimAppleBillingTransactionUrl(), input);
 }
 
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   try {
-    return await apiGet<BillingStatus>("/api/billing/status");
+    return await apiGet<BillingStatus>(getGetBillingStatusUrl());
   } catch {
     return null;
   }

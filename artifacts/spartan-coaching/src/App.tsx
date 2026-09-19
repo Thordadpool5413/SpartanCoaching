@@ -15,6 +15,7 @@ import { SEO } from "@/components/SEO";
 import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
 import { applyAppearance } from "@/lib/theme";
 import { useTheme } from "@/context/ThemeContext";
+import { trackAnalyticsVisitor } from "@workspace/api-client-react";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -189,11 +190,7 @@ function VisitorTracker() {
 
     timeoutRef.current = setTimeout(() => {
       lastTrackedRef.current = location;
-      fetch("/api/analytics/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pagePath: location }),
-      }).catch(() => {});
+      void trackAnalyticsVisitor({ pagePath: location }).catch(() => {});
       pageView(location);
     }, 500);
 

@@ -36,6 +36,10 @@ export interface OkEnvelope {
   ok: boolean;
 }
 
+export interface SuccessEnvelope {
+  success: boolean;
+}
+
 export interface ItemsEnvelope {
   items: unknown[];
   [key: string]: unknown;
@@ -296,6 +300,227 @@ export interface ProviderResourceUpdateRequest {
   status?: ProviderResourceUpdateRequestStatus;
   meta?: ProviderResourceUpdateRequestMeta;
 }
+
+export interface BillingOrganization {
+  id: number;
+  type: string;
+  status: string;
+  /** @nullable */
+  billingPlan: string | null;
+  /** @nullable */
+  billingProvider: string | null;
+  /** @nullable */
+  billingStatus: string | null;
+  /** @nullable */
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  hasStripeCustomer: boolean;
+  hasStripeSubscription: boolean;
+  /** @nullable */
+  billableSeats: number | null;
+  seatLimit: number;
+  /** @nullable */
+  contractRef: string | null;
+}
+
+export interface BillingStatus {
+  configured: boolean;
+  appleBillingConfigured?: boolean;
+  individualWeeklyPriceConfigured: boolean;
+  individualWeeklyElitePriceConfigured: boolean;
+  organization: BillingOrganization;
+  canCheckoutIndividual: boolean;
+  canOpenPortal: boolean;
+}
+
+export type BillingCheckoutInputPlan = typeof BillingCheckoutInputPlan[keyof typeof BillingCheckoutInputPlan];
+
+
+export const BillingCheckoutInputPlan = {
+  standard_weekly: 'standard_weekly',
+  elite_weekly: 'elite_weekly',
+} as const;
+
+export interface BillingCheckoutInput {
+  plan?: BillingCheckoutInputPlan;
+  successUrl?: string;
+  cancelUrl?: string;
+}
+
+export interface BillingPortalInput {
+  returnUrl?: string;
+}
+
+export interface BillingUrlResponse {
+  url: string;
+  sessionId?: string;
+}
+
+export type AppleBillingProductTier = typeof AppleBillingProductTier[keyof typeof AppleBillingProductTier];
+
+
+export const AppleBillingProductTier = {
+  standard: 'standard',
+  elite: 'elite',
+} as const;
+
+export interface AppleBillingProduct {
+  id: string;
+  tier: AppleBillingProductTier;
+}
+
+export interface AppleBillingCatalog {
+  configured: boolean;
+  /** @nullable */
+  appAccountToken?: string | null;
+  products: AppleBillingProduct[];
+}
+
+export interface AppleBillingConfig {
+  configured: boolean;
+  /** @nullable */
+  appAccountToken?: string | null;
+  products: AppleBillingProduct[];
+}
+
+export interface AppleTransactionInput {
+  /**
+     * @minLength 80
+     * @maxLength 80000
+     */
+  signedTransaction: string;
+}
+
+export interface AppleTransactionClaimInput {
+  /**
+     * @minLength 80
+     * @maxLength 80000
+     */
+  signedTransaction: string;
+  /** @nullable */
+  appAccountToken?: string | null;
+}
+
+export type AppleVerificationResultTier = typeof AppleVerificationResultTier[keyof typeof AppleVerificationResultTier];
+
+
+export const AppleVerificationResultTier = {
+  standard: 'standard',
+  elite: 'elite',
+} as const;
+
+export interface AppleVerificationResult {
+  applied?: boolean;
+  verified?: boolean;
+  active: boolean;
+  tier?: AppleVerificationResultTier;
+  productId?: string;
+  expiresAt?: string;
+  [key: string]: unknown;
+ }
+
+export interface AdminAnyResponse { [key: string]: unknown }
+
+export type AdminAccessRequestsResponseRequestsItem = { [key: string]: unknown };
+
+export interface AdminAccessRequestsResponse {
+  requests: AdminAccessRequestsResponseRequestsItem[];
+  [key: string]: unknown;
+ }
+
+export type AdminOrganizationsResponseOrganizationsItem = { [key: string]: unknown };
+
+export interface AdminOrganizationsResponse {
+  organizations: AdminOrganizationsResponseOrganizationsItem[];
+  [key: string]: unknown;
+ }
+
+export interface AccessRequestApprovalInput {
+  trialHours?: number;
+  seats?: number;
+  adminNote?: string;
+  [key: string]: unknown;
+ }
+
+export interface AccessRequestRejectionInput {
+  reason?: string;
+  adminNote?: string;
+  [key: string]: unknown;
+ }
+
+export interface OrganizationUpdateInput {
+  name?: string;
+  /** @nullable */
+  notes?: string | null;
+  type?: string;
+  [key: string]: unknown;
+ }
+
+export interface OrganizationPipelineInput {
+  pipelineStatus?: string;
+  /** @nullable */
+  nextFollowUpAt?: string | null;
+  /** @nullable */
+  lostReason?: string | null;
+  [key: string]: unknown;
+ }
+
+export interface OrganizationNoteInput {
+  body: string;
+  [key: string]: unknown;
+ }
+
+export interface OrganizationStatusInput {
+  status: string;
+  trialHours?: number;
+  /** @nullable */
+  notes?: string | null;
+  [key: string]: unknown;
+ }
+
+export interface TrialExtensionInput {
+  hours?: number;
+  [key: string]: unknown;
+ }
+
+export type BillingContractInputCollectionMode = typeof BillingContractInputCollectionMode[keyof typeof BillingContractInputCollectionMode];
+
+
+export const BillingContractInputCollectionMode = {
+  send_invoice: 'send_invoice',
+  charge_automatically: 'charge_automatically',
+  offline: 'offline',
+} as const;
+
+export interface BillingContractInput {
+  seats: number;
+  unitAmountCents: number;
+  contractRef?: string;
+  currency?: string;
+  collectionMode?: BillingContractInputCollectionMode;
+  billingEmail?: string;
+  billingName?: string;
+  daysUntilDue?: number;
+  [key: string]: unknown;
+ }
+
+export interface BillingSeatsInput {
+  seats: number;
+  [key: string]: unknown;
+ }
+
+export interface AnalyticsEventInput {
+  eventType: string;
+  eventName: string;
+  /** @nullable */
+  metadata?: string | null;
+  [key: string]: unknown;
+ }
+
+export interface AnalyticsVisitorInput {
+  pagePath: string;
+  [key: string]: unknown;
+ }
 
 /**
  * Billing-email delivery health metrics.

@@ -9,6 +9,7 @@ import {
   type ProductOutcome,
   type SafeProductMetadata,
 } from "@workspace/field-kit-catalog";
+import type { AnalyticsEventInput } from "@workspace/api-client-react";
 
 type ProjectAnalyticsData = Record<string, string | number | boolean>;
 
@@ -24,10 +25,9 @@ const QUEUE_KEY = "hsp_analytics_queue_v1";
 const DEDUPE_KEY = "hsp_analytics_dedupe_v1";
 const MAX_QUEUE = 40;
 
-type QueuedEvent = {
-  eventType: string;
-  eventName: string;
-  metadata: string | null;
+type QueuedEvent = Required<
+  Pick<AnalyticsEventInput, "eventType" | "eventName" | "metadata">
+> & {
   queuedAt: number;
 };
 

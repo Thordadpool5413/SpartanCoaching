@@ -48,6 +48,15 @@ import {
   loginUrl,
 } from "@/lib/accessDeskTemplates";
 import { AccentText } from "@/components/AccentText";
+import {
+  approveAdminAccessRequest,
+  convertAdminAccessRequestToInquiry,
+  getAdminAccessMetrics,
+  listAdminAccessRequests,
+  listAdminOrganizations,
+  rejectAdminAccessRequest,
+  resendAdminAccessRequestInvite,
+} from "@workspace/api-client-react";
 
 export function AccessDesk() {
   const { toast } = useToast();
@@ -63,23 +72,23 @@ export function AccessDesk() {
 
   const { data: requestsData, isLoading: reqLoading } = useQuery({
     queryKey: ["/api/admin/access-requests"],
-    queryFn: () => adminFetch("/api/admin/access-requests"),
+    queryFn: () => listAdminAccessRequests({ credentials: "include" }),
   });
 
   const { data: orgsData, isLoading: orgsLoading } = useQuery({
     queryKey: ["/api/admin/organizations"],
-    queryFn: () => adminFetch("/api/admin/organizations"),
+    queryFn: () => listAdminOrganizations({ credentials: "include" }),
   });
 
   const { data: metrics } = useQuery({
     queryKey: ["/api/admin/access-metrics"],
-    queryFn: () => adminFetch("/api/admin/access-metrics"),
+    queryFn: () => getAdminAccessMetrics({ credentials: "include" }),
   });
 
   const { data: billingEmailHealth, isLoading: billingEmailLoading, refetch: refetchBillingEmail } = useQuery({
     queryKey: ["/api/admin/billing-email-health"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/billing-email-health");
+      const res = await fetch("/api/admin/billing-email-health", { credentials: "include" });
       return res.json();
     },
     refetchInterval: 60_000,
@@ -112,10 +121,7 @@ export function AccessDesk() {
 
   const approveMut = useMutation({
     mutationFn: ({ id, hours, adminNote }: { id: number; hours: number; adminNote?: string }) =>
-      adminFetch(`/api/admin/access-requests/${id}/approve`, {
-        method: "POST",
-        body: JSON.stringify({ trialHours: hours, adminNote: adminNote || undefined }),
-      }),
+      approveAdminAccessRequest(String(id), { trialHours: hours, adminNote: adminNote || undefined }, { credentials: "include" }),
     onSuccess: (data: any, vars) => {
       toastEmail(
         `Approved · ${vars.hours}h trial`,
@@ -132,10 +138,7 @@ export function AccessDesk() {
 
   const rejectMut = useMutation({
     mutationFn: ({ id, adminNote }: { id: number; adminNote?: string }) =>
-      adminFetch(`/api/admin/access-requests/${id}/reject`, {
-        method: "POST",
-        body: JSON.stringify({ adminNote: adminNote || undefined }),
-      }),
+      rejectAdminAccessRequest(String(id), { adminNote: adminNote || undefined }, { credentials: "include" }),
     onSuccess: (data: any) => {
       toastEmail("Rejected", data, "Requester notified by email.");
       setRejectOpen(null);
@@ -768,9 +771,8 @@ export function AccessDesk() {
                       size="sm"
                       variant="ghost"
                       onClick={() => {
-                        adminFetch(`/api/admin/access-requests/${r.id}/to-inquiry`, {
-                          method: "POST",
-                          body: "{}",
+                        convertAdminAccessRequestToInquiry(String(r.id), {
+                          credentials: "include",
                         })
                           .then(() => toast({ title: "Inquiry created" }))
                           .catch((e: Error) =>
@@ -1062,9 +1064,8 @@ export function AccessDesk() {
                           variant="ghost"
                           className="h-7 text-xs"
                           onClick={() => {
-                            adminFetch(`/api/admin/access-requests/${r.id}/resend-invite`, {
-                              method: "POST",
-                              body: "{}",
+                            resendAdminAccessRequestInvite(String(r.id), {
+                              credentials: "include",
                             })
                               .then((data: any) =>
                                 toastEmail(
