@@ -547,7 +547,9 @@ export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
     // Only clear the session on explicit unauthenticated responses.
     // Network blips / 5xx must not log field users out.
     if (e instanceof ApiError && e.status === 401) {
-      await setSessionToken(null);
+      // A stale startup request must not erase a newer token written by login.
+      const currentToken = await getSessionToken();
+      if (currentToken === token) await setSessionToken(null);
       return null;
     }
     throw e;
