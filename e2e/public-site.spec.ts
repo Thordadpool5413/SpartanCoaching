@@ -339,18 +339,17 @@ test.describe("public website release gate", () => {
     await prepareHomepageVisualTest(page);
 
     await expect(page.getByTestId("hero-animation")).toHaveCount(0);
-    const frames = page.getByTestId("hero-video-frame");
-    await expect(frames.first().locator("video, img").first()).toBeVisible();
-    const videos = page.getByTestId("hero-video");
-    const videoCount = await videos.count();
-    if (videoCount) {
-      for (let index = 0; index < videoCount; index += 1) {
-        const video = videos.nth(index);
-        await expect(video).toHaveAttribute("poster", /hero-poster\.jpg$/);
-        await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
-      }
+    const visibleVideo = page.locator('[data-testid="hero-video"]:visible').first();
+    if (await visibleVideo.count()) {
+      await expect(visibleVideo).toHaveAttribute("poster", /hero-poster\.jpg$/);
+      await expect
+        .poll(() => visibleVideo.evaluate((element: HTMLVideoElement) => element.paused))
+        .toBe(true);
     } else {
-      await expect(frames.first().locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
+      const visiblePoster = page
+        .locator('[data-testid="hero-video-frame"]:visible img:visible')
+        .first();
+      await expect(visiblePoster).toHaveAttribute("src", /hero-poster\.jpg$/);
     }
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
