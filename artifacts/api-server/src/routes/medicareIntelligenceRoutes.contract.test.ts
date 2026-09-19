@@ -21,6 +21,12 @@ describe("Medicare Intelligence route bridge", () => {
     expect(route).toContain("next(error)");
   });
 
+  it("cancels Medicare work when the browser disconnects", () => {
+    expect(route).toContain('request.once("aborted", abort)');
+    expect(route).toContain('response.once("close", abort)');
+    expect(route).toContain("signal: controller.signal");
+  });
+
   it("normalizes provider snapshot failures inside the Medicare runtime contract", () => {
     expect(route).toContain('app.use("/api/v1/medicare", requireElite');
     expect(app).toContain("registerMedicareIntelligenceRoutes(app)");

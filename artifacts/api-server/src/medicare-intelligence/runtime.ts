@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { pool } from "../db";
+import { withCancellationSignal } from "./cancellation";
 
 export type RuntimeUser = { userId: string };
 export type RuntimeContext = {
@@ -9,6 +10,7 @@ export type RuntimeContext = {
   params: Record<string, string>;
   body: unknown;
   user?: RuntimeUser;
+  signal?: AbortSignal;
 };
 export type RuntimeResponse = { statusCode: number; headers?: Record<string, string>; body?: string };
 type Middleware = (ctx: RuntimeContext) => Promise<RuntimeResponse | void> | RuntimeResponse | void;
@@ -46,7 +48,9 @@ export function router(routes: Record<string, Middleware[]>) {
       const ctx: RuntimeContext = { ...event, params };
       for (const fn of route.middleware) {
         try {
-          const result = await fn(ctx);
+          const result = event.signal
+            ? await withCancellationSignal(event.signal, () => Promise.resolve(fn(ctx)))
+            : await fn(ctx);
           if (result) return result;
         } catch (cause) {
           const message = cause instanceof Error ? cause.message : "Unexpected Medicare Intelligence error";

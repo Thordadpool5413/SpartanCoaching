@@ -1,4 +1,5 @@
 import { storage } from './runtime';
+import { throwIfRequestCancelled } from './cancellation';
 export const CACHE_SCHEMA_VERSION='6';
 export const NORMALIZATION_VERSION='2026-09-08.6';
 type Envelope<T>={at:number;schemaVersion:string;normalizationVersion:string;sourceVersion?:string;data:T};
@@ -6,6 +7,18 @@ type CacheOptions={sourceVersion?:string;schemaVersion?:string;normalizationVers
 const expected=(o?:CacheOptions)=>({schemaVersion:o?.schemaVersion||CACHE_SCHEMA_VERSION,normalizationVersion:o?.normalizationVersion||NORMALIZATION_VERSION,sourceVersion:o?.sourceVersion});
 export async function readJsonCache<T>(path:string,ttlMs:number,o?:CacheOptions){try{const [f]=await storage.read([path]);if(!f?.content)return null;const e=JSON.parse(f.content) as Envelope<T>,x=expected(o);if(!e?.at||Date.now()-e.at>ttlMs||e.schemaVersion!==x.schemaVersion||e.normalizationVersion!==x.normalizationVersion)return null;if(x.sourceVersion&&e.sourceVersion!==x.sourceVersion)return null;return{data:e.data,at:e.at,ageMinutes:Math.round((Date.now()-e.at)/60000),schemaVersion:e.schemaVersion,normalizationVersion:e.normalizationVersion,sourceVersion:e.sourceVersion||''};}catch(err){console.warn('cache_read_failed',path,err instanceof Error?err.message:String(err));return null;}}
 export async function readJsonCacheStale<T>(path:string,o?:CacheOptions){try{const[f]=await storage.read([path]);if(!f?.content)return null;const e=JSON.parse(f.content) as Envelope<T>,x=expected(o);if(!e?.at||e.schemaVersion!==x.schemaVersion||e.normalizationVersion!==x.normalizationVersion)return null;if(x.sourceVersion&&e.sourceVersion!==x.sourceVersion)return null;return{data:e.data,at:e.at,ageMinutes:Math.round((Date.now()-e.at)/60000),schemaVersion:e.schemaVersion,normalizationVersion:e.normalizationVersion,sourceVersion:e.sourceVersion||''};}catch(err){console.warn('cache_stale_read_failed',path,err instanceof Error?err.message:String(err));return null;}}
-export async function writeJsonCache<T>(path:string,data:T,o?:CacheOptions){try{const x=expected(o),payload:Envelope<T>={at:Date.now(),schemaVersion:x.schemaVersion,normalizationVersion:x.normalizationVersion,sourceVersion:x.sourceVersion,data};const [ok]=await storage.write([{path,content:JSON.stringify(payload),contentType:'application/json'}]);if(!ok)console.warn('cache_write_failed',path);return Boolean(ok);}catch(err){console.warn('cache_write_failed',path,err instanceof Error?err.message:String(err));return false;}}
+export async function writeJsonCache<T>(path:string,data:T,o?:CacheOptions){
+  try{
+    throwIfRequestCancelled();
+    const x=expected(o),payload:Envelope<T>={at:Date.now(),schemaVersion:x.schemaVersion,normalizationVersion:x.normalizationVersion,sourceVersion:x.sourceVersion,data};
+    const [ok]=await storage.write([{path,content:JSON.stringify(payload),contentType:'application/json'}]);
+    if(!ok)console.warn('cache_write_failed',path);
+    return Boolean(ok);
+  }catch(err){
+    throwIfRequestCancelled(err);
+    console.warn('cache_write_failed',path,err instanceof Error?err.message:String(err));
+    return false;
+  }
+}
 export async function readManyJsonCache<T>(paths:string[],ttlMs:number,o?:CacheOptions){const out=new Map<string,T>();if(!paths.length)return out;try{const files=await storage.read(paths),x=expected(o);for(const f of files){if(!f.content)continue;try{const e=JSON.parse(f.content) as Envelope<T>;if(e?.at&&Date.now()-e.at<=ttlMs&&e.schemaVersion===x.schemaVersion&&e.normalizationVersion===x.normalizationVersion&&(!x.sourceVersion||e.sourceVersion===x.sourceVersion))out.set(f.path,e.data);}catch{}}}catch(err){console.warn('cache_multi_read_failed',err instanceof Error?err.message:String(err));}return out;}
 export async function writeManyJsonCache<T>(items:Array<{path:string;data:T}>,o?:CacheOptions){if(!items.length)return;try{const x=expected(o),at=Date.now(),result=await storage.write(items.map(item=>({path:item.path,content:JSON.stringify({at,schemaVersion:x.schemaVersion,normalizationVersion:x.normalizationVersion,sourceVersion:x.sourceVersion,data:item.data} satisfies Envelope<T>),contentType:'application/json'})));if(result.some(ok=>!ok))console.warn('cache_multi_write_partial_failure');}catch(err){console.warn('cache_multi_write_failed',err instanceof Error?err.message:String(err));}}

@@ -16,6 +16,7 @@ describe("Medicare Intelligence runtime router", () => {
     });
   });
 });import { describe, expect, it } from "vitest";
+import { currentCancellationSignal } from "./cancellation";
 import { json, requireAuth, router } from "./runtime";
 
 describe("Medicare intelligence runtime bridge", () => {
@@ -38,5 +39,21 @@ describe("Medicare intelligence runtime bridge", () => {
   it("passes the tenant-scoped identity into private operations", async () => {
     const response = await handler({ method: "POST", path: "/api/private", query: {}, body: {}, user: { userId: "12:44" } });
     expect(JSON.parse(response.body || "{}").userId).toBe("12:44");
+  });
+
+  it("makes the request cancellation signal available to every route", async () => {
+    const cancellationAware = router({
+      "GET /api/cancellation-aware": [async () => json({ inherited: currentCancellationSignal() !== undefined })],
+    });
+    const controller = new AbortController();
+    const response = await cancellationAware({
+      method: "GET",
+      path: "/api/cancellation-aware",
+      query: {},
+      body: null,
+      signal: controller.signal,
+    });
+
+    expect(JSON.parse(response.body || "{}")).toEqual({ inherited: true });
   });
 });
