@@ -11,6 +11,292 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+export interface LoginRequest {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}
+
+export type SessionEnvelopeMember = { [key: string]: unknown };
+
+export type SessionEnvelopeOrganization = { [key: string]: unknown } | null;
+
+export type SessionEnvelopeFieldKit = { [key: string]: unknown };
+
+export interface SessionEnvelope {
+  member?: SessionEnvelopeMember;
+  organization?: SessionEnvelopeOrganization;
+  fieldKit?: SessionEnvelopeFieldKit;
+  token?: string;
+  expiresAt?: string;
+  [key: string]: unknown;
+ }
+
+export interface OkEnvelope {
+  ok: boolean;
+}
+
+export interface ItemsEnvelope {
+  items: unknown[];
+  [key: string]: unknown;
+ }
+
+export interface ItemEnvelope {
+  item: unknown;
+  [key: string]: unknown;
+ }
+
+export type ConversationsEnvelopeConversationsItem = { [key: string]: unknown };
+
+export interface ConversationsEnvelope {
+  conversations: ConversationsEnvelopeConversationsItem[];
+}
+
+export type ConversationEnvelopeConversation = { [key: string]: unknown };
+
+export interface ConversationEnvelope {
+  conversation: ConversationEnvelopeConversation;
+}
+
+export type ConversationDetailEnvelopeConversation = { [key: string]: unknown };
+
+export type ConversationDetailEnvelopeMessagesItem = { [key: string]: unknown };
+
+export interface ConversationDetailEnvelope {
+  conversation: ConversationDetailEnvelopeConversation;
+  messages: ConversationDetailEnvelopeMessagesItem[];
+}
+
+export interface ErrorEnvelope { [key: string]: unknown }
+
+export type MemberSyncRequestMutationsItemRecordType = typeof MemberSyncRequestMutationsItemRecordType[keyof typeof MemberSyncRequestMutationsItemRecordType];
+
+
+export const MemberSyncRequestMutationsItemRecordType = {
+  commitment: 'commitment',
+  tool_draft: 'tool_draft',
+  tool_result: 'tool_result',
+  calculator_report: 'calculator_report',
+  library_download: 'library_download',
+} as const;
+
+export type MemberSyncRequestMutationsItemPayload = { [key: string]: unknown };
+
+export type MemberSyncRequestMutationsItem = {
+  /**
+     * @minLength 8
+     * @maxLength 96
+     */
+  mutationId: string;
+  recordType: MemberSyncRequestMutationsItemRecordType;
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  recordId: string;
+  payload: MemberSyncRequestMutationsItemPayload;
+  clientUpdatedAt: string;
+  isDeleted: boolean;
+};
+
+export interface MemberSyncRequest {
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  mutations: MemberSyncRequestMutationsItem[];
+}
+
+export type MemberSyncRecordPayload = { [key: string]: unknown };
+
+export interface MemberSyncRecord {
+  recordType: string;
+  recordId: string;
+  mutationId: string;
+  payload: MemberSyncRecordPayload;
+  clientUpdatedAt: string;
+  isDeleted: boolean;
+  updatedAt?: string;
+  [key: string]: unknown;
+ }
+
+export interface MemberSyncGetResponse {
+  records: MemberSyncRecord[];
+  serverTime: string;
+}
+
+export type MemberSyncPostResponseRejectedItem = { [key: string]: unknown };
+
+export interface MemberSyncPostResponse {
+  records: MemberSyncRecord[];
+  serverTime: string;
+  /** @minimum 0 */
+  conflicts: number;
+  rejected: MemberSyncPostResponseRejectedItem[];
+}
+
+export type MemberWorkRequestKind = typeof MemberWorkRequestKind[keyof typeof MemberWorkRequestKind];
+
+
+export const MemberWorkRequestKind = {
+  tool_result: 'tool_result',
+  calculator_report: 'calculator_report',
+  intelligence_brief: 'intelligence_brief',
+  roleplay: 'roleplay',
+  transcript: 'transcript',
+  resource_work: 'resource_work',
+} as const;
+
+export type MemberWorkRequestStatus = typeof MemberWorkRequestStatus[keyof typeof MemberWorkRequestStatus];
+
+
+export const MemberWorkRequestStatus = {
+  draft: 'draft',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export type MemberWorkRequestInput = { [key: string]: unknown };
+
+export type MemberWorkRequestOutput = { [key: string]: unknown };
+
+export type MemberWorkRequestNextAction = {
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  title: string;
+  /** @maxLength 500 */
+  href?: string;
+  dueAt?: string;
+} | null;
+
+export type MemberWorkRequestSourcePlatform = typeof MemberWorkRequestSourcePlatform[keyof typeof MemberWorkRequestSourcePlatform];
+
+
+export const MemberWorkRequestSourcePlatform = {
+  web: 'web',
+  ios: 'ios',
+} as const;
+
+export interface MemberWorkRequest {
+  kind: MemberWorkRequestKind;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     * @pattern ^[a-z0-9-]+$
+     */
+  toolId: string;
+  /**
+     * @minLength 1
+     * @maxLength 240
+     */
+  title: string;
+  status?: MemberWorkRequestStatus;
+  accountId?: string | null;
+  input?: MemberWorkRequestInput;
+  output: MemberWorkRequestOutput;
+  nextAction?: MemberWorkRequestNextAction;
+  sourcePlatform?: MemberWorkRequestSourcePlatform;
+}
+
+export type MemberWorkUpdateRequestStatus = typeof MemberWorkUpdateRequestStatus[keyof typeof MemberWorkUpdateRequestStatus];
+
+
+export const MemberWorkUpdateRequestStatus = {
+  draft: 'draft',
+  completed: 'completed',
+  failed: 'failed',
+} as const;
+
+export type MemberWorkUpdateRequestNextAction = { [key: string]: unknown } | null;
+
+export interface MemberWorkUpdateRequest {
+  status?: MemberWorkUpdateRequestStatus;
+  nextAction?: MemberWorkUpdateRequestNextAction;
+}
+
+export type ResourceWorkRequestFormData = { [key: string]: unknown };
+
+export type ResourceWorkRequestStatus = typeof ResourceWorkRequestStatus[keyof typeof ResourceWorkRequestStatus];
+
+
+export const ResourceWorkRequestStatus = {
+  draft: 'draft',
+  completed: 'completed',
+} as const;
+
+export interface ResourceWorkRequest {
+  formData?: ResourceWorkRequestFormData;
+  status?: ResourceWorkRequestStatus;
+  title?: string;
+  /** @minimum 1 */
+  resourceId?: number | null;
+}
+
+export type ProviderResourceRequestStatus = typeof ProviderResourceRequestStatus[keyof typeof ProviderResourceRequestStatus];
+
+
+export const ProviderResourceRequestStatus = {
+  draft: 'draft',
+  in_review: 'in_review',
+  published: 'published',
+  archived: 'archived',
+} as const;
+
+export type ProviderResourceRequestMeta = { [key: string]: unknown } | null;
+
+export interface ProviderResourceRequest {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  /** @maxLength 4000 */
+  description?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 1000
+     */
+  fileUrl: string;
+  /** @maxLength 64 */
+  kind?: string;
+  status?: ProviderResourceRequestStatus;
+  meta?: ProviderResourceRequestMeta;
+}
+
+export type ProviderResourceUpdateRequestStatus = typeof ProviderResourceUpdateRequestStatus[keyof typeof ProviderResourceUpdateRequestStatus];
+
+
+export const ProviderResourceUpdateRequestStatus = {
+  draft: 'draft',
+  in_review: 'in_review',
+  published: 'published',
+  archived: 'archived',
+  deleted: 'deleted',
+} as const;
+
+export type ProviderResourceUpdateRequestMeta = { [key: string]: unknown } | null;
+
+export interface ProviderResourceUpdateRequest {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title?: string;
+  /** @maxLength 4000 */
+  description?: string | null;
+  /**
+     * @minLength 1
+     * @maxLength 1000
+     */
+  fileUrl?: string;
+  /** @maxLength 64 */
+  kind?: string;
+  status?: ProviderResourceUpdateRequestStatus;
+  meta?: ProviderResourceUpdateRequestMeta;
+}
+
 /**
  * Billing-email delivery health metrics.
  */
@@ -63,3 +349,88 @@ export interface WorkspaceNextMoveResponse {
   context: WorkspaceNextMoveContext;
   generatedAt: string;
 }
+
+/**
+ * Error response
+ */
+export type ErrorResponse = ErrorEnvelope;
+
+export type CreateCoachConversationBody = {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  title?: string;
+};
+
+export type GetMemberSyncParams = {
+/**
+ * ISO-8601 timestamp transport value
+ */
+since?: string;
+};
+
+export type UniversalSearchParams = {
+/**
+ * @minLength 2
+ */
+q: string;
+/**
+ * @maximum 40
+ */
+limit?: number;
+};
+
+export type UniversalSearch200 = { [key: string]: unknown };
+
+export type ListResourceWorkParams = {
+includeCatalog?: ListResourceWorkIncludeCatalog;
+};
+
+export type ListResourceWorkIncludeCatalog = typeof ListResourceWorkIncludeCatalog[keyof typeof ListResourceWorkIncludeCatalog];
+
+
+export const ListResourceWorkIncludeCatalog = {
+  NUMBER_1: '1',
+  true: 'true',
+} as const;
+
+export type GetResourceWork200 = {
+  detail: unknown;
+  work: unknown;
+};
+
+export type ListProviderResourcesParams = {
+q?: string;
+status?: string;
+kind?: string;
+};
+
+export type GetSalesWorkflowTodayParams = {
+/**
+ * ISO-8601 timestamp transport value
+ */
+from?: string;
+/**
+ * ISO-8601 timestamp transport value
+ */
+to?: string;
+};
+
+export type GetSalesWorkflowToday200 = { [key: string]: unknown };
+
+export type ListSalesWorkflowAccounts200 = { [key: string]: unknown };
+
+export type SearchMedicareProvidersParams = {
+q?: string;
+state?: string;
+};
+
+export type SearchMedicareProviders200 = { [key: string]: unknown };
+
+export type GetMedicareIntelligenceParams = {
+ccn?: string;
+state?: string;
+};
+
+export type GetMedicareIntelligence200 = { [key: string]: unknown };

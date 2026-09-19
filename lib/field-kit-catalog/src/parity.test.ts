@@ -26,6 +26,10 @@ import {
    getResourceWorkGuide,
   validateDestinationContracts,
   catalogOwnershipErrors,
+   FIELD_KIT_CAPABILITY_MATRIX,
+   FIELD_KIT_CAPABILITY_DECLARATIONS,
+   getToolCapability,
+   validateFieldKitCapabilityMatrix,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -52,6 +56,62 @@ describe("Membership mobile parity", () => {
       expect(["native", "webview"]).toContain(t.mobile);
       expect(mobileDeliveryLabel(t.mobile).length).toBeGreaterThan(3);
     }
+  });
+
+  it("ships the executable capability matrix for every catalog tool", () => {
+    expect(FIELD_KIT_CAPABILITY_MATRIX).toHaveLength(FIELD_KIT_TOOLS.length);
+    expect(validateFieldKitCapabilityMatrix(FIELD_KIT_TOOLS)).toEqual([]);
+    for (const tool of FIELD_KIT_TOOLS) {
+      const capability = getToolCapability(tool);
+      expect(capability?.toolId).toBe(tool.id);
+      expect(capability?.completion.inputHint.length).toBeGreaterThan(20);
+      expect(capability?.requiredStates.length).toBeGreaterThan(2);
+      expect(capability?.requiredActions.length).toBeGreaterThan(1);
+    }
+  });
+
+  it("rejects capability entries missing ownership, destinations, routes, or completion", () => {
+    const invalid = {
+      id: "invalid",
+      mobile: "native",
+      howSteps: [],
+    } as unknown as Partial<(typeof FIELD_KIT_TOOLS)[number]>;
+    const errors = validateFieldKitCapabilityMatrix([invalid]);
+    expect(errors.join(" ")).toMatch(/owner|destination|route|completion/i);
+  });
+
+  it("rejects a new catalog tool until it has an explicit declaration", () => {
+    const newTool = {
+      ...FIELD_KIT_TOOLS[0],
+      id: "future-tool",
+    };
+    expect(
+      validateFieldKitCapabilityMatrix([newTool], FIELD_KIT_CAPABILITY_DECLARATIONS),
+    ).toContain("future-tool has no explicit capability declaration");
+  });
+
+  it("keeps behavior-specific declarations for video, calculators, and workflow", () => {
+    const video = getToolCapability("brand-video")!;
+    expect(video.execution).toBe("client-only");
+    expect(video.requiredActions).toEqual(["open video", "play", "copy or share link"]);
+    expect(video.persistenceExpectation).toMatch(/not stored|public link/i);
+    expect(getToolCapability("activity-calculator")?.requiredActions).toEqual([
+      "enter goal",
+      "calculate",
+      "reset",
+    ]);
+    expect(getToolCapability("activity-calculator")?.requiredStates).toEqual([
+      "empty",
+      "ready",
+      "calculated",
+      "error",
+    ]);
+    expect(getToolCapability("sales-workflow")?.persistenceExpectation).toMatch(
+      /persist.*Command Center/i,
+    );
+    expect(getToolCapability("playbooks")?.requiredActions).toEqual(
+      expect.arrayContaining(["generate playbook", "copy or download"]),
+    );
   });
 
   it("native tools have a route or tool tab", () => {

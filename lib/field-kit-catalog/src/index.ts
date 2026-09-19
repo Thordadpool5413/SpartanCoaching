@@ -57,7 +57,31 @@ export interface FieldKitTool {
    */
   scenario?: string;
   outcome?: string;
+  /**
+   * Executable capability contract. These fields are deliberately kept on the
+   * catalog item (rather than in a UI) so web, iPhone, search, and tours use
+   * the same product truth.
+   */
+  execution?: "client-only" | "server-backed";
+  capabilityOwner?: string;
+  persistenceExpectation?: string;
+  requiredStates?: readonly string[];
+  requiredActions?: readonly string[];
+  webDelivery?: "route" | "public-link";
 }
+
+export type FieldKitCapability = {
+  toolId: string;
+  execution: "client-only" | "server-backed";
+  capabilityOwner: string;
+  persistenceExpectation: string;
+  requiredStates: readonly string[];
+  requiredActions: readonly string[];
+  webDelivery: "route" | "public-link";
+  mobileDelivery: MobileDelivery;
+  mobileRoute?: string;
+  completion: FieldKitWorkGuide;
+};
 
 /**
  * Completion guidance follows the tool across web and iPhone. It deliberately
@@ -84,7 +108,7 @@ export const FIELD_KIT_WHY =
 export const FIELD_KIT_HOW =
   "Open Sales Command Center for the next call → prepare and practice → capture the outcome → use satellite tools as needed → book a debrief while access is open.";
 
-export const FIELD_KIT_TOOLS: FieldKitTool[] = [
+const FIELD_KIT_TOOL_DEFINITIONS: FieldKitTool[] = [
   {
     id: "sales-workflow",
     owner: "command",
@@ -366,6 +390,61 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
 ];
 
+type CapabilityDeclaration = Omit<
+  FieldKitCapability,
+  "toolId" | "completion" | "mobileDelivery" | "mobileRoute"
+>;
+
+export type FieldKitToolId =
+  | "sales-workflow"
+  | "spartan-intelligence"
+  | "playbooks"
+  | "objections"
+  | "research"
+  | "transcribe"
+  | "email-templates"
+  | "role-play"
+  | "activity-calculator"
+  | "rep-cost"
+  | "roi"
+  | "branch"
+  | "cold-call"
+  | "weekly-plan"
+  | "brand-video";
+
+/**
+ * Exhaustive, behavior-specific declarations. Do not replace this with
+ * inferred defaults: a new catalog id must be added here before it can ship.
+ */
+export const FIELD_KIT_CAPABILITY_DECLARATIONS: Record<FieldKitToolId, CapabilityDeclaration> = {
+  "sales-workflow": { execution: "server-backed", capabilityOwner: "sales-workflow", persistenceExpectation: "Account, contacts, call outcomes, and approved next steps persist in the Command Center workspace.", requiredStates: ["empty", "ready", "loading", "complete", "error"], requiredActions: ["add account", "build plan", "complete call", "approve next step"], webDelivery: "route" },
+  "spartan-intelligence": { execution: "server-backed", capabilityOwner: "cms-provider-data", persistenceExpectation: "Verified public evidence is read from the provider-backed service; generated briefs are session-only unless explicitly saved.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["search provider", "review sources", "copy brief"], webDelivery: "route" },
+  playbooks: { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "Generated playbooks are session-only until copied or downloaded.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["generate playbook", "review", "copy or download"], webDelivery: "route" },
+  objections: { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "Generated responses are session-only until copied.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["generate response", "review", "copy"], webDelivery: "route" },
+  research: { execution: "server-backed", capabilityOwner: "field-kit-research-api", persistenceExpectation: "Research results are session-only until the member copies an insight.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["ask question", "review sources", "copy insight"], webDelivery: "route" },
+  transcribe: { execution: "server-backed", capabilityOwner: "transcription-api", persistenceExpectation: "Transcript output is session-only and is not retained as a recording.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["upload or paste", "review transcript", "copy coaching moment"], webDelivery: "route" },
+  "email-templates": { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "Drafts are session-only; sending happens outside this tool.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["choose template", "generate draft", "copy or share"], webDelivery: "route" },
+  "role-play": { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "Role-play feedback remains in the current session and is not saved to run history.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["choose scenario", "run role-play", "review feedback"], webDelivery: "route" },
+  "activity-calculator": { execution: "client-only", capabilityOwner: "field-kit-client", persistenceExpectation: "Inputs and calculated results remain on the current device session unless copied.", requiredStates: ["empty", "ready", "calculated", "error"], requiredActions: ["enter goal", "calculate", "reset"], webDelivery: "route" },
+  "rep-cost": { execution: "client-only", capabilityOwner: "field-kit-client", persistenceExpectation: "Inputs and calculated results remain on the current device session unless copied.", requiredStates: ["empty", "ready", "calculated", "error"], requiredActions: ["enter costs", "calculate", "reset"], webDelivery: "route" },
+  roi: { execution: "client-only", capabilityOwner: "field-kit-client", persistenceExpectation: "Inputs and calculated results remain on the current device session unless copied.", requiredStates: ["empty", "ready", "calculated", "error"], requiredActions: ["enter baseline", "calculate", "reset"], webDelivery: "route" },
+  branch: { execution: "client-only", capabilityOwner: "field-kit-client", persistenceExpectation: "Scenario inputs and results remain on the current device session unless copied.", requiredStates: ["empty", "ready", "calculated", "error"], requiredActions: ["enter branch inputs", "calculate", "reset"], webDelivery: "route" },
+  "cold-call": { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "Generated scripts are session-only until copied or downloaded.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["describe target", "generate script", "copy or download"], webDelivery: "route" },
+  "weekly-plan": { execution: "server-backed", capabilityOwner: "field-kit-ai", persistenceExpectation: "The generated plan is session-only until copied or downloaded; it is not automatically added to My Work.", requiredStates: ["empty", "loading", "complete", "error"], requiredActions: ["set win condition", "generate plan", "copy or download"], webDelivery: "route" },
+  "brand-video": { execution: "client-only", capabilityOwner: "resource-library", persistenceExpectation: "The public video is not stored by the tool; members may open it or share its public link.", requiredStates: ["ready", "playing", "paused", "error"], requiredActions: ["open video", "play", "copy or share link"], webDelivery: "public-link" },
+};
+
+/**
+ * Enrich definitions once so the public tool objects and the matrix cannot
+ * drift. `getToolWorkGuide` is declared below and is safely invoked at
+ * runtime after module initialization.
+ */
+export const FIELD_KIT_TOOLS: FieldKitTool[] = FIELD_KIT_TOOL_DEFINITIONS.map((tool) => ({
+  ...tool,
+  ...(FIELD_KIT_CAPABILITY_DECLARATIONS[tool.id as FieldKitToolId] ?? {}),
+  mobileRoute: tool.mobileRoute,
+}));
+
 export function getToolByPath(path: string): FieldKitTool | undefined {
   return FIELD_KIT_TOOLS.find((t) => t.path === path || path.startsWith(t.path + "/"));
 }
@@ -506,6 +585,65 @@ export function getToolWorkGuide(toolOrId: FieldKitTool | string): FieldKitWorkG
       nextToolId: tool.id === "brand-video" ? undefined : "sales-workflow",
     }
   );
+}
+
+/** Build the matrix from the same objects consumed by product surfaces. */
+export const FIELD_KIT_CAPABILITY_MATRIX: readonly FieldKitCapability[] =
+  FIELD_KIT_TOOLS.map((tool) => {
+    return {
+      toolId: tool.id,
+      execution: tool.execution!,
+      capabilityOwner: tool.capabilityOwner!,
+      persistenceExpectation: tool.persistenceExpectation!,
+      requiredStates: tool.requiredStates!,
+      requiredActions: tool.requiredActions!,
+      webDelivery: tool.webDelivery!,
+      mobileDelivery: tool.mobile,
+      mobileRoute: tool.mobileRoute,
+      completion: getToolWorkGuide(tool),
+    };
+  });
+
+export function getToolCapability(toolOrId: FieldKitTool | string): FieldKitCapability | undefined {
+  const id = typeof toolOrId === "string" ? toolOrId : toolOrId.id;
+  return FIELD_KIT_CAPABILITY_MATRIX.find((capability) => capability.toolId === id);
+}
+
+/**
+ * Runtime contract for task #421. Keep this validator generic so tests and
+ * release checks can audit proposed catalog entries before publishing them.
+ */
+export function validateFieldKitCapabilityMatrix(
+  tools: readonly Partial<FieldKitTool>[],
+  declarations: Readonly<Record<string, Partial<CapabilityDeclaration>>> =
+    FIELD_KIT_CAPABILITY_DECLARATIONS,
+): string[] {
+  const errors: string[] = [];
+  const ids = new Set<string>();
+  for (const tool of tools) {
+    const id = tool.id ?? "<unknown>";
+    if (ids.has(id)) errors.push(`${id} has a duplicate catalog id`);
+    ids.add(id);
+    if (!declarations[id]) errors.push(`${id} has no explicit capability declaration`);
+    if (!tool.owner) errors.push(`${id} is missing its destination owner`);
+    if (!tool.path?.startsWith("/")) errors.push(`${id} must define a web destination`);
+    if (!tool.mobile || tool.mobile === "missing") {
+      errors.push(`${id} must define mobile delivery`);
+    }
+    if (tool.mobile && tool.mobile !== "missing" && !tool.mobileRoute && !tool.mobileToolTab) {
+      errors.push(`${id} must define a mobile route or tool tab`);
+    }
+    if (!tool.execution) errors.push(`${id} must declare client-only or server-backed`);
+    if (!tool.capabilityOwner?.trim()) errors.push(`${id} must declare its capability/API owner`);
+    if (!tool.persistenceExpectation?.trim()) errors.push(`${id} must declare persistence expectation`);
+    if (!tool.requiredStates?.length) errors.push(`${id} must declare required states`);
+    if (!tool.requiredActions?.length) errors.push(`${id} must declare required actions`);
+    if (!tool.webDelivery) errors.push(`${id} must declare web delivery`);
+    if (!tool.whenToUse?.trim() || !tool.howSteps?.length || !tool.why?.trim()) {
+      errors.push(`${id} is missing completion metadata`);
+    }
+  }
+  return errors;
 }
 
 /** Completion guidance for downloadable and provider-owned field resources. */

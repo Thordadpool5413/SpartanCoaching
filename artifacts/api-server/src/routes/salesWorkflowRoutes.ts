@@ -153,6 +153,12 @@ export function registerSalesWorkflowRoutes(app: Express): void {
     },
   );
 
+  const workflowManifest = [
+    "GET /api/v1/sales-workflow/today",
+    "GET /api/v1/sales-workflow/accounts",
+  ];
+  const existingManifest = (app.get("apiRouteManifest") as string[] | undefined) ?? [];
+  app.set("apiRouteManifest", [...existingManifest, ...workflowManifest]);
   app.use(
     "/api/v1/sales-workflow",
     requireFieldKit,

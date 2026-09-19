@@ -44,8 +44,295 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WorkspaceNextMoveResponse"
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Create an authenticated session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200": { description: Session created, content: { application/json: { schema: { $ref: "#/components/schemas/SessionEnvelope" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      responses:
+        "200": { description: Session ended, content: { application/json: { schema: { $ref: "#/components/schemas/OkEnvelope" } } } }
+  /auth/me:
+    get:
+      operationId: getSession
+      tags: [auth]
+      responses:
+        "200": { description: Current session, content: { application/json: { schema: { $ref: "#/components/schemas/SessionEnvelope" } } } }
+  /v1/coach/conversations:
+    get:
+      operationId: listCoachConversations
+      tags: [coach]
+      responses:
+        "200": { description: Conversations, content: { application/json: { schema: { $ref: "#/components/schemas/ConversationsEnvelope" } } } }
+    post:
+      operationId: createCoachConversation
+      tags: [coach]
+      requestBody: { required: false, content: { application/json: { schema: { type: object, properties: { title: { type: string, minLength: 1, maxLength: 160 } }, additionalProperties: false } } } }
+      responses:
+        "201": { description: Created conversation, content: { application/json: { schema: { $ref: "#/components/schemas/ConversationEnvelope" } } } }
+  /v1/coach/conversations/{id}:
+    get:
+      operationId: getCoachConversation
+      tags: [coach]
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Conversation and messages, content: { application/json: { schema: { $ref: "#/components/schemas/ConversationDetailEnvelope" } } } }
+    delete:
+      operationId: deleteCoachConversation
+      tags: [coach]
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses: { "200": { description: Deleted, content: { application/json: { schema: { $ref: "#/components/schemas/OkEnvelope" } } } } }
+  /v1/member-sync:
+    get:
+      operationId: getMemberSync
+      tags: [member]
+      parameters: [{ name: since, in: query, schema: { type: string, description: ISO-8601 timestamp transport value } }]
+      responses:
+        "200": { description: Sync state, content: { application/json: { schema: { $ref: "#/components/schemas/MemberSyncGetResponse" } } } }
+    post:
+      operationId: postMemberSync
+      tags: [member]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/MemberSyncRequest" } } } }
+      responses: { "200": { description: Sync result, content: { application/json: { schema: { $ref: "#/components/schemas/MemberSyncPostResponse" } } } } }
+  /v1/member-work:
+    get:
+      operationId: listMemberWork
+      tags: [member]
+      responses: { "200": { description: Saved work, content: { application/json: { schema: { $ref: "#/components/schemas/ItemsEnvelope" } } } } }
+    post:
+      operationId: createMemberWork
+      tags: [member]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/MemberWorkRequest" } } } }
+      responses: { "201": { description: Saved work, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+  /v1/member-work/{id}:
+    get:
+      operationId: getMemberWork
+      tags: [member]
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses: { "200": { description: Saved work item, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+    patch:
+      operationId: updateMemberWork
+      tags: [member]
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/MemberWorkUpdateRequest" } } } }
+      responses: { "200": { description: Updated work, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+  /v1/search:
+    get:
+      operationId: universalSearch
+      tags: [search]
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2 } }
+        - { name: limit, in: query, schema: { type: integer, maximum: 40 } }
+      responses: { "200": { description: Search groups and results, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
+  /v1/resource-work:
+    get:
+      operationId: listResourceWork
+      tags: [resources]
+      parameters: [{ name: includeCatalog, in: query, schema: { type: string, enum: ["1", "true"] } }]
+      responses: { "200": { description: Saved resource work, content: { application/json: { schema: { $ref: "#/components/schemas/ItemsEnvelope" } } } } }
+  /v1/resource-work/{resourceKey}:
+    get:
+      operationId: getResourceWork
+      tags: [resources]
+      parameters: [{ name: resourceKey, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: Resource detail and work, content: { application/json: { schema: { type: object, required: [detail, work], properties: { detail: {}, work: {} } } } } } }
+    put:
+      operationId: saveResourceWork
+      tags: [resources]
+      parameters: [{ name: resourceKey, in: path, required: true, schema: { type: string } }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ResourceWorkRequest" } } } }
+      responses: { "200": { description: Saved resource work, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+  /v1/provider-resources:
+    get:
+      operationId: listProviderResources
+      tags: [resources]
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: kind, in: query, schema: { type: string } }
+      responses: { "200": { description: Provider resources, content: { application/json: { schema: { $ref: "#/components/schemas/ItemsEnvelope" } } } } }
+    post:
+      operationId: createProviderResource
+      tags: [resources]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProviderResourceRequest" } } } }
+      responses: { "201": { description: Created provider resource, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+  /v1/provider-resources/{id}:
+    patch:
+      operationId: updateProviderResource
+      tags: [resources]
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProviderResourceUpdateRequest" } } } }
+      responses: { "200": { description: Updated provider resource, content: { application/json: { schema: { $ref: "#/components/schemas/ItemEnvelope" } } } } }
+  /v1/sales-workflow/today:
+    get:
+      operationId: getSalesWorkflowToday
+      tags: [sales]
+      parameters:
+        - { name: from, in: query, schema: { type: string, description: ISO-8601 timestamp transport value } }
+        - { name: to, in: query, schema: { type: string, description: ISO-8601 timestamp transport value } }
+      responses: { "200": { description: Today's workflow snapshot, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
+  /v1/sales-workflow/accounts:
+    get:
+      operationId: listSalesWorkflowAccounts
+      tags: [sales]
+      responses: { "200": { description: Accounts, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
+  /v1/medicare/provider-search:
+    get:
+      operationId: searchMedicareProviders
+      tags: [medicare]
+      parameters: [{ name: q, in: query, schema: { type: string } }, { name: state, in: query, schema: { type: string } }]
+      responses: { "200": { description: Provider search result envelope, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
+  /v1/medicare/intelligence:
+    get:
+      operationId: getMedicareIntelligence
+      tags: [medicare]
+      parameters: [{ name: ccn, in: query, schema: { type: string } }, { name: state, in: query, schema: { type: string } }]
+      responses: { "200": { description: Intelligence result envelope, content: { application/json: { schema: { type: object, additionalProperties: true } } } } }
 components:
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string } }
+  responses:
+    Error:
+      description: Error response
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
   schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties: { email: { type: string, format: email }, password: { type: string, minLength: 1 } }
+    SessionEnvelope:
+      type: object
+      additionalProperties: true
+      properties:
+        member: { type: object, additionalProperties: true }
+        organization: { type: object, additionalProperties: true, nullable: true }
+        fieldKit: { type: object, additionalProperties: true }
+        token: { type: string }
+        expiresAt: { type: string, format: date-time }
+    OkEnvelope: { type: object, required: [ok], properties: { ok: { type: boolean } } }
+    ItemsEnvelope: { type: object, required: [items], properties: { items: { type: array, items: {} } }, additionalProperties: true }
+    ItemEnvelope: { type: object, required: [item], properties: { item: {} }, additionalProperties: true }
+    ConversationsEnvelope: { type: object, required: [conversations], properties: { conversations: { type: array, items: { type: object, additionalProperties: true } } } }
+    ConversationEnvelope: { type: object, required: [conversation], properties: { conversation: { type: object, additionalProperties: true } } }
+    ConversationDetailEnvelope: { type: object, required: [conversation, messages], properties: { conversation: { type: object, additionalProperties: true }, messages: { type: array, items: { type: object, additionalProperties: true } } } }
+    ErrorEnvelope: { type: object, additionalProperties: true }
+    MemberSyncRequest:
+      type: object
+      required: [mutations]
+      properties:
+        mutations:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: object
+            required: [mutationId, recordType, recordId, payload, clientUpdatedAt, isDeleted]
+            properties:
+              mutationId: { type: string, minLength: 8, maxLength: 96 }
+              recordType: { type: string, enum: [commitment, tool_draft, tool_result, calculator_report, library_download] }
+              recordId: { type: string, minLength: 1, maxLength: 160 }
+              payload: { type: object, additionalProperties: true, default: {} }
+              clientUpdatedAt: { type: string, format: date-time }
+              isDeleted: { type: boolean, default: false }
+            additionalProperties: false
+      additionalProperties: false
+    MemberSyncRecord:
+      type: object
+      required: [recordType, recordId, mutationId, payload, clientUpdatedAt, isDeleted]
+      properties:
+        recordType: { type: string }
+        recordId: { type: string }
+        mutationId: { type: string }
+        payload: { type: object, additionalProperties: true }
+        clientUpdatedAt: { type: string, format: date-time }
+        isDeleted: { type: boolean }
+        updatedAt: { type: string, format: date-time }
+      additionalProperties: true
+    MemberSyncGetResponse:
+      type: object
+      required: [records, serverTime]
+      properties:
+        records: { type: array, items: { $ref: "#/components/schemas/MemberSyncRecord" } }
+        serverTime: { type: string, format: date-time }
+      additionalProperties: false
+    MemberSyncPostResponse:
+      type: object
+      required: [records, serverTime, conflicts, rejected]
+      properties:
+        records: { type: array, items: { $ref: "#/components/schemas/MemberSyncRecord" } }
+        serverTime: { type: string, format: date-time }
+        conflicts: { type: integer, minimum: 0 }
+        rejected: { type: array, items: { type: object, required: [mutationId, code], additionalProperties: true } }
+      additionalProperties: false
+    MemberWorkRequest:
+      type: object
+      required: [kind, toolId, title, output]
+      properties:
+        kind: { type: string, enum: [tool_result, calculator_report, intelligence_brief, roleplay, transcript, resource_work] }
+        toolId: { type: string, minLength: 1, maxLength: 80, pattern: "^[a-z0-9-]+$" }
+        title: { type: string, minLength: 1, maxLength: 240 }
+        status: { type: string, enum: [draft, completed, failed], default: completed }
+        accountId: { type: string, format: uuid, nullable: true }
+        input: { type: object, additionalProperties: true }
+        output: { type: object, additionalProperties: true }
+        nextAction:
+          type: object
+          nullable: true
+          required: [title]
+          properties:
+            title: { type: string, minLength: 1, maxLength: 240 }
+            href: { type: string, maxLength: 500 }
+            dueAt: { type: string, format: date-time }
+          additionalProperties: false
+        sourcePlatform: { type: string, enum: [web, ios], default: web }
+      additionalProperties: false
+    MemberWorkUpdateRequest:
+      type: object
+      properties:
+        status: { type: string, enum: [draft, completed, failed] }
+        nextAction: { type: object, additionalProperties: true, nullable: true }
+      additionalProperties: false
+    ResourceWorkRequest:
+      type: object
+      properties:
+        formData: { type: object, additionalProperties: true }
+        status: { type: string, enum: [draft, completed] }
+        title: { type: string }
+        resourceId: { type: integer, minimum: 1, nullable: true }
+      additionalProperties: false
+    ProviderResourceRequest:
+      type: object
+      required: [title, fileUrl]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 4000, nullable: true }
+        fileUrl: { type: string, minLength: 1, maxLength: 1000 }
+        kind: { type: string, maxLength: 64 }
+        status: { type: string, enum: [draft, in_review, published, archived] }
+        meta: { type: object, additionalProperties: true, nullable: true }
+      additionalProperties: false
+    ProviderResourceUpdateRequest:
+      type: object
+      properties:
+        title: { type: string, minLength: 1, maxLength: 300 }
+        description: { type: string, maxLength: 4000, nullable: true }
+        fileUrl: { type: string, minLength: 1, maxLength: 1000 }
+        kind: { type: string, maxLength: 64 }
+        status: { type: string, enum: [draft, in_review, published, archived, deleted] }
+        meta: { type: object, additionalProperties: true, nullable: true }
+      additionalProperties: false
     HealthStatus:
       type: object
       properties:

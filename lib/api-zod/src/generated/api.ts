@@ -13,6 +13,7 @@
  */
 import * as zod from 'zod';
 
+const looseObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).passthrough();
 
 /**
  * Returns server health status
@@ -27,7 +28,6 @@ export const HealthCheckResponse = zod.object({
   "failures24h": zod.number()
 }).optional().describe('Billing-email delivery health metrics.')
 })
-
 
 /**
  * @summary Get the next recommended workspace move
@@ -54,3 +54,296 @@ export const GetWorkspaceNextMoveResponse = zod.object({
 }),
   "generatedAt": zod.coerce.date()
 })
+
+/**
+ * @summary Create an authenticated session
+ */
+
+export const LoginBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(1)
+})
+
+export const LoginResponse = zod.object({
+  "member": zod.record(zod.string(), zod.unknown()).optional(),
+  "organization": zod.record(zod.string(), zod.unknown()).nullish(),
+  "fieldKit": zod.record(zod.string(), zod.unknown()).optional(),
+  "token": zod.string().optional(),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+export const LogoutResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+export const GetSessionResponse = zod.object({
+  "member": zod.record(zod.string(), zod.unknown()).optional(),
+  "organization": zod.record(zod.string(), zod.unknown()).nullish(),
+  "fieldKit": zod.record(zod.string(), zod.unknown()).optional(),
+  "token": zod.string().optional(),
+  "expiresAt": zod.coerce.date().optional()
+})
+
+export const ListCoachConversationsResponse = zod.object({
+  "conversations": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+export const createCoachConversationBodyTitleMax = 160;
+
+export const CreateCoachConversationBody = zod.object({
+  "title": zod.string().min(1).max(createCoachConversationBodyTitleMax).optional()
+})
+
+export const CreateCoachConversationResponse = zod.object({
+  "conversation": zod.record(zod.string(), zod.unknown())
+})
+
+export const GetCoachConversationParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetCoachConversationResponse = zod.object({
+  "conversation": zod.record(zod.string(), zod.unknown()),
+  "messages": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+export const DeleteCoachConversationParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const DeleteCoachConversationResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+export const GetMemberSyncQueryParams = zod.object({
+  "since": zod.coerce.string().optional()
+})
+
+export const GetMemberSyncResponse = zod.object({
+  "records": zod.array(zod.object({
+  "recordType": zod.string(),
+  "recordId": zod.string(),
+  "mutationId": zod.string(),
+  "payload": zod.record(zod.string(), zod.unknown()),
+  "clientUpdatedAt": zod.coerce.date(),
+  "isDeleted": zod.boolean(),
+  "updatedAt": zod.coerce.date().optional()
+})),
+  "serverTime": zod.coerce.date()
+})
+
+export const postMemberSyncBodyMutationsItemMutationIdMin = 8;
+export const postMemberSyncBodyMutationsItemMutationIdMax = 96;
+
+export const postMemberSyncBodyMutationsItemRecordIdMax = 160;
+
+export const postMemberSyncBodyMutationsItemPayloadDefault = {};
+export const postMemberSyncBodyMutationsItemIsDeletedDefault = false;
+export const postMemberSyncBodyMutationsMax = 100;
+
+export const PostMemberSyncBody = zod.object({
+  "mutations": zod.array(zod.object({
+  "mutationId": zod.string().min(postMemberSyncBodyMutationsItemMutationIdMin).max(postMemberSyncBodyMutationsItemMutationIdMax),
+  "recordType": zod.enum(['commitment', 'tool_draft', 'tool_result', 'calculator_report', 'library_download']),
+  "recordId": zod.string().min(1).max(postMemberSyncBodyMutationsItemRecordIdMax),
+  "payload": zod.record(zod.string(), zod.unknown()).default(postMemberSyncBodyMutationsItemPayloadDefault),
+  "clientUpdatedAt": zod.coerce.date(),
+  "isDeleted": zod.boolean().default(postMemberSyncBodyMutationsItemIsDeletedDefault)
+})).min(1).max(postMemberSyncBodyMutationsMax)
+})
+
+export const postMemberSyncResponseConflictsMin = 0;
+
+export const PostMemberSyncResponse = zod.object({
+  "records": zod.array(zod.object({
+  "recordType": zod.string(),
+  "recordId": zod.string(),
+  "mutationId": zod.string(),
+  "payload": zod.record(zod.string(), zod.unknown()),
+  "clientUpdatedAt": zod.coerce.date(),
+  "isDeleted": zod.boolean(),
+  "updatedAt": zod.coerce.date().optional()
+})),
+  "serverTime": zod.coerce.date(),
+  "conflicts": zod.number().min(postMemberSyncResponseConflictsMin),
+  "rejected": zod.array(zod.record(zod.string(), zod.unknown()))
+})
+
+export const ListMemberWorkResponse = zod.object({
+  "items": zod.array(zod.unknown())
+})
+
+export const createMemberWorkBodyToolIdMax = 80;
+
+export const createMemberWorkBodyToolIdRegExp = new RegExp('^[a-z0-9-]+$');
+export const createMemberWorkBodyTitleMax = 240;
+
+export const createMemberWorkBodyStatusDefault = `completed`;
+export const createMemberWorkBodyNextActionTitleMax = 240;
+
+export const createMemberWorkBodyNextActionHrefMax = 500;
+
+export const createMemberWorkBodySourcePlatformDefault = `web`;
+
+export const CreateMemberWorkBody = zod.object({
+  "kind": zod.enum(['tool_result', 'calculator_report', 'intelligence_brief', 'roleplay', 'transcript', 'resource_work']),
+  "toolId": zod.string().min(1).max(createMemberWorkBodyToolIdMax).regex(createMemberWorkBodyToolIdRegExp),
+  "title": zod.string().min(1).max(createMemberWorkBodyTitleMax),
+  "status": zod.enum(['draft', 'completed', 'failed']).default(createMemberWorkBodyStatusDefault),
+  "accountId": zod.string().uuid().nullish(),
+  "input": zod.record(zod.string(), zod.unknown()).optional(),
+  "output": zod.record(zod.string(), zod.unknown()),
+  "nextAction": zod.object({
+  "title": zod.string().min(1).max(createMemberWorkBodyNextActionTitleMax),
+  "href": zod.string().max(createMemberWorkBodyNextActionHrefMax).optional(),
+  "dueAt": zod.coerce.date().optional()
+}).nullish(),
+  "sourcePlatform": zod.enum(['web', 'ios']).default(createMemberWorkBodySourcePlatformDefault)
+})
+
+export const CreateMemberWorkResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const GetMemberWorkParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetMemberWorkResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const UpdateMemberWorkParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpdateMemberWorkBody = zod.object({
+  "status": zod.enum(['draft', 'completed', 'failed']).optional(),
+  "nextAction": zod.record(zod.string(), zod.unknown()).nullish()
+})
+
+export const UpdateMemberWorkResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const universalSearchQueryQMin = 2;
+
+export const universalSearchQueryLimitMax = 40;
+
+export const UniversalSearchQueryParams = zod.object({
+  "q": zod.coerce.string().min(universalSearchQueryQMin),
+  "limit": zod.coerce.number().max(universalSearchQueryLimitMax).optional()
+})
+
+export const UniversalSearchResponse = zod.record(zod.string(), zod.unknown())
+
+export const ListResourceWorkQueryParams = zod.object({
+  "includeCatalog": zod.enum(['1', 'true']).optional()
+})
+
+export const ListResourceWorkResponse = zod.object({
+  "items": zod.array(zod.unknown())
+})
+
+export const GetResourceWorkParams = zod.object({
+  "resourceKey": zod.coerce.string()
+})
+
+export const GetResourceWorkResponse = zod.object({
+  "detail": zod.unknown(),
+  "work": zod.unknown()
+})
+
+export const SaveResourceWorkParams = zod.object({
+  "resourceKey": zod.coerce.string()
+})
+
+export const SaveResourceWorkBody = zod.object({
+  "formData": zod.record(zod.string(), zod.unknown()).optional(),
+  "status": zod.enum(['draft', 'completed']).optional(),
+  "title": zod.string().optional(),
+  "resourceId": zod.number().min(1).nullish()
+})
+
+export const SaveResourceWorkResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const ListProviderResourcesQueryParams = zod.object({
+  "q": zod.coerce.string().optional(),
+  "status": zod.coerce.string().optional(),
+  "kind": zod.coerce.string().optional()
+})
+
+export const ListProviderResourcesResponse = zod.object({
+  "items": zod.array(zod.unknown())
+})
+
+export const createProviderResourceBodyTitleMax = 300;
+
+export const createProviderResourceBodyDescriptionMax = 4000;
+
+export const createProviderResourceBodyFileUrlMax = 1000;
+
+export const createProviderResourceBodyKindMax = 64;
+
+export const CreateProviderResourceBody = zod.object({
+  "title": zod.string().min(1).max(createProviderResourceBodyTitleMax),
+  "description": zod.string().max(createProviderResourceBodyDescriptionMax).nullish(),
+  "fileUrl": zod.string().min(1).max(createProviderResourceBodyFileUrlMax),
+  "kind": zod.string().max(createProviderResourceBodyKindMax).optional(),
+  "status": zod.enum(['draft', 'in_review', 'published', 'archived']).optional(),
+  "meta": zod.record(zod.string(), zod.unknown()).nullish()
+})
+
+export const CreateProviderResourceResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const UpdateProviderResourceParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updateProviderResourceBodyTitleMax = 300;
+
+export const updateProviderResourceBodyDescriptionMax = 4000;
+
+export const updateProviderResourceBodyFileUrlMax = 1000;
+
+export const updateProviderResourceBodyKindMax = 64;
+
+export const UpdateProviderResourceBody = zod.object({
+  "title": zod.string().min(1).max(updateProviderResourceBodyTitleMax).optional(),
+  "description": zod.string().max(updateProviderResourceBodyDescriptionMax).nullish(),
+  "fileUrl": zod.string().min(1).max(updateProviderResourceBodyFileUrlMax).optional(),
+  "kind": zod.string().max(updateProviderResourceBodyKindMax).optional(),
+  "status": zod.enum(['draft', 'in_review', 'published', 'archived', 'deleted']).optional(),
+  "meta": zod.record(zod.string(), zod.unknown()).nullish()
+})
+
+export const UpdateProviderResourceResponse = zod.object({
+  "item": zod.unknown()
+})
+
+export const GetSalesWorkflowTodayQueryParams = zod.object({
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional()
+})
+
+export const GetSalesWorkflowTodayResponse = zod.record(zod.string(), zod.unknown())
+
+export const ListSalesWorkflowAccountsResponse = zod.record(zod.string(), zod.unknown())
+
+export const SearchMedicareProvidersQueryParams = zod.object({
+  "q": zod.coerce.string().optional(),
+  "state": zod.coerce.string().optional()
+})
+
+export const SearchMedicareProvidersResponse = zod.record(zod.string(), zod.unknown())
+
+export const GetMedicareIntelligenceQueryParams = zod.object({
+  "ccn": zod.coerce.string().optional(),
+  "state": zod.coerce.string().optional()
+})
+
+export const GetMedicareIntelligenceResponse = zod.record(zod.string(), zod.unknown())

@@ -3,6 +3,12 @@ import { requireElite, type AuthedRequest } from "../auth/middleware";
 import { handler } from "../medicare-intelligence";
 
 export function registerMedicareIntelligenceRoutes(app: Express) {
+  const existingManifest = (app.get("apiRouteManifest") as string[] | undefined) ?? [];
+  app.set("apiRouteManifest", [
+    ...existingManifest,
+    "GET /api/v1/medicare/provider-search",
+    "GET /api/v1/medicare/intelligence",
+  ]);
   app.use("/api/v1/medicare", requireElite, async (request: AuthedRequest, response: Response, next: NextFunction) => {
     const controller = new AbortController();
     const abort = () => controller.abort(new Error("Medicare request disconnected"));
