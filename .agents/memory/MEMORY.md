@@ -17,3 +17,4 @@
 - [Lazy-route shell styles](lazy-route-shell-styles.md) — route-family CSS must be imported by the shell owner, not a lazy child, or direct deep links can render unstyled.
 - [Medicare request budgets](medicare-request-budgets.md) — browser read deadlines must exceed valid CMS pipeline latency; waiting budgets must not be mistaken for upstream cancellation.
 - [Post-merge workflow ports](post-merge-workflow-ports.md) — failed restarts may be stale servers holding artifact ports; clear only registered port owners before reconciling workflows.
+- [Public product screenshots](public-product-screenshots.md) — marketing assets must remove admin identity and navigation at the pixel level, not hide them with CSS.

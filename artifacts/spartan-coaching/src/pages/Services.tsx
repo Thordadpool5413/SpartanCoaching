@@ -1,9 +1,12 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Stethoscope } from "lucide-react";
+import { Check, Stethoscope, Briefcase, Zap, Compass, Shield, Activity, ArrowRight, Layers, LayoutTemplate } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
+import { cn } from "@/lib/utils";
 
 export default function Services() {
   const individualServices = [
@@ -187,111 +190,132 @@ export default function Services() {
   ];
 
   const categories = [
-    { id: "individual", label: "Individual Execution", services: individualServices },
-    { id: "leadership", label: "Leadership Coaching", services: leadershipServices },
-    { id: "corporate", label: "Corporate Programs", services: corporateServices },
-    { id: "tech", label: "System Delivery", services: techServices },
+    { id: "individual", label: "Individual Execution", icon: Compass, services: individualServices },
+    { id: "leadership", label: "Leadership Coaching", icon: Briefcase, services: leadershipServices },
+    { id: "corporate", label: "Corporate Programs", icon: Layers, services: corporateServices },
+    { id: "tech", label: "System Delivery", icon: LayoutTemplate, services: techServices },
   ];
 
   return (
-    <div className="bg-background min-h-screen">
-      <SEO title="Consulting Capability Ledger | Spartan Coaching" />
+    <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-primary/20">
+      <SEO title="Consulting & Systems | Spartan Coaching" />
       <BackButton />
 
       {/* Hero Section */}
-      <header className="px-4 pt-20 pb-16 sm:px-6 lg:px-8 max-w-[84rem] mx-auto border-b border-border">
-        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-12 lg:items-end">
-          <div>
-            <p className="mb-6 font-mono text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-3">
-              <span className="w-4 h-px bg-primary"></span>
-              Capability Ledger
-            </p>
-            <h1
-              className="font-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-[-0.02em] text-foreground uppercase text-balance"
-              data-testid="text-services-title"
-            >
-              When effort is high but execution is inconsistent.
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-[1.6] text-muted-foreground">
-              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 specific capabilities.
-            </p>
-          </div>
+      <header className="px-4 pt-32 pb-24 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
-          <div className="bg-card p-6 md:p-8 border border-border shadow-sm">
-            <p className="mb-4 font-mono text-[10px] font-bold uppercase tracking-widest text-foreground border-b border-border pb-3">The Baseline Challenge</p>
-            <ul className="space-y-4 text-sm leading-relaxed text-muted-foreground mb-8">
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Territory activity is not producing clear next moves.</li>
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Leaders see results but cannot coach the behavior behind them.</li>
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Generic systems create more work than field clarity.</li>
-            </ul>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-slate-200 text-slate-600 text-xs font-semibold mb-8">
+          <span className="w-2 h-2 rounded-full bg-primary"></span>
+          Consulting & Systems
+        </div>
 
-            <div className="flex flex-col gap-3">
-              <Button size="lg" asChild className="rounded-none w-full font-mono text-xs font-bold tracking-widest uppercase min-h-[3.25rem]">
+        <h1
+          className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 text-balance mx-auto mb-8"
+          data-testid="text-services-title"
+        >
+          When effort is high but execution is inconsistent.
+        </h1>
+
+        <p className="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 leading-relaxed font-medium">
+          For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
+        </p>
+      </header>
+
+      {/* The Baseline Challenge Block */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pb-24">
+        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+
+          <div className="grid lg:grid-cols-2 gap-12 relative z-10">
+            <div>
+              <h2 className="font-display text-3xl font-bold mb-8 text-white">The baseline challenge</h2>
+              <ul className="space-y-6">
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
+                  <p className="text-slate-300">Territory activity is not producing clear next moves.</p>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
+                  <p className="text-slate-300">Leaders see results but cannot coach the behavior behind them.</p>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
+                  <p className="text-slate-300">Generic systems create more work than field clarity.</p>
+                </li>
+              </ul>
+            </div>
+            <div className="flex flex-col justify-center gap-4 lg:border-l border-slate-800 lg:pl-12">
+              <Button size="lg" asChild className="rounded-full w-full bg-primary text-white hover:bg-primary/90 font-medium px-8 min-h-[3.5rem]">
                 <Link href="/contact">Book a strategy call</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-none w-full font-mono text-xs font-bold tracking-widest uppercase min-h-[3.25rem] border-border">
+              <Button size="lg" variant="outline" asChild className="rounded-full w-full border-slate-700 bg-slate-800 text-white hover:bg-slate-700 font-medium min-h-[3.5rem]">
                 <Link href="/method">Review our method</Link>
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
       {/* Engagement Sequence */}
-      <section className="border-b border-border bg-muted/20 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[84rem]">
-          <div className="mb-12">
-            <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">How an engagement proceeds</p>
-            <h2 className="font-display text-4xl uppercase tracking-tight text-foreground">
-              The operating sequence
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-0 border border-border bg-border shadow-sm">
-            {[
-              { num: "01", title: "Diagnose", copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
-              { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
-              { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
-            ].map(({ num, title, copy }) => (
-              <div key={num} className="bg-card p-6 md:p-8">
-                <span className="font-mono text-lg font-bold text-primary mb-6 block">{num}</span>
-                <h3 className="font-display text-3xl uppercase tracking-tight text-foreground mb-3">{title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{copy}</p>
+      <section className="bg-white py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto text-center mb-16">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Operating Sequence</h2>
+          <p className="text-slate-500 text-lg">How every engagement is structured.</p>
+        </div>
+        <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-8 md:gap-12">
+          {[
+            { num: "01", title: "Diagnose", icon: Compass, copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
+            { num: "02", title: "Design", icon: Briefcase, copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
+            { num: "03", title: "Install", icon: Zap, copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
+          ].map(({ num, title, icon: Icon, copy }) => (
+            <div key={num} className="bg-slate-50 rounded-3xl p-8 border border-slate-100 text-center relative hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-200 text-slate-600 mx-auto mb-6">
+                <Icon className="w-5 h-5" />
               </div>
-            ))}
-          </div>
+              <h3 className="font-display text-xl font-bold text-slate-900 mb-3">{title}</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">{copy}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Portfolio Index */}
-      <div className="bg-background py-20 md:py-28 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[84rem] mx-auto grid lg:grid-cols-[220px_1fr] gap-12 lg:gap-16 items-start">
+      {/* Services Portfolio */}
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
            
-           {/* Sticky Category Tracker */}
-           <aside className="hidden lg:block sticky top-24">
-              <nav className="flex flex-col gap-1 border-l border-border/50 pl-4 py-2">
-                 <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-4">Capability Index</p>
-                 {categories.map(c => (
-                    <a key={c.id} href={`#${c.id}`} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-1.5 flex items-center gap-2 group">
-                      <span className="w-1.5 h-1.5 rounded-full bg-border group-hover:bg-primary transition-colors"></span>
-                      {c.label}
-                    </a>
-                 ))}
-                 
-                 <div className="mt-8 pt-6 border-t border-border/50">
-                    <div className="flex items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1.5 w-fit mb-3">
-                      <Stethoscope className="w-3 h-3" /> Tech Privacy
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed pr-4">
-                      Systems work follows strict privacy reviews to isolate PHI from routine ops.
-                    </p>
-                 </div>
-              </nav>
+           {/* Sidebar Navigation */}
+           <aside className="lg:w-64 shrink-0 lg:sticky lg:top-32 hidden lg:block">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Consulting Index</p>
+                <nav className="flex flex-col gap-2">
+                   {categories.map(c => (
+                      <a key={c.id} href={`#${c.id}`} className="text-sm font-medium text-slate-600 hover:text-primary transition-colors py-2 flex items-center gap-3">
+                        <c.icon className="w-4 h-4" />
+                        {c.label}
+                      </a>
+                   ))}
+                   <div className="h-px bg-slate-100 my-4"></div>
+                   <a href="#field-tools" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors py-2 flex items-center gap-3">
+                      <LayoutTemplate className="w-4 h-4" />
+                      Software Catalog
+                   </a>
+                </nav>
+                <div className="mt-8 pt-6 border-t border-slate-100">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/5 rounded-full px-3 py-1.5 w-fit mb-3">
+                    <Stethoscope className="w-3.5 h-3.5" /> Privacy First
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Systems work follows strict privacy reviews to isolate PHI from routine operations.
+                  </p>
+                </div>
+              </div>
            </aside>
 
-           {/* Capability Specs */}
-           <div className="space-y-24 md:space-y-32">
-              {categories.map((category, cIdx) => (
+           {/* Content */}
+           <div className="flex-1 space-y-32 w-full">
+              {categories.map((category) => (
                   <section
                     key={category.id}
                     id={category.id}
@@ -306,29 +330,98 @@ export default function Services() {
                             : undefined
                     }
                   >
-                    <div className="mb-10">
-                       <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-3">
-                         <span className="w-4 h-px bg-primary"></span>
-                         Category 0{cIdx + 1}
-                       </p>
-                       <h2 className="font-display text-4xl md:text-5xl uppercase tracking-tight text-foreground">{category.label}</h2>
+                    <div className="mb-10 flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-primary">
+                         <category.icon className="w-5 h-5" />
+                       </div>
+                       <h2 className="font-display text-3xl font-bold text-slate-900">{category.label}</h2>
                     </div>
 
-                    <div className="space-y-12">
+                    <div className="space-y-8">
                        {category.services.map((service, sIdx) => (
-                          <ServiceEntry 
-                            key={sIdx} 
-                            service={service} 
-                            number={`${cIdx + 1}.${sIdx + 1}`} 
-                          />
+                          <ServiceCard key={sIdx} service={service} />
                        ))}
                     </div>
                  </section>
               ))}
-           </div>
 
+              {/* Software Tool Catalog */}
+              <section id="field-tools" className="scroll-mt-32 pt-24 border-t border-slate-200">
+                <div className="mb-16 max-w-3xl">
+                   <h2 className="font-display text-3xl font-bold text-slate-900 mb-6">Field Software Ecosystem</h2>
+                   <p className="text-lg text-slate-600 leading-relaxed">
+                     Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
+                   </p>
+                </div>
+
+                <div className="space-y-16">
+                  {/* Classic Tools */}
+                  <div>
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-display text-xl font-bold text-slate-900">Active Field Tools</h3>
+                    </div>
+                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {FIELD_KIT_TOOLS.map((tool) => (
+                        <div key={tool.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-3">{tool.category}</span>
+                          <h4 className="font-bold text-slate-900 mb-2">{tool.title}</h4>
+                          <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">{tool.description}</p>
+                          <div className="mt-auto space-y-2">
+                            <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-md border border-blue-100 font-semibold">
+                              {tool.public
+                                ? "Public preview"
+                                : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
+                                    tool.mobile === "native"
+                                      ? "Web + iPhone"
+                                      : tool.mobile === "webview"
+                                        ? "Web + iPhone web"
+                                        : "Web"
+                                  }`}
+                            </span>
+                            <span className="inline-block bg-slate-50 text-slate-500 text-xs px-3 py-1 rounded-md border border-slate-100 font-medium">
+                              When: {tool.whenToUse}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Tools */}
+                  <div>
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <Shield className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-display text-xl font-bold text-slate-900">Advanced Intelligence</h3>
+                    </div>
+                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {SPARTAN_AI_TOOLS.map((tool) => (
+                        <div key={tool.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                          <div className="flex justify-between items-start mb-3">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600">{tool.category}</span>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                              tool.permission === "clinical:use"
+                                ? "bg-red-50 text-red-600 border-red-100"
+                                : "bg-purple-50 text-purple-700 border-purple-100"
+                            }`}>
+                              {tool.permission === "clinical:use" ? "Clinical permission" : "Field Kit access"}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-slate-900 mb-2">{tool.name}</h4>
+                          <p className="text-sm text-slate-600 leading-relaxed">{tool.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+           </div>
         </div>
-      </div>
+      </section>
 
       <PublicConversionPanel
         source="services"
@@ -342,65 +435,60 @@ export default function Services() {
   );
 }
 
-function ServiceEntry({ service, number }: { service: any, number: string }) {
+function ServiceCard({ service }: { service: any }) {
   return (
-    <article className="border border-border bg-card group relative shadow-sm">
-      <div className="absolute -left-[1px] top-0 w-[3px] h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
+    <article className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
       
-      {/* Header */}
-      <div className="grid md:grid-cols-[1fr_auto] gap-6 p-6 md:p-8 border-b border-border bg-muted/5">
-        <div>
-           <div className="flex items-start gap-4 mb-4">
-             <span className="font-mono text-[11px] font-bold text-primary mt-2">{number}</span>
-             <h3 className="font-display text-2xl md:text-3xl uppercase tracking-tight text-foreground leading-none">{service.title}</h3>
-           </div>
-           <p className="text-sm text-muted-foreground leading-[1.6] max-w-3xl ml-0 md:ml-8 border-l-2 border-primary/20 pl-4">{service.problem}</p>
-        </div>
-        {(service.duration || service.price) && (
-          <div className="flex flex-row md:flex-col gap-6 md:gap-4 text-left md:text-right shrink-0 mt-4 md:mt-0">
-             {service.duration && (
-               <div>
-                 <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mb-1">Duration</p>
-                 <p className="text-sm font-medium">{service.duration}</p>
-               </div>
-             )}
-             {service.price && (
-               <div>
-                 <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mb-1">Structure</p>
-                 <p className="text-sm font-medium">{service.price}</p>
-               </div>
-             )}
-          </div>
-        )}
+      <div className="p-8 md:p-10 border-b border-slate-100">
+         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
+           <h3 className="font-display text-2xl font-bold text-slate-900">{service.title}</h3>
+           {(service.duration || service.price) && (
+             <div className="flex flex-wrap gap-3 shrink-0">
+               {service.duration && (
+                 <span className="inline-flex bg-slate-50 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full border border-slate-200">
+                   {service.duration}
+                 </span>
+               )}
+               {service.price && (
+                 <span className="inline-flex bg-primary/5 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20">
+                   {service.price}
+                 </span>
+               )}
+             </div>
+           )}
+         </div>
+         <p className="text-slate-600 leading-relaxed text-lg">
+           <strong className="text-slate-900 font-semibold block mb-1">The Problem:</strong>
+           {service.problem}
+         </p>
       </div>
 
-      {/* Body */}
-      <div className="grid md:grid-cols-[1.25fr_1fr] divide-y md:divide-y-0 md:divide-x divide-border">
-         <div className="p-6 md:p-8 flex flex-col">
-            <div className="flex-1">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">The Solution</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+      <div className="grid lg:grid-cols-[1.5fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-slate-100 flex-1">
+         <div className="p-8 md:p-10 flex flex-col justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">The Solution</p>
+              <p className="text-slate-600 leading-relaxed mb-8">{service.solution}</p>
             </div>
             
-            <div className="mt-8 pt-8 border-t border-border">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">Target Outcome</p>
-              <p className="text-sm font-medium text-foreground leading-relaxed">{service.outcome}</p>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Target Outcome</p>
+              <p className="font-semibold text-slate-900 leading-relaxed">{service.outcome}</p>
             </div>
          </div>
          
-         <div className="p-6 md:p-8 bg-muted/10 flex flex-col h-full">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-4">Scope & Deliverables</p>
-            <ul className="space-y-4 mb-10 flex-1">
+         <div className="p-8 md:p-10 bg-slate-50/50 flex flex-col">
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-5">Scope & Deliverables</p>
+            <ul className="space-y-4 mb-8 flex-1">
               {service.includes.map((item: string, i: number) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
-                  <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <li key={i} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                  <Check className="w-5 h-5 text-primary shrink-0" />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <Button asChild variant="outline" className="w-full rounded-none font-mono text-[10px] uppercase tracking-widest min-h-[3rem] border-primary/30 hover:border-primary hover:bg-primary/5 text-primary hover:text-primary">
+            <Button asChild variant="outline" className="w-full rounded-full border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-900">
               <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
-                Discuss this service
+                Discuss this engagement
               </Link>
             </Button>
          </div>
