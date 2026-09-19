@@ -8,9 +8,10 @@ describe("web typography readability contracts", () => {
   it("keeps the approved homepage statement and hero media contract", () => {
     const home = read("../pages/Home.tsx");
 
-    expect(home).toContain("Make the next<br/>");
-    expect(home).toContain('hospice <span className="text-primary">conversation</span><br/>');
-    expect(home).toContain("count.");
+    expect(home).toContain("Make the next hospice conversation");
+    expect(home).toContain(">Count.</span>");
+    expect(home).toContain("Book a strategy call");
+    expect(home).toContain("Explore Hospice Sales Pro");
     expect(home).toContain('data-testid="hero-video"');
     expect(home).toContain('data-testid="hero-video-status"');
     expect(home).toContain('<source src="/hero-video-mobile.webm"');
@@ -26,7 +27,7 @@ describe("web typography readability contracts", () => {
     const css = read("../index.css");
 
     expect(home).toContain("leading-[1.08]");
-    expect(home).toMatch(/section-founder-authority[\s\S]*?text-background[\s\S]*?text-background\/80[\s\S]*?link-founder-story/s);
+    expect(home).toMatch(/section-founder-authority[\s\S]*?font-serif font-light text-foreground[\s\S]*?text-muted-foreground[\s\S]*?Read the founder story/s);
     expect(manifesto).not.toContain("leading-[0.9]");
     expect(manifesto).toContain("leading-[1.1]");
     expect(manifesto).toContain("justify-center bg-foreground overflow-hidden");

@@ -47,16 +47,14 @@ describe("a11y contracts (source-level)", () => {
     expect(day).toMatch(/role="region"/);
   });
 
-  it("nav dropdowns are keyboard-operable (aria-expanded + menu)", () => {
+  it("simplified public navigation exposes landmarks, current page, and labeled mobile controls", () => {
     const layout = read("components/Layout.tsx");
-    expect(layout).toMatch(/aria-expanded/);
-    expect(layout).toMatch(/aria-haspopup="menu"/);
-    expect(layout).toMatch(/role="menu"/);
-    expect(layout).toMatch(/role="menuitem"/);
-    expect(layout).toMatch(/Escape/);
-    expect(layout).toMatch(/ArrowDown/);
-    expect(layout).toMatch(/ArrowUp/);
-    expect(layout).toMatch(/triggerRef\.current\?\.focus/);
+    expect(layout).toMatch(/aria-label="Main navigation"/);
+    expect(layout).toMatch(/aria-label="Mobile navigation"/);
+    expect(layout).toMatch(/aria-current=\{isActive \? "page"/);
+    expect(layout).toMatch(/aria-label="Toggle menu"/);
+    expect(layout).toMatch(/aria-label="Search"/);
+    expect(layout).toMatch(/SheetTrigger asChild/);
   });
 
   it("appearance picker is labeled, focus-contained, and restores the trigger", () => {

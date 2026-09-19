@@ -29,11 +29,13 @@ describe("consulting and workspace coexistence", () => {
     expect(workspace).toContain("/tools/sales-workflow");
   });
 
-  it("separates the homepage offers and keeps the pathfinder available", () => {
+  it("separates the homepage offers without repeating an equal-weight pathfinder", () => {
     const home = read("../pages/Home.tsx");
-    expect(home).toMatch(/href=\"\/services\"[\s\S]{0,300}Explore Spartan Consulting/);
-    expect(home).toContain('href="#homepage-pathfinder"');
-    expect(home).toContain("Find your Spartan path");
-    expect(home).toContain("Hospice Sales Pro</strong> gives individuals and teams a digital workspace");
+    expect(home).toMatch(/href="\/contact"[\s\S]{0,300}Book a strategy call/);
+    expect(home).toContain('href="/hospice-sales-pro"');
+    expect(home).toContain("Explore Hospice Sales Pro");
+    expect(home).toMatch(/href="\/services"[\s\S]{0,300}Explore consulting services/);
+    expect(home).not.toContain('href="#homepage-pathfinder"');
+    expect(home).toContain("Hospice Sales Pro</strong> gives individuals a digital workspace");
   });
 });

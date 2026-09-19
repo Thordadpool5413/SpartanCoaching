@@ -1,7 +1,7 @@
 /**
- * Curated proof pack for marketing trust surfaces.
- * Anonymized / role-based until named client permissions are available.
- * Nick should approve any public wording changes.
+ * Public operating standards for marketing trust surfaces.
+ * These are not testimonials or measured claims. Approved client proof must
+ * arrive through the explicit publicApproval boundary on the proof page.
  */
 export type ProofItem = {
   id: string;
@@ -16,26 +16,26 @@ export const PROOF_PACK: ProofItem[] = [
   {
     id: "director-shared-language",
     quote:
-      "We finally had a shared language for hard conversations — not another binder no one opens.",
-    role: "Director of Growth",
-    context: "Multi-site hospice provider",
-    outcome: "Team coaching language that stuck in the field",
+      "Give leaders and representatives one shared language for hard conversations—not another binder that stays closed.",
+    role: "Team coaching standard",
+    context: "Representative operating goal",
+    outcome: "A consistent language leaders can coach in the field",
   },
   {
     id: "liaison-tuesday",
     quote:
-      "Tuesday stopped being chaos. I know who to call first and what to say when they push back.",
-    role: "Hospice liaison",
-    context: "Field sales · community territory",
-    outcome: "Clear weekly plan and objection confidence",
+      "Start the week knowing which account matters first and which response to practice before the next visit.",
+    role: "Field execution standard",
+    context: "Representative operating goal",
+    outcome: "A clear weekly plan and prepared objection response",
   },
   {
     id: "vp-system",
     quote:
-      "I needed a system my directors could coach from — not generic sales training dressed up for hospice.",
-    role: "VP of Sales",
-    context: "Regional hospice operator",
-    outcome: "One playbook for reps and leaders",
+      "Use a hospice-specific system directors can coach from instead of adapting generic sales training after the fact.",
+    role: "Leadership system standard",
+    context: "Representative operating goal",
+    outcome: "One practical system for representatives and leaders",
   },
 ];
 

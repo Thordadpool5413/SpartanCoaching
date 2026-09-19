@@ -1,13 +1,8 @@
-import { AccentText } from "@/components/AccentText";
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Quote, TrendingUp, Users, Award, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-import { FadeIn } from "@/components/animations";
 import { ProofStrip } from "@/components/ProofStrip";
 import type { SelectTestimonial, SelectCaseStudy } from "@shared/schema";
 
@@ -20,188 +15,117 @@ export default function Testimonials() {
     queryKey: ["/api/case-studies"],
   });
 
-  const testimonials = testimonialsData?.testimonials || [];
-  const caseStudies = caseStudiesData?.caseStudies || [];
+  const testimonials = testimonialsData?.testimonials ?? [];
+  const caseStudies = caseStudiesData?.caseStudies ?? [];
   const isLoading = testimonialsLoading || caseStudiesLoading;
 
   return (
-    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
-      <SEO />
+    <div className="bg-background min-h-screen">
+      <SEO title="Proof & Stories | Spartan Coaching" />
       <BackButton />
-      <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-16">
-        <h1 className="text-h1 text-foreground mb-6" data-testid="text-testimonials-title">
-          Success <span className="text-primary">Stories</span>
-        </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes. Behind every number is a family that got the conversation they needed.
-        </p>
-      </div>
+
+      {/* EDITORIAL HERO */}
+      <section className="pt-16 pb-20 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8 border-b border-border">
+        <div className="max-w-[56rem] mx-auto text-center">
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">Evidence</p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-foreground leading-[1.1] mb-6" data-testid="text-testimonials-title">
+            The impact of discipline.
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground leading-[1.7] max-w-2xl mx-auto">
+            Published client stories appear here only after written approval. Until then, we show the operating standards Spartan helps teams build—without invented names, logos, or metrics.
+          </p>
+        </div>
+      </section>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-32">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <>
-          {/* Never show a hollow Success Stories page */}
           {testimonials.length === 0 && caseStudies.length === 0 && (
-            <div className="mb-16" data-testid="section-proof-fallback">
-              <ProofStrip showLink={false} title="Outcomes operators describe" />
+            <div className="py-24 border-b border-border" data-testid="section-proof-fallback">
+              <div className="max-w-[64rem] mx-auto px-4">
+                <ProofStrip showLink={false} title="Operating standards for the field" />
+              </div>
             </div>
           )}
 
-          {/* Testimonials Section */}
           {testimonials.length > 0 && (
-            <div className="space-y-8 md:space-y-12 lg:space-y-16">
-              <div className="flex items-center gap-3 mb-8">
-                <Quote className="w-8 h-8 text-primary" />
-                <h2 className="text-h2 text-foreground">What People Are <span className="text-primary">Saying</span></h2>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-cards">
-                {testimonials.map((testimonial) => (
-                  <Card key={testimonial.id} className="flex flex-col hover-elevate transition-elegant border-2 group relative spacing-card" data-testid={`card-testimonial-${testimonial.id}`}>
-                    <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="flex-1 relative">
-                      <div className="mb-4">
-                        <Quote className="w-8 h-8 text-primary/20" />
-                      </div>
-                      <p className="text-base text-muted-foreground italic leading-relaxed mb-6">
+            <section className="py-20 md:py-32 border-b border-border px-4 sm:px-6 lg:px-8 bg-surface">
+              <div className="max-w-[64rem] mx-auto">
+                <h2 className="text-2xl font-medium text-foreground mb-12">Direct feedback</h2>
+                <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
+                  {testimonials.map((testimonial) => (
+                    <div key={testimonial.id} className="flex flex-col" data-testid={`card-testimonial-${testimonial.id}`}>
+                      <p className="text-base text-foreground leading-[1.7] mb-6 flex-1">
                         "{testimonial.quote}"
                       </p>
-                      <div className="border-t pt-4">
-                        <p className="font-bold text-foreground">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.title}</p>
-                        <p className="text-sm text-muted-foreground mb-3">{testimonial.company}</p>
-                        <div className="bg-primary/10 rounded-lg p-3">
-                          <p className="text-sm font-semibold text-primary mb-1">Result:</p>
-                          <p className="text-sm text-foreground">{testimonial.outcome}</p>
-                        </div>
+                      <div className="pt-4 border-t border-border">
+                        <p className="text-sm font-medium text-foreground">{testimonial.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{testimonial.title} · {testimonial.company}</p>
+                        {testimonial.outcome && (
+                          <div className="mt-4">
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Result</p>
+                            <p className="text-sm font-medium text-foreground">{testimonial.outcome}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            </section>
           )}
 
-          {/* Case Studies Section */}
           {caseStudies.length > 0 && (
-            <div className="space-y-8 md:space-y-12 lg:space-y-16">
-              <div className="flex items-center gap-3 mt-12 mb-8">
-                <Award className="w-8 h-8 text-primary" />
-                <h2 className="text-h2 text-foreground">Case <span className="text-primary">Studies</span></h2>
-              </div>
-
-              <div className="grid grid-cols-1 gap-8">
-                {caseStudies.map((study) => (
-                  <Card key={study.id} className="hover-elevate transition-elegant border-2 group relative spacing-card" data-testid={`card-case-study-${study.id}`}>
-                    <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="relative">
-                      <div className="grid md:grid-cols-3 gap-8">
-                        <div className="md:col-span-2">
-                          <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{study.title}</AccentText></h3>
-                          <p className="text-sm text-muted-foreground mb-6">{study.clientLabel}</p>
-
-                          <div className="space-y-4">
-                            <div>
-                              <p className="text-sm font-semibold text-foreground mb-2">The Challenge:</p>
-                              <p className="text-sm text-muted-foreground leading-relaxed">{study.challenge}</p>
-                            </div>
-
-                            <div>
-                              <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
-                              <p className="text-sm text-muted-foreground leading-relaxed">{study.solution}</p>
-                            </div>
+            <section className="py-20 md:py-32 border-b border-border px-4 sm:px-6 lg:px-8">
+              <div className="max-w-[64rem] mx-auto">
+                <h2 className="text-2xl font-medium text-foreground mb-16">Case studies</h2>
+                <div className="space-y-24">
+                  {caseStudies.map((study) => (
+                    <div key={study.id} className="grid md:grid-cols-[1.5fr_1fr] gap-12 lg:gap-20" data-testid={`card-case-study-${study.id}`}>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{study.clientLabel}</p>
+                        <h3 className="text-2xl font-serif text-foreground mb-8">{study.title}</h3>
+                        <div className="space-y-6">
+                          <div>
+                            <p className="text-xs font-bold text-foreground uppercase tracking-widest mb-2">The Challenge</p>
+                            <p className="text-sm text-muted-foreground leading-[1.7]">{study.challenge}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-foreground uppercase tracking-widest mb-2">The Solution</p>
+                            <p className="text-sm text-muted-foreground leading-[1.7]">{study.solution}</p>
                           </div>
                         </div>
-
-                        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-lg p-6 border border-primary/20">
-                          <p className="text-base font-bold text-foreground mb-5 flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-primary" />
-                            Measurable Results
-                          </p>
-                          <ul className="space-y-4">
-                            {study.results.map((result, rIdx) => (
-                              <li key={rIdx} className="flex items-start gap-3">
-                                <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                                <span className="text-sm font-medium text-foreground leading-relaxed">{result}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                      </div>
+                      <div className="bg-surface p-8 border border-border">
+                        <p className="text-sm font-medium text-foreground mb-6 border-b border-border pb-3">Measurable Results</p>
+                        <ul className="space-y-4">
+                          {study.results.map((result, rIdx) => (
+                            <li key={rIdx} className="flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
+                              <span className="text-sm text-muted-foreground leading-relaxed">{result}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            </section>
           )}
         </>
       )}
 
-      {/* Categories Explanation */}
-      <div className="grid md:grid-cols-3 gap-cards mb-12">
-        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
-          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-              <Users className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Individual Reps</AccentText></h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Sales professionals improving their territory performance, conversion rates, and execution consistency.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
-          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Sales Leadership</AccentText></h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Managers and directors building consistent team performance and scalable coaching systems.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
-          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="relative">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-              <Award className="w-6 h-6 text-white" />
-            </div>
-            <h3 className="text-h3 font-bold text-foreground mb-2"><AccentText>Corporate Providers</AccentText></h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Multi-market organizations standardizing execution and making growth predictable across regions.
-            </p>
-          </div>
-        </Card>
-      </div>
-      <FadeIn delay={0.2}>
-        <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 border border-border">
-          <h2 className="text-h2 font-black text-foreground mb-6"><AccentText>Ready to See Results Like These?</AccentText></h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-            Whether you are a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets, let's talk about what is not working and build a plan that fixes it.
-          </p>
-          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-testimonials-contact">
-            <Link href="/contact">
-              <span>Contact Us</span>
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
-        </div>
-      </FadeIn>
       <PublicConversionPanel
         source="testimonials"
         audience="Leaders and reps looking for relevant examples before they start a conversation."
-        promise="A grounded way to compare your challenge with outcomes operators describe."
-        evidence="Proof is anonymized and role-based; named logos and claims are used only with permission."
-        primary={{ label: "Discuss your situation", href: "/contact", token: "strategy_call" }}
-        secondary={{ label: "Review the method", href: "/method", token: "method" }}
+        promise="A grounded way to compare your challenge with the operating standards Spartan helps teams build."
+        evidence="Named stories, logos, and measurable claims appear only after written publication approval."
+        primary={{ label: "Discuss Your Situation", href: "/contact", token: "strategy_call" }}
+        secondary={{ label: "Review The Method", href: "/method", token: "method" }}
       />
     </div>
   );

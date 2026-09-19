@@ -584,6 +584,9 @@ export const testimonials = pgTable("testimonials", {
   category: text("category").notNull().default("individual"),
   featured: boolean("featured").notNull().default(false),
   displayOrder: integer("display_order").notNull().default(0),
+  approvalStatus: varchar("approval_status", { length: 32 }).notNull().default("draft"),
+  approvalReference: text("approval_reference"),
+  approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -604,6 +607,9 @@ export const caseStudies = pgTable("case_studies", {
   results: text("results").array().notNull(),
   category: text("category").notNull().default("individual"),
   displayOrder: integer("display_order").notNull().default(0),
+  approvalStatus: varchar("approval_status", { length: 32 }).notNull().default("draft"),
+  approvalReference: text("approval_reference"),
+  approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

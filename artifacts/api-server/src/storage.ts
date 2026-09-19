@@ -151,11 +151,13 @@ export interface IStorage {
   updateSignedAgreementPdf(id: number, pdfData: string): Promise<void>;
   // Testimonial operations
   getTestimonials(): Promise<SelectTestimonial[]>;
+  getPublicTestimonials(): Promise<SelectTestimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial>;
   updateTestimonial(id: number, testimonial: Partial<InsertTestimonial>): Promise<SelectTestimonial>;
   deleteTestimonial(id: number): Promise<void>;
   // Case study operations
   getCaseStudies(): Promise<SelectCaseStudy[]>;
+  getPublicCaseStudies(): Promise<SelectCaseStudy[]>;
   createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy>;
   updateCaseStudy(id: number, study: Partial<InsertCaseStudy>): Promise<SelectCaseStudy>;
   deleteCaseStudy(id: number): Promise<void>;
@@ -741,6 +743,18 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(testimonials).orderBy(testimonials.displayOrder, testimonials.id);
   }
 
+  async getPublicTestimonials(): Promise<SelectTestimonial[]> {
+    return await db
+      .select()
+      .from(testimonials)
+      .where(and(
+        eq(testimonials.approvalStatus, "approved"),
+        isNotNull(testimonials.approvedAt),
+        isNotNull(testimonials.approvalReference),
+      ))
+      .orderBy(testimonials.displayOrder, testimonials.id);
+  }
+
   async createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial> {
     const [result] = await db.insert(testimonials).values(testimonial).returning();
     return result;
@@ -757,6 +771,18 @@ export class DatabaseStorage implements IStorage {
 
   async getCaseStudies(): Promise<SelectCaseStudy[]> {
     return await db.select().from(caseStudies).orderBy(caseStudies.displayOrder, caseStudies.id);
+  }
+
+  async getPublicCaseStudies(): Promise<SelectCaseStudy[]> {
+    return await db
+      .select()
+      .from(caseStudies)
+      .where(and(
+        eq(caseStudies.approvalStatus, "approved"),
+        isNotNull(caseStudies.approvedAt),
+        isNotNull(caseStudies.approvalReference),
+      ))
+      .orderBy(caseStudies.displayOrder, caseStudies.id);
   }
 
   async createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy> {

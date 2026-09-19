@@ -67,6 +67,7 @@ import {
   insertResourceLeadSchema,
   insertSignedAgreementSchema,
   insertTestimonialSchema,
+  insertCaseStudySchema,
   roleplayStartSchema,
   roleplayMessageSchema,
   eventAnalyticsSchema,
@@ -1498,17 +1499,28 @@ Build a specific Monday–Friday territory plan for this week.`;
   // Testimonials
   app.get("/api/testimonials", async (_req, res) => {
     try {
-      const items = await storage.getTestimonials();
+      const items = await storage.getPublicTestimonials();
       res.json({ testimonials: items });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to retrieve testimonials" });
     }
   });
 
+  app.get("/api/admin/testimonials", requireAdmin, async (_req, res) => {
+    const items = await storage.getTestimonials();
+    res.json({ testimonials: items });
+  });
+
   app.post("/api/testimonials", requireAdmin, async (req, res) => {
     try {
       const data = insertTestimonialSchema.parse(req.body);
-      const item = await storage.createTestimonial(data);
+      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+        return res.status(400).json({ error: "Written approval reference is required before publication" });
+      }
+      const item = await storage.createTestimonial({
+        ...data,
+        approvedAt: data.approvalStatus === "approved" ? new Date() : null,
+      });
       res.json({ testimonial: item });
     } catch (error: any) {
       if (error?.name === "ZodError") {
@@ -1521,7 +1533,15 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.put("/api/testimonials/:id", requireAdmin, async (req, res) => {
     try {
       const data = insertTestimonialSchema.partial().parse(req.body);
-      const item = await storage.updateTestimonial(paramInt(req, "id"), data);
+      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+        return res.status(400).json({ error: "Written approval reference is required before publication" });
+      }
+      const item = await storage.updateTestimonial(paramInt(req, "id"), {
+        ...data,
+        ...(data.approvalStatus
+          ? { approvedAt: data.approvalStatus === "approved" ? new Date() : null }
+          : {}),
+      });
       res.json({ testimonial: item });
     } catch (error: any) {
       if (error?.name === "ZodError") {
@@ -1543,16 +1563,28 @@ Build a specific Monday–Friday territory plan for this week.`;
   // Case Studies
   app.get("/api/case-studies", async (_req, res) => {
     try {
-      const items = await storage.getCaseStudies();
+      const items = await storage.getPublicCaseStudies();
       res.json({ caseStudies: items });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to retrieve case studies" });
     }
   });
 
+  app.get("/api/admin/case-studies", requireAdmin, async (_req, res) => {
+    const items = await storage.getCaseStudies();
+    res.json({ caseStudies: items });
+  });
+
   app.post("/api/case-studies", requireAdmin, async (req, res) => {
     try {
-      const item = await storage.createCaseStudy(req.body);
+      const data = insertCaseStudySchema.parse(req.body);
+      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+        return res.status(400).json({ error: "Written approval reference is required before publication" });
+      }
+      const item = await storage.createCaseStudy({
+        ...data,
+        approvedAt: data.approvalStatus === "approved" ? new Date() : null,
+      });
       res.json({ caseStudy: item });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to create case study" });
@@ -1561,7 +1593,16 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.put("/api/case-studies/:id", requireAdmin, async (req, res) => {
     try {
-      const item = await storage.updateCaseStudy(paramInt(req, "id"), req.body);
+      const data = insertCaseStudySchema.partial().parse(req.body);
+      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+        return res.status(400).json({ error: "Written approval reference is required before publication" });
+      }
+      const item = await storage.updateCaseStudy(paramInt(req, "id"), {
+        ...data,
+        ...(data.approvalStatus
+          ? { approvedAt: data.approvalStatus === "approved" ? new Date() : null }
+          : {}),
+      });
       res.json({ caseStudy: item });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to update case study" });

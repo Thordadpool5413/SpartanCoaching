@@ -952,6 +952,23 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0028_public_proof_approval",
+    title: "Explicit public proof approval",
+    forwardPath: "lib/db/migrations/0028_public_proof_approval.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) = 0 AS ok FROM testimonials WHERE approval_status = 'approved' AND (approved_at IS NULL OR approval_reference IS NULL)`,
+      `SELECT count(*) = 0 AS ok FROM case_studies WHERE approval_status = 'approved' AND (approved_at IS NULL OR approval_reference IS NULL)`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain additive approval metadata during application rollback so unapproved proof does not become public.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["testimonials", "case_studies"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",

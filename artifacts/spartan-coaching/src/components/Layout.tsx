@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Linkedin, Search, ChevronDown, LogIn } from "lucide-react";
+import { Linkedin, Search, LogIn, Menu, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AppearanceControls, AppearancePanel } from "@/components/AppearanceControls";
 import {
@@ -20,7 +19,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
@@ -38,13 +36,16 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-3 py-2 text-[13px] leading-none font-sans font-bold uppercase tracking-[0.06em] transition-colors block whitespace-nowrap rounded-none border-b-2 border-transparent hover:border-border",
+        "relative px-4 py-2 text-[13px] leading-none font-sans font-bold uppercase tracking-[0.06em] transition-colors block whitespace-nowrap",
         isActive
-          ? "text-foreground border-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground"
       )}
     >
       {children}
+      {isActive && (
+        <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-primary" aria-hidden />
+      )}
     </Link>
   );
 }
@@ -57,210 +58,30 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       onClick={onClose}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "px-5 py-4 rounded-none text-[15px] font-sans font-bold tracking-wide touch-manipulation min-h-[52px] flex items-center transition-all border-b border-border",
+        "px-5 py-5 text-xl font-display uppercase tracking-wide touch-manipulation min-h-[60px] flex items-center transition-all border-b border-border/20",
         location === href
-          ? "text-primary bg-primary/5 border-primary/30 shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
-          : "text-foreground bg-transparent border-transparent active:bg-muted/50"
+          ? "text-primary font-black"
+          : "text-foreground hover:bg-muted/50"
       )}
-      data-testid={`link-mobile-${href}`}
+      data-testid={`link-mobile-${href.replace(/\//g, "-")}`}
     >
       {label}
     </Link>
   );
 }
 
-function MobileNavSection({ title }: { title: string }) {
-  return (
-    <div className="pt-4 pb-2">
-      <span className="px-5 text-[13px] font-bold text-muted-foreground uppercase tracking-[0.1em]">{title}</span>
-    </div>
-  );
-}
-
-export function NavDropdown({ label, items, dataTestId, align = "left" }: {
-  label: string;
-  items: { path: string; label: string; description: string }[];
-  dataTestId: string;
-  align?: "left" | "center" | "right";
-}) {
-  const [location] = useLocation();
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const pendingMenuFocus = useRef<"first" | "last" | null>(null);
-  const menuId = `nav-menu-${dataTestId}`;
-  const isGroupActive = items.some(item => location === item.path || location.startsWith(item.path + '/'));
-
-  const focusMenuItem = (position: "first" | "last") => {
-    const menuItems = rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-    if (!menuItems?.length) return;
-    menuItems[position === "first" ? 0 : menuItems.length - 1]?.focus();
-  };
-
-  const openAndFocusMenu = (position: "first" | "last") => {
-    pendingMenuFocus.current = position;
-    setOpen(true);
-  };
-
-  // Close on route change
-  useEffect(() => {
-    setOpen(false);
-  }, [location]);
-
-  useEffect(() => {
-    if (!open || !pendingMenuFocus.current) return;
-    const position = pendingMenuFocus.current;
-    pendingMenuFocus.current = null;
-    const frame = window.requestAnimationFrame(() => focusMenuItem(position));
-    return () => window.cancelAnimationFrame(frame);
-  }, [open]);
-
-  // Close on outside click / Escape
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (event: MouseEvent | PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    document.addEventListener("pointerdown", onPointer);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("pointerdown", onPointer);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  return (
-    <div
-      ref={rootRef}
-      className="relative"
-      data-testid={dataTestId}
-      onBlur={(event) => {
-        if (!rootRef.current?.contains(event.relatedTarget as Node | null)) {
-          setOpen(false);
-        }
-      }}
-    >
-      <button
-        ref={triggerRef}
-        type="button"
-        className={cn(
-          "px-3 py-2.5 border-b-2 border-transparent hover:border-border text-sm leading-tight font-sans font-bold uppercase tracking-[0.05em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
-          isGroupActive || open
-            ? "text-primary border-primary"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-        )}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        aria-label={`${label} menu`}
-        onClick={() => setOpen((v) => !v)}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            openAndFocusMenu("first");
-          } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            openAndFocusMenu("last");
-          } else if (event.key === "Escape" && open) {
-            event.preventDefault();
-            setOpen(false);
-          }
-        }}
-      >
-        {label}
-        <ChevronDown
-          className={cn(
-            "w-3 h-3 transition-transform duration-200",
-            open && "rotate-180",
-          )}
-          aria-hidden
-        />
-      </button>
-      <div
-        id={menuId}
-        role="menu"
-        aria-label={label}
-        hidden={!open}
-        onKeyDown={(event) => {
-          const menuItems = Array.from(
-            rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [],
-          );
-          const currentIndex = menuItems.indexOf(event.target as HTMLElement);
-          if (!menuItems.length || currentIndex < 0) return;
-
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-            event.preventDefault();
-            const direction = event.key === "ArrowDown" ? 1 : -1;
-            menuItems[(currentIndex + direction + menuItems.length) % menuItems.length]?.focus();
-          } else if (event.key === "Home" || event.key === "End") {
-            event.preventDefault();
-            menuItems[event.key === "Home" ? 0 : menuItems.length - 1]?.focus();
-          } else if (event.key === "Escape") {
-            event.preventDefault();
-            setOpen(false);
-            triggerRef.current?.focus();
-          } else if (event.key === "Tab") {
-            setOpen(false);
-          }
-        }}
-        className={cn(
-          "absolute top-full pt-3 z-50 w-[20rem] max-w-[calc(100vw-2rem)]",
-          align === "left" && "left-0",
-          align === "center" && "left-1/2 -translate-x-1/2",
-          align === "right" && "right-0",
-          open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
-          "transition-opacity duration-150",
-        )}
-      >
-        <div className="bg-popover border border-border rounded-none shadow-[0_18px_45px_rgba(15,18,28,0.16)] py-2">
-          {items.map(item => (
-            <Link
-              key={item.path}
-              href={item.path}
-              role="menuitem"
-              tabIndex={open ? 0 : -1}
-              className={cn(
-                "block px-6 py-4 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-popover border-l-2 border-transparent hover:border-primary",
-                location === item.path
-                  ? "bg-primary/5 text-primary font-bold border-primary"
-                  : "text-foreground"
-              )}
-              data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
-              onClick={() => setOpen(false)}
-            >
-              <div className="font-bold text-base leading-[1.3] mb-1.5">{item.label}</div>
-              <div className="text-[13px] leading-[1.6] text-muted-foreground">{item.description}</div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
 export function Header() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { isAuthenticated, canUseFieldKit, member } = useAuth();
+  const { isAuthenticated, canUseFieldKit } = useAuth();
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
 
   const allSearchItems = allSearchablePages;
-  // Marketing home always — Portal is for signed-in members.
   const homeHref = "/";
 
   const filteredResults = searchQuery.trim()
@@ -277,249 +98,156 @@ export function Header() {
   };
 
   return (
-    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top">
-      <div className="public-site-header-inner max-w-[96rem] mx-auto px-3 sm:px-6 lg:px-8 h-[4.75rem] sm:h-20 flex items-center safe-area-x">
-        {/* Brand — fixed footprint, never collides with nav */}
-        <div className="public-site-brand shrink-0 flex items-center pr-1 sm:pr-5 2xl:pr-7 2xl:mr-2 2xl:border-r 2xl:border-border">
+    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top bg-background/95 backdrop-blur-md border-b-2 border-foreground" data-testid="site-header">
+      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 h-20 flex items-center justify-between safe-area-x">
+        <div className="flex items-center">
           <Link href={homeHref}>
             <div
-              className="flex items-center gap-2 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
+              className="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity cursor-pointer touch-manipulation group"
               data-testid="link-home"
             >
-              <span
-                className="brand-helmet-mark h-10 w-10 sm:h-12 sm:w-12"
-                role="img"
-                aria-label="Spartan Coaching helmet"
-              />
-              <div className="min-w-0">
-                {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="font-black text-[0.95rem] min-[360px]:text-[1.1rem] sm:text-[1.35rem] md:text-[1.5rem] text-primary tracking-[-0.02em] font-display block leading-none group-hover:text-primary whitespace-nowrap">
+              <div className="w-12 h-12 bg-foreground text-background flex items-center justify-center font-display text-2xl font-black shrink-0">
+                S
+              </div>
+              <div className="min-w-0 flex flex-col">
+                <span className="font-black text-lg sm:text-2xl text-foreground tracking-[-0.02em] font-display uppercase leading-none">
                   SPARTAN COACHING
                 </span>
-                <span className="hidden md:block text-[11px] leading-none font-bold uppercase tracking-[0.15em] text-muted-foreground mt-2 whitespace-nowrap">
-                  Spartan Consulting · Hospice Sales Pro
+                <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mt-1.5 leading-none">
+                  Field Advisory Practice
                 </span>
               </div>
             </div>
           </Link>
         </div>
 
-        {/* Desktop Navigation — elite restraint: few labels + one CTA */}
-        <nav
-            className="hidden xl:flex flex-1 items-center justify-center gap-1 min-w-0 px-3 2xl:px-5"
-          aria-label="Main navigation"
-        >
-          {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
-          {navSections
-            .filter((section) => section.title !== "Company")
-            .map((section) => (
-              <NavDropdown
-                key={section.title}
-                label={section.title}
-                dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
-                items={section.items}
-                align={
-                  section.title === "Learn"
-                    ? "right"
-                    : section.title === "Hospice Sales Pro"
-                      ? "center"
-                      : "left"
-                }
-              />
-            ))}
+        <nav className="hidden xl:flex items-center gap-2" aria-label="Main navigation">
+          <NavLink href="/services">Consulting</NavLink>
+          <NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>
+          <NavLink href="/testimonials">Proof</NavLink>
           <NavLink href="/about">About</NavLink>
-          {isAuthenticated && (
-            <span className="hidden 2xl:inline-flex">
-              <NavLink href="/portal">Workspace</NavLink>
-            </span>
-          )}
-          <span className="hidden 2xl:inline-flex">
-            <NavLink href="/app">iPhone app</NavLink>
-          </span>
         </nav>
 
-        {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="public-site-actions flex items-center gap-1 sm:gap-2.5 shrink-0 ml-auto pl-1 sm:pl-4 xl:pl-4 2xl:pl-5 xl:border-l xl:border-border">
-           <AppearanceControls
-            compact
-            className="hidden 2xl:inline-flex touch-manipulation"
-            testId="button-appearance-header"
-          />
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <AppearanceControls compact className="hidden xl:inline-flex touch-manipulation" testId="button-appearance-header" />
           <Button
             variant="ghost"
             size="icon"
-             className="header-utility-control xl:hidden touch-manipulation border border-border bg-card text-card-foreground hover:bg-muted"
+            className="xl:hidden touch-manipulation"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
           >
             <Search className="w-5 h-5" />
           </Button>
+
           {!isAuthenticated && (
             <Link
               href="/login"
-                className="header-login-control hidden xl:inline-flex min-h-11 items-center gap-2 px-3 2xl:px-4 text-sm font-bold text-foreground hover:text-primary"
+              className="hidden xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-foreground hover:text-primary transition-colors"
               data-testid="button-login"
             >
               <LogIn className="w-4 h-4" />
               Login
             </Link>
           )}
+
           {isAuthenticated ? (
             <Button
               asChild
-               className="hidden xl:inline-flex min-h-11 rounded-none px-4 2xl:px-5 text-sm font-bold shrink-0"
+              className="hidden xl:inline-flex min-h-11 rounded-none px-6 text-sm font-bold bg-foreground text-background hover:bg-primary hover:text-white"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
-                {canUseFieldKit ? "Open workspace" : "Account"}
+                {canUseFieldKit ? "Open Workspace" : "Account"}
               </Link>
             </Button>
           ) : (
             <Button
               asChild
-               className="hidden xl:inline-flex min-h-11 rounded-none px-4 2xl:px-5 text-sm font-bold shrink-0 bg-primary hover:bg-primary/90"
+              className="hidden xl:inline-flex min-h-11 rounded-none px-6 text-sm font-bold bg-primary text-primary-foreground hover:bg-foreground hover:text-background border-none"
               data-testid="button-book-call"
             >
-              <Link href="/contact">Book a strategy call</Link>
+              <Link href="/contact">Book Strategy Call</Link>
             </Button>
           )}
 
-          {/* Mobile Menu Sheet */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                 className="header-utility-control 2xl:hidden w-auto touch-manipulation gap-2 border border-border bg-card px-2 min-[400px]:px-3 text-card-foreground hover:bg-muted"
+                className="xl:hidden touch-manipulation gap-2 border-2 border-foreground rounded-none bg-transparent hover:bg-muted"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >
-                <Menu className="w-6 h-6" />
-                <span className="hidden min-[400px]:inline text-sm font-mono font-bold uppercase tracking-[0.08em]">
-                  Menu
-                </span>
+                <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
-            <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
-              <SheetTitle>Menu</SheetTitle>
-            </SheetHeader>
-            <div
-              className="flex-1 overflow-y-auto overscroll-contain px-5 pb-5"
-              style={{ WebkitOverflowScrolling: 'touch' }}
-              data-testid="mobile-menu-scroll-container"
-            >
-              <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
-                <MobileNavLink
-                  href={homeHref}
-                  label="Home"
-                  location={location}
-                  onClose={() => setMobileMenuOpen(false)}
-                />
-                {isAuthenticated ? (
-                  <>
-                    <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
-                    <MobileNavSection title="Consulting" />
-                    {navSections.find((section) => section.title === "Consulting")?.items.map((item) => (
-                      <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                    ))}
-                    <MobileNavSection title="Site" />
-                    <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/app" label="iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
-                  </>
-                ) : (
-                  <>
-                    <MobileNavSection title="Choose your path" />
-                    <MobileNavLink href="/services" label="Spartan Consulting · expert-led" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro · daily work" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/contact" label="Book a strategy call" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavSection title="Account & app" />
-                    <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/app" label="Get the iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    {navSections.map((section) => (
-                      (() => {
-                        const secondaryItems = section.items.filter(
-                          (item) =>
-                            !["/services", "/hospice-sales-pro", "/request-access", "/contact", "/register", "/app"].includes(item.path),
-                        );
-                        if (!secondaryItems.length) return null;
-                        return (
-                          <div key={section.title}>
-                            <MobileNavSection title={section.title} />
-                            <div className="flex flex-col space-y-1">
-                              {secondaryItems.map((item) => (
-                                <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })()
-                    ))}
-                  </>
-                )}
-              </nav>
-            </div>
-            <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
-              <AppearancePanel className="pb-1" />
-              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
-                <Link href="/contact?service=Consulting" onClick={() => setMobileMenuOpen(false)}>
-                  Book a strategy call
-                </Link>
-              </Button>
-              {canUseFieldKit && (
-                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
-                  <Link href="/tools/sales-workflow" onClick={() => setMobileMenuOpen(false)}>
-                    Open Command Center
-                  </Link>
-                </Button>
-              )}
-              {!isAuthenticated && (
-                <>
-                  <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
+            <SheetContent side="right" className="w-[85vw] max-w-[400px] p-0 flex flex-col h-full bg-background border-l-2 border-foreground">
+              <SheetHeader className="px-6 py-6 border-b-2 border-foreground">
+                <SheetTitle className="font-display uppercase tracking-widest text-left">Navigation</SheetTitle>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto px-2">
+                <nav className="flex flex-col" aria-label="Mobile navigation">
+                  <MobileNavLink href={homeHref} label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                  {isAuthenticated ? (
+                    <>
+                      <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/services" label="Consulting" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    </>
+                  ) : (
+                    <>
+                      <MobileNavLink href="/services" label="Consulting" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/testimonials" label="Proof" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/contact" label="Book a Call" location={location} onClose={() => setMobileMenuOpen(false)} />
+                      <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    </>
+                  )}
+                </nav>
+              </div>
+              <div className="p-6 border-t-2 border-foreground bg-muted">
+                <AppearancePanel className="mb-4" />
+                {!isAuthenticated && (
+                  <Button size="lg" asChild className="w-full font-display uppercase tracking-widest rounded-none bg-primary hover:bg-foreground">
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      Create account · Hospice Sales Pro
+                      Create Account
                     </Link>
                   </Button>
-                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
-                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
-                      Team / evaluation access
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </SheetContent>
+                )}
+              </div>
+            </SheetContent>
           </Sheet>
         </div>
       </div>
 
-      {/* Search Modal */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="sm:max-w-[600px]" data-testid="dialog-search">
-          <DialogHeader>
-            <DialogTitle><AccentText>Search</AccentText></DialogTitle>
-            <DialogDescription>
-              Search through pages and AI tools to quickly navigate to what you need.
+        <DialogContent className="sm:max-w-[600px] border-2 border-foreground rounded-none p-0" data-testid="dialog-search">
+          <div className="p-6 border-b border-border">
+            <DialogTitle className="font-display uppercase text-2xl"><AccentText>Search</AccentText></DialogTitle>
+            <DialogDescription className="sr-only">
+              Search public Spartan Coaching pages and product information.
             </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          </div>
+          <div className="p-6">
+            <div className="relative mb-4">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
-                placeholder="SEARCH PAGES AND TOOLS..." value={searchQuery}
+                aria-label="Search Spartan Coaching"
+                placeholder="SEARCH..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 font-mono text-xs uppercase tracking-wider rounded-none"
+                className="pl-12 h-14 font-display text-lg uppercase tracking-wider rounded-none border-2 border-foreground focus-visible:ring-0 focus-visible:border-primary"
                 autoFocus
                 data-testid="input-search"
-                aria-label="Search pages and tools"
               />
             </div>
-            <div className="max-h-[40dvh] overflow-y-auto space-y-1">
+            <div className="max-h-[40dvh] overflow-y-auto space-y-2">
               {filteredResults.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground" data-testid="text-no-results">
+                <div className="text-center py-8 font-mono text-sm text-muted-foreground">
                   No results found
                 </div>
               ) : (
@@ -527,12 +255,13 @@ export function Header() {
                   <button
                     key={item.path}
                     onClick={() => handleSearchSelect(item.path)}
-                    className="w-full text-left px-4 py-3 rounded-lg hover-elevate active-elevate-2 transition-colors"
-                    data-testid={`button-search-result-${item.path}`}
-                    aria-label={`Navigate to ${item.label}`}
+                    className="w-full text-left px-4 py-3 border border-transparent hover:border-foreground transition-colors group flex justify-between items-center"
                   >
-                    <div className="font-medium text-foreground">{item.label}</div>
-                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                    <div>
+                      <div className="font-bold text-foreground font-display tracking-wide uppercase">{item.label}</div>
+                      <div className="text-sm text-muted-foreground line-clamp-1">{item.description}</div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
                   </button>
                 ))
               )}
@@ -550,150 +279,83 @@ export function Footer() {
   const padBottom =
     location === "/contact" || canUseFieldKit
       ? "1rem"
-      : "calc(5rem + env(safe-area-inset-bottom, 0px))";
-
-  const memberLinks = [
-    { href: "/portal", label: "Portal" },
-    { href: "/tools/sales-workflow", label: "Command Center" },
-    { href: "/tools", label: "All tools" },
-    { href: "/resources", label: "Resources" },
-    { href: "/portal/learn", label: "Learn" },
-    { href: "/account", label: "Account" },
-    { href: "/portal/coach", label: "Coach" },
-    { href: "/my-work", label: "My Work" },
-    { href: "/compliance", label: "Compliance" },
-    { href: "/faq", label: "FAQ" },
-  ];
+      : "calc(4rem + env(safe-area-inset-bottom, 0px))";
 
   const publicLinks = [
-    { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
-    { href: "/app", label: "iPhone app" },
-    { href: "/tools", label: "Preview tools" },
     { href: "/services", label: "Consulting" },
-    { href: "/register", label: "Create account" },
+    { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
+    { href: "/testimonials", label: "Proof" },
+    { href: "/app", label: "iPhone App" },
     { href: "/about", label: "About" },
-    { href: "/contact", label: "Book a call" },
-    { href: "/request-access", label: "Team access" },
+    { href: "/contact", label: "Book a Call" },
     { href: "/login", label: "Client Login" },
-    { href: "/resources", label: "Resources" },
-    { href: "/compliance", label: "Compliance" },
-    { href: "/faq", label: "FAQ" },
   ];
 
-  const links = canUseFieldKit ? memberLinks : publicLinks;
-
   return (
-    <>
-       <footer className="public-site-footer mt-auto border-t border-border bg-background no-print safe-area-bottom">
-        {/* 3-column main footer */}
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
-          <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+    <footer className="public-site-footer mt-auto border-t-2 border-foreground bg-background safe-area-bottom pt-16 pb-8" data-testid="site-footer">
+      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            <div>
+              <p className="font-display text-3xl font-black text-foreground uppercase tracking-tight">Spartan Coaching</p>
+              <p className="text-xs font-bold text-primary mt-2 uppercase tracking-[0.2em]">
+                Field Advisory Practice
+              </p>
+            </div>
+            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+              Hospice growth consulting and Hospice Sales Pro tools on web and iPhone. Two clear paths. One disciplined system.
+            </p>
+            <div className="mt-4 border-l-2 border-primary pl-4">
+              <a href="mailto:nick@spartanhospicecoaching.com" className="block text-sm font-bold text-foreground hover:text-primary transition-colors">
+                nick@spartanhospicecoaching.com
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nicholas-lynch-coaching"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors mt-2"
+              >
+                <Linkedin className="w-4 h-4" />
+                Connect on LinkedIn
+              </a>
+            </div>
+          </div>
 
-            {/* Column 1 — Brand + contact */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
-                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
-                  {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Spartan Consulting · Hospice Sales Pro"}
-                </p>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {canUseFieldKit
-                  ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
-                  : "Hospice growth consulting and Hospice Sales Pro (tools & resources) on web and iPhone — two clear offers, one firm."}
-              </p>
-              <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
-                {canUseFieldKit
-                  ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime`}
-              </p>
-              <div className="flex flex-col gap-2">
-                <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
-                  nick@spartanhospicecoaching.com
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/nicholas-lynch-coaching"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-                  data-testid="link-linkedin-footer"
-                  aria-label="Connect with Nick Lynch on LinkedIn"
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            <p className="text-xs font-black text-foreground uppercase tracking-[0.2em]">Navigation</p>
+            <nav className="flex flex-col gap-3">
+              {publicLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
                 >
-                  <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Connect with Nick Lynch
-                </a>
-              </div>
-            </div>
-
-            {/* Column 2 — Quick navigation */}
-            <div className="flex flex-col gap-4">
-              <p className="text-xs font-bold text-foreground uppercase tracking-widest">
-                {canUseFieldKit ? "Portal" : "Quick Links"}
-              </p>
-              <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {links.map(({ href, label }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors py-0.5"
-                    data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "").slice(0, 40)}`}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-
-            {/* Column 3 — Newsletter (public only) */}
-            {!canUseFieldKit && (
-              <div className="flex flex-col gap-4" data-testid="section-newsletter">
-                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Optional email updates</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {CONSENT_COPY.newsletterExplicit}
-                </p>
-                <NewsletterSignup />
-              </div>
-            )}
-
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
+
+          {!canUseFieldKit && (
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <p className="text-xs font-black text-foreground uppercase tracking-[0.2em]">Updates</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {CONSENT_COPY.newsletterExplicit}
+              </p>
+              <NewsletterSignup />
+            </div>
+          )}
         </div>
 
-        {/* Legal bottom bar */}
-        <div className={cn("border-t border-border/50", canUseFieldKit && "dark:border-red-900/10")}>
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs text-muted-foreground order-last sm:order-first">
-                © 2026 Spartan Coaching. All rights reserved.
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-                {[
-                  { href: "/trust", label: "Trust Center", testId: "link-trust-center" },
-                  { href: "/privacy", label: "Privacy", testId: "link-privacy" },
-                  { href: "/terms", label: "Terms", testId: "link-terms" },
-                  { href: "/disclaimer", label: "Disclaimer", testId: "link-disclaimer" },
-                  { href: "/compliance", label: "Compliance", testId: "link-compliance-legal" },
-                  { href: "/legal", label: "Legal", testId: "link-legal" },
-                ].map(({ href, label, testId }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
-                    data-testid={testId}
-                  >
-                    {label}
-                  </Link>
-                ))}
-                <AppearanceControls
-                  compact
-                  className="ml-1 h-7 w-7"
-                  testId="button-appearance-footer"
-                />
-              </div>
-            </div>
+        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono uppercase tracking-widest text-muted-foreground" style={{ paddingBottom: padBottom }}>
+          <p>© {new Date().getFullYear()} Spartan Coaching LLC</p>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="hover:text-primary">Privacy</Link>
+            <Link href="/terms" className="hover:text-primary">Terms</Link>
+            <Link href="/compliance" className="hover:text-primary">Compliance</Link>
           </div>
         </div>
-      </footer>
-
-    </>
+      </div>
+    </footer>
   );
 }
