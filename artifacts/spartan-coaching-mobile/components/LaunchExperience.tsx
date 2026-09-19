@@ -1,12 +1,11 @@
-import { useVideoPlayer, VideoView } from "expo-video";
 import React, { useCallback, useEffect, useRef } from "react";
-import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { font } from "@/lib/typography";
 import { useColors } from "@/hooks/useColors";
 
-const launchFilm = require("@/assets/videos/spartan-launch-film.mp4");
+const launchMark = require("@/assets/images/helmet-mark.png");
 
 export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
   const { reduceMotion } = useAccessibilityPrefs();
@@ -26,30 +25,14 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
     }).start(onComplete);
   }, [onComplete, opacity, reduceMotion]);
 
-  const player = useVideoPlayer(launchFilm, (videoPlayer) => {
-    videoPlayer.loop = false;
-    videoPlayer.muted = false;
-    videoPlayer.play();
-  });
-
+  // Native media initialization is deliberately excluded from application
+  // startup. A codec/player failure can terminate an iOS release before the
+  // React error boundary mounts, producing the splash-loop crash seen in
+  // TestFlight. The full brand film remains available after startup.
   useEffect(() => {
-    if (reduceMotion) {
-      const reducedMotionTimer = setTimeout(finish, 450);
-      return () => clearTimeout(reducedMotionTimer);
-    }
-
-    const ended = player.addListener("playToEnd", finish);
-    const status = player.addListener("statusChange", ({ status: nextStatus }) => {
-      if (nextStatus === "error") finish();
-    });
-    const safetyTimer = setTimeout(finish, 12_000);
-
-    return () => {
-      ended.remove();
-      status.remove();
-      clearTimeout(safetyTimer);
-    };
-  }, [finish, player, reduceMotion]);
+    const timer = setTimeout(finish, reduceMotion ? 450 : 1_250);
+    return () => clearTimeout(timer);
+  }, [finish, reduceMotion]);
 
   return (
     <Animated.View
@@ -58,14 +41,22 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
        style={[styles.root, { opacity, backgroundColor: colors.heroBackground }]}
       testID="launch-experience"
     >
-      <VideoView
+      <View
         accessibilityLabel="Spartan Coaching introduction"
-        allowsPictureInPicture={false}
-        contentFit="contain"
-        nativeControls={false}
-        player={player}
-        style={StyleSheet.absoluteFill}
-      />
+        accessible
+        style={styles.brandStage}
+      >
+        <Image
+          accessibilityIgnoresInvertColors
+          resizeMode="contain"
+          source={launchMark}
+          style={styles.mark}
+        />
+        <Text style={[styles.brandTitle, { color: colors.heroForeground }]}>SPARTAN</Text>
+        <Text style={[styles.brandSubtitle, { color: colors.heroMuted }]}>
+          HOSPICE SALES PRO
+        </Text>
+      </View>
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
         <Pressable
           accessibilityHint="Opens the app immediately"
@@ -89,7 +80,28 @@ const styles = StyleSheet.create({
   root: {
     ...StyleSheet.absoluteFill,
     zIndex: 1000,
-     backgroundColor: "#1A1A1A",
+    backgroundColor: "#07111F",
+  },
+  brandStage: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mark: {
+    width: 112,
+    height: 112,
+  },
+  brandTitle: {
+    marginTop: 20,
+    fontSize: 28,
+    letterSpacing: 3,
+    ...font("heavy"),
+  },
+  brandSubtitle: {
+    marginTop: 6,
+    fontSize: 10,
+    letterSpacing: 2.4,
+    ...font("bold"),
   },
   skip: {
     position: "absolute",
