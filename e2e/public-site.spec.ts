@@ -669,12 +669,12 @@ test.describe("public website release gate", () => {
         "data-route-surface",
         "public",
       );
-      await expect(page.locator("html")).toHaveAttribute("data-theme-mode", "light");
-      await expect(page.locator("html")).toHaveAttribute("data-accent", "red");
-      await expect(page.locator("html")).toHaveAttribute("data-bg", "soft");
+      await expect(page.locator("html")).toHaveAttribute("data-theme-mode", "dark");
+      await expect(page.locator("html")).toHaveAttribute("data-accent", "purple");
+      await expect(page.locator("html")).toHaveAttribute("data-bg", "forest");
       await expect(page.locator("html")).toHaveAttribute(
         "data-theme-preset",
-        "spartan",
+        "custom",
       );
       await expectSavedAppearance();
     };
