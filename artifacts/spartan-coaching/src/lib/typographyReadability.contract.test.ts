@@ -9,7 +9,7 @@ describe("web typography readability contracts", () => {
     const home = read("../pages/Home.tsx");
 
     expect(home).toContain("Make the next hospice conversation");
-    expect(home).toContain(">Count.</span>");
+    expect(home).toContain(">count.</span>");
     expect(home).toContain("Book a strategy call");
     expect(home).toContain("Explore Hospice Sales Pro");
     expect(home).toContain('data-testid="hero-video"');
@@ -26,7 +26,9 @@ describe("web typography readability contracts", () => {
     const manifesto = read("../pages/Manifesto.tsx");
     const css = read("../index.css");
 
-    expect(home).toContain("leading-[1.08]");
+    expect(home).toContain("leading-[.98]");
+    expect(home).not.toContain("spartan-hero-title");
+    expect(home.indexOf('data-testid="text-home-hero-title"')).toBeGreaterThan(home.indexOf('data-testid="section-home-intro"'));
     expect(home).toMatch(/section-founder-authority[\s\S]*?font-serif font-light text-foreground[\s\S]*?text-muted-foreground[\s\S]*?Read the founder story/s);
     expect(manifesto).not.toContain("leading-[0.9]");
     expect(manifesto).toContain("leading-[1.1]");

@@ -353,22 +353,14 @@ html[data-route-surface="public"] .public-home,
 html[data-route-surface="public"] .public-services,
 html[data-route-surface="public"] .public-membership,
 html[data-route-surface="public"] [data-testid="page-persuasion"] {
-  background: var(--public-ivory);
+  background: hsl(var(--background));
 }
 
 .spartan-hero {
-  min-height: calc(100svh - 5.5rem);
   isolation: isolate;
 }
 .spartan-hero::after {
-  position: absolute;
-  inset: 0;
-  z-index: 12;
-  background:
-    linear-gradient(90deg, rgb(0 0 0 / .92) 0%, rgb(0 0 0 / .74) 38%, rgb(0 0 0 / .18) 74%, rgb(0 0 0 / .42) 100%),
-    linear-gradient(0deg, rgb(0 0 0 / .58), transparent 48%);
-  content: "";
-  pointer-events: none;
+  content: none;
 }
 .hero-film-grade {
   background:
@@ -451,8 +443,8 @@ html[data-route-surface="public"] [data-testid="page-persuasion"] {
 html[data-route-surface="public"] :is(.public-services, .public-membership) > section:first-of-type {
   position: relative;
   overflow: hidden;
-  background: var(--public-ink);
-  color: var(--public-ivory);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
 }
 html[data-route-surface="public"] :is(.public-services, .public-membership) > section:first-of-type::before {
   position: absolute;
@@ -462,34 +454,30 @@ html[data-route-surface="public"] :is(.public-services, .public-membership) > se
   content: "";
 }
 html[data-route-surface="public"] :is(.public-services, .public-membership) > section:first-of-type :is(h1, .text-foreground) {
-  color: var(--public-ivory) !important;
+  color: hsl(var(--foreground)) !important;
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -.035em;
   text-transform: uppercase;
 }
 html[data-route-surface="public"] :is(.public-services, .public-membership) > section:first-of-type .text-muted-foreground {
-  color: hsl(40 29% 92% / .68) !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 html[data-route-surface="public"] .public-conversion-panel > .shadcn-card {
   border: 0;
   border-left: .32rem solid var(--public-red);
-  background: var(--public-ink);
-  color: var(--public-ivory);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
   box-shadow: none;
 }
 html[data-route-surface="public"] .public-conversion-panel > .shadcn-card :is(.text-foreground, h2) {
-  color: var(--public-ivory) !important;
+  color: hsl(var(--foreground)) !important;
 }
 html[data-route-surface="public"] .public-conversion-panel > .shadcn-card .text-muted-foreground {
-  color: hsl(40 29% 92% / .64) !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 @media (max-width: 767px) {
-  .spartan-hero { min-height: calc(100svh - 4.75rem); }
-  .spartan-hero::after {
-    background: linear-gradient(0deg, rgb(0 0 0 / .94) 4%, rgb(0 0 0 / .66) 62%, rgb(0 0 0 / .24) 100%);
-  }
   .spartan-hero-title {
     font-size: clamp(3.4rem, 17vw, 5.2rem);
     line-height: .86;
@@ -1675,36 +1663,18 @@ body {
       0 12px 40px -16px rgba(0, 0, 0, 0.55);
   }
 
-  /*
-   * Public chrome stays opaque and independent from workspace appearance.
-   * Translucent blur made small navigation text look soft over moving pages.
-   */
+  /* Public chrome follows the selected semantic appearance. */
   .public-site-header {
-    --background: 0 0% 100%;
-    --foreground: 228 33% 8%;
-    --card: 0 0% 100%;
-    --card-foreground: 228 33% 8%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 220 9% 29%;
-    --muted-foreground: 220 9% 29%;
-    --border: 220 9% 72%;
-    --primary: 357 86% 45%;
-    --primary-foreground: 0 0% 100%;
-    background: hsl(0 0% 4% / 0.96);
-    color: hsl(40 29% 92%);
-    border-bottom: 1px solid hsl(0 0% 100% / 0.12);
-    box-shadow: 0 12px 42px hsl(0 0% 0% / 0.24);
+    background: hsl(var(--background) / 0.96);
+    color: hsl(var(--foreground));
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: 0 12px 42px hsl(0 0% 0% / 0.12);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
-  .public-site-header .text-foreground,
-  .public-site-header .header-login-control,
-  .public-site-header .header-utility-control {
-    color: hsl(40 29% 92%) !important;
-    opacity: 1 !important;
-  }
+  .public-site-header .text-foreground { color: hsl(var(--foreground)) !important; }
   .public-site-header .text-muted-foreground {
-    color: hsl(40 29% 92% / 0.68) !important;
+    color: hsl(var(--muted-foreground)) !important;
   }
   .public-site-header .header-utility-control {
     background: hsl(0 0% 100%) !important;
@@ -1717,24 +1687,13 @@ body {
   }
 
   .public-site-footer {
-    --background: 0 0% 100%;
-    --foreground: 228 33% 8%;
-    --card: 0 0% 100%;
-    --card-foreground: 228 33% 8%;
-    --border: 220 9% 72%;
-    --primary: 357 86% 45%;
-    --primary-foreground: 0 0% 100%;
-    --muted: 0 0% 95%;
-    --muted-foreground: 220 9% 29%;
-    --input: 220 9% 80%;
-    --ring: 357 86% 45%;
-    background: hsl(0 0% 4%);
-    color: hsl(40 29% 92%);
-    border-top: 1px solid hsl(0 0% 100% / 0.12);
+    background: hsl(var(--card));
+    color: hsl(var(--foreground));
+    border-top: 1px solid hsl(var(--border));
   }
-  .public-site-footer .text-foreground { color: hsl(40 29% 92%) !important; }
-  .public-site-footer .text-muted-foreground { color: hsl(40 29% 92% / 0.62) !important; }
-  .public-site-footer .border-border { border-color: hsl(0 0% 100% / 0.14) !important; }
+  .public-site-footer .text-foreground { color: hsl(var(--foreground)) !important; }
+  .public-site-footer .text-muted-foreground { color: hsl(var(--muted-foreground)) !important; }
+  .public-site-footer .border-border { border-color: hsl(var(--border)) !important; }
 
   .brand-helmet-lockup {
     display: grid;
@@ -1797,13 +1756,6 @@ body {
     color: hsl(357 86% 45%);
   }
 
-  .public-home {
-    --primary: 357 86% 45%;
-    --primary-foreground: 0 0% 100%;
-    --ring: 357 86% 45%;
-    --muted-foreground: 220 9% 29%;
-    --border: 220 9% 72%;
-  }
   .text-kicker::before {
     content: "";
     display: inline-block;

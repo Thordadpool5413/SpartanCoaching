@@ -1,123 +1,173 @@
 import { useQuery } from "@tanstack/react-query";
 import { BackButton } from "@/components/BackButton";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw, ShieldAlert, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { ProofStrip } from "@/components/ProofStrip";
 import type { SelectTestimonial, SelectCaseStudy } from "@shared/schema";
 
 export default function Testimonials() {
-  const { data: testimonialsData, isLoading: testimonialsLoading } = useQuery<{ testimonials: SelectTestimonial[] }>({
+  const testimonialsQuery = useQuery<{ testimonials: SelectTestimonial[] }>({
     queryKey: ["/api/testimonials"],
   });
 
-  const { data: caseStudiesData, isLoading: caseStudiesLoading } = useQuery<{ caseStudies: SelectCaseStudy[] }>({
+  const caseStudiesQuery = useQuery<{ caseStudies: SelectCaseStudy[] }>({
     queryKey: ["/api/case-studies"],
   });
 
-  const testimonials = testimonialsData?.testimonials ?? [];
-  const caseStudies = caseStudiesData?.caseStudies ?? [];
-  const isLoading = testimonialsLoading || caseStudiesLoading;
+  const testimonials = testimonialsQuery.data?.testimonials ?? [];
+  const caseStudies = caseStudiesQuery.data?.caseStudies ?? [];
+  const isLoading = testimonialsQuery.isLoading || caseStudiesQuery.isLoading;
+  const isError = testimonialsQuery.isError || caseStudiesQuery.isError;
+  const retry = () => { void testimonialsQuery.refetch(); void caseStudiesQuery.refetch(); };
 
   return (
     <div className="bg-background min-h-screen">
       <SEO title="Proof & Stories | Spartan Coaching" />
       <BackButton />
 
-      {/* EDITORIAL HERO */}
-      <section className="pt-16 pb-20 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="max-w-[56rem] mx-auto text-center">
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">Evidence</p>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-foreground leading-[1.1] mb-6" data-testid="text-testimonials-title">
+      {/* Refined Header */}
+      <section className="px-4 py-12 sm:px-6 md:py-20 lg:px-8 border-b border-border">
+        <div className="mx-auto max-w-[64rem]">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-primary mb-6">Evidence & Operating Standards</p>
+          <h1
+            className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.1] tracking-tight mb-8"
+            data-testid="text-testimonials-title"
+          >
             The impact of discipline.
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground leading-[1.7] max-w-2xl mx-auto">
+          <p className="text-lg leading-relaxed text-muted-foreground max-w-3xl">
             Published client stories appear here only after written approval. Until then, we show the operating standards Spartan helps teams build—without invented names, logos, or metrics.
           </p>
         </div>
       </section>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      {/* Methodology / Taxonomy */}
+      <section className="border-b border-border bg-surface px-4 py-16 sm:px-6 lg:px-8" data-testid="section-proof-fallback">
+        <div className="mx-auto max-w-[64rem]">
+          <div className="grid md:grid-cols-2 gap-12 mb-16">
+            <div>
+              <h3 className="font-serif text-2xl text-foreground mb-4">Operating Standards For The Field</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Baseline targets for trained teams. These are the field realities we coach toward, representing healthy operation, not explicit client claims.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-2xl text-foreground mb-4">Approved Client Evidence</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Named stories, quotes, and measurable outcomes. These require strict written publication approval and are never substituted with anonymous praise.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-12 border-t border-border">
+            <ProofStrip showLink={false} />
+          </div>
         </div>
-      ) : (
-        <>
-          {testimonials.length === 0 && caseStudies.length === 0 && (
-            <div className="py-24 border-b border-border" data-testid="section-proof-fallback">
-              <div className="max-w-[64rem] mx-auto px-4">
-                <ProofStrip showLink={false} title="Operating standards for the field" />
+      </section>
+
+      {/* Dynamic Evidence Section */}
+      <section className="px-4 py-16 sm:px-6 md:py-24 lg:px-8 bg-background" aria-labelledby="approved-evidence-title">
+        <div className="mx-auto max-w-[64rem]">
+          <h2 id="approved-evidence-title" className="font-serif text-3xl md:text-4xl text-foreground mb-12">
+            Approved client evidence
+          </h2>
+
+          {isLoading && (
+            <div className="border border-border p-8 bg-muted/20" data-testid="proof-loading">
+              <div className="flex items-center gap-4">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Checking evidence ledger for approved stories...</p>
               </div>
             </div>
           )}
 
-          {testimonials.length > 0 && (
-            <section className="py-20 md:py-32 border-b border-border px-4 sm:px-6 lg:px-8 bg-surface">
-              <div className="max-w-[64rem] mx-auto">
-                <h2 className="text-2xl font-medium text-foreground mb-12">Direct feedback</h2>
-                <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
+          {isError && (
+            <div className="border border-destructive/30 bg-destructive/5 p-8" role="alert" data-testid="proof-error">
+              <div className="flex items-start gap-4">
+                <ShieldAlert className="h-6 w-6 text-destructive shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-1">Verification Failed</p>
+                  <p className="text-sm text-muted-foreground mb-4">Approved stories could not be loaded from the server. Retry the request when ready.</p>
+                  <Button size="sm" variant="outline" onClick={retry} className="font-mono text-xs uppercase tracking-widest">
+                    <RefreshCw className="mr-2 h-3.5 w-3.5" /> Retry
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !isError && testimonials.length === 0 && caseStudies.length === 0 && (
+            <div className="border border-border p-8 bg-muted/20" data-testid="proof-empty">
+              <div className="flex items-start gap-4">
+                <FileText className="h-6 w-6 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-1">Ledger Empty</p>
+                  <p className="text-sm text-muted-foreground">No client stories are currently approved for public distribution. We do not substitute unverified results.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !isError && (
+            <div className="space-y-16">
+              {testimonials.length > 0 && (
+                <div className="grid md:grid-cols-2 gap-12">
                   {testimonials.map((testimonial) => (
-                    <div key={testimonial.id} className="flex flex-col" data-testid={`card-testimonial-${testimonial.id}`}>
-                      <p className="text-base text-foreground leading-[1.7] mb-6 flex-1">
-                        "{testimonial.quote}"
-                      </p>
-                      <div className="pt-4 border-t border-border">
+                    <div key={testimonial.id} className="relative pl-6 border-l border-border" data-testid={`card-testimonial-${testimonial.id}`}>
+                      <p className="text-lg font-serif text-foreground leading-relaxed mb-6">"{testimonial.quote}"</p>
+                      <div>
                         <p className="text-sm font-medium text-foreground">{testimonial.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{testimonial.title} · {testimonial.company}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{testimonial.title} · {testimonial.company}</p>
                         {testimonial.outcome && (
-                          <div className="mt-4">
-                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Result</p>
-                            <p className="text-sm font-medium text-foreground">{testimonial.outcome}</p>
-                          </div>
+                          <p className="text-xs text-primary mt-3 font-medium">Result: {testimonial.outcome}</p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </section>
-          )}
+              )}
 
-          {caseStudies.length > 0 && (
-            <section className="py-20 md:py-32 border-b border-border px-4 sm:px-6 lg:px-8">
-              <div className="max-w-[64rem] mx-auto">
-                <h2 className="text-2xl font-medium text-foreground mb-16">Case studies</h2>
-                <div className="space-y-24">
+              {caseStudies.length > 0 && (
+                <div className="space-y-12">
                   {caseStudies.map((study) => (
-                    <div key={study.id} className="grid md:grid-cols-[1.5fr_1fr] gap-12 lg:gap-20" data-testid={`card-case-study-${study.id}`}>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{study.clientLabel}</p>
-                        <h3 className="text-2xl font-serif text-foreground mb-8">{study.title}</h3>
-                        <div className="space-y-6">
-                          <div>
-                            <p className="text-xs font-bold text-foreground uppercase tracking-widest mb-2">The Challenge</p>
-                            <p className="text-sm text-muted-foreground leading-[1.7]">{study.challenge}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-foreground uppercase tracking-widest mb-2">The Solution</p>
-                            <p className="text-sm text-muted-foreground leading-[1.7]">{study.solution}</p>
+                    <div key={study.id} className="border border-border bg-surface p-8 md:p-12" data-testid={`card-case-study-${study.id}`}>
+                      <div className="flex flex-col md:flex-row gap-12">
+                        <div className="flex-1">
+                          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary mb-4">{study.clientLabel}</p>
+                          <h3 className="text-2xl md:text-3xl font-serif text-foreground mb-8">{study.title}</h3>
+                          <div className="space-y-6">
+                            <div>
+                              <p className="text-xs font-medium text-foreground mb-2">The Challenge</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{study.challenge}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-foreground mb-2">The Solution</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{study.solution}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="bg-surface p-8 border border-border">
-                        <p className="text-sm font-medium text-foreground mb-6 border-b border-border pb-3">Measurable Results</p>
-                        <ul className="space-y-4">
-                          {study.results.map((result, rIdx) => (
-                            <li key={rIdx} className="flex items-start gap-3">
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
-                              <span className="text-sm text-muted-foreground leading-relaxed">{result}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="md:w-1/3 pt-6 md:pt-0 md:pl-8 border-t md:border-t-0 md:border-l border-border">
+                          <p className="text-xs font-medium text-foreground mb-4">Measurable Impact</p>
+                          <ul className="space-y-4">
+                            {study.results.map((result, rIdx) => (
+                              <li key={rIdx} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                                <span className="w-1 h-1 rounded-full bg-primary mt-2 shrink-0" />
+                                <span>{result}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </section>
+              )}
+            </div>
           )}
-        </>
-      )}
+        </div>
+      </section>
 
       <PublicConversionPanel
         source="testimonials"

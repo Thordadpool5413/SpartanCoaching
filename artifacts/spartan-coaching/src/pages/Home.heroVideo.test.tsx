@@ -31,6 +31,9 @@ describe("homepage hero video", () => {
   it("reports real playback and advancing currentTime", async () => {
     render(<HeroSystemPanel />);
     const video = screen.getByTestId("hero-video") as HTMLVideoElement;
+    const frame = screen.getByTestId("hero-video-frame");
+    expect(frame.className).toContain("aspect-video");
+    expect(video.className).toContain("object-contain");
     fireEvent.playing(video);
     Object.defineProperty(video, "currentTime", { configurable: true, value: 1.6 });
     fireEvent.timeUpdate(video);

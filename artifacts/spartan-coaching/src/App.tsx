@@ -341,26 +341,15 @@ function AppLayout() {
   const onWorkspace =
     isAuthenticated && !isLoading && isWorkspacePath(location);
 
-  // Public pages are always forced to light/spartan. Workspace pages honor
-  // the user's genuine persisted mode (light/dark) and accent preferences.
-  // This is route-scoped rather than persisted, so visiting a public page cannot
-  // rewrite the user's saved workspace appearance.
+  // Route ownership remains available to CSS, but every route renders the
+  // visitor's persisted appearance instead of replacing it during navigation.
   useLayoutEffect(() => {
     const routeSurface = onWorkspace ? "workspace" : "public";
     document.documentElement.dataset.routeSurface = routeSurface;
-
-    if (onWorkspace) {
-      // Use the user's genuine theme preference for the authenticated workspace
-      applyAppearance(mode, accent, background, themePreset, {
-        persist: false,
-        notify: false,
-      });
-    } else {
-      applyAppearance("light", "red", "soft", "spartan", {
-        persist: false,
-        notify: false,
-      });
-    }
+    applyAppearance(mode, accent, background, themePreset, {
+      persist: false,
+      notify: false,
+    });
   }, [mode, accent, background, onWorkspace, themePreset]);
 
   // Deep link / refresh with expired session: send to login with return path.

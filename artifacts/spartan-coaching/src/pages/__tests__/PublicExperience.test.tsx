@@ -146,7 +146,7 @@ describe("Public Experience Design Standards", () => {
       renderWithProviders(<Testimonials />);
 
       expect(screen.getByText("Approved Client")).not.toBeNull();
-      expect(screen.queryByTestId("section-proof-fallback")).toBeNull();
+      expect(screen.queryByTestId("section-proof-fallback")).not.toBeNull();
     });
   });
 });

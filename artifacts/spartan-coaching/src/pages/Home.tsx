@@ -80,16 +80,16 @@ export function HeroSystemPanel() {
   };
 
   return (
-    <figure className="hero-intro-figure absolute inset-0 z-0 w-full" data-testid="section-hero-panel">
+    <figure className="hero-intro-figure relative z-0 w-full" data-testid="section-hero-panel">
       <div
-        className="hero-video-frame hero-intro-frame relative h-full min-h-[34rem] overflow-hidden bg-black"
+        className="hero-video-frame hero-intro-frame relative aspect-video w-full overflow-hidden bg-black"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
           <img
             src="/hero-poster.jpg"
             alt="Spartan Coaching field operating system"
-            className="absolute inset-0 z-10 h-full w-full object-cover"
+            className="absolute inset-0 z-10 h-full w-full object-contain"
           />
         )}
         <video
@@ -100,7 +100,7 @@ export function HeroSystemPanel() {
           playsInline
           preload="auto"
           poster="/hero-poster.jpg"
-          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover"
+          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-contain"
           data-testid="hero-video"
           data-playback-state={videoState}
           data-playback-seconds={playbackSeconds.toFixed(1)}
@@ -120,7 +120,6 @@ export function HeroSystemPanel() {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
 
-        <div className="hero-film-grade absolute inset-0 z-10 pointer-events-none" />
         <div
           className="absolute bottom-3 left-3 z-20 flex items-center gap-2 rounded-md border border-white/25 bg-black/70 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md"
           data-testid="hero-video-status"
@@ -175,36 +174,23 @@ export default function Home() {
 
       <section className="spartan-hero relative overflow-hidden bg-black" data-testid="section-hero">
         <HeroSystemPanel />
-        <div className="relative z-20 max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 min-h-[calc(100svh-5.5rem)] flex items-end lg:items-center py-12 sm:py-16 lg:py-20">
-            <div className="max-w-[58rem] text-left">
-              <p className="spartan-hero-kicker mb-6 lg:mb-8">
-                Private performance advisory · Hospice growth
-              </p>
+      </section>
 
-              <h1 className="spartan-hero-title leading-[1.08] mb-7" data-testid="text-home-hero-title">
-                Make the next hospice conversation <span>Count.</span>
-              </h1>
-
-              <p className="spartan-hero-summary text-base sm:text-lg leading-[1.7] max-w-[39rem] mb-9">
-                <strong>Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching. <strong>Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-7">
-                <Button size="lg" asChild className="spartan-primary-action w-full sm:w-auto">
-                  <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
-                    Book a strategy call
-                  </Link>
-                </Button>
-
-                <Link
-                  href="/hospice-sales-pro"
-                  onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
-                  className="spartan-quiet-link group w-full sm:w-auto justify-center sm:justify-start"
-                >
-                  Explore Hospice Sales Pro <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
+      <section className="border-b border-border bg-background px-4 py-16 sm:px-6 sm:py-20 lg:px-12 lg:py-28" data-testid="section-home-intro">
+        <div className="mx-auto grid max-w-[90rem] gap-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end lg:gap-20">
+          <div>
+            <p className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-primary">Private performance advisory · Hospice growth</p>
+            <h1 className="max-w-[50rem] font-serif text-[clamp(2.8rem,6vw,6rem)] font-light leading-[.98] tracking-[-0.035em] text-foreground" data-testid="text-home-hero-title">
+              Make the next hospice conversation <span className="text-primary">count.</span>
+            </h1>
+          </div>
+          <div className="border-l-2 border-primary pl-6 lg:mb-1">
+            <p className="text-base leading-[1.75] text-muted-foreground"><strong className="text-foreground">Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching. <strong className="text-foreground">Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution, with web and iPhone continuity and a separate team access path.</p>
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <Button size="lg" asChild className="w-full rounded-none sm:w-auto"><Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>Book a strategy call</Link></Button>
+              <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")} className="group inline-flex min-h-11 w-full items-center justify-center gap-2 text-sm font-semibold text-foreground sm:w-auto">Explore Hospice Sales Pro <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
             </div>
+          </div>
         </div>
       </section>
 
