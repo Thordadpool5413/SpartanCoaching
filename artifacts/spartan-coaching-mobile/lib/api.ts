@@ -413,15 +413,31 @@ export function getWebSiteUrl(): string {
   return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
 
+async function fetchAuthEndpoint(path: string, body: unknown): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  try {
+    return await fetch(`${getBase()}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...clientPlatformHeaders(),
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new ApiError("Sign in took too long. Check your connection and try again.", 504, "REQUEST_TIMEOUT");
+    }
+    throw new ApiError("Spartan Coaching cannot be reached. Check your connection and try again.", 0, "NETWORK_UNAVAILABLE");
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export async function loginMobile(email: string, password: string): Promise<MobileAuthUser & { token: string }> {
-  const res = await fetch(`${getBase()}/api/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...clientPlatformHeaders(),
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  const res = await fetchAuthEndpoint("/api/auth/login", { email, password });
   const data = (await res.json().catch(() => ({}))) as {
     error?: string | { message?: string; code?: string };
     code?: string;
@@ -449,19 +465,12 @@ export async function registerMobile(input: {
   email: string;
   password: string;
 }): Promise<MobileAuthUser & { token: string }> {
-  const res = await fetch(`${getBase()}/api/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...clientPlatformHeaders(),
-    },
-    body: JSON.stringify({
-      name: input.name.trim(),
-      email: input.email.trim().toLowerCase(),
-      password: input.password,
-      acceptTerms: true,
-      noPhi: true,
-    }),
+  const res = await fetchAuthEndpoint("/api/auth/register", {
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    password: input.password,
+    acceptTerms: true,
+    noPhi: true,
   });
   const data = (await res.json().catch(() => ({}))) as {
     error?: string | { message?: string; code?: string };
