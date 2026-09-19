@@ -186,90 +186,76 @@ export default function Services() {
     },
   ];
 
-  const pathways = [
-    {
-      id: "coaching",
-      title: "Coaching & Strategy",
-      subtitle: "For Leaders & High-Performing Reps",
-      desc: "Direct strategy and coaching. Break through stalled territories, handle objections, and build a system that tells you where to go and who to see.",
-    },
-    {
-      id: "workshops",
-      title: "Team Workshops",
-      subtitle: "For Organizations Scaling Execution",
-      desc: "Give your entire team the same language and process. Transform from firefighting to coaching with a standardized playbook that drives results.",
-    },
-    {
-      id: "technology",
-      title: "Technology Solutions",
-      subtitle: "For Corporate Providers",
-      desc: "Stop forcing generic CRMs to fit hospice workflows. We build custom iOS apps, specific CRMs, and web portals designed exactly for how liaisons actually work.",
-    }
+  const categories = [
+    { id: "individual", label: "Individual Execution", services: individualServices },
+    { id: "leadership", label: "Leadership Coaching", services: leadershipServices },
+    { id: "corporate", label: "Corporate Programs", services: corporateServices },
+    { id: "tech", label: "System Delivery", services: techServices },
   ];
 
   return (
     <div className="bg-background min-h-screen">
-      <SEO title="Consulting & Services | Spartan Coaching" />
+      <SEO title="Consulting Capability Ledger | Spartan Coaching" />
       <BackButton />
 
       {/* Hero Section */}
-      <section className="px-4 py-16 sm:px-6 md:py-24 lg:px-8 border-b border-border">
-        <div className="mx-auto max-w-[78rem] grid lg:grid-cols-[1.25fr_.75fr] gap-12 lg:items-end">
+      <header className="px-4 pt-20 pb-16 sm:px-6 lg:px-8 max-w-[84rem] mx-auto border-b border-border">
+        <div className="grid lg:grid-cols-[1.5fr_1fr] gap-12 lg:items-end">
           <div>
-            <p className="mb-6 font-mono text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-3">
-              <span className="w-6 h-px bg-primary"></span>
-              Consulting for hospice growth leaders
+            <p className="mb-6 font-mono text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-3">
+              <span className="w-4 h-px bg-primary"></span>
+              Capability Ledger
             </p>
             <h1
-              className="font-serif text-4xl font-medium leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance"
+              className="font-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-[-0.02em] text-foreground uppercase text-balance"
               data-testid="text-services-title"
             >
               When effort is high but execution is inconsistent.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow.
+            <p className="mt-8 max-w-2xl text-lg leading-[1.6] text-muted-foreground">
+              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 specific capabilities.
             </p>
           </div>
 
-          <div className="bg-card p-8 border border-border shadow-sm">
-            <p className="mb-4 font-mono text-xs font-bold uppercase tracking-widest text-foreground border-b border-border pb-3">The Baseline Challenge</p>
+          <div className="bg-card p-6 md:p-8 border border-border shadow-sm">
+            <p className="mb-4 font-mono text-[10px] font-bold uppercase tracking-widest text-foreground border-b border-border pb-3">The Baseline Challenge</p>
             <ul className="space-y-4 text-sm leading-relaxed text-muted-foreground mb-8">
               <li className="flex gap-3"><span className="text-primary font-bold">×</span> Territory activity is not producing clear next moves.</li>
               <li className="flex gap-3"><span className="text-primary font-bold">×</span> Leaders see results but cannot coach the behavior behind them.</li>
               <li className="flex gap-3"><span className="text-primary font-bold">×</span> Generic systems create more work than field clarity.</li>
             </ul>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Button size="lg" asChild className="rounded-none w-full sm:w-auto font-mono text-xs font-bold tracking-widest uppercase">
+            <div className="flex flex-col gap-3">
+              <Button size="lg" asChild className="rounded-none w-full font-mono text-xs font-bold tracking-widest uppercase min-h-[3.25rem]">
                 <Link href="/contact">Book a strategy call</Link>
               </Button>
-              <Link href="/method" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-muted-foreground/30 pb-0.5">
-                Review our method
-              </Link>
+              <Button size="lg" variant="outline" asChild className="rounded-none w-full font-mono text-xs font-bold tracking-widest uppercase min-h-[3.25rem] border-border">
+                <Link href="/method">Review our method</Link>
+              </Button>
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
       {/* Engagement Sequence */}
-      <section className="border-b border-border bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[78rem]">
+      <section className="border-b border-border bg-muted/20 px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[84rem]">
           <div className="mb-12">
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">How an engagement proceeds</p>
-            <h2 className="font-serif text-3xl font-medium tracking-tight text-foreground">
+            <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-4">How an engagement proceeds</p>
+            <h2 className="font-display text-4xl uppercase tracking-tight text-foreground">
               The operating sequence
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-0 border border-border bg-border">
+          <div className="grid md:grid-cols-3 gap-0 border border-border bg-border shadow-sm">
             {[
               { num: "01", title: "Diagnose", copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
               { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
               { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
             ].map(({ num, title, copy }) => (
-              <div key={num} className="bg-card p-8">
+              <div key={num} className="bg-card p-6 md:p-8">
                 <span className="font-mono text-lg font-bold text-primary mb-6 block">{num}</span>
-                <h3 className="font-serif text-2xl font-medium tracking-tight text-foreground mb-3">{title}</h3>
+                <h3 className="font-display text-3xl uppercase tracking-tight text-foreground mb-3">{title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{copy}</p>
               </div>
             ))}
@@ -277,79 +263,71 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Buyer Pathways overview */}
-      <section className="py-16 md:py-24 bg-background px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="max-w-[78rem] mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            {pathways.map(pathway => (
-              <div key={pathway.id} className="flex flex-col" data-testid={`pathway-${pathway.id}`}>
-                <p className="font-mono text-[10px] font-bold text-primary uppercase tracking-widest mb-3">{pathway.subtitle}</p>
-                <h2 className="font-serif text-2xl font-medium text-foreground mb-4">{pathway.title}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">{pathway.desc}</p>
-                <a href={`#section-${pathway.id}`} className="font-mono text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2 hover:underline">
-                  View catalog <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            ))}
-          </div>
+      {/* Portfolio Index */}
+      <div className="bg-background py-20 md:py-28 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[84rem] mx-auto grid lg:grid-cols-[220px_1fr] gap-12 lg:gap-16 items-start">
+           
+           {/* Sticky Category Tracker */}
+           <aside className="hidden lg:block sticky top-24">
+              <nav className="flex flex-col gap-1 border-l border-border/50 pl-4 py-2">
+                 <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-4">Capability Index</p>
+                 {categories.map(c => (
+                    <a key={c.id} href={`#${c.id}`} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-1.5 flex items-center gap-2 group">
+                      <span className="w-1.5 h-1.5 rounded-full bg-border group-hover:bg-primary transition-colors"></span>
+                      {c.label}
+                    </a>
+                 ))}
+                 
+                 <div className="mt-8 pt-6 border-t border-border/50">
+                    <div className="flex items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1.5 w-fit mb-3">
+                      <Stethoscope className="w-3 h-3" /> Tech Privacy
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed pr-4">
+                      Systems work follows strict privacy reviews to isolate PHI from routine ops.
+                    </p>
+                 </div>
+              </nav>
+           </aside>
+
+           {/* Capability Specs */}
+           <div className="space-y-24 md:space-y-32">
+              {categories.map((category, cIdx) => (
+                  <section
+                    key={category.id}
+                    id={category.id}
+                    className="scroll-mt-32"
+                    data-testid={
+                      category.id === "individual"
+                        ? "pathway-coaching"
+                        : category.id === "corporate"
+                          ? "pathway-workshops"
+                          : category.id === "tech"
+                            ? "pathway-technology"
+                            : undefined
+                    }
+                  >
+                    <div className="mb-10">
+                       <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-primary mb-4 flex items-center gap-3">
+                         <span className="w-4 h-px bg-primary"></span>
+                         Category 0{cIdx + 1}
+                       </p>
+                       <h2 className="font-display text-4xl md:text-5xl uppercase tracking-tight text-foreground">{category.label}</h2>
+                    </div>
+
+                    <div className="space-y-12">
+                       {category.services.map((service, sIdx) => (
+                          <ServiceEntry 
+                            key={sIdx} 
+                            service={service} 
+                            number={`${cIdx + 1}.${sIdx + 1}`} 
+                          />
+                       ))}
+                    </div>
+                 </section>
+              ))}
+           </div>
+
         </div>
-      </section>
-
-      {/* Full Catalog Render */}
-      <div className="bg-background pb-24 md:pb-32">
-        {/* Coaching & Strategy Group */}
-        <section id="section-coaching" className="pt-16 md:pt-24 px-4 sm:px-6 lg:px-8 scroll-mt-12">
-          <div className="max-w-[78rem] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground mb-12 border-b border-border pb-6">
-              Coaching & Strategy
-            </h2>
-
-            <div className="space-y-16">
-              {individualServices.concat(leadershipServices).map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel={idx < 3 ? "Individual Execution" : "Leadership"} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Corporate Workshops */}
-        <section id="section-workshops" className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 scroll-mt-12 border-t border-border mt-24">
-          <div className="max-w-[78rem] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground mb-12 border-b border-border pb-6">
-              Corporate & Growth
-            </h2>
-
-            <div className="space-y-16">
-              {corporateServices.map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel="Corporate Programs" />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Technology */}
-        <section id="section-technology" className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 scroll-mt-12 border-t border-border mt-24">
-          <div className="max-w-[78rem] mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-border pb-6">
-              <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground">
-                Technology Solutions
-              </h2>
-              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1.5 rounded-sm">
-                <Stethoscope className="w-3.5 h-3.5" /> Privacy-First Delivery
-              </div>
-            </div>
-
-            <p className="text-sm leading-relaxed text-muted-foreground max-w-3xl mb-12 border-l-2 border-primary pl-4">
-              Technology work begins with workflow discovery, delivery scope, ownership, support expectations, and a privacy review. CRM, portal, and iOS work is not proposed until those conditions are understood to keep PHI out of routine tools.
-            </p>
-
-            <div className="space-y-16">
-              {techServices.map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel="System Delivery" />
-              ))}
-            </div>
-          </div>
-        </section>
       </div>
 
       <PublicConversionPanel
@@ -364,35 +342,55 @@ export default function Services() {
   );
 }
 
-function ServiceEntry({ service, groupLabel }: { service: any, groupLabel: string }) {
+function ServiceEntry({ service, number }: { service: any, number: string }) {
   return (
-    <div className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-16 items-start">
-      <div>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">{groupLabel}</p>
-        <h3 className="font-serif text-2xl font-medium text-foreground mb-4">{service.title}</h3>
-        {service.duration && (
-          <p className="text-sm text-muted-foreground mb-2"><span className="font-medium text-foreground">Duration:</span> {service.duration}</p>
+    <article className="border border-border bg-card group relative shadow-sm">
+      <div className="absolute -left-[1px] top-0 w-[3px] h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
+      
+      {/* Header */}
+      <div className="grid md:grid-cols-[1fr_auto] gap-6 p-6 md:p-8 border-b border-border bg-muted/5">
+        <div>
+           <div className="flex items-start gap-4 mb-4">
+             <span className="font-mono text-[11px] font-bold text-primary mt-2">{number}</span>
+             <h3 className="font-display text-2xl md:text-3xl uppercase tracking-tight text-foreground leading-none">{service.title}</h3>
+           </div>
+           <p className="text-sm text-muted-foreground leading-[1.6] max-w-3xl ml-0 md:ml-8 border-l-2 border-primary/20 pl-4">{service.problem}</p>
+        </div>
+        {(service.duration || service.price) && (
+          <div className="flex flex-row md:flex-col gap-6 md:gap-4 text-left md:text-right shrink-0 mt-4 md:mt-0">
+             {service.duration && (
+               <div>
+                 <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mb-1">Duration</p>
+                 <p className="text-sm font-medium">{service.duration}</p>
+               </div>
+             )}
+             {service.price && (
+               <div>
+                 <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mb-1">Structure</p>
+                 <p className="text-sm font-medium">{service.price}</p>
+               </div>
+             )}
+          </div>
         )}
-        <Button asChild variant="outline" className="mt-6 rounded-none font-mono text-xs uppercase tracking-widest">
-          <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
-            Discuss this service
-          </Link>
-        </Button>
       </div>
 
-      <div className="bg-card p-8 border border-border shadow-sm">
-        <div className="space-y-6">
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-2">The Problem</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">{service.problem}</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-2">The Solution</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">{service.solution}</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">Scope & Deliverables</p>
-            <ul className="space-y-3">
+      {/* Body */}
+      <div className="grid md:grid-cols-[1.25fr_1fr] divide-y md:divide-y-0 md:divide-x divide-border">
+         <div className="p-6 md:p-8 flex flex-col">
+            <div className="flex-1">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">The Solution</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+            </div>
+            
+            <div className="mt-8 pt-8 border-t border-border">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">Target Outcome</p>
+              <p className="text-sm font-medium text-foreground leading-relaxed">{service.outcome}</p>
+            </div>
+         </div>
+         
+         <div className="p-6 md:p-8 bg-muted/10 flex flex-col h-full">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-4">Scope & Deliverables</p>
+            <ul className="space-y-4 mb-10 flex-1">
               {service.includes.map((item: string, i: number) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
                   <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -400,13 +398,13 @@ function ServiceEntry({ service, groupLabel }: { service: any, groupLabel: strin
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="pt-6 border-t border-border">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary mb-2">The Outcome</p>
-            <p className="text-sm font-medium leading-relaxed text-foreground">{service.outcome}</p>
-          </div>
-        </div>
+            <Button asChild variant="outline" className="w-full rounded-none font-mono text-[10px] uppercase tracking-widest min-h-[3rem] border-primary/30 hover:border-primary hover:bg-primary/5 text-primary hover:text-primary">
+              <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                Discuss this service
+              </Link>
+            </Button>
+         </div>
       </div>
-    </div>
+    </article>
   );
 }

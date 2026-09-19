@@ -1762,6 +1762,12 @@ export default function Admin() {
     displayOrder: 0,
     approvalStatus: "draft",
     approvalReference: "",
+    approvalScope: "",
+    timeframe: "",
+    evidenceSource: "",
+    measurementContext: "",
+    verificationStatus: "client_reported",
+    attributionLimitations: "",
   });
   const [expandedAgreement, setExpandedAgreement] = useState<number | null>(
     null,
@@ -1797,6 +1803,12 @@ export default function Admin() {
         displayOrder: 0,
         approvalStatus: "draft",
         approvalReference: "",
+        approvalScope: "",
+        timeframe: "",
+        evidenceSource: "",
+        measurementContext: "",
+        verificationStatus: "client_reported",
+        attributionLimitations: "",
       });
       toast({ title: "Testimonial saved" });
     },
@@ -1859,6 +1871,12 @@ export default function Admin() {
       displayOrder: t.displayOrder,
       approvalStatus: t.approvalStatus,
       approvalReference: t.approvalReference ?? "",
+      approvalScope: t.approvalScope ?? "",
+      timeframe: t.timeframe ?? "",
+      evidenceSource: t.evidenceSource ?? "",
+      measurementContext: t.measurementContext ?? "",
+      verificationStatus: t.verificationStatus,
+      attributionLimitations: t.attributionLimitations ?? "",
     });
     setTestimonialDialogOpen(true);
   };
@@ -1889,6 +1907,12 @@ export default function Admin() {
     displayOrder: 0,
     approvalStatus: "draft",
     approvalReference: "",
+    approvalScope: "",
+    timeframe: "",
+    evidenceSource: "",
+    measurementContext: "",
+    verificationStatus: "client_reported",
+    attributionLimitations: "",
   });
 
   const createCaseStudyMutation = useMutation({
@@ -1909,6 +1933,12 @@ export default function Admin() {
         displayOrder: 0,
         approvalStatus: "draft",
         approvalReference: "",
+        approvalScope: "",
+        timeframe: "",
+        evidenceSource: "",
+        measurementContext: "",
+        verificationStatus: "client_reported",
+        attributionLimitations: "",
       });
       toast({ title: "Case study saved" });
     },
@@ -1970,6 +2000,12 @@ export default function Admin() {
       displayOrder: s.displayOrder,
       approvalStatus: s.approvalStatus,
       approvalReference: s.approvalReference ?? "",
+      approvalScope: s.approvalScope ?? "",
+      timeframe: s.timeframe ?? "",
+      evidenceSource: s.evidenceSource ?? "",
+      measurementContext: s.measurementContext ?? "",
+      verificationStatus: s.verificationStatus,
+      attributionLimitations: s.attributionLimitations ?? "",
     });
     setCaseStudyDialogOpen(true);
   };
@@ -3808,6 +3844,12 @@ export default function Admin() {
                     displayOrder: 0,
                     approvalStatus: "draft",
                     approvalReference: "",
+                    approvalScope: "",
+                    timeframe: "",
+                    evidenceSource: "",
+                    measurementContext: "",
+                    verificationStatus: "client_reported",
+                    attributionLimitations: "",
                   });
                   setTestimonialDialogOpen(true);
                 }}
@@ -3829,6 +3871,12 @@ export default function Admin() {
                     displayOrder: 0,
                     approvalStatus: "draft",
                     approvalReference: "",
+                    approvalScope: "",
+                    timeframe: "",
+                    evidenceSource: "",
+                    measurementContext: "",
+                    verificationStatus: "client_reported",
+                    attributionLimitations: "",
                   });
                   setCaseStudyDialogOpen(true);
                 }}
@@ -5977,7 +6025,7 @@ export default function Admin() {
 
       {/* Add Question Dialog */}
       <Dialog open={questionDialogOpen} onOpenChange={setQuestionDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle><AccentText>Add Question</AccentText></DialogTitle>
             <DialogDescription>
@@ -6454,6 +6502,72 @@ export default function Admin() {
                 data-testid="input-testimonial-outcome"
               />
             </div>
+            <div className="rounded-lg border bg-muted/20 p-4 space-y-4">
+              <div>
+                <p className="text-sm font-semibold">Evidence provenance</p>
+                <p className="text-xs text-muted-foreground">Document where the claim came from and how it can responsibly be described.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="t-timeframe">Timeframe</Label>
+                  <Input
+                    id="t-timeframe"
+                    value={testimonialForm.timeframe}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, timeframe: e.target.value })}
+                    placeholder="e.g. First 90 days"
+                    data-testid="input-testimonial-timeframe"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="t-verification">Verification status</Label>
+                  <Select
+                    value={testimonialForm.verificationStatus}
+                    onValueChange={(verificationStatus) => setTestimonialForm({ ...testimonialForm, verificationStatus })}
+                  >
+                    <SelectTrigger id="t-verification" data-testid="select-testimonial-verification">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client_reported">Client reported</SelectItem>
+                      <SelectItem value="document_reviewed">Supporting document reviewed</SelectItem>
+                      <SelectItem value="spartan_measured">Measured by Spartan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="t-source">Evidence source</Label>
+                <Input
+                  id="t-source"
+                  value={testimonialForm.evidenceSource}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, evidenceSource: e.target.value })}
+                  placeholder="Client interview, CRM export, signed summary, etc."
+                  data-testid="input-testimonial-evidence-source"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="t-context">Measurement context</Label>
+                <Textarea
+                  id="t-context"
+                  value={testimonialForm.measurementContext}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, measurementContext: e.target.value })}
+                  placeholder="Baseline, comparison window, sample, and method"
+                  rows={2}
+                  data-testid="input-testimonial-measurement-context"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="t-limitations">Attribution limitations</Label>
+                <Textarea
+                  id="t-limitations"
+                  value={testimonialForm.attributionLimitations}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, attributionLimitations: e.target.value })}
+                  placeholder="Other factors, limitations, or context readers should know"
+                  rows={2}
+                  data-testid="input-testimonial-attribution-limitations"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label htmlFor="t-category">Category</Label>
@@ -6518,18 +6632,32 @@ export default function Admin() {
               />
             </div>
             {testimonialForm.approvalStatus === "approved" && (
-              <div className="space-y-1">
-                <Label htmlFor="t-approval-reference">Written approval reference</Label>
-                <Input
-                  id="t-approval-reference"
-                  value={testimonialForm.approvalReference}
-                  onChange={(e) =>
-                    setTestimonialForm({ ...testimonialForm, approvalReference: e.target.value })
-                  }
-                  placeholder="Agreement request, signed release, or internal approval record"
-                  required
-                  data-testid="input-testimonial-approval-reference"
-                />
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="t-approval-reference">Written approval reference</Label>
+                  <Input
+                    id="t-approval-reference"
+                    value={testimonialForm.approvalReference}
+                    onChange={(e) =>
+                      setTestimonialForm({ ...testimonialForm, approvalReference: e.target.value })
+                    }
+                    placeholder="Agreement request, signed release, or internal approval record"
+                    required
+                    data-testid="input-testimonial-approval-reference"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="t-approval-scope">Approval scope</Label>
+                  <Textarea
+                    id="t-approval-scope"
+                    value={testimonialForm.approvalScope}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, approvalScope: e.target.value })}
+                    placeholder="Exact quote, name/title, company attribution, outcome claim, and approved channels"
+                    required
+                    rows={2}
+                    data-testid="input-testimonial-approval-scope"
+                  />
+                </div>
               </div>
             )}
             <div className="flex gap-3 pt-2">
@@ -6566,7 +6694,7 @@ export default function Admin() {
           if (!open) setEditingCaseStudy(null);
         }}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle><AccentText>{editingCaseStudy ? "Edit Case Study" : "Add Case Study"}</AccentText></DialogTitle>
           </DialogHeader>
@@ -6650,6 +6778,72 @@ export default function Admin() {
                 data-testid="input-casestudy-results"
               />
             </div>
+            <div className="rounded-lg border bg-muted/20 p-4 space-y-4">
+              <div>
+                <p className="text-sm font-semibold">Evidence provenance</p>
+                <p className="text-xs text-muted-foreground">Capture how the result was measured and what limits apply to the claim.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="cs-timeframe">Timeframe</Label>
+                  <Input
+                    id="cs-timeframe"
+                    value={caseStudyForm.timeframe}
+                    onChange={(e) => setCaseStudyForm({ ...caseStudyForm, timeframe: e.target.value })}
+                    placeholder="e.g. 12-week engagement"
+                    data-testid="input-casestudy-timeframe"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="cs-verification">Verification status</Label>
+                  <Select
+                    value={caseStudyForm.verificationStatus}
+                    onValueChange={(verificationStatus) => setCaseStudyForm({ ...caseStudyForm, verificationStatus })}
+                  >
+                    <SelectTrigger id="cs-verification" data-testid="select-casestudy-verification">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client_reported">Client reported</SelectItem>
+                      <SelectItem value="document_reviewed">Supporting document reviewed</SelectItem>
+                      <SelectItem value="spartan_measured">Measured by Spartan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cs-source">Evidence source</Label>
+                <Input
+                  id="cs-source"
+                  value={caseStudyForm.evidenceSource}
+                  onChange={(e) => setCaseStudyForm({ ...caseStudyForm, evidenceSource: e.target.value })}
+                  placeholder="Client interview, CRM export, signed summary, etc."
+                  data-testid="input-casestudy-evidence-source"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cs-context">Measurement context</Label>
+                <Textarea
+                  id="cs-context"
+                  value={caseStudyForm.measurementContext}
+                  onChange={(e) => setCaseStudyForm({ ...caseStudyForm, measurementContext: e.target.value })}
+                  placeholder="Baseline, comparison window, sample, and method"
+                  rows={2}
+                  data-testid="input-casestudy-measurement-context"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cs-limitations">Attribution limitations</Label>
+                <Textarea
+                  id="cs-limitations"
+                  value={caseStudyForm.attributionLimitations}
+                  onChange={(e) => setCaseStudyForm({ ...caseStudyForm, attributionLimitations: e.target.value })}
+                  placeholder="Other factors, limitations, or context readers should know"
+                  rows={2}
+                  data-testid="input-casestudy-attribution-limitations"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label htmlFor="cs-category">Category</Label>
@@ -6703,18 +6897,32 @@ export default function Admin() {
               />
             </div>
             {caseStudyForm.approvalStatus === "approved" && (
-              <div className="space-y-1">
-                <Label htmlFor="cs-approval-reference">Written approval reference</Label>
-                <Input
-                  id="cs-approval-reference"
-                  value={caseStudyForm.approvalReference}
-                  onChange={(e) =>
-                    setCaseStudyForm({ ...caseStudyForm, approvalReference: e.target.value })
-                  }
-                  placeholder="Agreement request, signed release, or internal approval record"
-                  required
-                  data-testid="input-casestudy-approval-reference"
-                />
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="cs-approval-reference">Written approval reference</Label>
+                  <Input
+                    id="cs-approval-reference"
+                    value={caseStudyForm.approvalReference}
+                    onChange={(e) =>
+                      setCaseStudyForm({ ...caseStudyForm, approvalReference: e.target.value })
+                    }
+                    placeholder="Agreement request, signed release, or internal approval record"
+                    required
+                    data-testid="input-casestudy-approval-reference"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="cs-approval-scope">Approval scope</Label>
+                  <Textarea
+                    id="cs-approval-scope"
+                    value={caseStudyForm.approvalScope}
+                    onChange={(e) => setCaseStudyForm({ ...caseStudyForm, approvalScope: e.target.value })}
+                    placeholder="Title, client label, narrative, result claims, and approved channels"
+                    required
+                    rows={2}
+                    data-testid="input-casestudy-approval-scope"
+                  />
+                </div>
               </div>
             )}
             <div className="flex gap-3 pt-2">
