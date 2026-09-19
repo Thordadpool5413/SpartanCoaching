@@ -63,14 +63,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const refreshInFlight = useRef<Promise<void> | null>(null);
   const lastRefreshAt = useRef(0);
+  // Any explicit auth action invalidates older startup/background session checks.
+  const authGeneration = useRef(0);
 
   const refresh = useCallback(async (options?: { force?: boolean }) => {
     if (refreshInFlight.current) return refreshInFlight.current;
     if (!options?.force && Date.now() - lastRefreshAt.current < 15_000) return;
 
+    const generation = authGeneration.current;
     const request = (async () => {
       try {
         const me = await fetchMeMobile();
+        if (generation !== authGeneration.current) return;
         setUser(me);
         void cacheUser(me);
         setActiveSyncMember(me?.member.id ?? null);
@@ -92,15 +96,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
 
     void (async () => {
+      const generation = authGeneration.current;
       const cached = await readCachedUser();
-      if (active && cached) {
+      if (!active || generation !== authGeneration.current) return;
+      if (cached) {
         // Render a last-known account shell immediately, then verify it in the background.
         setUser(cached);
         setActiveSyncMember(cached.member.id);
         setIsLoading(false);
         void syncMemberData(cached.member.id);
       }
-      if (active) void refresh({ force: true });
+      if (active && generation === authGeneration.current) void refresh({ force: true });
     })();
 
     return () => {
@@ -109,7 +115,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
+    authGeneration.current += 1;
+    const generation = authGeneration.current;
     const data = await loginMobile(email, password);
+    if (generation !== authGeneration.current) return;
     const nextUser = {
       member: data.member,
       organization: data.organization,
@@ -124,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
           const refreshed = await fetchMeMobile();
-          if (refreshed) {
+          if (refreshed && generation === authGeneration.current) {
             setUser(refreshed);
             void cacheUser(refreshed);
           }
@@ -136,7 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
+    authGeneration.current += 1;
+    const generation = authGeneration.current;
     const data = await registerMobile(input);
+    if (generation !== authGeneration.current) return;
     const nextUser = {
       member: data.member,
       organization: data.organization,
@@ -150,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
           const refreshed = await fetchMeMobile();
-          if (refreshed) {
+          if (refreshed && generation === authGeneration.current) {
             setUser(refreshed);
             void cacheUser(refreshed);
           }
@@ -162,6 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    authGeneration.current += 1;
     await logoutMobile();
     setUser(null);
     void cacheUser(null);
