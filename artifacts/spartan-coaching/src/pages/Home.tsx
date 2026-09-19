@@ -1,15 +1,13 @@
-import { AccentText } from "@/components/AccentText";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, RefreshCw, Play } from "lucide-react";
+import { ArrowRight, Play, RefreshCw } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { ProofStrip } from "@/components/ProofStrip";
-import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 import { useEffect, useRef, useState } from "react";
 import founderPhoto from "@assets/nick-photo.jpg";
+import commandCenter from "@assets/hospice-sales-pro-command-center-public.png";
 
 export function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -80,16 +78,16 @@ export function HeroSystemPanel() {
   };
 
   return (
-    <figure className="hero-intro-figure relative z-0 w-full" data-testid="section-hero-panel">
+    <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
       <div
-        className="hero-video-frame hero-intro-frame relative aspect-video w-full overflow-hidden bg-black"
+        className="relative h-full w-full overflow-hidden bg-[var(--fi-field)]"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
           <img
             src="/hero-poster.jpg"
             alt="Spartan Coaching field operating system"
-            className="absolute inset-0 z-10 h-full w-full object-contain"
+            className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
           />
         )}
         <video
@@ -100,7 +98,7 @@ export function HeroSystemPanel() {
           playsInline
           preload="auto"
           poster="/hero-poster.jpg"
-          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-contain"
+          className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
           data-testid="hero-video"
           data-playback-state={videoState}
           data-playback-seconds={playbackSeconds.toFixed(1)}
@@ -121,12 +119,12 @@ export function HeroSystemPanel() {
         </video>
 
         <div
-          className="absolute bottom-3 left-3 z-20 flex items-center gap-2 rounded-md border border-white/25 bg-black/70 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md"
+          className="absolute bottom-7 left-6 z-20 flex items-center gap-2 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--fi-cream)] md:bottom-10 md:left-10"
           data-testid="hero-video-status"
           data-state={videoState}
           aria-live="polite"
         >
-          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-amber-300"} />
+          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-[var(--fi-rust)]"} />
           {videoState === "playing" && "Field film playing"}
           {videoState === "loading" && "Loading field film"}
           {videoState === "paused" && (reducedMotion ? "Motion paused by preference" : "Field film paused")}
@@ -136,7 +134,7 @@ export function HeroSystemPanel() {
             <button
               type="button"
               onClick={() => void startPlayback()}
-              className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white/30 bg-white/10 px-2 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-[var(--fi-cream)] px-2 text-[var(--fi-cream)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fi-cream)]"
               data-testid="button-hero-video-play"
             >
               {videoState === "error" ? <RefreshCw className="h-3 w-3" /> : <Play className="h-3 w-3" />}
@@ -154,7 +152,7 @@ export function HeroSystemPanel() {
 
 export default function Home() {
   return (
-    <div className="page-persuasion public-home flex flex-col bg-background text-foreground font-sans">
+    <div className="page-persuasion public-home flex flex-col font-sans" data-testid="page-home">
       <SEO />
       <Helmet>
         <script type="application/ld+json">
@@ -172,130 +170,121 @@ export default function Home() {
         </script>
       </Helmet>
 
-      <section className="spartan-hero relative overflow-hidden bg-black" data-testid="section-hero">
-        <HeroSystemPanel />
-      </section>
-
-      <section className="border-b border-border bg-background px-4 py-16 sm:px-6 sm:py-20 lg:px-12 lg:py-28" data-testid="section-home-intro">
-        <div className="mx-auto grid max-w-[90rem] gap-10 lg:grid-cols-[1.35fr_.65fr] lg:items-end lg:gap-20">
-          <div>
-            <p className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-primary">Private performance advisory · Hospice growth</p>
-            <h1 className="max-w-[50rem] font-serif text-[clamp(2.8rem,6vw,6rem)] font-light leading-[.98] tracking-[-0.035em] text-foreground" data-testid="text-home-hero-title">
-              Make the next hospice conversation <span className="text-primary">count.</span>
-            </h1>
-          </div>
-          <div className="border-l-2 border-primary pl-6 lg:mb-1">
-            <p className="text-base leading-[1.75] text-muted-foreground"><strong className="text-foreground">Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching. <strong className="text-foreground">Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution, with web and iPhone continuity and a separate team access path.</p>
-            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Button size="lg" asChild className="w-full rounded-none sm:w-auto"><Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>Book a strategy call</Link></Button>
-              <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")} className="group inline-flex min-h-11 w-full items-center justify-center gap-2 text-sm font-semibold text-foreground sm:w-auto">Explore Hospice Sales Pro <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
+      {/* Hero Section */}
+      <section className="mx-auto grid max-w-[1440px] lg:min-h-[690px] lg:grid-cols-[.86fr_1.14fr]" data-testid="section-hero">
+        <div className="flex flex-col justify-between px-5 py-16 md:px-10 md:py-20 lg:py-24">
+          <div className="fi-reveal" data-testid="section-home-intro">
+            <div className="mb-10 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)]">
+              <span className="h-2 w-2 rounded-full bg-[var(--fi-rust)]" style={{animation:"fiPulse 2s infinite"}} /> Private performance advisory · Hospice growth
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 2. ASYMMETRIC PATHWAYS ── */}
-      <section className="py-20 lg:py-32 bg-surface px-4 sm:px-6 lg:px-8 border-b border-border" data-testid="section-pathways">
-        <div className="max-w-[90rem] mx-auto">
-          <div className="max-w-2xl mb-16 lg:mb-24">
-            <h2 className="spartan-section-title mb-4">
-              Two ways to engage the work
-            </h2>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              Start with the responsibility closest to yours. Choose expert-led consulting for strategy, or the digital field system for daily execution.
+            <h1 className="fi-serif max-w-[650px] text-[clamp(3.5rem,7vw,7.5rem)] leading-[.98] tracking-[-.045em]" data-testid="text-home-hero-title">
+              Make the next hospice conversation<br /><span className="text-[var(--fi-rust)]">count.</span>
+            </h1>
+            <p className="mt-9 max-w-[470px] text-[16px] leading-[1.7] text-[rgba(19,32,31,.72)]">
+              <strong className="text-foreground">Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching. <strong className="text-foreground">Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution, with web and iPhone continuity and a separate team access path.
             </p>
           </div>
-
-          <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-            <div className="lg:col-span-7 flex flex-col gap-6 lg:pr-12">
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Expert-led Service</p>
-              <h3 className="text-3xl lg:text-5xl font-display uppercase text-foreground">Spartan Consulting</h3>
-              <p className="text-base text-muted-foreground leading-[1.7]">
-                Direct strategy and coaching for hospice growth leaders and teams. We diagnose the market reality, install a unified sales process, and build leadership rhythms that sustain performance long after the workshop ends.
-              </p>
-              <ul className="space-y-3 my-4">
-                {["1:1 and leadership coaching", "Team execution workshops", "Territory system design"].map(f => (
-                  <li key={f} className="flex items-center gap-3 text-sm text-foreground">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/services" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors w-fit border-b border-primary/30 pb-0.5 mt-2">
-                Explore consulting services <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="hidden lg:block lg:col-span-1 border-l border-border h-full"></div>
-
-            <div className="lg:col-span-4 flex flex-col gap-6 pt-12 lg:pt-0 border-t border-border lg:border-t-0">
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Digital Workspace</p>
-              <h3 className="text-3xl lg:text-5xl font-display uppercase text-foreground">Hospice Sales Pro</h3>
-              <p className="text-base text-muted-foreground leading-[1.7]">
-                A web and iPhone workspace for individuals and teams, featuring a daily Command Center, practice tools, and role-play modules.
-              </p>
-              <Link href="/hospice-sales-pro" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors mt-2">
-                Explore the platform <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+          <div className="mt-14 flex flex-wrap items-center gap-6">
+            <Link 
+              href="/contact" 
+              onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
+              className="fi-btn-primary group"
+            >
+              Book a strategy call <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link 
+              href="/hospice-sales-pro" 
+              onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
+              className="group inline-flex items-center gap-3 text-[12px] font-bold uppercase tracking-[.12em]"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--fi-ink)] transition-colors group-hover:bg-[var(--fi-ink)] group-hover:text-[var(--fi-cream)]">
+                <ArrowRight size={14} fill="currentColor" />
+              </span> 
+              Explore Hospice Sales Pro
+            </Link>
+          </div>
+        </div>
+        <div className="relative min-h-[470px] overflow-hidden bg-[var(--fi-field)] lg:min-h-0">
+          <HeroSystemPanel />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[rgba(11,35,33,.72)] via-transparent to-[rgba(11,35,33,.1)]" />
+          <div className="pointer-events-none absolute bottom-7 right-6 z-20 flex items-end justify-between text-[var(--fi-cream)] md:bottom-10 md:right-10">
+            <span className="hidden text-right text-[10px] uppercase tracking-[.15em] opacity-75 sm:block">01 / 04<br />Prepare</span>
           </div>
         </div>
       </section>
 
-      {/* ── 3. FOUNDER AUTHORITY (Editorial) ── */}
-      <section className="py-20 lg:py-32 bg-background border-b border-border" data-testid="section-founder-authority">
-        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-24 items-center">
-            <div className="order-2 lg:order-1">
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">
-                Field-built authority
-              </p>
-               <h2 className="spartan-section-title font-serif font-light text-foreground mb-6">
-                Built by someone who has actually carried the number.
-              </h2>
-              <p className="text-base text-muted-foreground leading-[1.7] mb-8">
-                Nick Lynch built Spartan Coaching from the field. Our hospice-specific sales, leadership, and execution systems are shaped by the exact conversations teams must lead every day.
-              </p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors border-b border-primary/30 pb-0.5">
-                Read the founder story <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-            <div className="order-1 lg:order-2">
-              <div className="aspect-[4/3] bg-muted relative overflow-hidden border border-border shadow-sm">
-                <img
-                  src={founderPhoto}
-                  alt="Nick Lynch, founder of Spartan Coaching"
-                  width={416}
-                  height={520}
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover grayscale opacity-90 mix-blend-multiply"
-                />
+      {/* The Work / Standards */}
+      <section className="border-y border-[var(--fi-line)] bg-[var(--fi-cream)]" data-testid="section-pathways">
+        <div className="mx-auto grid max-w-[1440px] md:grid-cols-[.7fr_1.3fr]">
+          <div className="border-b border-[var(--fi-line)] px-5 py-14 md:border-b-0 md:border-r md:px-10 md:py-20">
+            <p className="mb-20 text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)]">Two ways to engage the work</p>
+            <h2 className="fi-serif text-[clamp(2.8rem,5vw,5.3rem)] leading-[.93]">Good activity is not the same as good work.</h2>
+          </div>
+          <div className="px-5 py-14 md:px-14 md:py-20">
+            <p className="max-w-[650px] text-[20px] leading-[1.45] md:text-[27px]">Start with the responsibility closest to yours. Choose expert-led consulting for strategy, or the digital field system for daily execution.</p>
+            <div className="mt-14 grid gap-0 border-t border-[var(--fi-line)] sm:grid-cols-2">
+              <div className="border-b border-[var(--fi-line)] py-7 sm:border-b-0 sm:border-r sm:pr-6">
+                <span className="text-[11px] font-bold text-[var(--fi-rust)]">01</span>
+                <h3 className="mt-8 text-lg font-semibold uppercase tracking-wider" data-testid="pathway-coaching">Spartan Consulting</h3>
+                <p className="mt-3 text-sm leading-[1.6] text-[rgba(19,32,31,.65)]">Direct strategy and coaching for hospice growth leaders and teams. We diagnose the market reality, install a unified sales process, and build leadership rhythms that sustain performance.</p>
+                <ul className="mt-4 space-y-2 text-sm text-[rgba(19,32,31,.8)] font-medium">
+                  {["1:1 and leadership coaching", "Team execution workshops", "Territory system design"].map(f => (
+                    <li key={f} className="flex items-center gap-2"><span className="h-1 w-1 bg-[var(--fi-rust)]" /> {f}</li>
+                  ))}
+                </ul>
+                <Link href="/services" className="mt-6 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.12em] text-[var(--fi-rust)]">
+                  Explore consulting services <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="py-7 sm:pl-6">
+                <span className="text-[11px] font-bold text-[var(--fi-rust)]">02</span>
+                <h3 className="mt-8 text-lg font-semibold uppercase tracking-wider" data-testid="pathway-technology">Hospice Sales Pro</h3>
+                <p className="mt-3 text-sm leading-[1.6] text-[rgba(19,32,31,.65)]">A web and iPhone workspace for individuals and teams, featuring a daily Command Center, practice tools, and role-play modules.</p>
+                <div className="mt-5 border border-[var(--fi-line)] p-2">
+                  <img src={commandCenter} alt="Hospice Sales Pro" className="w-full object-cover grayscale-[.2]" />
+                </div>
+                <Link href="/hospice-sales-pro" className="mt-6 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.12em]">
+                  Explore the platform <ArrowRight size={14} />
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. PROOF ── */}
-      <section className="py-20 lg:py-32 bg-surface border-b border-border" data-testid="section-results">
-        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Founder Authority */}
+      <section className="bg-[var(--fi-paper)]" data-testid="section-founder-authority">
+        <div className="mx-auto grid max-w-[1440px] md:grid-cols-[1fr_1fr]">
+          <div className="relative min-h-[440px] overflow-hidden md:min-h-[560px]">
+            <img src={founderPhoto} alt="Nick Lynch, founder of Spartan Coaching" width={416} height={520} decoding="async" className="fi-fade-image absolute inset-0 h-full w-full object-cover object-center grayscale-[.35] mix-blend-multiply opacity-90" />
+          </div>
+          <div className="flex flex-col justify-center px-5 py-16 md:px-16 md:py-24">
+            <p className="mb-7 text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)]">Field-built authority</p>
+            <h2 className="fi-serif font-serif font-light text-foreground text-[clamp(3rem,5vw,5.5rem)] leading-[.88]">Built by someone<br />who has actually<br /><em>carried the number.</em></h2>
+            <p className="mt-8 text-muted-foreground max-w-[490px] text-[16px] leading-[1.75] text-[rgba(19,32,31,.72)]">Nick Lynch built Spartan Coaching from the field. Our hospice-specific sales, leadership, and execution systems are shaped by the exact conversations teams must lead every day.</p>
+            <Link href="/about" className="mt-9 inline-flex w-fit items-center gap-3 text-[12px] font-bold uppercase tracking-[.13em] text-[var(--fi-ink)] fi-link">
+              Read the founder story
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Proof Strip */}
+      <section className="border-y border-[var(--fi-line)] bg-[var(--fi-cream)] px-5 py-20 lg:py-32" data-testid="section-results">
+        <div className="mx-auto max-w-[1440px]">
           <ProofStrip kicker="Field standards" title="What disciplined teams work toward" />
         </div>
       </section>
 
-      {/* ── 5. FINAL CTA (Single focus) ── */}
-      <section className="py-24 lg:py-40 text-center px-4 bg-background" data-testid="section-closing">
-        <div className="max-w-2xl mx-auto">
-           <h2 className="spartan-section-title mb-6">
-            Stop winging it.
-          </h2>
-          <p className="text-base text-muted-foreground mb-10 max-w-lg mx-auto">
-            Start with the next move that fits your work. We will keep the path clear from there.
-          </p>
-          <Button size="lg" asChild className="rounded-none bg-foreground text-background hover:bg-primary hover:text-white border-none min-h-[3.25rem] px-8 text-sm font-semibold tracking-wide w-full sm:w-auto shadow-sm">
-            <Link href="/services">
-              Explore Consulting
-            </Link>
-          </Button>
+      {/* Closing CTA */}
+      <section className="fi-dark bg-[var(--fi-field)] px-5 py-20 text-[var(--fi-cream)] md:px-10 md:py-28" data-testid="section-closing">
+        <div className="mx-auto max-w-[1100px] text-center">
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[.2em] text-[#e8a183]">The next conversation</p>
+          <h2 className="fi-serif text-[clamp(3.5rem,8vw,8rem)] leading-[.82]">Stop<br /><em>winging it.</em></h2>
+          <p className="mx-auto mt-8 max-w-[500px] text-[16px] leading-[1.7] text-[rgba(251,248,241,.82)]">Start with the next move that fits your work. We will keep the path clear from there.</p>
+          <Link href="/services" className="mt-9 inline-flex items-center gap-3 bg-[var(--fi-rust)] px-6 py-4 text-[12px] font-bold uppercase tracking-[.13em] text-[var(--fi-cream)] transition-transform hover:-translate-y-1">
+            Explore Consulting <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
     </div>

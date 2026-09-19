@@ -1,12 +1,11 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Check, Stethoscope, Briefcase, Zap, Compass, Shield, Activity, ArrowRight, Layers, LayoutTemplate } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export default function Services() {
   const individualServices = [
@@ -190,237 +189,159 @@ export default function Services() {
   ];
 
   const categories = [
-    { id: "individual", label: "Individual Execution", icon: Compass, services: individualServices },
-    { id: "leadership", label: "Leadership Coaching", icon: Briefcase, services: leadershipServices },
-    { id: "corporate", label: "Corporate Programs", icon: Layers, services: corporateServices },
-    { id: "tech", label: "System Delivery", icon: LayoutTemplate, services: techServices },
+    { id: "individual", label: "Individual Execution", services: individualServices },
+    { id: "leadership", label: "Leadership Coaching", services: leadershipServices },
+    { id: "corporate", label: "Corporate Programs", services: corporateServices },
+    { id: "tech", label: "System Delivery", services: techServices },
   ];
 
+  const [activeCategory, setActiveCategory] = useState("individual");
+
+  const activeServices = categories.find(c => c.id === activeCategory)?.services || [];
+
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-primary/20">
+    <div className="page-persuasion font-sans">
       <SEO title="Consulting & Systems | Spartan Coaching" />
       <BackButton />
 
-      {/* Hero Section */}
-      <header className="px-4 pt-32 pb-24 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-slate-200 text-slate-600 text-xs font-semibold mb-8">
-          <span className="w-2 h-2 rounded-full bg-primary"></span>
-          Consulting & Systems
-        </div>
-
-        <h1
-          className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 text-balance mx-auto mb-8"
-          data-testid="text-services-title"
-        >
-          When effort is high but execution is inconsistent.
-        </h1>
-
-        <p className="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 leading-relaxed font-medium">
-          For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
-        </p>
-      </header>
-
-      {/* The Baseline Challenge Block */}
-      <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto pb-24">
-        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
-
-          <div className="grid lg:grid-cols-2 gap-12 relative z-10">
+      {/* Hero */}
+      <section className="fi-dark bg-[var(--fi-field)] text-[var(--fi-cream)]">
+        <div className="mx-auto max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
+          <div className="flex flex-col justify-between gap-10 border-b border-[rgba(244,240,232,.15)] pb-12 md:flex-row md:items-end">
             <div>
-              <h2 className="font-display text-3xl font-bold mb-8 text-white">The baseline challenge</h2>
-              <ul className="space-y-6">
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
-                  <p className="text-slate-300">Territory activity is not producing clear next moves.</p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
-                  <p className="text-slate-300">Leaders see results but cannot coach the behavior behind them.</p>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span className="text-sm font-bold leading-none">×</span></div>
-                  <p className="text-slate-300">Generic systems create more work than field clarity.</p>
-                </li>
-              </ul>
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[.2em] text-[#e8a183]">Consulting & Systems</p>
+              <h1 className="fi-serif max-w-[800px] text-[clamp(3.5rem,7vw,7rem)] leading-[.84]" data-testid="text-services-title">
+                When effort is high<br /><em>but execution is inconsistent.</em>
+              </h1>
             </div>
-            <div className="flex flex-col justify-center gap-4 lg:border-l border-slate-800 lg:pl-12">
-              <Button size="lg" asChild className="rounded-full w-full bg-primary text-white hover:bg-primary/90 font-medium px-8 min-h-[3.5rem]">
-                <Link href="/contact">Book a strategy call</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="rounded-full w-full border-slate-700 bg-slate-800 text-white hover:bg-slate-700 font-medium min-h-[3.5rem]">
-                <Link href="/method">Review our method</Link>
-              </Button>
-            </div>
+            <p className="max-w-[340px] text-[15px] leading-[1.7] text-[rgba(244,240,232,.72)]">
+              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
+            </p>
+          </div>
+          
+          <div className="mt-16 grid gap-12 md:grid-cols-3">
+            {[
+              { num: "01", title: "Diagnose", copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
+              { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
+              { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
+            ].map(({ num, title, copy }) => (
+              <div key={num} className="border-t border-[rgba(244,240,232,.15)] pt-6">
+                <span className="text-[11px] font-bold text-[#e8a183]">{num}</span>
+                <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-[1.6] text-[rgba(244,240,232,.65)]">{copy}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Engagement Sequence */}
-      <section className="bg-white py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Operating Sequence</h2>
-          <p className="text-slate-500 text-lg">How every engagement is structured.</p>
-        </div>
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-8 md:gap-12">
-          {[
-            { num: "01", title: "Diagnose", icon: Compass, copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
-            { num: "02", title: "Design", icon: Briefcase, copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
-            { num: "03", title: "Install", icon: Zap, copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
-          ].map(({ num, title, icon: Icon, copy }) => (
-            <div key={num} className="bg-slate-50 rounded-3xl p-8 border border-slate-100 text-center relative hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center border border-slate-200 text-slate-600 mx-auto mb-6">
-                <Icon className="w-5 h-5" />
-              </div>
-              <h3 className="font-display text-xl font-bold text-slate-900 mb-3">{title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{copy}</p>
-            </div>
-          ))}
+      {/* Services Portfolio */}
+      <section className="bg-[var(--fi-paper)]">
+        <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
+          <div
+            className="mb-14 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[var(--fi-line)]"
+            role="tablist"
+            aria-label="Consulting capability categories"
+          >
+            {categories.map(c => (
+              <button
+                key={c.id}
+                id={`services-tab-${c.id}`}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === c.id}
+                aria-controls="services-category-panel"
+                onClick={() => setActiveCategory(c.id)}
+                className={`pb-4 text-[12px] font-bold uppercase tracking-[.15em] transition-colors ${
+                  activeCategory === c.id 
+                    ? "border-b-2 border-[var(--fi-rust)] text-[var(--fi-rust)]" 
+                    : "text-[rgba(19,32,31,.5)] hover:text-[var(--fi-ink)]"
+                }`}
+                data-testid={
+                  c.id === "individual" ? "pathway-coaching" : 
+                  c.id === "corporate" ? "pathway-workshops" : 
+                  c.id === "tech" ? "pathway-technology" : undefined
+                }
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+
+          <div
+            id="services-category-panel"
+            className="space-y-16 lg:space-y-24"
+            role="tabpanel"
+            aria-labelledby={`services-tab-${activeCategory}`}
+          >
+            {activeServices.map((service, sIdx) => (
+              <ServiceBlock key={sIdx} service={service} index={sIdx} />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Services Portfolio */}
-      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Software Catalog */}
+      <section id="field-tools" className="border-t border-[var(--fi-line)] bg-[var(--fi-cream)]">
+         <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
+            <div className="mb-16 max-w-2xl">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)]">Software Ecosystem</p>
+              <h2 className="fi-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[.9]">Field tools &<br />advanced intelligence.</h2>
+              <p className="mt-6 text-[16px] leading-[1.7] text-[rgba(19,32,31,.72)]">
+                Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
+              </p>
+            </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
-           
-           {/* Sidebar Navigation */}
-           <aside className="lg:w-64 shrink-0 lg:sticky lg:top-32 hidden lg:block">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">Consulting Index</p>
-                <nav className="flex flex-col gap-2">
-                   {categories.map(c => (
-                      <a key={c.id} href={`#${c.id}`} className="text-sm font-medium text-slate-600 hover:text-primary transition-colors py-2 flex items-center gap-3">
-                        <c.icon className="w-4 h-4" />
-                        {c.label}
-                      </a>
-                   ))}
-                   <div className="h-px bg-slate-100 my-4"></div>
-                   <a href="#field-tools" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors py-2 flex items-center gap-3">
-                      <LayoutTemplate className="w-4 h-4" />
-                      Software Catalog
-                   </a>
-                </nav>
-                <div className="mt-8 pt-6 border-t border-slate-100">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/5 rounded-full px-3 py-1.5 w-fit mb-3">
-                    <Stethoscope className="w-3.5 h-3.5" /> Privacy First
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Systems work follows strict privacy reviews to isolate PHI from routine operations.
-                  </p>
+            <div className="space-y-20">
+              {/* Classic Tools */}
+              <div>
+                <h3 className="mb-8 text-lg font-bold border-b border-[var(--fi-line)] pb-4">Active Field Tools</h3>
+                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                  {FIELD_KIT_TOOLS.map((tool) => (
+                    <div key={tool.id} className="flex flex-col">
+                      <span className="mb-3 text-[10px] font-bold uppercase tracking-wider text-[var(--fi-rust)]">{tool.category}</span>
+                      <h4 className="mb-2 text-[18px] font-bold">{tool.title}</h4>
+                      <p className="mb-6 flex-1 text-sm leading-[1.65] text-[rgba(19,32,31,.7)]">{tool.description}</p>
+                      <div className="mt-auto space-y-2 text-[11px] font-semibold">
+                        <span className="block border border-[var(--fi-line)] px-2 py-1 uppercase tracking-wider">
+                          {tool.public
+                            ? "Public preview"
+                            : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
+                                tool.mobile === "native"
+                                  ? "Web + iPhone"
+                                  : tool.mobile === "webview"
+                                    ? "Web + iPhone web"
+                                    : "Web"
+                              }`}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-           </aside>
 
-           {/* Content */}
-           <div className="flex-1 space-y-32 w-full">
-              {categories.map((category) => (
-                  <section
-                    key={category.id}
-                    id={category.id}
-                    className="scroll-mt-32"
-                    data-testid={
-                      category.id === "individual"
-                        ? "pathway-coaching"
-                        : category.id === "corporate"
-                          ? "pathway-workshops"
-                          : category.id === "tech"
-                            ? "pathway-technology"
-                            : undefined
-                    }
-                  >
-                    <div className="mb-10 flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-primary">
-                         <category.icon className="w-5 h-5" />
-                       </div>
-                       <h2 className="font-display text-3xl font-bold text-slate-900">{category.label}</h2>
-                    </div>
-
-                    <div className="space-y-8">
-                       {category.services.map((service, sIdx) => (
-                          <ServiceCard key={sIdx} service={service} />
-                       ))}
-                    </div>
-                 </section>
-              ))}
-
-              {/* Software Tool Catalog */}
-              <section id="field-tools" className="scroll-mt-32 pt-24 border-t border-slate-200">
-                <div className="mb-16 max-w-3xl">
-                   <h2 className="font-display text-3xl font-bold text-slate-900 mb-6">Field Software Ecosystem</h2>
-                   <p className="text-lg text-slate-600 leading-relaxed">
-                     Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
-                   </p>
-                </div>
-
-                <div className="space-y-16">
-                  {/* Classic Tools */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-8">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <Activity className="w-5 h-5" />
+              {/* AI Tools */}
+              <div>
+                <h3 className="mb-8 text-lg font-bold border-b border-[var(--fi-line)] pb-4">Advanced Intelligence</h3>
+                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                  {SPARTAN_AI_TOOLS.map((tool) => (
+                    <div key={tool.id} className="flex flex-col">
+                      <div className="mb-3 flex justify-between items-start gap-4">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#635b73]">{tool.category}</span>
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 border border-[var(--fi-line)] ${
+                          tool.permission === "clinical:use" ? "bg-red-50 text-red-700" : ""
+                        }`}>
+                          {tool.permission === "clinical:use" ? "Clinical" : "Field Kit"}
+                        </span>
                       </div>
-                      <h3 className="font-display text-xl font-bold text-slate-900">Active Field Tools</h3>
+                      <h4 className="mb-2 text-[18px] font-bold">{tool.name}</h4>
+                      <p className="text-sm leading-[1.65] text-[rgba(19,32,31,.7)]">{tool.description}</p>
                     </div>
-                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {FIELD_KIT_TOOLS.map((tool) => (
-                        <div key={tool.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-3">{tool.category}</span>
-                          <h4 className="font-bold text-slate-900 mb-2">{tool.title}</h4>
-                          <p className="text-sm text-slate-600 leading-relaxed mb-6 flex-1">{tool.description}</p>
-                          <div className="mt-auto space-y-2">
-                            <span className="inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-md border border-blue-100 font-semibold">
-                              {tool.public
-                                ? "Public preview"
-                                : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
-                                    tool.mobile === "native"
-                                      ? "Web + iPhone"
-                                      : tool.mobile === "webview"
-                                        ? "Web + iPhone web"
-                                        : "Web"
-                                  }`}
-                            </span>
-                            <span className="inline-block bg-slate-50 text-slate-500 text-xs px-3 py-1 rounded-md border border-slate-100 font-medium">
-                              When: {tool.whenToUse}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* AI Tools */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-8">
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                        <Shield className="w-5 h-5" />
-                      </div>
-                      <h3 className="font-display text-xl font-bold text-slate-900">Advanced Intelligence</h3>
-                    </div>
-                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {SPARTAN_AI_TOOLS.map((tool) => (
-                        <div key={tool.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                          <div className="flex justify-between items-start mb-3">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600">{tool.category}</span>
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                              tool.permission === "clinical:use"
-                                ? "bg-red-50 text-red-600 border-red-100"
-                                : "bg-purple-50 text-purple-700 border-purple-100"
-                            }`}>
-                              {tool.permission === "clinical:use" ? "Clinical permission" : "Field Kit access"}
-                            </span>
-                          </div>
-                          <h4 className="font-bold text-slate-900 mb-2">{tool.name}</h4>
-                          <p className="text-sm text-slate-600 leading-relaxed">{tool.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              </section>
-           </div>
-        </div>
+              </div>
+            </div>
+         </div>
       </section>
 
       <PublicConversionPanel
@@ -435,63 +356,44 @@ export default function Services() {
   );
 }
 
-function ServiceCard({ service }: { service: any }) {
+function ServiceBlock({ service, index }: { service: any, index: number }) {
   return (
-    <article className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-      
-      <div className="p-8 md:p-10 border-b border-slate-100">
-         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
-           <h3 className="font-display text-2xl font-bold text-slate-900">{service.title}</h3>
-           {(service.duration || service.price) && (
-             <div className="flex flex-wrap gap-3 shrink-0">
-               {service.duration && (
-                 <span className="inline-flex bg-slate-50 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full border border-slate-200">
-                   {service.duration}
-                 </span>
-               )}
-               {service.price && (
-                 <span className="inline-flex bg-primary/5 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20">
-                   {service.price}
-                 </span>
-               )}
-             </div>
-           )}
-         </div>
-         <p className="text-slate-600 leading-relaxed text-lg">
-           <strong className="text-slate-900 font-semibold block mb-1">The Problem:</strong>
-           {service.problem}
-         </p>
+    <article className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 items-start">
+      <div>
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)]">0{index + 1}</p>
+        <h3 className="fi-serif text-[clamp(2.2rem,4vw,3.5rem)] leading-[1] mb-6">{service.title}</h3>
+        {(service.duration || service.price) && (
+          <div className="mb-8 flex flex-wrap gap-4 text-[11px] font-bold uppercase tracking-wider">
+            {service.duration && <span className="border border-[var(--fi-line)] px-3 py-1.5">{service.duration}</span>}
+            {service.price && <span className="border border-[var(--fi-rust)] bg-[rgba(184,93,63,.08)] text-[var(--fi-rust)] px-3 py-1.5">{service.price}</span>}
+          </div>
+        )}
+        <div className="bg-[var(--fi-cream)] p-6 md:p-8 border border-[var(--fi-line)]">
+          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)] mb-3">Target Outcome</p>
+          <p className="font-semibold leading-[1.6] text-[15px]">{service.outcome}</p>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-[1.5fr_1fr] divide-y lg:divide-y-0 lg:divide-x divide-slate-100 flex-1">
-         <div className="p-8 md:p-10 flex flex-col justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">The Solution</p>
-              <p className="text-slate-600 leading-relaxed mb-8">{service.solution}</p>
-            </div>
-            
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Target Outcome</p>
-              <p className="font-semibold text-slate-900 leading-relaxed">{service.outcome}</p>
-            </div>
-         </div>
-         
-         <div className="p-8 md:p-10 bg-slate-50/50 flex flex-col">
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-5">Scope & Deliverables</p>
-            <ul className="space-y-4 mb-8 flex-1">
-              {service.includes.map((item: string, i: number) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                  <Check className="w-5 h-5 text-primary shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild variant="outline" className="w-full rounded-full border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-900">
-              <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
-                Discuss this engagement
-              </Link>
-            </Button>
-         </div>
+      <div className="space-y-10 lg:border-l lg:border-[var(--fi-line)] lg:pl-16 lg:pt-8">
+        <div>
+           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-4">The Problem</p>
+           <p className="text-[17px] leading-[1.6]">{service.problem}</p>
+        </div>
+        <div>
+           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-4">The Solution</p>
+           <p className="text-[17px] leading-[1.6] text-[rgba(19,32,31,.75)]">{service.solution}</p>
+        </div>
+        <div className="border-t border-[var(--fi-line)] pt-8">
+           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-5">Scope & Deliverables</p>
+           <ul className="space-y-4">
+             {service.includes.map((item: string, i: number) => (
+               <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-[rgba(19,32,31,.85)]">
+                 <Check className="mt-[2px] w-4 h-4 text-[var(--fi-rust)] shrink-0" />
+                 <span>{item}</span>
+               </li>
+             ))}
+           </ul>
+        </div>
       </div>
     </article>
   );

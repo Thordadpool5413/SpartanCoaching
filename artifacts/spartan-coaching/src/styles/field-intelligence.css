@@ -1,0 +1,114 @@
+html[data-route-surface="public"] .page-persuasion,
+html[data-route-surface="public"] .public-layout {
+  --fi-ink: #13201f;
+  --fi-paper: #f4f0e8;
+  --fi-cream: #fbf8f1;
+  --fi-field: #173f3b;
+  --fi-rust: #b85d3f;
+  --fi-line: rgba(19,32,31,.18);
+  
+  color: var(--fi-ink);
+  background: var(--fi-paper);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.fi-serif { font-family: 'Instrument Serif', Georgia, serif; }
+.fi-rule { height: 1px; background: var(--fi-line); }
+.fi-link { color: inherit; text-decoration: none; position: relative; }
+.fi-link:after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .3s ease; }
+.fi-link:hover:after { transform: scaleX(1); transform-origin: left; }
+.fi-reveal { animation: fiRise .7s both cubic-bezier(.2,.75,.25,1); }
+@keyframes fiRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes fiPulse { 0%,100% { opacity: .45 } 50% { opacity: 1 } }
+.fi-fade-image { transition: transform .8s cubic-bezier(.2,.75,.25,1); }
+.fi-fade-image:hover { transform: scale(1.025); }
+
+.page-persuasion .fi-dark :where(h1, h2, h3, h4) {
+  color: var(--fi-cream) !important;
+}
+
+/* Apply document body background for public surface */
+html[data-route-surface="public"] body {
+  background-color: #f4f0e8;
+  color: #13201f;
+}
+
+/* Custom text selection */
+html[data-route-surface="public"] ::selection {
+  background: rgba(184, 93, 63, 0.2);
+  color: #13201f;
+}
+
+/* Button resets for public theme */
+.fi-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--fi-field);
+  color: var(--fi-cream);
+  padding: 1rem 1.25rem;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+.fi-btn-primary:hover {
+  background: var(--fi-rust);
+}
+
+.fi-btn-rust {
+  background: var(--fi-rust);
+}
+.fi-btn-rust:hover {
+  background: var(--fi-field);
+}
+
+.fi-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: transparent;
+  color: inherit;
+  padding: 1rem 1.25rem;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: all 0.2s ease;
+  border: 1px solid currentColor;
+  cursor: pointer;
+}
+.fi-btn-outline:hover {
+  background: var(--fi-ink);
+  color: var(--fi-cream);
+}
+
+.membership-hero-cta [data-testid="membership-hero-subscribe-wrap"] {
+  align-items: flex-start;
+  max-width: 100%;
+}
+
+.membership-hero-cta [data-testid="membership-hero-subscribe-wrap"] > div {
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.membership-hero-cta a[href="/login"] {
+  color: var(--fi-cream) !important;
+}
+
+.membership-hero-cta a[href="/login"]:hover {
+  color: #e8a183 !important;
+}
+
+@media (max-width: 639px) {
+  .membership-hero-cta,
+  .membership-hero-cta [data-testid="membership-hero-subscribe-wrap"],
+  .membership-hero-cta [data-testid="membership-hero-subscribe-wrap"] > div,
+  .membership-hero-cta [data-testid="membership-hero-subscribe"] {
+    width: 100%;
+  }
+}
