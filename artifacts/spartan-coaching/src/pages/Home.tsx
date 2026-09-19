@@ -80,9 +80,9 @@ export function HeroSystemPanel() {
   };
 
   return (
-    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10 w-full mb-8 lg:mb-0 lg:absolute lg:inset-x-0 lg:top-[12%] lg:z-10" data-testid="section-hero-panel">
+    <figure className="hero-intro-figure absolute inset-0 z-0 w-full" data-testid="section-hero-panel">
       <div
-        className="hero-video-frame hero-intro-frame relative aspect-video overflow-hidden border border-border bg-muted shadow-sm"
+        className="hero-video-frame hero-intro-frame relative h-full min-h-[34rem] overflow-hidden bg-black"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
@@ -100,7 +100,7 @@ export function HeroSystemPanel() {
           playsInline
           preload="auto"
           poster="/hero-poster.jpg"
-          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover opacity-90"
+          className="hero-video-mobile absolute inset-0 z-10 h-full w-full object-cover"
           data-testid="hero-video"
           data-playback-state={videoState}
           data-playback-seconds={playbackSeconds.toFixed(1)}
@@ -120,19 +120,7 @@ export function HeroSystemPanel() {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
 
-        <div className="absolute inset-0 grid grid-cols-[1fr_0.75fr] pointer-events-none">
-          <div className="flex flex-col justify-between p-4 sm:p-6">
-            <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-primary drop-shadow-sm">
-              The field operating system
-            </p>
-            <div className="space-y-1 font-serif text-3xl font-light leading-none tracking-tight text-white sm:text-4xl drop-shadow-md">
-              <p>Prepare.</p>
-              <p>Practice.</p>
-              <p className="text-primary font-bold">Execute.</p>
-              <p>Review.</p>
-            </div>
-          </div>
-        </div>
+        <div className="hero-film-grade absolute inset-0 z-10 pointer-events-none" />
         <div
           className="absolute bottom-3 left-3 z-20 flex items-center gap-2 rounded-md border border-white/25 bg-black/70 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-md"
           data-testid="hero-video-status"
@@ -185,35 +173,24 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. EDITORIAL HERO ── */}
-      <section className="relative overflow-hidden border-b border-border bg-background" data-testid="section-hero">
-        <div className="relative z-10 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-start">
-
-            {/* Mobile order: Video first, then text */}
-            <div className="lg:hidden w-full relative h-[18rem] mb-6">
-              <HeroSystemPanel />
-            </div>
-
-            <div className="max-w-2xl text-left">
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6 lg:mb-8 flex items-center gap-3">
-                <span className="w-8 h-px bg-muted-foreground/50"></span>
-                Field Advisory Practice
+      <section className="spartan-hero relative overflow-hidden bg-black" data-testid="section-hero">
+        <HeroSystemPanel />
+        <div className="relative z-20 max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 min-h-[calc(100svh-5.5rem)] flex items-end lg:items-center py-12 sm:py-16 lg:py-20">
+            <div className="max-w-[58rem] text-left">
+              <p className="spartan-hero-kicker mb-6 lg:mb-8">
+                Private performance advisory · Hospice growth
               </p>
 
-              {/* Only ONE signature all-caps red phrase */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-light text-foreground leading-[1.08] text-balance mb-8" data-testid="text-home-hero-title">
-                Make the next hospice conversation <br />
-                <span className="font-display font-black text-primary uppercase tracking-tight text-5xl sm:text-6xl lg:text-7xl block mt-2">Count.</span>
+              <h1 className="spartan-hero-title leading-[1.08] mb-7" data-testid="text-home-hero-title">
+                Make the next hospice conversation <span>Count.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground leading-[1.7] max-w-xl mb-10">
-                <strong className="text-foreground font-medium">Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching.
-                <strong className="text-foreground font-medium ml-1">Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution.
+              <p className="spartan-hero-summary text-base sm:text-lg leading-[1.7] max-w-[39rem] mb-9">
+                <strong>Spartan Consulting</strong> gives hospice growth leaders direct strategy and coaching. <strong>Hospice Sales Pro</strong> gives individuals a digital workspace for daily execution.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6">
-                <Button size="lg" asChild className="rounded-none bg-foreground text-background hover:bg-primary hover:text-white border-none min-h-[3.25rem] px-8 text-sm font-semibold tracking-wide w-full sm:w-auto shadow-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-7">
+                <Button size="lg" asChild className="spartan-primary-action w-full sm:w-auto">
                   <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
                     Book a strategy call
                   </Link>
@@ -222,19 +199,12 @@ export default function Home() {
                 <Link
                   href="/hospice-sales-pro"
                   onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
-                  className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group w-full sm:w-auto justify-center sm:justify-start"
+                  className="spartan-quiet-link group w-full sm:w-auto justify-center sm:justify-start"
                 >
                   Explore Hospice Sales Pro <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
-
-            <div className="hidden lg:flex w-full min-w-0 justify-end">
-              <div className="relative w-full max-w-[40rem] min-h-[27rem] sm:min-h-[34rem] lg:min-h-[38rem] xl:max-w-[44rem] overflow-hidden">
-                <HeroSystemPanel />
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -242,7 +212,7 @@ export default function Home() {
       <section className="py-20 lg:py-32 bg-surface px-4 sm:px-6 lg:px-8 border-b border-border" data-testid="section-pathways">
         <div className="max-w-[90rem] mx-auto">
           <div className="max-w-2xl mb-16 lg:mb-24">
-            <h2 className="text-3xl lg:text-4xl font-serif font-light text-foreground mb-4">
+            <h2 className="spartan-section-title mb-4">
               Two ways to engage the work
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
@@ -253,7 +223,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
             <div className="lg:col-span-7 flex flex-col gap-6 lg:pr-12">
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Expert-led Service</p>
-              <h3 className="text-2xl lg:text-3xl font-medium text-foreground">Spartan Consulting</h3>
+              <h3 className="text-3xl lg:text-5xl font-display uppercase text-foreground">Spartan Consulting</h3>
               <p className="text-base text-muted-foreground leading-[1.7]">
                 Direct strategy and coaching for hospice growth leaders and teams. We diagnose the market reality, install a unified sales process, and build leadership rhythms that sustain performance long after the workshop ends.
               </p>
@@ -273,7 +243,7 @@ export default function Home() {
 
             <div className="lg:col-span-4 flex flex-col gap-6 pt-12 lg:pt-0 border-t border-border lg:border-t-0">
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Digital Workspace</p>
-              <h3 className="text-2xl lg:text-3xl font-medium text-foreground">Hospice Sales Pro</h3>
+              <h3 className="text-3xl lg:text-5xl font-display uppercase text-foreground">Hospice Sales Pro</h3>
               <p className="text-base text-muted-foreground leading-[1.7]">
                 A web and iPhone workspace for individuals and teams, featuring a daily Command Center, practice tools, and role-play modules.
               </p>
@@ -293,7 +263,7 @@ export default function Home() {
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">
                 Field-built authority
               </p>
-              <h2 className="text-3xl lg:text-4xl font-serif font-light text-foreground mb-6 leading-tight">
+               <h2 className="spartan-section-title font-serif font-light text-foreground mb-6">
                 Built by someone who has actually carried the number.
               </h2>
               <p className="text-base text-muted-foreground leading-[1.7] mb-8">
@@ -329,7 +299,7 @@ export default function Home() {
       {/* ── 5. FINAL CTA (Single focus) ── */}
       <section className="py-24 lg:py-40 text-center px-4 bg-background" data-testid="section-closing">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl lg:text-5xl font-serif font-light text-foreground mb-6 leading-tight">
+           <h2 className="spartan-section-title mb-6">
             Stop winging it.
           </h2>
           <p className="text-base text-muted-foreground mb-10 max-w-lg mx-auto">

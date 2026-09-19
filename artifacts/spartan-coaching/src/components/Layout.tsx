@@ -98,23 +98,23 @@ export function Header() {
   };
 
   return (
-    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top bg-background/95 backdrop-blur-md border-b-2 border-foreground" data-testid="site-header">
-      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 h-20 flex items-center justify-between safe-area-x">
+    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top" data-testid="site-header">
+      <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 h-[4.75rem] sm:h-[5.5rem] flex items-center justify-between safe-area-x">
         <div className="flex items-center">
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-4 hover:opacity-90 transition-opacity cursor-pointer touch-manipulation group"
               data-testid="link-home"
             >
-              <div className="w-12 h-12 bg-foreground text-background flex items-center justify-center font-display text-2xl font-black shrink-0">
-                S
-              </div>
+               <span className="brand-helmet-lockup">
+                 <img src="/spartan-helmet-384.png" alt="Spartan Coaching helmet" width="204" height="384" />
+               </span>
               <div className="min-w-0 flex flex-col">
-                <span className="font-black text-lg sm:text-2xl text-foreground tracking-[-0.02em] font-display uppercase leading-none">
+                 <span className="font-black text-[1.05rem] sm:text-[1.35rem] text-foreground tracking-[0.01em] font-display uppercase leading-none">
                   SPARTAN COACHING
                 </span>
-                <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.2em] text-primary mt-1.5 leading-none">
-                  Field Advisory Practice
+                 <span className="hidden sm:block text-[9px] font-bold uppercase tracking-[0.24em] text-primary mt-1.5 leading-none">
+                   Private performance house
                 </span>
               </div>
             </div>
@@ -292,15 +292,18 @@ export function Footer() {
   ];
 
   return (
-    <footer className="public-site-footer mt-auto border-t-2 border-foreground bg-background safe-area-bottom pt-16 pb-8" data-testid="site-footer">
+    <footer className="public-site-footer mt-auto safe-area-bottom pt-16 pb-8" data-testid="site-footer">
       <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <div>
+            <div className="flex items-center gap-4">
+              <img src="/spartan-helmet-384.png" alt="" width="204" height="384" className="h-16 w-auto" />
+              <div>
               <p className="font-display text-3xl font-black text-foreground uppercase tracking-tight">Spartan Coaching</p>
               <p className="text-xs font-bold text-primary mt-2 uppercase tracking-[0.2em]">
-                Field Advisory Practice
+                Private performance house
               </p>
+              </div>
             </div>
             <p className="text-base text-muted-foreground leading-relaxed max-w-md">
               Hospice growth consulting and Hospice Sales Pro tools on web and iPhone. Two clear paths. One disciplined system.
