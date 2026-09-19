@@ -126,10 +126,10 @@ export default function GuidedTourScreen() {
     return () => { active = false; };
   }, []);
 
-  const next = () => {
+  const next = async () => {
     void Haptics.selectionAsync();
     if (isLast) {
-      void completeGuidedTour();
+      await completeGuidedTour();
       router.replace(isAuthenticated ? "/(tabs)" : "/membership" as Href);
       return;
     }
@@ -140,8 +140,8 @@ export default function GuidedTourScreen() {
     });
   };
 
-  const close = () => {
-    void dismissGuidedTour(step);
+  const close = async () => {
+    await dismissGuidedTour(step);
     goBackOrReplace("/(tabs)");
   };
 
