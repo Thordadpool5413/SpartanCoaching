@@ -1,6 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
 @import "./styles/variables.css";
 
+/*
+ * Route-surface boundary. Components may use shared semantic utilities, but
+ * high-visibility workspace treatments must not style public pages by
+ * inheritance. AppLayout owns the data-route-surface value.
+ */
+html[data-route-surface="workspace"] .workspace-premium,
+html[data-route-surface="workspace"] .workspace-main {
+  --route-surface-ink: hsl(var(--foreground));
+  --route-surface-panel: hsl(var(--card));
+  color: var(--route-surface-ink);
+}
+
+html[data-route-surface="public"] .page-persuasion,
+html[data-route-surface="public"] .surface-page {
+  --route-surface-ink: hsl(var(--foreground));
+  --route-surface-panel: hsl(var(--card));
+  color: var(--route-surface-ink);
+}
+
 /* Mobile-First Responsive Design System */
 
 /* Hero Video - Responsive Positioning */
@@ -612,114 +631,114 @@ body {
    * Light themes: white body copy becomes dark foreground (readable on paper).
    * Keep white text on brand gradients, primary buttons, and hero video.
    */
-  html[data-theme-mode="light"] main .text-white,
-  html[data-theme-mode="light"] footer .text-white,
-  html[data-theme-mode="light"] header .text-white,
-  html[data-theme-mode="light"] .page-persuasion .text-white,
-  html[data-theme-mode="light"] .surface-band .text-white {
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] footer .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] header .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] .page-persuasion .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-band .text-white {
     color: hsl(var(--foreground)) !important;
   }
 
-  html[data-theme-mode="light"] main .text-white\/90,
-  html[data-theme-mode="light"] main .text-white\/80,
-  html[data-theme-mode="light"] main .text-white\/75,
-  html[data-theme-mode="light"] main .text-white\/70,
-  html[data-theme-mode="light"] main .text-white\/60,
-  html[data-theme-mode="light"] main .text-white\/55,
-  html[data-theme-mode="light"] main .text-white\/50,
-  html[data-theme-mode="light"] main .text-white\/40,
-  html[data-theme-mode="light"] main .text-white\/35,
-  html[data-theme-mode="light"] main .text-white\/30,
-  html[data-theme-mode="light"] footer .text-white\/80,
-  html[data-theme-mode="light"] footer .text-white\/70,
-  html[data-theme-mode="light"] footer .text-white\/55,
-  html[data-theme-mode="light"] .page-persuasion .text-white\/80,
-  html[data-theme-mode="light"] .page-persuasion .text-white\/70,
-  html[data-theme-mode="light"] .surface-band .text-white\/80,
-  html[data-theme-mode="light"] .surface-band .text-white\/70 {
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/90,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/75,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/70,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/60,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/55,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/50,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/40,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/35,
+  html[data-route-surface="public"][data-theme-mode="light"] main .text-white\/30,
+  html[data-route-surface="public"][data-theme-mode="light"] footer .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] footer .text-white\/70,
+  html[data-route-surface="public"][data-theme-mode="light"] footer .text-white\/55,
+  html[data-route-surface="public"][data-theme-mode="light"] .page-persuasion .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] .page-persuasion .text-white\/70,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-band .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-band .text-white\/70 {
     color: hsl(var(--muted-foreground)) !important;
   }
 
   /* Zinc/gray utilities written for dark UIs */
-  html[data-theme-mode="light"] .text-zinc-50,
-  html[data-theme-mode="light"] .text-zinc-100,
-  html[data-theme-mode="light"] .text-zinc-200,
-  html[data-theme-mode="light"] .dark\:text-zinc-50 {
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-50,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-100,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-200,
+  html[data-route-surface="public"][data-theme-mode="light"] .dark\:text-zinc-50 {
     color: hsl(var(--foreground)) !important;
   }
-  html[data-theme-mode="light"] .text-zinc-300,
-  html[data-theme-mode="light"] .text-zinc-400,
-  html[data-theme-mode="light"] .text-zinc-500,
-  html[data-theme-mode="light"] .text-zinc-600,
-  html[data-theme-mode="light"] .dark\:text-zinc-400 {
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-300,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-400,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-500,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-zinc-600,
+  html[data-route-surface="public"][data-theme-mode="light"] .dark\:text-zinc-400 {
     color: hsl(var(--muted-foreground)) !important;
   }
-  html[data-theme-mode="light"] .text-gray-300,
-  html[data-theme-mode="light"] .text-gray-400,
-  html[data-theme-mode="light"] .text-gray-500 {
+  html[data-route-surface="public"][data-theme-mode="light"] .text-gray-300,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-gray-400,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-gray-500 {
     color: hsl(var(--muted-foreground)) !important;
   }
 
   /* Preserve white text on brand / primary / hero surfaces */
-  html[data-theme-mode="light"] .bg-primary,
-  html[data-theme-mode="light"] .bg-primary *,
-  html[data-theme-mode="light"] [class*="bg-spartan-gradient"],
-  html[data-theme-mode="light"] [class*="bg-spartan-gradient"] *,
-  html[data-theme-mode="light"] [class*="from-red-"],
-  html[data-theme-mode="light"] [class*="from-red-"] *,
-  html[data-theme-mode="light"] [class*="via-red-"],
-  html[data-theme-mode="light"] [class*="via-red-"] *,
-  html[data-theme-mode="light"] .surface-cta,
-  html[data-theme-mode="light"] .surface-cta *,
-  html[data-theme-mode="light"] [data-testid="section-hero"],
-  html[data-theme-mode="light"] [data-testid="section-hero"] *,
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"],
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"] *,
-  html[data-theme-mode="light"] button.bg-primary,
-  html[data-theme-mode="light"] button.bg-primary *,
-  html[data-theme-mode="light"] .text-primary-foreground,
-  html[data-theme-mode="light"] .text-primary-foreground * {
+  html[data-route-surface="public"][data-theme-mode="light"] .bg-primary,
+  html[data-route-surface="public"][data-theme-mode="light"] .bg-primary *,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="bg-spartan-gradient"],
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="bg-spartan-gradient"] *,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"],
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"] *,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="via-red-"],
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="via-red-"] *,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-cta,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-cta *,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"],
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] *,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-faq-cta"],
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-faq-cta"] *,
+  html[data-route-surface="public"][data-theme-mode="light"] button.bg-primary,
+  html[data-route-surface="public"][data-theme-mode="light"] button.bg-primary *,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-primary-foreground,
+  html[data-route-surface="public"][data-theme-mode="light"] .text-primary-foreground * {
     color: inherit;
   }
   /* Hero descendants inherit ink above for legacy white utilities; deliberate
      Spartan-red emphasis must remain red instead of being flattened to ink. */
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-primary,
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-spartan-red {
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-primary,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-spartan-red {
     color: hsl(357 86% 45%) !important;
   }
   /* Explicit primary-foreground on primary fills (buttons, badges) */
-  html[data-theme-mode="light"] .bg-primary .text-primary-foreground,
-  html[data-theme-mode="light"] button.bg-primary,
-  html[data-theme-mode="light"] a.bg-primary {
+  html[data-route-surface="public"][data-theme-mode="light"] .bg-primary .text-primary-foreground,
+  html[data-route-surface="public"][data-theme-mode="light"] button.bg-primary,
+  html[data-route-surface="public"][data-theme-mode="light"] a.bg-primary {
     color: hsl(var(--primary-foreground)) !important;
   }
-  html[data-theme-mode="light"] .bg-primary,
-  html[data-theme-mode="light"] button[class*="bg-primary"],
-  html[data-theme-mode="light"] a[class*="bg-primary"] {
+  html[data-route-surface="public"][data-theme-mode="light"] .bg-primary,
+  html[data-route-surface="public"][data-theme-mode="light"] button[class*="bg-primary"],
+  html[data-route-surface="public"][data-theme-mode="light"] a[class*="bg-primary"] {
     color: hsl(var(--primary-foreground)) !important;
   }
-  html[data-theme-mode="light"] [class*="from-red-"] {
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"] {
     color: #fff !important;
   }
-  html[data-theme-mode="light"] [class*="from-red-"] .text-white,
-  html[data-theme-mode="light"] [class*="from-red-"] .text-white\/80,
-  html[data-theme-mode="light"] [class*="from-red-"] .text-white\/70,
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white,
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/80,
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/70,
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white,
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"] .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"] .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="from-red-"] .text-white\/70,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/80,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/70,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
     color: #fff !important;
   }
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
-  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
+  html[data-route-surface="public"][data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
     color: rgba(255, 255, 255, 0.7) !important;
   }
 
   /* Icons on primary gradient discs stay white */
-  html[data-theme-mode="light"] .bg-spartan-gradient .text-white,
-  html[data-theme-mode="light"] [class*="bg-spartan-gradient"] .text-white {
+  html[data-route-surface="public"][data-theme-mode="light"] .bg-spartan-gradient .text-white,
+  html[data-route-surface="public"][data-theme-mode="light"] [class*="bg-spartan-gradient"] .text-white {
     color: #fff !important;
   }
 
@@ -1333,33 +1352,33 @@ body {
   }
 
   /* Light mode: calmer depth so CEO screenshots read as paper, not nightclub */
-  html[data-theme-mode="light"] .elite-panel {
+  html[data-route-surface="public"][data-theme-mode="light"] .elite-panel {
     box-shadow:
       0 0 0 1px hsl(var(--primary) / 0.08) inset,
       0 12px 32px -16px rgba(15, 23, 42, 0.14),
       0 0 28px -18px hsl(var(--primary) / 0.12);
   }
-  html[data-theme-mode="light"] .elite-panel::after {
+  html[data-route-surface="public"][data-theme-mode="light"] .elite-panel::after {
     opacity: 0.02;
   }
-  html[data-theme-mode="light"] .dark-authority-header {
+  html[data-route-surface="public"][data-theme-mode="light"] .dark-authority-header {
     box-shadow:
       0 1px 0 hsl(var(--primary) / 0.08),
       0 8px 24px -16px rgba(15, 23, 42, 0.12);
   }
-  html[data-theme-mode="light"] .page-persuasion,
-  html[data-theme-mode="light"] .surface-page {
+  html[data-route-surface="public"][data-theme-mode="light"] .page-persuasion,
+  html[data-route-surface="public"][data-theme-mode="light"] .surface-page {
     background:
       radial-gradient(ellipse 100% 70% at 50% -18%, hsl(var(--primary) / 0.07), transparent 55%),
       radial-gradient(ellipse 55% 45% at 100% 0%, hsl(var(--primary) / 0.04), transparent 48%),
       hsl(var(--background));
   }
-  html[data-theme-mode="light"] .hover-card:hover,
-  html[data-theme-mode="light"] .card-lift:hover {
+  html[data-route-surface="public"][data-theme-mode="light"] .hover-card:hover,
+  html[data-route-surface="public"][data-theme-mode="light"] .card-lift:hover {
     box-shadow: 0 12px 28px -14px rgba(15, 23, 42, 0.16);
   }
-  html[data-theme-mode="light"] .shadow-elite,
-  html[data-theme-mode="light"] .shadow-elite-red {
+  html[data-route-surface="public"][data-theme-mode="light"] .shadow-elite,
+  html[data-route-surface="public"][data-theme-mode="light"] .shadow-elite-red {
     box-shadow:
       0 1px 0 hsl(var(--foreground) / 0.04) inset,
       0 10px 28px -12px rgba(15, 23, 42, 0.12) !important;

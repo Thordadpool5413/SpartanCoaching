@@ -13,6 +13,8 @@ import * as WebBrowser from "expo-web-browser";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
+import { layout, spacing } from "@/lib/spacing";
 import { useAuth } from "@/lib/AuthContext";
 import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost, getBaseUrl } from "@/lib/api";
 import { SectionKicker } from "@/components/ui/SectionKicker";
@@ -845,6 +847,8 @@ export default function SalesWorkflowScreen() {
               ]}
             />
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={saving ? "Saving call" : "Save call"}
               disabled={saving}
               onPress={() => void schedule()}
               style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
@@ -895,6 +899,8 @@ export default function SalesWorkflowScreen() {
             filteredAccounts.map((account) => (
               <Pressable
                 key={account.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Schedule a call with ${account.name}`}
                 onPress={() => {
                   setSelectedAccountId(account.id);
                   setAccountName(account.name);
@@ -990,7 +996,7 @@ export default function SalesWorkflowScreen() {
                     ) : null}
                     {csvPreview.headers.map((header) => (
                       <View key={header} style={{ marginTop: 8 }}>
-                        <Text style={{ color: colors.mutedForeground, fontSize: 11 }}>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>
                           Column: {header}
                         </Text>
                         <View style={styles.outcomeRow}>
@@ -1028,7 +1034,7 @@ export default function SalesWorkflowScreen() {
                                     color: selected
                                       ? colors.primaryForeground
                                       : colors.foreground,
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     fontWeight: "700",
                                   }}
                                 >
@@ -1068,7 +1074,15 @@ export default function SalesWorkflowScreen() {
           </View>
         ) : null}
 
-        {!!error && <Text style={[styles.error, { color: colors.readablePrimary }]}>{error}</Text>}
+        {!!error && (
+          <Text
+            accessibilityRole="alert"
+            accessibilityLiveRegion="assertive"
+            style={[styles.error, { color: colors.readablePrimary }]}
+          >
+            {error}
+          </Text>
+        )}
 
         {roleplaySession && (
           <View
@@ -1243,7 +1257,7 @@ export default function SalesWorkflowScreen() {
                         <Text
                           style={{
                             color: colors.mutedForeground,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: "800",
                             textTransform: "uppercase",
                           }}
@@ -1395,6 +1409,9 @@ export default function SalesWorkflowScreen() {
                         return (
                           <Pressable
                             key={item.value}
+                            accessibilityRole="radio"
+                            accessibilityLabel={`Outcome: ${item.label}`}
+                            accessibilityState={{ selected }}
                             onPress={() =>
                               setCallOutcomes((current) => ({ ...current, [call.id]: item.value }))
                             }
@@ -1409,7 +1426,7 @@ export default function SalesWorkflowScreen() {
                             <Text
                               style={{
                                 color: selected ? colors.primaryForeground : colors.foreground,
-                                fontSize: 11,
+                                fontSize: 13,
                                 fontWeight: "700",
                               }}
                             >
@@ -1464,7 +1481,7 @@ export default function SalesWorkflowScreen() {
                 testID={`next-action-${action.id}`}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700" }}>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: "700" }}>
                     {(action.type || "task").replace("_", " ")} · {action.status || "open"}
                   </Text>
                   <Text style={{ color: colors.foreground, marginTop: 4, fontWeight: "700" }}>
@@ -1591,33 +1608,33 @@ export default function SalesWorkflowScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 18, padding: 24 },
-  heading: { flexDirection: "row", gap: 12, alignItems: "center", marginBottom: 18 },
-  icon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  title: { fontSize: 24, fontWeight: "800" },
-  subtitle: { fontSize: 13, lineHeight: 19, marginTop: 3 },
-  dateRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
-  input: { flex: 1, minHeight: 46, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, marginBottom: 10 },
-  notes: { minHeight: 88, borderWidth: 1, borderRadius: 10, padding: 12, marginTop: 6, marginBottom: 10, textAlignVertical: "top" },
-  card: { borderWidth: 1, borderRadius: 14, padding: 16, marginBottom: 14 },
-  cardTitle: { fontSize: 17, fontWeight: "800", marginBottom: 5 },
-  fieldLabel: { fontSize: 11, fontWeight: "800", letterSpacing: 0.4, textTransform: "uppercase", marginTop: 10 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.lg, padding: layout.screenX },
+  heading: { flexDirection: "row", gap: spacing.md, alignItems: "center", marginBottom: spacing.lg },
+  icon: { width: layout.touchMin, height: layout.touchMin, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  title: { fontSize: 24, ...font("heavy") },
+  subtitle: { fontSize: 14, lineHeight: 20, marginTop: spacing.xs, ...font("regular") },
+  dateRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
+  input: { flex: 1, minHeight: layout.touchMin, borderWidth: 1, borderRadius: 10, paddingHorizontal: spacing.md, marginBottom: spacing.sm, fontSize: 16 },
+  notes: { minHeight: 88, borderWidth: 1, borderRadius: 10, padding: spacing.md, marginTop: spacing.xs, marginBottom: spacing.sm, textAlignVertical: "top", fontSize: 16 },
+  card: { borderWidth: 1, borderRadius: 14, padding: spacing.lg, marginBottom: spacing.md },
+  cardTitle: { fontSize: 17, ...font("heavy"), marginBottom: spacing.xs },
+  fieldLabel: { fontSize: 12, ...font("bold"), letterSpacing: 0.4, textTransform: "uppercase", marginTop: spacing.sm },
   draftPreview: { borderWidth: 1, borderRadius: 10, padding: 12, marginBottom: 8 },
   outcomeRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6, marginBottom: 4 },
-  outcomeChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
-  primary: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", marginTop: 8 },
-  primaryText: { fontWeight: "800" },
-  secondary: { minHeight: 42, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 4, marginBottom: 8 },
+  outcomeChip: { minHeight: layout.touchMin, borderWidth: 1, borderRadius: 999, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, justifyContent: "center" },
+  primary: { minHeight: layout.touchMin, borderRadius: 10, paddingHorizontal: spacing.lg, alignItems: "center", justifyContent: "center", marginTop: spacing.sm },
+  primaryText: { ...font("bold") },
+  secondary: { minHeight: layout.touchMin, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: spacing.xs, marginBottom: spacing.sm },
   actionRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 10,
     borderWidth: 1,
     borderRadius: 10,
-    padding: 12,
-    marginTop: 10,
+    padding: spacing.md,
+    marginTop: spacing.sm,
   },
   reviewActions: { flexDirection: "row", gap: 10, marginTop: 14 },
-  error: { marginBottom: 14, lineHeight: 20 },
-  safety: { fontSize: 11, lineHeight: 17, textAlign: "center", marginTop: 8 },
+  error: { marginBottom: spacing.md, lineHeight: 20, fontSize: 14, ...font("semibold") },
+  safety: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: spacing.sm },
 });

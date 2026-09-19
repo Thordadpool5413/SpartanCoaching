@@ -36,6 +36,7 @@ import { useColors } from "@/hooks/useColors";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { AI_REQUEST_TIMEOUT_MS, apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
+import { layout, spacing } from "@/lib/spacing";
 import { trackProductOutcome } from "@/lib/analytics";
 import { fetchJurisdictionContext, type JurisdictionContext } from "@/lib/jurisdictionApi";
 import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
@@ -181,7 +182,11 @@ function GuidedField({
       <TextInput
         accessibilityLabel={field.label}
         value={String(value ?? "")}
-        onChangeText={(next) => onChange(field.kind === "number" ? Number(next) : next)}
+                // Keep the editing state representable: clearing a numeric field must
+                // not turn into a surprising zero while the user is typing.
+                onChangeText={(next) =>
+                  onChange(field.kind === "number" ? (next === "" ? "" : Number(next)) : next)
+                }
         placeholder={field.placeholder}
         placeholderTextColor={colors.mutedForeground}
         multiline={multiline}
@@ -468,7 +473,13 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           <Text style={styles.sectionBody}>Do not enter patient names, dates, record numbers, contact details, or patient documents. Outputs are educational suggestions and require the appropriate medical director, compliance, or both to approve them.</Text>
           <View style={styles.confirmRow}>
             <Text style={styles.confirmText}>I confirm this input is deidentified and contains no patient documents.</Text>
-            <Switch accessibilityLabel="Confirm input is deidentified" value={confirmedDeidentified} onValueChange={setConfirmedDeidentified} />
+            <Switch
+              accessibilityRole="checkbox"
+              accessibilityLabel="Confirm input is deidentified"
+              accessibilityState={{ checked: confirmedDeidentified }}
+              value={confirmedDeidentified}
+              onValueChange={setConfirmedDeidentified}
+            />
           </View>
         </View>
       ) : null}
@@ -483,7 +494,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         {experience.fields.map((field) => (
           <GuidedField key={field.key} field={field} value={values[field.key] ?? (field.kind === "multi-choice" ? [] : "")} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
         ))}
-        {error ? <View style={styles.errorCard}><Feather name="alert-circle" size={17} color={colors.destructive} /><Text style={styles.error}>{error}</Text></View> : null}
+        {error ? <View accessibilityRole="alert" accessibilityLiveRegion="assertive" style={styles.errorCard}><Feather name="alert-circle" size={17} color={colors.destructive} /><Text style={styles.error}>{error}</Text></View> : null}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Run ${tool.name}`}
@@ -497,7 +508,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
                  <ActivityIndicator color={colors.primaryForeground} />
                 <Text style={styles.primaryButtonText}>{experience.progressStages[progressStage]}</Text>
               </View>
-              <Text style={[styles.primaryButtonText, { fontSize: 11, opacity: 0.82 }]}>
+              <Text style={[styles.primaryButtonText, { fontSize: 13, opacity: 0.82 }]}>
                 {elapsedSeconds < 8 ? "Building your result" : `Still working · ${elapsedSeconds}s`}
               </Text>
             </View>
@@ -520,7 +531,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <>
           <PremiumAiResult output={run.output} watermark={run.watermark} reviewStatus={run.reviewStatus} />
           <View style={styles.resultActions}>
-            <Pressable disabled={busy || networkBlocked} onPress={() => void shareResult()} style={[styles.resultAction, (busy || networkBlocked) && styles.disabled]}><Feather name="share-2" size={18} color={colors.readablePrimary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>{networkBlocked ? "Secure connection required." : "Readable output, not a JSON dump."}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
+             <Pressable accessibilityRole="button" accessibilityLabel="Share or export result" disabled={busy || networkBlocked} onPress={() => void shareResult()} style={[styles.resultAction, (busy || networkBlocked) && styles.disabled]}><Feather name="share-2" size={18} color={colors.readablePrimary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>{networkBlocked ? "Secure connection required." : "Readable output, not a JSON dump."}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
             {!clinical ? <View style={styles.savedRow}><Feather name="check-circle" size={17} color={colors.success} /><Text style={styles.savedText}>Saved to your account automatically</Text></View> : <View style={styles.savedRow}><Feather name="clock" size={17} color={VAULT.accent} /><Text style={styles.savedText}>Ephemeral clinical workspace · no run history stored</Text></View>}
           </View>
         </>
@@ -568,7 +579,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         {clinical ? <Text style={styles.sectionBody}>{VAULT_COPY.noHistory}</Text> : history.length === 0 ? <Text style={styles.sectionBody}>No saved runs yet. Your completed nonclinical work will appear here.</Text> : (
           <View style={styles.historyList}>
             {history.slice(0, 10).map((item) => (
-              <Pressable key={item.id} onPress={() => { setRun(item); void Haptics.selectionAsync(); }} style={styles.historyRow}>
+              <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`Open run from ${new Date(item.createdAt).toLocaleString()}`} onPress={() => { setRun(item); void Haptics.selectionAsync(); }} style={styles.historyRow}>
                 <View style={styles.historyIcon}><Feather name="clock" size={16} color={colors.readablePrimary} /></View>
                 <View style={{ flex: 1 }}><Text style={styles.historyTitle}>{new Date(item.createdAt).toLocaleString()}</Text><Text style={styles.historyBody}>{item.status ?? "completed"}</Text></View>
                 <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
@@ -596,60 +607,60 @@ function ResultSkeleton({ styles }: { styles: ReturnType<typeof makeStyles> }) {
 function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
-    container: { paddingHorizontal: 20, paddingBottom: 70, gap: 16 },
+    container: { paddingHorizontal: layout.screenX, paddingBottom: layout.tabBarClearance, gap: spacing.md },
     clinicalContainer: { borderTopWidth: 3, borderTopColor: VAULT.accent },
-    back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, alignSelf: "flex-start" },
-    backText: { color: colors.readablePrimary, fontSize: 13, ...font("semibold") },
-    hero: { gap: 10, paddingBottom: 5 },
+    back: { flexDirection: "row", alignItems: "center", gap: spacing.sm, minHeight: layout.touchMin, alignSelf: "flex-start" },
+    backText: { color: colors.readablePrimary, fontSize: 14, ...font("semibold") },
+    hero: { gap: spacing.sm, paddingBottom: spacing.xs },
     badges: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-    badge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 8, letterSpacing: 1, ...font("bold") },
+    badge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primaryMuted, borderRadius: 999, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, fontSize: 12, letterSpacing: 1, ...font("bold") },
     clinicalBadge: { color: VAULT.accent, borderColor: VAULT.border, backgroundColor: VAULT.surface },
-    privateBadge: { color: colors.mutedForeground, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 8, letterSpacing: 1, ...font("bold") },
+    privateBadge: { color: colors.mutedForeground, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 999, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, fontSize: 12, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 34, lineHeight: 39, letterSpacing: -1, ...font("heavy") },
     description: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, ...font("regular") },
     promiseRow: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 12 },
-    promiseText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
+    promiseText: { flex: 1, color: colors.foreground, fontSize: 14, lineHeight: 20, ...font("medium") },
     workflowCard: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.card, padding: 14, gap: 7 },
     workflowCardHeader: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 7 },
-    workflowBadge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 8, paddingVertical: 4, fontSize: 8, letterSpacing: 1.2, ...font("bold") },
-    workflowAudience: { color: colors.mutedForeground, fontSize: 8, letterSpacing: 1, ...font("bold") },
+    workflowBadge: { color: colors.readablePrimary, borderWidth: 1, borderColor: colors.primary, borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 8, paddingVertical: 4, fontSize: 12, letterSpacing: 1.2, ...font("bold") },
+    workflowAudience: { color: colors.mutedForeground, fontSize: 12, letterSpacing: 1, ...font("bold") },
     workflowTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
-    workflowCopy: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
+    workflowCopy: { color: colors.mutedForeground, fontSize: 14, lineHeight: 20, ...font("regular") },
     workflowStrong: { color: colors.foreground, ...font("bold") },
     safetyCard: { borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.muted, padding: 14, gap: 8 },
     safetyHeading: { flexDirection: "row", alignItems: "center", gap: 8 },
     safetyTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
     warningRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
     warningDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.primary, marginTop: 6 },
-    warningText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
+    warningText: { flex: 1, color: colors.mutedForeground, fontSize: 14, lineHeight: 20, ...font("regular") },
     networkCard: { borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 14, gap: 9 },
     jurisdictionCard: { borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: VAULT.borderSubtle, backgroundColor: VAULT.surface, padding: 14, gap: 8 },
     jurisdictionMissing: { borderStyle: "dashed" },
     jurisdictionState: { color: colors.foreground, fontSize: 15, ...font("bold") },
-    jurisdictionNote: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("regular") },
+    jurisdictionNote: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, ...font("regular") },
     networkAction: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 9 },
-    networkActionText: { color: colors.readablePrimary, fontSize: 11, ...font("bold") },
+    networkActionText: { color: colors.readablePrimary, fontSize: 13, ...font("bold") },
     clinicalGate: { borderWidth: 1, borderLeftWidth: 3, borderLeftColor: VAULT.accent, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 9 },
     confirmRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 10 },
-    confirmText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
+    confirmText: { flex: 1, color: colors.foreground, fontSize: 13, lineHeight: 17, ...font("medium") },
     workflowHeading: { gap: 6, marginTop: 8 },
-    sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    sectionKicker: { color: colors.readablePrimary, fontSize: 12, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 23, lineHeight: 28, letterSpacing: -0.5, ...font("heavy") },
-    sectionBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("regular") },
+    sectionBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 17, ...font("regular") },
     formCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", padding: 16, gap: 16 },
     field: { gap: 7 },
     label: { color: colors.foreground, fontSize: 13, ...font("bold") },
-    fieldHint: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("regular") },
+    fieldHint: { color: colors.mutedForeground, fontSize: 12, lineHeight: 14, ...font("regular") },
     input: { minHeight: 50, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", backgroundColor: colors.input, color: colors.foreground, paddingHorizontal: 13, fontSize: 14, ...font("regular") },
     multiline: { minHeight: 112, paddingTop: 12, paddingBottom: 12 },
     switchRow: { minHeight: 62, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 9 },
     choiceRow: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-    choice: { minHeight: 40, justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.background, paddingHorizontal: 12 },
+    choice: { minHeight: layout.touchMin, justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.background, paddingHorizontal: spacing.md },
     choiceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
-    choiceText: { color: colors.mutedForeground, fontSize: 10, ...font("semibold") },
+    choiceText: { color: colors.mutedForeground, fontSize: 13, ...font("semibold") },
     choiceTextSelected: { color: colors.readablePrimary },
     errorCard: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderRadius: 13, backgroundColor: colors.muted, padding: 11 },
-    error: { flex: 1, color: colors.destructive, fontSize: 10, lineHeight: 15, ...font("semibold") },
+    error: { flex: 1, color: colors.destructive, fontSize: 13, lineHeight: 15, ...font("semibold") },
     primaryButton: { minHeight: 58, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18 },
      primaryButtonText: { color: colors.primaryForeground, fontSize: 15, ...font("bold") },
     disabled: { opacity: 0.45 },
@@ -658,23 +669,23 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     emptyResult: { alignItems: "center", borderWidth: 1, borderStyle: "dashed", borderColor: colors.borderStrong, borderRadius: 20, borderCurve: "continuous", padding: 22, gap: 8 },
     emptyIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     emptyTitle: { color: colors.foreground, fontSize: 14, lineHeight: 19, textAlign: "center", ...font("bold") },
-    emptyBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, textAlign: "center", ...font("regular") },
+    emptyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 15, textAlign: "center", ...font("regular") },
     resultActions: { borderRadius: 18, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, overflow: "hidden" },
-    resultAction: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 11, paddingHorizontal: 14 },
+    resultAction: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: spacing.md, paddingHorizontal: spacing.lg },
     resultActionTitle: { color: colors.foreground, fontSize: 12, ...font("bold") },
-    resultActionBody: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, marginTop: 2, ...font("regular") },
+    resultActionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 14, marginTop: 2, ...font("regular") },
     savedRow: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingHorizontal: 14 },
-    savedText: { color: colors.mutedForeground, fontSize: 9, ...font("medium") },
+    savedText: { color: colors.mutedForeground, fontSize: 12, ...font("medium") },
     connectionList: { marginTop: 5 },
     connectionRow: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingVertical: 11 },
     connectionIcon: { width: 40, height: 40, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     connectionTitle: { color: colors.foreground, fontSize: 12, ...font("bold") },
-    connectionBody: { color: colors.mutedForeground, fontSize: 9, marginTop: 2, ...font("regular") },
+    connectionBody: { color: colors.mutedForeground, fontSize: 12, marginTop: 2, ...font("regular") },
     historyList: { borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.card, overflow: "hidden", marginTop: 5 },
     historyRow: { minHeight: 62, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     historyIcon: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
-    historyTitle: { color: colors.foreground, fontSize: 11, ...font("semibold") },
-    historyBody: { color: colors.mutedForeground, fontSize: 9, marginTop: 2, textTransform: "capitalize", ...font("regular") },
+    historyTitle: { color: colors.foreground, fontSize: 13, ...font("semibold") },
+    historyBody: { color: colors.mutedForeground, fontSize: 12, marginTop: 2, textTransform: "capitalize", ...font("regular") },
     pressed: { opacity: 0.78, transform: [{ scale: 0.995 }] },
   });
 }
