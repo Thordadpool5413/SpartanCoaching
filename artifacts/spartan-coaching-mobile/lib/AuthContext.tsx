@@ -119,17 +119,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void cacheUser(nextUser);
     setActiveSyncMember(data.member.id);
     void syncMemberData(data.member.id);
-    try {
-      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
-        const refreshed = await fetchMeMobile();
-        if (refreshed) {
-          setUser(refreshed);
-          void cacheUser(refreshed);
+    // StoreKit recovery is follow-up work. It must never hold the login screen open.
+    void (async () => {
+      try {
+        if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
+          const refreshed = await fetchMeMobile();
+          if (refreshed) {
+            setUser(refreshed);
+            void cacheUser(refreshed);
+          }
         }
+      } catch {
+        // Signing in must still succeed if StoreKit is temporarily unavailable.
       }
-    } catch {
-      // Signing in must still succeed if StoreKit is temporarily unavailable.
-    }
+    })();
   }, []);
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
@@ -143,14 +146,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void cacheUser(nextUser);
     setActiveSyncMember(data.member.id);
     void syncMemberData(data.member.id);
-    try {
-      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
-        const refreshed = await fetchMeMobile();
-        if (refreshed) setUser(refreshed);
+    void (async () => {
+      try {
+        if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
+          const refreshed = await fetchMeMobile();
+          if (refreshed) {
+            setUser(refreshed);
+            void cacheUser(refreshed);
+          }
+        }
+      } catch {
+        // Account creation must still succeed. Restore remains available in app.
       }
-    } catch {
-      // Account creation must still succeed. Restore remains available in app.
-    }
+    })();
   }, []);
 
   const logout = useCallback(async () => {
