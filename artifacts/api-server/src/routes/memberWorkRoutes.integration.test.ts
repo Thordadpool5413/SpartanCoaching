@@ -8,6 +8,7 @@ import {
   clientMembers,
   clientOrganizations,
   clientSessions,
+  memberSyncRecords,
   memberWorkItems,
 } from "@workspace/db";
 import app from "../app";
@@ -25,8 +26,13 @@ if (integrationRequested && !databaseUrl) {
 
 if (
   integrationRequested &&
-  databaseUrl &&
-  /(prod|production|spartanhospicecoaching)/i.test(databaseUrl)
+  (
+    process.env.NODE_ENV === "production" ||
+    process.env.DEPLOY_ENV === "production" ||
+    process.env.APP_ENV === "production" ||
+    process.env.REPLIT_DEPLOYMENT === "1" ||
+    (databaseUrl && /(prod|production|spartanhospicecoaching)/i.test(databaseUrl))
+  )
 ) {
   throw new Error(
     "[saved-work:migration-setup] refusing to run saved-work integration data against a production-looking DATABASE_URL",
@@ -42,6 +48,14 @@ type Actor = {
 };
 
 const migrationPaths = [
+  resolve(
+    import.meta.dirname,
+    "../../../../lib/db/migrations/0023_member_sync_continuity.sql",
+  ),
+  resolve(
+    import.meta.dirname,
+    "../../../../lib/db/migrations/0024_member_sync_mutation_tenant_scope.sql",
+  ),
   resolve(
     import.meta.dirname,
     "../../../../lib/db/migrations/0025_member_work_items.sql",
@@ -173,6 +187,9 @@ describe.runIf(integrationEnabled)(
     afterAll(async () => {
       if (organizationIds.length === 0) return;
 
+      await db
+        .delete(memberSyncRecords)
+        .where(inArray(memberSyncRecords.organizationId, organizationIds));
       await db
         .delete(memberWorkItems)
         .where(inArray(memberWorkItems.organizationId, organizationIds));
@@ -334,6 +351,205 @@ describe.runIf(integrationEnabled)(
       expect(ownerPatch.body.item.status).toBe("failed");
       expect(ownerPatch.body.item.nextAction).toEqual({
         title: "Review the failed report",
+      });
+    });
+
+    it("[web to iPhone continuity] restores web-created sync records only to their authenticated owner", async () => {
+      const mutation = {
+        mutationId: `web-result-${namespace}`,
+        recordType: "tool_result",
+        recordId: "objection",
+        payload: { result: "Ask what would make the timing workable." },
+        clientUpdatedAt: "2026-09-19T12:00:00.000Z",
+        isDeleted: false,
+      };
+
+      const created = await request(app)
+        .post("/api/v1/member-sync")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .send({ mutations: [mutation] });
+
+      expect(created.status).toBe(200);
+      expect(created.body).toMatchObject({
+        conflicts: 0,
+        rejected: [],
+        records: [{
+          mutationId: mutation.mutationId,
+          recordType: mutation.recordType,
+          recordId: mutation.recordId,
+          payload: mutation.payload,
+          isDeleted: false,
+        }],
+      });
+
+      const [ownerRestore, sameOrganizationRestore, otherOrganizationRestore] =
+        await Promise.all([
+          request(app)
+            .get("/api/v1/member-sync")
+            .set("Authorization", `Bearer ${owner.token}`),
+          request(app)
+            .get("/api/v1/member-sync")
+            .set("Authorization", `Bearer ${sameOrganizationMember.token}`),
+          request(app)
+            .get("/api/v1/member-sync")
+            .set("Authorization", `Bearer ${otherOrganizationMember.token}`),
+        ]);
+
+      expect(ownerRestore.status).toBe(200);
+      expect(ownerRestore.body.records).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            mutationId: mutation.mutationId,
+            payload: mutation.payload,
+          }),
+        ]),
+      );
+      expect(sameOrganizationRestore.status).toBe(200);
+      expect(sameOrganizationRestore.body.records).toEqual([]);
+      expect(otherOrganizationRestore.status).toBe(200);
+      expect(otherOrganizationRestore.body.records).toEqual([]);
+    });
+
+    it("[iPhone to My Work continuity] exposes iPhone-created work through the web history endpoint", async () => {
+      const idempotencyKey = `ios-my-work-${namespace}`;
+      const payload = {
+        kind: "tool_result",
+        toolId: "objection-handler",
+        title: "iPhone objection practice",
+        output: { recommendation: "Confirm the concern before responding." },
+        sourcePlatform: "ios",
+      };
+
+      const created = await request(app)
+        .post("/api/v1/member-work")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .set("Idempotency-Key", idempotencyKey)
+        .send(payload);
+      expect(created.status).toBe(201);
+      expect(created.body.item).toMatchObject(payload);
+
+      const myWork = await request(app)
+        .get("/api/v1/member-work")
+        .set("Authorization", `Bearer ${owner.token}`);
+      expect(myWork.status).toBe(200);
+      expect(myWork.body.items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: created.body.item.id,
+            sourcePlatform: "ios",
+            title: payload.title,
+          }),
+        ]),
+      );
+    });
+
+    it("[sync retries and conflicts] keeps duplicate mutations idempotent and returns the authoritative winner", async () => {
+      const initial = {
+        mutationId: `sync-retry-${namespace}`,
+        recordType: "commitment",
+        recordId: "current",
+        payload: { value: "Make three focused calls." },
+        clientUpdatedAt: "2026-09-19T13:00:00.000Z",
+        isDeleted: false,
+      };
+
+      const first = await request(app)
+        .post("/api/v1/member-sync")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .send({ mutations: [initial] });
+      const retry = await request(app)
+        .post("/api/v1/member-sync")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .send({
+          mutations: [{
+            ...initial,
+            payload: { value: "A retry must not replace the original payload." },
+          }],
+        });
+
+      expect(first.status).toBe(200);
+      expect(retry.status).toBe(200);
+      expect(retry.body).toMatchObject({
+        conflicts: 0,
+        rejected: [],
+        records: [{
+          mutationId: initial.mutationId,
+          payload: initial.payload,
+        }],
+      });
+
+      const older = await request(app)
+        .post("/api/v1/member-sync")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .send({
+          mutations: [{
+            ...initial,
+            mutationId: `sync-older-${namespace}`,
+            payload: { value: "An older device value." },
+            clientUpdatedAt: "2026-09-19T12:59:59.000Z",
+          }],
+        });
+
+      expect(older.status).toBe(200);
+      expect(older.body).toMatchObject({
+        conflicts: 1,
+        rejected: [],
+        records: [{
+          mutationId: initial.mutationId,
+          payload: initial.payload,
+        }],
+      });
+
+      const stored = await db.execute<{ count: string }>(sql`
+        SELECT count(*)::text AS count
+        FROM "member_sync_records"
+        WHERE "organization_id" = ${owner.organizationId}
+          AND "member_id" = ${owner.memberId}
+          AND "record_type" = 'commitment'
+          AND "record_id" = 'current'
+      `);
+      expect(stored.rows[0]?.count).toBe("1");
+    });
+
+    it("[sync rejection envelope] rejects unsafe records without discarding valid mutations", async () => {
+      const validMutationId = `sync-valid-${namespace}`;
+      const rejectedMutationId = `sync-rejected-${namespace}`;
+      const response = await request(app)
+        .post("/api/v1/member-sync")
+        .set("Authorization", `Bearer ${owner.token}`)
+        .send({
+          mutations: [
+            {
+              mutationId: validMutationId,
+              recordType: "tool_draft",
+              recordId: "weekly",
+              payload: { draft: { goal: "Schedule two referral conversations." } },
+              clientUpdatedAt: "2026-09-19T14:00:00.000Z",
+              isDeleted: false,
+            },
+            {
+              mutationId: rejectedMutationId,
+              recordType: "tool_result",
+              recordId: "objection",
+              payload: { result: "Call patient Jane Doe at 555-123-4567." },
+              clientUpdatedAt: "2026-09-19T14:00:01.000Z",
+              isDeleted: false,
+            },
+          ],
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        conflicts: 0,
+        rejected: [{
+          mutationId: rejectedMutationId,
+          code: "INVALID_SYNC_MUTATION",
+        }],
+        records: [{
+          mutationId: validMutationId,
+          recordType: "tool_draft",
+          recordId: "weekly",
+        }],
       });
     });
   },
