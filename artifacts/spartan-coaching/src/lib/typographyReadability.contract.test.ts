@@ -29,7 +29,7 @@ describe("web typography readability contracts", () => {
     expect(home).toContain("leading-[.98]");
     expect(home).not.toContain("spartan-hero-title");
     expect(home.indexOf('data-testid="text-home-hero-title"')).toBeGreaterThan(home.indexOf('data-testid="section-home-intro"'));
-    expect(home).toMatch(/section-founder-authority[\s\S]*?font-serif font-light text-foreground[\s\S]*?text-muted-foreground[\s\S]*?Read the founder story/s);
+    expect(home).toMatch(/section-founder-authority[\s\S]*?fi-serif[\s\S]*?leading-\[\.96\][\s\S]*?text-black\/70[\s\S]*?Read the founder story/s);
     expect(manifesto).not.toContain("leading-[0.9]");
     expect(manifesto).toContain("leading-[1.1]");
     expect(manifesto).toContain("justify-center bg-foreground overflow-hidden");

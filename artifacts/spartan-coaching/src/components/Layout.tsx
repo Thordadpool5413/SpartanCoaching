@@ -36,15 +36,15 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-4 py-2 text-[13px] leading-none font-sans font-bold uppercase tracking-[0.06em] transition-colors block whitespace-nowrap",
+        "relative px-4 py-2 text-[11px] leading-none font-mono font-bold uppercase tracking-[0.1em] transition-colors block whitespace-nowrap",
         isActive
-          ? "text-foreground"
-          : "text-muted-foreground hover:text-foreground"
+          ? "text-[var(--fi-ink)]"
+          : "text-black/50 hover:text-[var(--fi-ink)]"
       )}
     >
       {children}
       {isActive && (
-        <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-primary" aria-hidden />
+        <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[var(--fi-red)]" aria-hidden />
       )}
     </Link>
   );
@@ -60,8 +60,8 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       className={cn(
         "px-5 py-5 text-xl font-display uppercase tracking-wide touch-manipulation min-h-[60px] flex items-center transition-all border-b border-border/20",
         location === href
-          ? "text-primary font-black"
-          : "text-foreground hover:bg-muted/50"
+          ? "text-[var(--fi-red)] font-black"
+          : "text-[var(--fi-ink)] hover:bg-muted/50"
       )}
       data-testid={`link-mobile-${href.replace(/\//g, "-")}`}
     >
@@ -98,7 +98,7 @@ export function Header() {
   };
 
   return (
-    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top" data-testid="site-header">
+    <header className="public-site-header sticky top-0 z-50 w-full safe-area-top bg-white border-b border-[var(--fi-line)]" data-testid="site-header">
       <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12 h-[4.75rem] sm:h-[5.5rem] flex items-center justify-between safe-area-x">
         <div className="flex items-center">
           <Link href={homeHref}>
@@ -107,13 +107,13 @@ export function Header() {
               data-testid="link-home"
             >
                <span className="brand-helmet-lockup">
-                 <img src="/spartan-helmet-384.png" alt="Spartan Coaching helmet" width="204" height="384" />
+                 <img src="/spartan-logo.png" alt="Spartan Coaching helmet" className="h-10 w-auto" />
                </span>
               <div className="min-w-0 flex flex-col">
-                 <span className="font-black text-[1.05rem] sm:text-[1.35rem] text-foreground tracking-[0.01em] font-display uppercase leading-none">
+                 <span className="font-black text-[1.1rem] sm:text-[1.35rem] text-[var(--fi-ink)] tracking-[-0.02em] font-display uppercase leading-none">
                   SPARTAN COACHING
                 </span>
-                 <span className="hidden sm:block text-[9px] font-bold uppercase tracking-[0.24em] text-primary mt-1.5 leading-none">
+                 <span className="hidden sm:block text-[0.6rem] font-bold font-mono uppercase tracking-[0.2em] text-[var(--fi-red)] mt-1.5 leading-none">
                    Private performance house
                 </span>
               </div>
@@ -144,7 +144,7 @@ export function Header() {
           {!isAuthenticated && (
             <Link
               href="/login"
-              className="hidden xl:inline-flex min-h-11 items-center gap-2 px-4 text-sm font-bold text-foreground hover:text-primary transition-colors"
+              className="hidden xl:inline-flex min-h-11 items-center gap-2 px-4 text-[0.75rem] font-bold uppercase tracking-[0.1em] text-[var(--fi-ink)] font-mono hover:text-[var(--fi-red)] transition-colors"
               data-testid="button-login"
             >
               <LogIn className="w-4 h-4" />
@@ -153,23 +153,21 @@ export function Header() {
           )}
 
           {isAuthenticated ? (
-            <Button
-              asChild
-              className="hidden xl:inline-flex min-h-11 rounded-none px-6 text-sm font-bold bg-foreground text-background hover:bg-primary hover:text-white"
+            <Link
+              href={canUseFieldKit ? "/portal" : "/account"}
+              className="hidden xl:inline-flex min-h-11 items-center justify-center rounded-none px-6 text-[0.75rem] uppercase tracking-[0.1em] font-mono font-bold bg-[var(--fi-ink)] text-white hover:bg-[var(--fi-red)] transition-colors"
               data-testid="button-open-workspace"
             >
-              <Link href={canUseFieldKit ? "/portal" : "/account"}>
-                {canUseFieldKit ? "Open Workspace" : "Account"}
-              </Link>
-            </Button>
+              {canUseFieldKit ? "Open Workspace" : "Account"}
+            </Link>
           ) : (
-            <Button
-              asChild
-              className="hidden xl:inline-flex min-h-11 rounded-none px-6 text-sm font-bold bg-primary text-primary-foreground hover:bg-foreground hover:text-background border-none"
+            <Link
+              href="/contact"
+              className="hidden xl:inline-flex min-h-11 items-center justify-center rounded-none px-6 text-[0.75rem] uppercase tracking-[0.1em] font-mono font-bold bg-[var(--fi-red)] text-white hover:bg-[var(--fi-red-hover)] transition-colors"
               data-testid="button-book-call"
             >
-              <Link href="/contact">Book Strategy Call</Link>
-            </Button>
+              Book Strategy Call
+            </Link>
           )}
 
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -292,31 +290,31 @@ export function Footer() {
   ];
 
   return (
-    <footer className="public-site-footer mt-auto safe-area-bottom pt-16 pb-8" data-testid="site-footer">
+    <footer className="public-site-footer mt-auto safe-area-bottom pt-16 pb-8 bg-[var(--fi-paper)] border-t border-[var(--fi-line)]" data-testid="site-footer">
       <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-5 flex flex-col gap-6">
             <div className="flex items-center gap-4">
-              <img src="/spartan-helmet-384.png" alt="" width="204" height="384" className="h-16 w-auto" />
+              <img src="/spartan-logo.png" alt="" className="h-10 w-auto" />
               <div>
-              <p className="font-display text-3xl font-black text-foreground uppercase tracking-tight">Spartan Coaching</p>
-              <p className="text-xs font-bold text-primary mt-2 uppercase tracking-[0.2em]">
+              <p className="font-display text-2xl font-black text-[var(--fi-ink)] uppercase tracking-tight">Spartan Coaching</p>
+              <p className="text-[0.6rem] font-bold text-[var(--fi-red)] font-mono uppercase tracking-[0.2em]">
                 Private performance house
               </p>
               </div>
             </div>
-            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+            <p className="text-[0.95rem] text-black/70 leading-relaxed font-medium max-w-md mt-2">
               Hospice growth consulting and Hospice Sales Pro tools on web and iPhone. Two clear paths. One disciplined system.
             </p>
-            <div className="mt-4 border-l-2 border-primary pl-4">
-              <a href="mailto:nick@spartanhospicecoaching.com" className="block text-sm font-bold text-foreground hover:text-primary transition-colors">
+            <div className="mt-4 border-l-2 border-[var(--fi-red)] pl-4">
+              <a href="mailto:nick@spartanhospicecoaching.com" className="block text-[0.85rem] font-bold text-black hover:text-[var(--fi-red)] transition-colors">
                 nick@spartanhospicecoaching.com
               </a>
               <a
                 href="https://www.linkedin.com/in/nicholas-lynch-coaching"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors mt-2"
+                className="inline-flex items-center gap-2 text-[0.85rem] font-bold text-black hover:text-[var(--fi-red)] transition-colors mt-2"
               >
                 <Linkedin className="w-4 h-4" />
                 Connect on LinkedIn
@@ -325,13 +323,13 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-3 flex flex-col gap-6">
-            <p className="text-xs font-black text-foreground uppercase tracking-[0.2em]">Navigation</p>
-            <nav className="flex flex-col gap-3">
+            <p className="text-[0.65rem] font-bold font-mono text-black/50 uppercase tracking-[0.2em]">Navigation</p>
+            <nav className="flex flex-col gap-4">
               {publicLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  className="text-sm font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wide"
+                  className="text-[0.8rem] font-bold text-black/70 hover:text-[var(--fi-red)] transition-colors uppercase tracking-[0.1em]"
                 >
                   {label}
                 </Link>
@@ -341,8 +339,8 @@ export function Footer() {
 
           {!canUseFieldKit && (
             <div className="lg:col-span-4 flex flex-col gap-6">
-              <p className="text-xs font-black text-foreground uppercase tracking-[0.2em]">Updates</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-[0.65rem] font-bold font-mono text-black/50 uppercase tracking-[0.2em]">Updates</p>
+              <p className="text-[0.85rem] text-black/70 leading-relaxed font-medium">
                 {CONSENT_COPY.newsletterExplicit}
               </p>
               <NewsletterSignup />
@@ -350,12 +348,12 @@ export function Footer() {
           )}
         </div>
 
-        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono uppercase tracking-widest text-muted-foreground" style={{ paddingBottom: padBottom }}>
+        <div className="pt-8 border-t border-[var(--fi-line)] flex flex-col md:flex-row justify-between items-center gap-4 text-[0.7rem] font-bold font-mono uppercase tracking-[0.15em] text-black/50" style={{ paddingBottom: padBottom }}>
           <p>© {new Date().getFullYear()} Spartan Coaching LLC</p>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-primary">Privacy</Link>
-            <Link href="/terms" className="hover:text-primary">Terms</Link>
-            <Link href="/compliance" className="hover:text-primary">Compliance</Link>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="hover:text-[var(--fi-red)]">Privacy</Link>
+            <Link href="/terms" className="hover:text-[var(--fi-red)]">Terms</Link>
+            <Link href="/compliance" className="hover:text-[var(--fi-red)]">Compliance</Link>
           </div>
         </div>
       </div>

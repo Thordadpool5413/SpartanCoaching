@@ -205,16 +205,16 @@ export default function Services() {
       <BackButton />
 
       {/* Hero */}
-      <section className="fi-dark bg-[var(--fi-field)] text-[var(--fi-cream)]">
+      <section className="fi-dark fi-section bg-[var(--fi-ink)]">
         <div className="mx-auto max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
-          <div className="flex flex-col justify-between gap-10 border-b border-[rgba(244,240,232,.15)] pb-12 md:flex-row md:items-end">
+          <div className="flex flex-col justify-between gap-10 border-b border-[var(--fi-line-light)] pb-12 md:flex-row md:items-end">
             <div>
-              <p className="mb-5 text-[10px] font-bold uppercase tracking-[.2em] text-[#e8a183]">Consulting & Systems</p>
-              <h1 className="fi-serif max-w-[800px] text-[clamp(3.5rem,7vw,7rem)] leading-[.84]" data-testid="text-services-title">
-                When effort is high<br /><em>but execution is inconsistent.</em>
+              <p className="fi-kicker fi-kicker-light mb-8">Consulting & Systems</p>
+              <h1 className="fi-serif text-[clamp(3.5rem,7vw,7rem)] leading-[0.9] max-w-[800px]" data-testid="text-services-title">
+                When effort is high <span className="text-[var(--fi-red)]">but execution is inconsistent.</span>
               </h1>
             </div>
-            <p className="max-w-[340px] text-[15px] leading-[1.7] text-[rgba(244,240,232,.72)]">
+            <p className="max-w-[340px] text-[1.125rem] leading-[1.6] text-white/80 font-medium">
               For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
             </p>
           </div>
@@ -225,10 +225,10 @@ export default function Services() {
               { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
               { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
             ].map(({ num, title, copy }) => (
-              <div key={num} className="border-t border-[rgba(244,240,232,.15)] pt-6">
-                <span className="text-[11px] font-bold text-[#e8a183]">{num}</span>
-                <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm leading-[1.6] text-[rgba(244,240,232,.65)]">{copy}</p>
+              <div key={num} className="pt-6 border-t border-[var(--fi-line-light)]">
+                <span className="text-[0.75rem] font-bold text-[var(--fi-red)] font-mono">{num}</span>
+                <h3 className="mt-4 text-xl font-bold uppercase tracking-wider">{title}</h3>
+                <p className="mt-4 text-sm leading-[1.6] text-white/70 font-medium">{copy}</p>
               </div>
             ))}
           </div>
@@ -236,7 +236,7 @@ export default function Services() {
       </section>
 
       {/* Services Portfolio */}
-      <section className="bg-[var(--fi-paper)]">
+      <section className="fi-section bg-[var(--fi-paper)]">
         <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
           <div
             className="mb-14 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[var(--fi-line)]"
@@ -252,10 +252,10 @@ export default function Services() {
                 aria-selected={activeCategory === c.id}
                 aria-controls="services-category-panel"
                 onClick={() => setActiveCategory(c.id)}
-                className={`pb-4 text-[12px] font-bold uppercase tracking-[.15em] transition-colors ${
+                className={`pb-4 text-[0.75rem] font-bold font-mono uppercase tracking-[.15em] transition-colors ${
                   activeCategory === c.id 
-                    ? "border-b-2 border-[var(--fi-rust)] text-[var(--fi-rust)]" 
-                    : "text-[rgba(19,32,31,.5)] hover:text-[var(--fi-ink)]"
+                    ? "border-b-2 border-[var(--fi-red)] text-[var(--fi-red)]" 
+                    : "text-black/50 hover:text-[var(--fi-ink)]"
                 }`}
                 data-testid={
                   c.id === "individual" ? "pathway-coaching" : 
@@ -282,12 +282,12 @@ export default function Services() {
       </section>
 
       {/* Software Catalog */}
-      <section id="field-tools" className="border-t border-[var(--fi-line)] bg-[var(--fi-cream)]">
+      <section id="field-tools" className="fi-section bg-white">
          <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
             <div className="mb-16 max-w-2xl">
-              <p className="mb-5 text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)]">Software Ecosystem</p>
+              <p className="fi-kicker mb-8">Software Ecosystem</p>
               <h2 className="fi-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[.9]">Field tools &<br />advanced intelligence.</h2>
-              <p className="mt-6 text-[16px] leading-[1.7] text-[rgba(19,32,31,.72)]">
+              <p className="mt-6 text-[1.125rem] leading-[1.6] font-medium text-black/70">
                 Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
               </p>
             </div>
@@ -295,15 +295,15 @@ export default function Services() {
             <div className="space-y-20">
               {/* Classic Tools */}
               <div>
-                <h3 className="mb-8 text-lg font-bold border-b border-[var(--fi-line)] pb-4">Active Field Tools</h3>
+                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Active Field Tools</h3>
                 <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                   {FIELD_KIT_TOOLS.map((tool) => (
                     <div key={tool.id} className="flex flex-col">
-                      <span className="mb-3 text-[10px] font-bold uppercase tracking-wider text-[var(--fi-rust)]">{tool.category}</span>
-                      <h4 className="mb-2 text-[18px] font-bold">{tool.title}</h4>
-                      <p className="mb-6 flex-1 text-sm leading-[1.65] text-[rgba(19,32,31,.7)]">{tool.description}</p>
-                      <div className="mt-auto space-y-2 text-[11px] font-semibold">
-                        <span className="block border border-[var(--fi-line)] px-2 py-1 uppercase tracking-wider">
+                      <span className="mb-4 text-[0.75rem] font-bold uppercase tracking-wider text-[var(--fi-red)] font-mono">{tool.category}</span>
+                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.title}</h4>
+                      <p className="mb-6 flex-1 text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
+                      <div className="mt-auto space-y-2 text-[0.75rem] font-bold font-mono">
+                        <span className="block border border-[var(--fi-line)] px-3 py-2 uppercase tracking-wider bg-[var(--fi-paper)]">
                           {tool.public
                             ? "Public preview"
                             : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
@@ -322,20 +322,20 @@ export default function Services() {
 
               {/* AI Tools */}
               <div>
-                <h3 className="mb-8 text-lg font-bold border-b border-[var(--fi-line)] pb-4">Advanced Intelligence</h3>
+                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Advanced Intelligence</h3>
                 <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                   {SPARTAN_AI_TOOLS.map((tool) => (
                     <div key={tool.id} className="flex flex-col">
-                      <div className="mb-3 flex justify-between items-start gap-4">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#635b73]">{tool.category}</span>
-                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 border border-[var(--fi-line)] ${
-                          tool.permission === "clinical:use" ? "bg-red-50 text-red-700" : ""
+                      <div className="mb-4 flex justify-between items-start gap-4 font-mono">
+                        <span className="text-[0.75rem] font-bold uppercase tracking-wider text-black/50">{tool.category}</span>
+                        <span className={`text-[0.75rem] font-bold uppercase tracking-wider px-2 py-1 border border-[var(--fi-line)] ${
+                          tool.permission === "clinical:use" ? "bg-red-50 text-[var(--fi-red)] border-[var(--fi-red)]" : "bg-[var(--fi-paper)]"
                         }`}>
                           {tool.permission === "clinical:use" ? "Clinical" : "Field Kit"}
                         </span>
                       </div>
-                      <h4 className="mb-2 text-[18px] font-bold">{tool.name}</h4>
-                      <p className="text-sm leading-[1.65] text-[rgba(19,32,31,.7)]">{tool.description}</p>
+                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.name}</h4>
+                      <p className="text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
                     </div>
                   ))}
                 </div>
@@ -360,35 +360,35 @@ function ServiceBlock({ service, index }: { service: any, index: number }) {
   return (
     <article className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 items-start">
       <div>
-        <p className="mb-3 text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)]">0{index + 1}</p>
+        <p className="mb-3 text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 font-mono">0{index + 1}</p>
         <h3 className="fi-serif text-[clamp(2.2rem,4vw,3.5rem)] leading-[1] mb-6">{service.title}</h3>
         {(service.duration || service.price) && (
-          <div className="mb-8 flex flex-wrap gap-4 text-[11px] font-bold uppercase tracking-wider">
-            {service.duration && <span className="border border-[var(--fi-line)] px-3 py-1.5">{service.duration}</span>}
-            {service.price && <span className="border border-[var(--fi-rust)] bg-[rgba(184,93,63,.08)] text-[var(--fi-rust)] px-3 py-1.5">{service.price}</span>}
+          <div className="mb-8 flex flex-wrap gap-4 text-[0.75rem] font-bold uppercase tracking-wider font-mono">
+            {service.duration && <span className="border border-[var(--fi-line)] bg-white px-4 py-2">{service.duration}</span>}
+            {service.price && <span className="border border-[var(--fi-line)] bg-white text-[var(--fi-ink)] px-4 py-2">{service.price}</span>}
           </div>
         )}
-        <div className="bg-[var(--fi-cream)] p-6 md:p-8 border border-[var(--fi-line)]">
-          <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[var(--fi-rust)] mb-3">Target Outcome</p>
-          <p className="font-semibold leading-[1.6] text-[15px]">{service.outcome}</p>
+        <div className="bg-white p-6 md:p-8 border border-[var(--fi-line)]">
+          <p className="fi-kicker mb-4">Target Outcome</p>
+          <p className="font-bold leading-[1.6] text-[1.125rem]">{service.outcome}</p>
         </div>
       </div>
 
       <div className="space-y-10 lg:border-l lg:border-[var(--fi-line)] lg:pl-16 lg:pt-8">
         <div>
-           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-4">The Problem</p>
-           <p className="text-[17px] leading-[1.6]">{service.problem}</p>
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Problem</p>
+           <p className="text-[1.125rem] leading-[1.6] font-medium text-black/80">{service.problem}</p>
         </div>
         <div>
-           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-4">The Solution</p>
-           <p className="text-[17px] leading-[1.6] text-[rgba(19,32,31,.75)]">{service.solution}</p>
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Solution</p>
+           <p className="text-[1.125rem] leading-[1.6] font-medium text-[var(--fi-red)]">{service.solution}</p>
         </div>
         <div className="border-t border-[var(--fi-line)] pt-8">
-           <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[rgba(19,32,31,.5)] mb-5">Scope & Deliverables</p>
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-5 font-mono">Scope & Deliverables</p>
            <ul className="space-y-4">
              {service.includes.map((item: string, i: number) => (
-               <li key={i} className="flex items-start gap-3 text-[14px] font-medium text-[rgba(19,32,31,.85)]">
-                 <Check className="mt-[2px] w-4 h-4 text-[var(--fi-rust)] shrink-0" />
+               <li key={i} className="flex items-start gap-4 text-[1rem] font-bold text-black/80">
+                 <span className="mt-[8px] w-2 h-2 bg-[var(--fi-red)] shrink-0" />
                  <span>{item}</span>
                </li>
              ))}
