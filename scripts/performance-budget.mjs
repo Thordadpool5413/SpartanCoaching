@@ -57,11 +57,11 @@ const BUDGETS = {
   maxCssChunk: 250 * 1024,
   /**
    * Total CSS across dist/public, including emitted root-level lazy assets.
-   * CI currently measures ~400.8 KiB once the Uppy CSS files are emitted next
-   * to assets/*.css, so keep a narrow 410 KiB ceiling to avoid false failures
-   * while still catching real regressions.
+   * CI measures 412.6 KiB after the approved public-site appearance and
+   * responsive homepage expansion. Keep a narrow 420 KiB ceiling so the
+   * intentional design system fits while future CSS growth still fails fast.
    */
-  maxCssTotal: 410 * 1024,
+  maxCssTotal: 420 * 1024,
   /** Initial HTML must remain small enough for a fast document response. */
   maxHtmlDocument: 100 * 1024,
   /** Desktop hero media is intentionally cinematic, but must remain capped. */
