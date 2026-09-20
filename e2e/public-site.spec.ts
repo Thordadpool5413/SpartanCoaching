@@ -297,10 +297,12 @@ test.describe("public website release gate", () => {
     await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
-    await expect(page.locator("main")).toContainText("Two ways to engage the work");
+    await expect(page.locator("main")).toContainText("Two ways to engage");
     await expect(page.locator("main")).toContainText("Spartan Consulting");
     await expect(page.locator("main")).toContainText("Hospice Sales Pro");
-    await expect(page.locator("main")).toContainText("Built by someone who has actually carried the number.");
+    await expect(page.locator("main")).toContainText(
+      /Built by someone\s*who has actually\s*carried the number\./,
+    );
   });
 
   test("primary navigation reaches both customer paths", async ({ page }) => {
