@@ -32,8 +32,8 @@ describe("homepage hero video", () => {
     render(<HeroSystemPanel />);
     const video = screen.getByTestId("hero-video") as HTMLVideoElement;
     const frame = screen.getByTestId("hero-video-frame");
-    expect(frame.className).toContain("aspect-video");
-    expect(video.className).toContain("object-contain");
+    expect(frame.className).toContain("overflow-hidden");
+    expect(video.className).toContain("object-cover");
     fireEvent.playing(video);
     Object.defineProperty(video, "currentTime", { configurable: true, value: 1.6 });
     fireEvent.timeUpdate(video);

@@ -1,9 +1,11 @@
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Stethoscope } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
+import { useState } from "react";
 
 export default function Services() {
   const individualServices = [
@@ -186,171 +188,161 @@ export default function Services() {
     },
   ];
 
-  const pathways = [
-    {
-      id: "coaching",
-      title: "Coaching & Strategy",
-      subtitle: "For Leaders & High-Performing Reps",
-      desc: "Direct strategy and coaching. Break through stalled territories, handle objections, and build a system that tells you where to go and who to see.",
-    },
-    {
-      id: "workshops",
-      title: "Team Workshops",
-      subtitle: "For Organizations Scaling Execution",
-      desc: "Give your entire team the same language and process. Transform from firefighting to coaching with a standardized playbook that drives results.",
-    },
-    {
-      id: "technology",
-      title: "Technology Solutions",
-      subtitle: "For Corporate Providers",
-      desc: "Stop forcing generic CRMs to fit hospice workflows. We build custom iOS apps, specific CRMs, and web portals designed exactly for how liaisons actually work.",
-    }
+  const categories = [
+    { id: "individual", label: "Individual Execution", services: individualServices },
+    { id: "leadership", label: "Leadership Coaching", services: leadershipServices },
+    { id: "corporate", label: "Corporate Programs", services: corporateServices },
+    { id: "tech", label: "System Delivery", services: techServices },
   ];
 
+  const [activeCategory, setActiveCategory] = useState("individual");
+
+  const activeServices = categories.find(c => c.id === activeCategory)?.services || [];
+
   return (
-    <div className="bg-background min-h-screen">
-      <SEO title="Consulting & Services | Spartan Coaching" />
+    <div className="page-persuasion font-sans">
+      <SEO title="Consulting & Systems | Spartan Coaching" />
       <BackButton />
 
-      {/* Hero Section */}
-      <section className="px-4 py-16 sm:px-6 md:py-24 lg:px-8 border-b border-border">
-        <div className="mx-auto max-w-[78rem] grid lg:grid-cols-[1.25fr_.75fr] gap-12 lg:items-end">
-          <div>
-            <p className="mb-6 font-mono text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-3">
-              <span className="w-6 h-px bg-primary"></span>
-              Consulting for hospice growth leaders
-            </p>
-            <h1
-              className="font-serif text-4xl font-medium leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance"
-              data-testid="text-services-title"
-            >
-              When effort is high but execution is inconsistent.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow.
-            </p>
-          </div>
-
-          <div className="bg-card p-8 border border-border shadow-sm">
-            <p className="mb-4 font-mono text-xs font-bold uppercase tracking-widest text-foreground border-b border-border pb-3">The Baseline Challenge</p>
-            <ul className="space-y-4 text-sm leading-relaxed text-muted-foreground mb-8">
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Territory activity is not producing clear next moves.</li>
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Leaders see results but cannot coach the behavior behind them.</li>
-              <li className="flex gap-3"><span className="text-primary font-bold">×</span> Generic systems create more work than field clarity.</li>
-            </ul>
-
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Button size="lg" asChild className="rounded-none w-full sm:w-auto font-mono text-xs font-bold tracking-widest uppercase">
-                <Link href="/contact">Book a strategy call</Link>
-              </Button>
-              <Link href="/method" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-muted-foreground/30 pb-0.5">
-                Review our method
-              </Link>
+      {/* Hero */}
+      <section className="fi-dark fi-section bg-[var(--fi-ink)]">
+        <div className="mx-auto max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
+          <div className="flex flex-col justify-between gap-10 border-b border-[var(--fi-line-light)] pb-12 md:flex-row md:items-end">
+            <div>
+              <p className="fi-kicker fi-kicker-light mb-8">Consulting & Systems</p>
+              <h1 className="fi-serif text-[clamp(3.5rem,7vw,7rem)] leading-[0.9] max-w-[800px]" data-testid="text-services-title">
+                When effort is high <span className="text-[var(--fi-red)]">but execution is inconsistent.</span>
+              </h1>
             </div>
+            <p className="max-w-[340px] text-[1.125rem] leading-[1.6] text-white/80 font-medium">
+              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* Engagement Sequence */}
-      <section className="border-b border-border bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[78rem]">
-          <div className="mb-12">
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">How an engagement proceeds</p>
-            <h2 className="font-serif text-3xl font-medium tracking-tight text-foreground">
-              The operating sequence
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-0 border border-border bg-border">
+          
+          <div className="mt-16 grid gap-12 md:grid-cols-3">
             {[
               { num: "01", title: "Diagnose", copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
               { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
               { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
             ].map(({ num, title, copy }) => (
-              <div key={num} className="bg-card p-8">
-                <span className="font-mono text-lg font-bold text-primary mb-6 block">{num}</span>
-                <h3 className="font-serif text-2xl font-medium tracking-tight text-foreground mb-3">{title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{copy}</p>
+              <div key={num} className="pt-6 border-t border-[var(--fi-line-light)]">
+                <span className="text-[0.75rem] font-bold text-[var(--fi-red)] font-mono">{num}</span>
+                <h3 className="mt-4 text-xl font-bold uppercase tracking-wider">{title}</h3>
+                <p className="mt-4 text-sm leading-[1.6] text-white/70 font-medium">{copy}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Buyer Pathways overview */}
-      <section className="py-16 md:py-24 bg-background px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="max-w-[78rem] mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            {pathways.map(pathway => (
-              <div key={pathway.id} className="flex flex-col" data-testid={`pathway-${pathway.id}`}>
-                <p className="font-mono text-[10px] font-bold text-primary uppercase tracking-widest mb-3">{pathway.subtitle}</p>
-                <h2 className="font-serif text-2xl font-medium text-foreground mb-4">{pathway.title}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">{pathway.desc}</p>
-                <a href={`#section-${pathway.id}`} className="font-mono text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2 hover:underline">
-                  View catalog <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
+      {/* Services Portfolio */}
+      <section className="fi-section bg-[var(--fi-paper)]">
+        <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
+          <div
+            className="mb-14 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[var(--fi-line)]"
+            role="tablist"
+            aria-label="Consulting capability categories"
+          >
+            {categories.map(c => (
+              <button
+                key={c.id}
+                id={`services-tab-${c.id}`}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === c.id}
+                aria-controls="services-category-panel"
+                onClick={() => setActiveCategory(c.id)}
+                className={`pb-4 text-[0.75rem] font-bold font-mono uppercase tracking-[.15em] transition-colors ${
+                  activeCategory === c.id 
+                    ? "border-b-2 border-[var(--fi-red)] text-[var(--fi-red)]" 
+                    : "text-black/50 hover:text-[var(--fi-ink)]"
+                }`}
+                data-testid={
+                  c.id === "individual" ? "pathway-coaching" : 
+                  c.id === "corporate" ? "pathway-workshops" : 
+                  c.id === "tech" ? "pathway-technology" : undefined
+                }
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+
+          <div
+            id="services-category-panel"
+            className="space-y-16 lg:space-y-24"
+            role="tabpanel"
+            aria-labelledby={`services-tab-${activeCategory}`}
+          >
+            {activeServices.map((service, sIdx) => (
+              <ServiceBlock key={sIdx} service={service} index={sIdx} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Full Catalog Render */}
-      <div className="bg-background pb-24 md:pb-32">
-        {/* Coaching & Strategy Group */}
-        <section id="section-coaching" className="pt-16 md:pt-24 px-4 sm:px-6 lg:px-8 scroll-mt-12">
-          <div className="max-w-[78rem] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground mb-12 border-b border-border pb-6">
-              Coaching & Strategy
-            </h2>
-
-            <div className="space-y-16">
-              {individualServices.concat(leadershipServices).map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel={idx < 3 ? "Individual Execution" : "Leadership"} />
-              ))}
+      {/* Software Catalog */}
+      <section id="field-tools" className="fi-section bg-white">
+         <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
+            <div className="mb-16 max-w-2xl">
+              <p className="fi-kicker mb-8">Software Ecosystem</p>
+              <h2 className="fi-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[.9]">Field tools &<br />advanced intelligence.</h2>
+              <p className="mt-6 text-[1.125rem] leading-[1.6] font-medium text-black/70">
+                Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
+              </p>
             </div>
-          </div>
-        </section>
 
-        {/* Corporate Workshops */}
-        <section id="section-workshops" className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 scroll-mt-12 border-t border-border mt-24">
-          <div className="max-w-[78rem] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground mb-12 border-b border-border pb-6">
-              Corporate & Growth
-            </h2>
+            <div className="space-y-20">
+              {/* Classic Tools */}
+              <div>
+                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Active Field Tools</h3>
+                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                  {FIELD_KIT_TOOLS.map((tool) => (
+                    <div key={tool.id} className="flex flex-col">
+                      <span className="mb-4 text-[0.75rem] font-bold uppercase tracking-wider text-[var(--fi-red)] font-mono">{tool.category}</span>
+                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.title}</h4>
+                      <p className="mb-6 flex-1 text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
+                      <div className="mt-auto space-y-2 text-[0.75rem] font-bold font-mono">
+                        <span className="block border border-[var(--fi-line)] px-3 py-2 uppercase tracking-wider bg-[var(--fi-paper)]">
+                          {tool.public
+                            ? "Public preview"
+                            : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
+                                tool.mobile === "native"
+                                  ? "Web + iPhone"
+                                  : tool.mobile === "webview"
+                                    ? "Web + iPhone web"
+                                    : "Web"
+                              }`}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <div className="space-y-16">
-              {corporateServices.map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel="Corporate Programs" />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Technology */}
-        <section id="section-technology" className="pt-24 md:pt-32 px-4 sm:px-6 lg:px-8 scroll-mt-12 border-t border-border mt-24">
-          <div className="max-w-[78rem] mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-border pb-6">
-              <h2 className="font-serif text-3xl md:text-4xl font-medium tracking-tight text-foreground">
-                Technology Solutions
-              </h2>
-              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1.5 rounded-sm">
-                <Stethoscope className="w-3.5 h-3.5" /> Privacy-First Delivery
+              {/* AI Tools */}
+              <div>
+                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Advanced Intelligence</h3>
+                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+                  {SPARTAN_AI_TOOLS.map((tool) => (
+                    <div key={tool.id} className="flex flex-col">
+                      <div className="mb-4 flex justify-between items-start gap-4 font-mono">
+                        <span className="text-[0.75rem] font-bold uppercase tracking-wider text-black/50">{tool.category}</span>
+                        <span className={`text-[0.75rem] font-bold uppercase tracking-wider px-2 py-1 border border-[var(--fi-line)] ${
+                          tool.permission === "clinical:use" ? "bg-red-50 text-[var(--fi-red)] border-[var(--fi-red)]" : "bg-[var(--fi-paper)]"
+                        }`}>
+                          {tool.permission === "clinical:use" ? "Clinical" : "Field Kit"}
+                        </span>
+                      </div>
+                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.name}</h4>
+                      <p className="text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-
-            <p className="text-sm leading-relaxed text-muted-foreground max-w-3xl mb-12 border-l-2 border-primary pl-4">
-              Technology work begins with workflow discovery, delivery scope, ownership, support expectations, and a privacy review. CRM, portal, and iOS work is not proposed until those conditions are understood to keep PHI out of routine tools.
-            </p>
-
-            <div className="space-y-16">
-              {techServices.map((service, idx) => (
-                <ServiceEntry key={idx} service={service} groupLabel="System Delivery" />
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
+         </div>
+      </section>
 
       <PublicConversionPanel
         source="services"
@@ -364,49 +356,45 @@ export default function Services() {
   );
 }
 
-function ServiceEntry({ service, groupLabel }: { service: any, groupLabel: string }) {
+function ServiceBlock({ service, index }: { service: any, index: number }) {
   return (
-    <div className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-16 items-start">
+    <article className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 items-start">
       <div>
-        <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">{groupLabel}</p>
-        <h3 className="font-serif text-2xl font-medium text-foreground mb-4">{service.title}</h3>
-        {service.duration && (
-          <p className="text-sm text-muted-foreground mb-2"><span className="font-medium text-foreground">Duration:</span> {service.duration}</p>
+        <p className="mb-3 text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 font-mono">0{index + 1}</p>
+        <h3 className="fi-serif text-[clamp(2.2rem,4vw,3.5rem)] leading-[1] mb-6">{service.title}</h3>
+        {(service.duration || service.price) && (
+          <div className="mb-8 flex flex-wrap gap-4 text-[0.75rem] font-bold uppercase tracking-wider font-mono">
+            {service.duration && <span className="border border-[var(--fi-line)] bg-white px-4 py-2">{service.duration}</span>}
+            {service.price && <span className="border border-[var(--fi-line)] bg-white text-[var(--fi-ink)] px-4 py-2">{service.price}</span>}
+          </div>
         )}
-        <Button asChild variant="outline" className="mt-6 rounded-none font-mono text-xs uppercase tracking-widest">
-          <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
-            Discuss this service
-          </Link>
-        </Button>
-      </div>
-
-      <div className="bg-card p-8 border border-border shadow-sm">
-        <div className="space-y-6">
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-2">The Problem</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">{service.problem}</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-2">The Solution</p>
-            <p className="text-sm leading-relaxed text-muted-foreground">{service.solution}</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-foreground mb-3">Scope & Deliverables</p>
-            <ul className="space-y-3">
-              {service.includes.map((item: string, i: number) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
-                  <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="pt-6 border-t border-border">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary mb-2">The Outcome</p>
-            <p className="text-sm font-medium leading-relaxed text-foreground">{service.outcome}</p>
-          </div>
+        <div className="bg-white p-6 md:p-8 border border-[var(--fi-line)]">
+          <p className="fi-kicker mb-4">Target Outcome</p>
+          <p className="font-bold leading-[1.6] text-[1.125rem]">{service.outcome}</p>
         </div>
       </div>
-    </div>
+
+      <div className="space-y-10 lg:border-l lg:border-[var(--fi-line)] lg:pl-16 lg:pt-8">
+        <div>
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Problem</p>
+           <p className="text-[1.125rem] leading-[1.6] font-medium text-black/80">{service.problem}</p>
+        </div>
+        <div>
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Solution</p>
+           <p className="text-[1.125rem] leading-[1.6] font-medium text-[var(--fi-red)]">{service.solution}</p>
+        </div>
+        <div className="border-t border-[var(--fi-line)] pt-8">
+           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-5 font-mono">Scope & Deliverables</p>
+           <ul className="space-y-4">
+             {service.includes.map((item: string, i: number) => (
+               <li key={i} className="flex items-start gap-4 text-[1rem] font-bold text-black/80">
+                 <span className="mt-[8px] w-2 h-2 bg-[var(--fi-red)] shrink-0" />
+                 <span>{item}</span>
+               </li>
+             ))}
+           </ul>
+        </div>
+      </div>
+    </article>
   );
 }

@@ -969,6 +969,25 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0029_public_proof_provenance",
+    title: "Public proof provenance and verification context",
+    forwardPath: "lib/db/migrations/0029_public_proof_provenance.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) = 0 AS ok FROM testimonials WHERE approval_status = 'approved' AND (NULLIF(BTRIM(approval_scope), '') IS NULL OR NULLIF(BTRIM(evidence_source), '') IS NULL OR NULLIF(BTRIM(timeframe), '') IS NULL)`,
+      `SELECT count(*) = 0 AS ok FROM case_studies WHERE approval_status = 'approved' AND (NULLIF(BTRIM(approval_scope), '') IS NULL OR NULLIF(BTRIM(evidence_source), '') IS NULL OR NULLIF(BTRIM(timeframe), '') IS NULL)`,
+      `SELECT count(*) = 0 AS ok FROM testimonials WHERE verification_status IS NULL`,
+      `SELECT count(*) = 0 AS ok FROM case_studies WHERE verification_status IS NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the additive provenance columns during application rollback; they do not affect older clients. Restore the pre-deploy logical dump only if the table alteration itself must be reversed.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["testimonials", "case_studies"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",

@@ -33,6 +33,7 @@ import { and, eq, gt, lt } from "drizzle-orm";
 import { db } from "../db";
 import { objectUploadTokens } from "@workspace/db";
 import { storage } from "../storage";
+import { serializePublicProofRecord } from "./publicProof";
 import {
   appendEphemeralRoleplayMessage,
   createEphemeralRoleplaySession,
@@ -1500,7 +1501,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.get("/api/testimonials", async (_req, res) => {
     try {
       const items = await storage.getPublicTestimonials();
-      res.json({ testimonials: items });
+      res.json({ testimonials: items.map((item) => serializePublicProofRecord(item)) });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to retrieve testimonials" });
     }
@@ -1516,6 +1517,12 @@ Build a specific Monday–Friday territory plan for this week.`;
       const data = insertTestimonialSchema.parse(req.body);
       if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
         return res.status(400).json({ error: "Written approval reference is required before publication" });
+      }
+      if (
+        data.approvalStatus === "approved" &&
+        (!data.approvalScope?.trim() || !data.evidenceSource?.trim() || !data.timeframe?.trim())
+      ) {
+        return res.status(400).json({ error: "Approval scope, evidence source, and timeframe are required before publication" });
       }
       const item = await storage.createTestimonial({
         ...data,
@@ -1533,10 +1540,22 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.put("/api/testimonials/:id", requireAdmin, async (req, res) => {
     try {
       const data = insertTestimonialSchema.partial().parse(req.body);
-      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+      const id = paramInt(req, "id");
+      const existing = await storage.getTestimonial(id);
+      if (!existing) {
+        return res.status(404).json({ error: "Testimonial not found" });
+      }
+      const merged = { ...existing, ...data };
+      if (merged.approvalStatus === "approved" && !merged.approvalReference?.trim()) {
         return res.status(400).json({ error: "Written approval reference is required before publication" });
       }
-      const item = await storage.updateTestimonial(paramInt(req, "id"), {
+      if (
+        merged.approvalStatus === "approved" &&
+        (!merged.approvalScope?.trim() || !merged.evidenceSource?.trim() || !merged.timeframe?.trim())
+      ) {
+        return res.status(400).json({ error: "Approval scope, evidence source, and timeframe are required before publication" });
+      }
+      const item = await storage.updateTestimonial(id, {
         ...data,
         ...(data.approvalStatus
           ? { approvedAt: data.approvalStatus === "approved" ? new Date() : null }
@@ -1564,7 +1583,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.get("/api/case-studies", async (_req, res) => {
     try {
       const items = await storage.getPublicCaseStudies();
-      res.json({ caseStudies: items });
+      res.json({ caseStudies: items.map((item) => serializePublicProofRecord(item)) });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to retrieve case studies" });
     }
@@ -1581,6 +1600,12 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
         return res.status(400).json({ error: "Written approval reference is required before publication" });
       }
+      if (
+        data.approvalStatus === "approved" &&
+        (!data.approvalScope?.trim() || !data.evidenceSource?.trim() || !data.timeframe?.trim())
+      ) {
+        return res.status(400).json({ error: "Approval scope, evidence source, and timeframe are required before publication" });
+      }
       const item = await storage.createCaseStudy({
         ...data,
         approvedAt: data.approvalStatus === "approved" ? new Date() : null,
@@ -1594,10 +1619,22 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.put("/api/case-studies/:id", requireAdmin, async (req, res) => {
     try {
       const data = insertCaseStudySchema.partial().parse(req.body);
-      if (data.approvalStatus === "approved" && !data.approvalReference?.trim()) {
+      const id = paramInt(req, "id");
+      const existing = await storage.getCaseStudy(id);
+      if (!existing) {
+        return res.status(404).json({ error: "Case study not found" });
+      }
+      const merged = { ...existing, ...data };
+      if (merged.approvalStatus === "approved" && !merged.approvalReference?.trim()) {
         return res.status(400).json({ error: "Written approval reference is required before publication" });
       }
-      const item = await storage.updateCaseStudy(paramInt(req, "id"), {
+      if (
+        merged.approvalStatus === "approved" &&
+        (!merged.approvalScope?.trim() || !merged.evidenceSource?.trim() || !merged.timeframe?.trim())
+      ) {
+        return res.status(400).json({ error: "Approval scope, evidence source, and timeframe are required before publication" });
+      }
+      const item = await storage.updateCaseStudy(id, {
         ...data,
         ...(data.approvalStatus
           ? { approvedAt: data.approvalStatus === "approved" ? new Date() : null }
