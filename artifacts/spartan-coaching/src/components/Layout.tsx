@@ -278,7 +278,10 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
+    <header
+      className="public-site-header sticky top-0 z-50 w-full dark-authority-header safe-area-top"
+      data-testid="site-header"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
         {/* Brand — fixed footprint, never collides with nav */}
         <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">

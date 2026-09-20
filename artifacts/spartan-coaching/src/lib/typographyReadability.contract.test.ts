@@ -10,21 +10,24 @@ describe("web typography readability contracts", () => {
     expect(home).toMatch(/Make the next[\s\S]{0,80}hospice[\s\S]{0,80}conversation[\s\S]{0,80}count\./);
     expect(home).toContain("Book a strategy call");
     expect(home).toContain("Explore consulting");
-    expect(home).toContain("Explore Hospice Sales Pro");
+    expect(home).not.toContain("Explore Hospice Sales Pro");
     expect(home).toContain('data-testid="hero-video"');
     expect(home).toContain('data-testid="hero-video-status"');
-    expect(home).toContain('src={HERO_VIDEO_POSTER}');
-    expect(home).toContain('<source src={HERO_VIDEO_SRC} type="video/mp4" />');
+    expect(home).toContain('<source src="/hero-video-mobile.webm"');
+    expect(home).toContain('<source src="/hero-video.webm"');
+    expect(home).toContain('<source src="/hero-video-mobile.mp4"');
+    expect(home).toContain('<source src="/hero-video.mp4"');
+    expect(home).toContain('poster="/hero-poster.jpg"');
   });
 
   it("uses readable leading for the highest-risk public display text", () => {
     const home = read("../pages/Home.tsx");
     const manifesto = read("../pages/Manifesto.tsx");
     const css = read("../index.css");
-    expect(home).toContain("leading-[0.9]");
+    expect(home).toContain("leading-[.98]");
     expect(home).not.toContain("spartan-hero-title");
     expect(home.indexOf('data-testid="text-home-hero-title"')).toBeGreaterThan(home.indexOf('data-testid="section-home-intro"'));
-    expect(home).toMatch(/section-founder-authority[\s\S]*?font-display[\s\S]*?text-background\/75[\s\S]*?Read the founder story/s);
+    expect(home).toMatch(/section-founder-authority[\s\S]*?fi-serif[\s\S]*?leading-\[\.96\][\s\S]*?text-black\/70[\s\S]*?Read the founder story/s);
     expect(manifesto).not.toContain("leading-[0.9]");
     expect(manifesto).toContain("leading-[1.1]");
     expect(manifesto).toContain("justify-center bg-foreground overflow-hidden");

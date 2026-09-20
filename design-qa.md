@@ -46,7 +46,7 @@ Target route: `/`
 - Video frame enlarged and given the broader Photo 1 aspect ratio.
 - White editorial canvas restored across problem, audience, method, engagement, founder, results, and process sections.
 - Full-width black audience band removed.
-- Condensed oversized display hierarchy and red accent words restored.
+- Oversized Plus Jakarta display hierarchy and red accent words restored.
 - Consulting content organized into thin-rule horizontal grids.
 - Founder block restored to a large image-and-statement composition.
 - Closing statement contained inside the page frame with a separate trust strip.
@@ -75,3 +75,13 @@ Target route: `/`
 - P0 blockers: none found.
 - P1 visual/functional regressions: mobile hero overflow found in CI evidence and fixed.
 - P2 polish items: none blocking release.
+
+## 2026-09-20 recurrence correction
+
+- Root cause: later Replit publication commits replaced the approved Photo 1 `Home.tsx` with the retired product-led homepage and removed the `field-intelligence.css` import that supplies the Photo 1 layout. A theme refactor also changed the homepage display font from Plus Jakarta Sans to Anton.
+- Correction: restored the approved consulting-first homepage, its scoped visual-system import, and its Photo 1 typography on top of current `main`, preserving all newer iOS startup and shared-layout work. The public header identity and Calendly recovery behavior removed by the same overwrite were restored as well.
+- Regression protection: added a dedicated Photo 1 release contract that fails if the retired two-path/product-led homepage returns, if consulting sections disappear, if the Photo 1 stylesheet or fonts are disconnected, or if mobile hero guardrails are removed.
+- Verification: 63 web test files and 326 tests passed; TypeScript, production build, migrations, API tests, native iOS contracts, security scan, performance budgets, and release-gate suites passed.
+- Visual verification: GitHub browser evidence from CI run #818 was inspected at desktop and iPhone dimensions. The hero scale, two-column desktop composition, mobile stack, consulting paths, founder treatment, results, and closing section match the approved Photo 1 direction with no horizontal overflow.
+
+Final result: passed.
