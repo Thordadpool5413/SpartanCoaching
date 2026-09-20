@@ -8,7 +8,7 @@ describe("consulting and workspace coexistence", () => {
   it("keeps the complete consulting route set public", () => {
     const app = read("../App.tsx");
     for (const route of ["/services", "/programs", "/method", "/contact"]) {
-      expect(app).toContain(`path=\"${route}\"`);
+      expect(app).toContain(`path="${route}"`);
     }
   });
 
@@ -29,13 +29,18 @@ describe("consulting and workspace coexistence", () => {
     expect(workspace).toContain("/tools/sales-workflow");
   });
 
-  it("separates the homepage offers without repeating an equal-weight pathfinder", () => {
+  it("keeps the homepage consulting-first and product promotion in navigation", () => {
     const home = read("../pages/Home.tsx");
-    expect(home).toMatch(/href="\/contact"[\s\S]{0,300}Book a strategy call/);
-    expect(home).toContain('href="/hospice-sales-pro"');
-    expect(home).toContain("Explore Hospice Sales Pro");
-    expect(home).toMatch(/href="\/services"[\s\S]{0,300}Explore consulting services/);
+    const layout = read("./Layout.tsx");
+
+    expect(home).toMatch(/href="\/contact"[\s\S]{0,400}Book a strategy call/);
+    expect(home).toMatch(/href="\/services"[\s\S]{0,400}Explore consulting/);
+    expect(home).toContain("The problems we solve.");
+    expect(home).toContain("Diagnose.");
+    expect(home).toContain("Four ways to move the field.");
+    expect(home).not.toContain('href="/hospice-sales-pro"');
+    expect(home).not.toContain("Explore Hospice Sales Pro");
     expect(home).not.toContain('href="#homepage-pathfinder"');
-    expect(home).toContain("Hospice Sales Pro</strong> gives individuals a digital workspace");
+    expect(layout).toContain('<NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>');
   });
 });
