@@ -23,10 +23,13 @@ describe("Photo 1 homepage release contract", () => {
 
   it("preserves the large editorial hero and responsive mobile guardrails", () => {
     const home = read("../pages/Home.tsx");
+    const indexCss = read("../index.css");
     const css = read("../styles/field-intelligence.css");
 
     expect(home).toContain('className="home-photo-frame home-photo-hero-grid"');
     expect(home).toContain('className="home-photo-video');
+    expect(indexCss).toContain('@import "./styles/field-intelligence.css";');
+    expect(indexCss).toContain("family=Instrument+Serif");
     expect(css).toMatch(/\.home-photo-hero-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.04fr\)\s+minmax\(480px,\s*0\.96fr\)/s);
     expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-hero-title\s*\{[^}]*max-width:\s*100%/s);
     expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-actions \.home-photo-button\s*\{[^}]*width:\s*100%/s);
