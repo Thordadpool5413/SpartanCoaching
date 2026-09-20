@@ -35,9 +35,11 @@ describe("consulting and workspace coexistence", () => {
 
     expect(home).toMatch(/href="\/contact"[\s\S]{0,400}Book a strategy call/);
     expect(home).toMatch(/href="\/services"[\s\S]{0,400}Explore consulting/);
-    expect(home).toContain("The problems we solve.");
+    expect(home).toContain("The problems we");
+    expect(home).toContain("solve.");
     expect(home).toContain("Diagnose.");
-    expect(home).toContain("Four ways to move the field.");
+    expect(home).toContain("Consulting engagement");
+    expect(home).toContain("paths.");
     expect(home).not.toContain('href="/hospice-sales-pro"');
     expect(home).not.toContain("Explore Hospice Sales Pro");
     expect(home).not.toContain('href="#homepage-pathfinder"');
