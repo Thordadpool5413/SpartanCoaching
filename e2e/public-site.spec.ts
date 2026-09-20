@@ -342,18 +342,12 @@ test.describe("public website release gate", () => {
     await prepareHomepageVisualTest(page);
 
     await expect(page.getByTestId("hero-animation")).toHaveCount(0);
-    const visibleVideo = page.locator('[data-testid="hero-video"]:visible').first();
-    if (await visibleVideo.count()) {
-      await expect(visibleVideo).toHaveAttribute("poster", /hero-poster\.jpg$/);
-      await expect
-        .poll(() => visibleVideo.evaluate((element: HTMLVideoElement) => element.paused))
-        .toBe(true);
-    } else {
-      const visiblePoster = page
-        .locator('[data-testid="hero-video-frame"]:visible img:visible')
-        .first();
-      await expect(visiblePoster).toHaveAttribute("src", /hero-poster\.jpg$/);
-    }
+    const heroVideo = page.getByTestId("hero-video");
+    await expect(heroVideo).toHaveCount(1);
+    await expect(heroVideo).toHaveAttribute("poster", /hero-poster\.jpg$/);
+    await expect
+      .poll(() => heroVideo.evaluate((element: HTMLVideoElement) => element.paused))
+      .toBe(true);
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
 
@@ -757,14 +751,19 @@ test.describe("public website release gate", () => {
 
     const navigation = page.getByRole("navigation", { name: "Main navigation" });
     const links = navigation.getByRole("link");
+    const menuButtons = navigation.getByRole("button");
     await expect(navigation).toBeVisible();
-    await expect(links).toHaveCount(4);
+    await expect(links).toHaveCount(2);
+    await expect(menuButtons).toHaveCount(3);
     await expectNoHorizontalOverflow(page, "xl desktop navigation");
 
-    const linkCount = await links.count();
-    for (let index = 0; index < linkCount; index += 1) {
-      await links.nth(index).focus();
-      await expectKeyboardFocus(links.nth(index), `desktop navigation link ${index + 1}`);
+    const navigationItems = [
+      ...Array.from({ length: await menuButtons.count() }, (_, index) => menuButtons.nth(index)),
+      ...Array.from({ length: await links.count() }, (_, index) => links.nth(index)),
+    ];
+    for (let index = 0; index < navigationItems.length; index += 1) {
+      await navigationItems[index].focus();
+      await expectKeyboardFocus(navigationItems[index], `desktop navigation item ${index + 1}`);
     }
   });
 
