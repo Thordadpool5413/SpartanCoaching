@@ -105,7 +105,7 @@ export function HeroSystemPanel() {
   return (
     <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
       <div
-        className="relative aspect-video w-full overflow-hidden bg-black"
+        className="home-photo-video relative w-full overflow-hidden bg-black"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
@@ -296,36 +296,36 @@ export default function Home() {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
-      <div className="overflow-hidden bg-white text-black" data-testid="page-home">
+      <div className="home-photo-one overflow-hidden bg-white text-black" data-testid="page-home">
         <section
           data-testid="section-hero"
-          className="border-b border-black/10 bg-white"
+          className="home-photo-hero border-b border-black/10 bg-white"
         >
           <div
             data-testid="section-home-intro"
-            className="mx-auto grid max-w-[1440px] gap-12 px-6 pb-16 pt-14 sm:px-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:gap-16 lg:px-14 lg:pb-24 lg:pt-20"
+            className="home-photo-frame home-photo-hero-grid"
           >
-            <div>
-              <p className="mb-6 flex items-center gap-3 text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">
+            <div className="home-photo-hero-copy">
+              <p className="home-photo-kicker mb-6 flex items-center gap-3">
                 <span className="h-px w-10 bg-[#d61f26]" aria-hidden="true" />
                 Hospice growth consulting
               </p>
               <h1
                 data-testid="text-home-hero-title"
-                className="max-w-[780px] font-display text-[clamp(3.6rem,7.5vw,7.5rem)] font-black uppercase leading-[.98] tracking-[-.055em]"
+                className="home-photo-hero-title max-w-[780px] font-display font-black uppercase leading-[.98]"
               >
                 Make the next hospice <span className="text-[#d61f26]">conversation</span> count.
               </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-black/70 sm:text-xl">
+              <p className="home-photo-hero-lede mt-7 max-w-2xl text-black/70">
                 Spartan Coaching helps hospice teams convert strategy into disciplined field execution — with
                 sharper conversations, stronger managers, and a growth system your people can actually run.
               </p>
 
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <div className="home-photo-actions mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/contact"
                   onClick={() => consultingClick("Hero: Book a strategy call")}
-                  className="inline-flex min-h-14 items-center justify-center gap-3 bg-[#d61f26] px-7 text-sm font-black uppercase tracking-[.12em] text-white transition hover:bg-black"
+                  className="home-photo-button home-photo-button-primary"
                 >
                   Book a strategy call
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -333,13 +333,13 @@ export default function Home() {
                 <Link
                   href="/services"
                   onClick={() => servicesClick("Hero: Explore consulting")}
-                  className="inline-flex min-h-14 items-center justify-center gap-3 border border-black px-7 text-sm font-black uppercase tracking-[.12em] transition hover:bg-black hover:text-white"
+                  className="home-photo-button home-photo-button-outline"
                 >
                   Explore consulting
                 </Link>
               </div>
 
-              <div className="mt-10 grid grid-cols-1 gap-3 border-t border-black/15 pt-6 text-[11px] font-black uppercase tracking-[.12em] text-black/65 sm:grid-cols-3">
+              <div className="home-photo-trust mt-10 grid grid-cols-1 gap-3 border-t border-black/15 pt-6 text-black/65 sm:grid-cols-3">
                 <span className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
                   Hospice specific
@@ -355,30 +355,30 @@ export default function Home() {
               </div>
             </div>
 
-            <HeroSystemPanel />
+            <div className="home-photo-hero-media"><HeroSystemPanel /></div>
           </div>
         </section>
 
-        <section data-testid="section-problems" className="bg-[#f2f0eb]">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
+        <section data-testid="section-problems" className="home-photo-section bg-white">
+          <div className="home-photo-frame">
+            <div className="home-photo-split">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">
+                <p className="home-photo-kicker">
                   Where growth gets stuck
                 </p>
-                <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
-                  The problems we solve.
+                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
+                  The problems we <span>solve.</span>
                 </h2>
               </div>
 
-              <div className="grid border-l border-t border-black/20 sm:grid-cols-2">
+              <div className="home-photo-card-grid home-photo-card-grid-two">
                 {problems.map((problem) => {
                   const Icon = problem.icon;
                   return (
-                    <article key={problem.title} className="border-b border-r border-black/20 p-7 sm:p-9">
-                      <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.8} aria-hidden="true" />
-                      <h3 className="mt-8 text-xl font-black uppercase tracking-[-.02em]">{problem.title}</h3>
-                      <p className="mt-3 leading-7 text-black/65">{problem.body}</p>
+                    <article key={problem.title} className="home-photo-card">
+                      <Icon className="h-6 w-6 text-[#d61f26]" strokeWidth={1.8} aria-hidden="true" />
+                      <h3>{problem.title}</h3>
+                      <p>{problem.body}</p>
                     </article>
                   );
                 })}
@@ -387,29 +387,24 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-audiences" className="bg-black text-white">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="max-w-3xl">
-              <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#ee3439]">Who this is for</p>
-              <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
-                Who we work with.
-              </h2>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-white/65">
-                Coaching and consulting shaped around the people responsible for hospice growth — from one
-                territory to the entire organization.
-              </p>
+        <section data-testid="section-audiences" className="home-photo-section home-photo-section-lined bg-white text-black">
+          <div className="home-photo-frame">
+            <div className="home-photo-audience-head">
+              <div>
+                <p className="home-photo-kicker">Who this is for</p>
+                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">Who we work with.</h2>
+              </div>
+              <p>Coaching and consulting shaped around the people responsible for hospice growth — from one territory to the entire organization.</p>
             </div>
 
-            <div className="mt-12 grid gap-px bg-white/20 lg:grid-cols-3">
+            <div className="home-photo-audience-grid">
               {audiences.map((audience) => {
                 const Icon = audience.icon;
                 return (
-                  <article key={audience.label} className="bg-black p-8 lg:p-10">
-                    <div className="flex h-12 w-12 items-center justify-center border border-[#ee3439] text-[#ee3439]">
-                      <Icon className="h-6 w-6" strokeWidth={1.7} aria-hidden="true" />
-                    </div>
-                    <h3 className="mt-8 text-2xl font-black uppercase tracking-[-.025em]">{audience.label}</h3>
-                    <p className="mt-4 leading-7 text-white/60">{audience.body}</p>
+                  <article key={audience.label}>
+                    <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.7} aria-hidden="true" />
+                    <h3>{audience.label}</h3>
+                    <p>{audience.body}</p>
                   </article>
                 );
               })}
@@ -417,23 +412,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-method" className="bg-white">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-24">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">
-                  The Spartan method
-                </p>
-                <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
-                  Diagnose.<br />Install.<br />Sustain.
-                </h2>
-                <p className="mt-6 max-w-md text-lg leading-8 text-black/65">
-                  We find the real constraint, build the operating standard around it, and coach until the
-                  new behavior holds without us in the room.
-                </p>
-              </div>
+        <section data-testid="section-method" className="home-photo-section bg-white">
+          <div className="home-photo-frame">
+            <div className="home-photo-method-head">
+              <p className="home-photo-kicker">The Spartan method</p>
+              <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
+                Diagnose. Install. Sustain.
+              </h2>
+              <p>We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+            </div>
 
-              <div className="border-t border-black">
+              <div className="home-photo-method-grid">
                 {[
                   {
                     number: "01",
@@ -456,57 +445,53 @@ export default function Home() {
                 ].map((step) => {
                   const Icon = step.icon;
                   return (
-                    <article
-                      key={step.number}
-                      className="grid gap-5 border-b border-black/20 py-8 sm:grid-cols-[72px_1fr_48px] sm:items-start"
-                    >
-                      <span className="text-sm font-black tracking-[.18em] text-[#d61f26]">{step.number}</span>
+                    <article key={step.number}>
+                      <span className="home-photo-step-number">{step.number}</span>
                       <div>
-                        <h3 className="text-2xl font-black uppercase tracking-[-.025em]">{step.title}</h3>
-                        <p className="mt-3 max-w-2xl leading-7 text-black/65">{step.body}</p>
+                        <h3>{step.title}</h3>
+                        <p>{step.body}</p>
                       </div>
-                      <Icon className="hidden h-7 w-7 text-black/35 sm:block" strokeWidth={1.5} aria-hidden="true" />
+                      <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.5} aria-hidden="true" />
                     </article>
                   );
                 })}
               </div>
-            </div>
           </div>
         </section>
 
-        <section data-testid="section-pathways" className="border-y border-black/10 bg-[#f2f0eb]">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <section data-testid="section-pathways" className="home-photo-section home-photo-section-lined border-y border-black/10 bg-white">
+          <div className="home-photo-frame">
+            <div className="home-photo-path-head">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">
+                <p className="home-photo-kicker">
                   Consulting engagements
                 </p>
-                <h2 className="mt-4 max-w-4xl font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
-                  Four ways to move the field.
+                <h2 className="home-photo-section-title mt-5 max-w-4xl font-display font-black uppercase">
+                  Consulting engagement <span>paths.</span>
                 </h2>
               </div>
               <Link
                 href="/services"
                 onClick={() => servicesClick("Engagements: View consulting services")}
-                className="inline-flex items-center gap-3 text-sm font-black uppercase tracking-[.12em] text-[#d61f26] hover:text-black"
+                className="home-photo-text-link"
               >
                 View consulting services
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
 
-            <div className="mt-12 grid border-l border-t border-black/20 md:grid-cols-2">
+            <div className="home-photo-path-grid">
               {engagementPaths.map((path) => (
-                <article key={path.number} className="group border-b border-r border-black/20 bg-white p-8 transition hover:bg-black hover:text-white sm:p-10">
-                  <span className="text-xs font-black tracking-[.2em] text-[#d61f26]">{path.number}</span>
-                  <h3 className="mt-12 max-w-lg text-2xl font-black uppercase leading-tight tracking-[-.025em] sm:text-3xl">
+                <article key={path.number} className="group">
+                  <span>{path.number}</span>
+                  <h3>
                     {path.title}
                   </h3>
-                  <p className="mt-4 max-w-xl leading-7 text-black/65 transition group-hover:text-white/65">{path.body}</p>
+                  <p>{path.body}</p>
                   <Link
                     href="/contact"
                     onClick={() => consultingClick(`Engagement: ${path.title}`)}
-                    className="mt-8 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[.14em] text-[#d61f26]"
+                    className="home-photo-text-link mt-8"
                   >
                     Start the conversation
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -517,26 +502,26 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-founder-authority" className="bg-white">
-          <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-20 sm:px-10 lg:grid-cols-[.82fr_1.18fr] lg:items-center lg:gap-20 lg:px-14 lg:py-28">
-            <div className="relative">
-              <div className="absolute -bottom-4 -right-4 h-full w-full bg-[#d61f26]" aria-hidden="true" />
+        <section data-testid="section-founder-authority" className="home-photo-section bg-white">
+          <div className="home-photo-frame home-photo-founder-grid">
+            <div className="home-photo-founder-image relative">
+              <div className="absolute -bottom-3 -right-3 h-full w-full bg-[#d61f26]" aria-hidden="true" />
               <img
                 src={founderPhoto}
                 alt="Nick Lynch, founder of Spartan Coaching"
                 width={416}
                 height={520}
                 decoding="async"
-                className="relative aspect-[4/5] w-full object-cover grayscale"
+                className="relative h-full w-full object-cover grayscale"
               />
             </div>
 
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">Meet your coach</p>
-              <h2 className="fi-serif mt-4 max-w-4xl text-5xl font-black leading-[.96] tracking-[-.045em] sm:text-6xl">
+              <p className="home-photo-kicker">Meet your coach</p>
+              <h2 className="home-photo-founder-title fi-serif mt-5 max-w-4xl font-black leading-[.96] text-black/70">
                 Built by someone who has carried the number.
               </h2>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-black/70">
+              <p className="home-photo-founder-lede mt-7 max-w-2xl text-black/70">
                 Nick Lynch built Spartan Coaching around a simple belief: hospice sales support should
                 sound like the field, work in the field, and make leaders better at coaching the field.
               </p>
@@ -546,7 +531,7 @@ export default function Home() {
               </p>
               <Link
                 href="/about"
-                className="mt-8 inline-flex items-center gap-3 text-sm font-black uppercase tracking-[.12em] text-[#d61f26] hover:text-black"
+                className="home-photo-text-link mt-8"
               >
                 Read the founder story
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -555,34 +540,28 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-results" className="bg-[#f2f0eb]">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-20">
+        <section data-testid="section-results" className="home-photo-section home-photo-section-lined bg-white">
+          <div className="home-photo-frame">
+            <div className="home-photo-results-head">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">
-                  What changes
-                </p>
-                <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
-                  Work the team can feel.
+                <p className="home-photo-kicker">What changes</p>
+                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
+                  A stronger tomorrow is <span>possible.</span>
                 </h2>
-                <p className="mt-6 max-w-md text-lg leading-8 text-black/65">
-                  The goal is not a motivational week. It is clarity, confidence, and a standard leaders can
-                  coach long after the engagement ends.
-                </p>
               </div>
+              <p>The goal is not a motivational week. It is clarity, confidence, and a standard leaders can coach long after the engagement ends.</p>
+            </div>
 
-              <div>
-                <div className="grid gap-px bg-black/20 md:grid-cols-3">
+              <div className="home-photo-results-grid">
                   {outcomes.map((outcome) => (
-                    <figure key={outcome.role} className="bg-white p-7 sm:p-8">
-                      <blockquote className="text-lg font-bold leading-7">“{outcome.quote}”</blockquote>
-                      <figcaption className="mt-8 text-[11px] font-black uppercase tracking-[.16em] text-[#d61f26]">
+                    <figure key={outcome.role}>
+                      <blockquote>“{outcome.quote}”</blockquote>
+                      <figcaption>
                         {outcome.role}
                       </figcaption>
                     </figure>
                   ))}
-                </div>
-                <div className="mt-px flex flex-col justify-between gap-5 bg-black p-8 text-white sm:flex-row sm:items-center">
+                <div className="home-photo-outcome bg-black text-white">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[.2em] text-[#ee3439]">The outcome</p>
                     <p className="mt-2 text-2xl font-black uppercase">Repeatable execution.</p>
@@ -592,41 +571,40 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-            </div>
           </div>
         </section>
 
-        <section data-testid="section-process" className="bg-white">
-          <div className="mx-auto max-w-[1440px] px-6 py-20 sm:px-10 lg:px-14 lg:py-28">
-            <div className="max-w-3xl">
-              <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#d61f26]">How we work</p>
-              <h2 className="mt-4 font-display text-5xl font-black uppercase leading-[.92] tracking-[-.045em] sm:text-6xl">
+        <section data-testid="section-process" className="home-photo-section bg-white">
+          <div className="home-photo-frame">
+            <div className="max-w-4xl">
+              <p className="home-photo-kicker">How we work</p>
+              <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
                 Clear from first call to lasting change.
               </h2>
             </div>
 
-            <div className="mt-12 grid border-l border-t border-black/20 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="home-photo-process-grid">
               {[
                 ["01", "Discovery call", "Get clear on the pressure, the goal, and what is getting in the way."],
                 ["02", "Customized plan", "Build the engagement around your team, market, and operating reality."],
                 ["03", "Get to work", "Coach in the moments where skill, leadership, and execution are tested."],
                 ["04", "Lasting results", "Leave behind standards and rhythms the organization can sustain."],
               ].map(([number, title, body]) => (
-                <article key={number} className="border-b border-r border-black/20 p-7 sm:p-8">
-                  <span className="text-xs font-black tracking-[.18em] text-[#d61f26]">{number}</span>
-                  <h3 className="mt-12 text-xl font-black uppercase tracking-[-.02em]">{title}</h3>
-                  <p className="mt-3 leading-7 text-black/65">{body}</p>
+                <article key={number}>
+                  <span>{number}</span>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section data-testid="section-closing" className="bg-black text-white">
-          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-20 sm:px-10 lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-24">
+        <section data-testid="section-closing" className="home-photo-closing-wrap bg-white">
+          <div className="home-photo-frame home-photo-closing bg-black text-white">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[.24em] text-[#ee3439]">The next move</p>
-              <h2 className="mt-4 font-display text-[clamp(4rem,9vw,8.5rem)] font-black uppercase leading-[.86] tracking-[-.06em]">
+              <p className="home-photo-kicker">The next move</p>
+              <h2 className="mt-5 font-display font-black uppercase">
                 Stop winging it.
               </h2>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-white/65">
@@ -636,14 +614,14 @@ export default function Home() {
             <Link
               href="/contact"
               onClick={() => consultingClick("Closing: Book a strategy call")}
-              className="inline-flex min-h-14 items-center justify-center gap-3 bg-[#d61f26] px-8 text-sm font-black uppercase tracking-[.12em] text-white transition hover:bg-white hover:text-black"
+              className="home-photo-button home-photo-button-primary"
             >
               Book a strategy call
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-          <div className="border-t border-white/15">
-            <div className="mx-auto grid max-w-[1440px] gap-4 px-6 py-6 text-[10px] font-black uppercase tracking-[.16em] text-white/45 sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:px-14">
+          <div className="home-photo-frame home-photo-closing-trust">
+            <div>
               <span>Hospice-specific strategy</span>
               <span>Field-tested coaching</span>
               <span>Leadership accountability</span>
