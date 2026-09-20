@@ -30,7 +30,9 @@ frame before changing more providers or native modules.
 | Build | Device / iOS | Launch condition | Exception / first failing frame | Result |
 |---|---|---|---|---|
 | `1.0.0 (52)` | Unknown | Reported TestFlight launch crash | Awaiting `.ips` report | Blocked |
-| `1.0.0 (53)` · EAS `65339fa8-ca8c-4724-b1e1-aeb2c817e4dd` · fingerprint `d6cb96f0f68524c35e0084b725589927761029d6` | | Fresh install / force quit / offline / repeat | No Associated Domains; build finished 2026-09-20 | Awaiting device |
+| `1.0.0 (53)` · EAS `65339fa8-ca8c-4724-b1e1-aeb2c817e4dd` | Not promoted | Superseded before device testing | Android headless task was not defined at global initialization | Superseded |
+| `1.0.0 (54)` · EAS `654e9550-9c22-4615-80fa-00cc8327fa96` | Not promoted | Build canceled | Superseded during correction | Canceled |
+| `1.0.0 (55)` · EAS `78088d7c-9f61-4d7f-812f-d69ed5579898` · commit `54abfb9374e66ceb8665c2fead4135daff6c06b4` | | Fresh install / force quit / offline / repeat | No Associated Domains; build finished 2026-09-20 | Awaiting device |
 
 ### Device-only handoff
 
