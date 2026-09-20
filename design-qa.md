@@ -30,3 +30,47 @@
 The Vite preview starts successfully on port 4173, but the required cloud-browser surface returns `ERR_CONNECTION_REFUSED` for `terminal.local:4173`. No local screenshot is being represented as browser verification.
 
 Final result: blocked — cloud-browser capture is unavailable in this workspace. Automated accessibility, action, type, test, build, and performance gates pass; the viewport matrix above remains the required manual visual check.
+
+---
+
+# Homepage visual QA — Photo 1 fidelity
+
+Reference: `generated_images/exec-26480ed7-e2ad-48fd-adf5-8340c26006b9.png`
+
+Target route: `/`
+
+## Fidelity checklist
+
+- Hero message and media behavior preserved.
+- Hero restored to the large two-column editorial composition.
+- Video frame enlarged and given the broader Photo 1 aspect ratio.
+- White editorial canvas restored across problem, audience, method, engagement, founder, results, and process sections.
+- Full-width black audience band removed.
+- Condensed oversized display hierarchy and red accent words restored.
+- Consulting content organized into thin-rule horizontal grids.
+- Founder block restored to a large image-and-statement composition.
+- Closing statement contained inside the page frame with a separate trust strip.
+- Hospice Sales Pro remains confined to site navigation and its dedicated route.
+
+## Responsive and interaction checks
+
+- Desktop: multi-column editorial grids and large hero media.
+- Tablet: hero remains split; four-column grids collapse to two columns.
+- Mobile: all sections collapse to one readable column without horizontal overflow.
+- Hero video retains autoplay, pause, retry, reduced-motion, poster, and source fallback behavior.
+- CTA links retain their existing analytics events and destinations.
+
+## Verification
+
+- TypeScript: passed after workspace package build.
+- Unit/contract tests: 324 passed.
+- Production build: passed.
+- Performance budget: passed.
+- Static public-site audit: passed.
+- Browser console and CI visual artifact: pending pull-request CI because the managed local preview could not access this monorepo's workspace dependencies.
+
+## Severity review
+
+- P0 blockers: none found.
+- P1 visual/functional regressions: none found in source, tests, or production build.
+- P2 polish items: final CI screenshot comparison pending.
