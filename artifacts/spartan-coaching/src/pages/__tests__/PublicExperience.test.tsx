@@ -90,11 +90,12 @@ describe("Public Experience Design Standards", () => {
       const title = screen.getByTestId("text-home-hero-title");
       expect(title).not.toBeNull();
 
-      const consultCta = screen.getAllByText(/Book a strategy call/i);
-      expect(consultCta.length).toBeGreaterThanOrEqual(1);
+      const consultCtas = screen.getAllByRole("link", { name: /Book a strategy call/i });
+      expect(consultCtas.length).toBeGreaterThanOrEqual(2);
 
-      const platformCta = screen.getAllByText(/Explore Hospice Sales Pro/i);
-      expect(platformCta.length).toBeGreaterThanOrEqual(1);
+      const servicesCta = screen.getByRole("link", { name: /^Explore consulting$/i });
+      expect(servicesCta).not.toBeNull();
+      expect(screen.queryByRole("link", { name: /Explore Hospice Sales Pro/i })).toBeNull();
     });
 
     it("respects reduced motion preference (video autoplay fallback)", () => {
