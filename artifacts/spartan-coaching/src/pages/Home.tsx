@@ -255,11 +255,11 @@ const outcomes = [
 
 export default function Home() {
   const consultingClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label, { offer: "consulting" });
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label);
   };
 
   const servicesClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label, { offer: "consulting" });
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label);
   };
 
   const structuredData = {
