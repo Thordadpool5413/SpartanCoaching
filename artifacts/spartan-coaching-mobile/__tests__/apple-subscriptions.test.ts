@@ -83,10 +83,8 @@ describe("Apple subscription contract", () => {
     expect(membership).toContain("Add private Coach when you want the complete system");
     expect(membership).toContain("<AppleSubscriptionActions");
     expect(membership).toContain('router.push("/register" as any)');
-    expect(api).toContain("getVerifyGuestAppleBillingTransactionUrl()");
-    expect(api).toContain("getClaimAppleBillingTransactionUrl()");
-    expect(api).toContain("verifyGuestAppleTransaction");
-    expect(api).toContain("claimAppleTransaction");
+    expect(api).toContain('"/api/billing/apple/guest-verify"');
+    expect(api).toContain('"/api/billing/apple/claim"');
   });
 
   it("auto claims purchases only into personal workspaces", () => {

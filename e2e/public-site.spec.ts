@@ -167,8 +167,7 @@ async function prepareHomepageVisualTest(page: Page) {
     `,
   });
   await expect(page.getByTestId("section-hero")).toBeVisible();
-  await expect(page.getByTestId("section-pathways")).toBeVisible();
-  await expect(page.getByTestId("section-founder-authority")).toBeVisible();
+  await expect(page.getByTestId("section-field-brief")).toBeVisible();
   await expect(page.getByTestId("section-results")).toBeVisible();
   await expect(page.getByTestId("section-closing")).toBeVisible();
 }
@@ -297,10 +296,10 @@ test.describe("public website release gate", () => {
     await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
-    await expect(page.locator("main")).toContainText("Two ways to engage the work");
-    await expect(page.locator("main")).toContainText("Spartan Consulting");
-    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
-    await expect(page.locator("main")).toContainText("Built by someone who has actually carried the number.");
+    await expect(page.locator("main")).toContainText("Elite is $19.99/week");
+    await expect(page.locator("main")).toContainText("$19.99/wk");
+    await expect(page.locator("main")).toContainText("Standard");
+    await expect(page.locator("main")).toContainText("$14.99/wk");
   });
 
   test("primary navigation reaches both customer paths", async ({ page }) => {
@@ -326,8 +325,7 @@ test.describe("public website release gate", () => {
 
     for (const region of [
       { name: "hero", testId: "section-hero" },
-      { name: "pathways", testId: "section-pathways" },
-      { name: "founder-authority", testId: "section-founder-authority" },
+      { name: "simulator", testId: "section-field-brief" },
       { name: "proof-ledger", testId: "section-results" },
       { name: "closing-cta", testId: "section-closing" },
     ]) {
@@ -339,34 +337,35 @@ test.describe("public website release gate", () => {
     await prepareHomepageVisualTest(page);
 
     await expect(page.getByTestId("hero-animation")).toHaveCount(0);
-    const visibleVideo = page.locator('[data-testid="hero-video"]:visible').first();
-    if (await visibleVideo.count()) {
-      await expect(visibleVideo).toHaveAttribute("poster", /hero-poster\.jpg$/);
-      await expect
-        .poll(() => visibleVideo.evaluate((element: HTMLVideoElement) => element.paused))
-        .toBe(true);
+    const frame = page.getByTestId("hero-video-frame");
+    await expect(frame.locator("video, img").first()).toBeVisible();
+    const video = frame.locator("video");
+    if (await video.count()) {
+      await expect(video).toHaveAttribute("poster", /hero-poster\.jpg$/);
+      await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
     } else {
-      const visiblePoster = page
-        .locator('[data-testid="hero-video-frame"]:visible img:visible')
-        .first();
-      await expect(visiblePoster).toHaveAttribute("src", /hero-poster\.jpg$/);
+      await expect(frame.locator("img")).toHaveAttribute("src", /hero-poster\.jpg$/);
     }
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
 
-  test("homepage customer paths remain stable after navigation and reload", async ({ page }) => {
+  test("homepage role deep links preserve the selected Pathfinder after navigation", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await isolatePublicPage(page);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/?role=combined#field-brief", { waitUntil: "networkidle" });
 
-    const consulting = page.getByRole("link", { name: /explore consulting services/i });
-    const platform = page.getByRole("link", { name: /explore the platform/i });
-    await expect(consulting).toHaveAttribute("href", "/services");
-    await expect(platform).toHaveAttribute("href", "/hospice-sales-pro");
+    const combinedOption = page.getByTestId("pathfinder-option-combined");
+    await expect(combinedOption).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
+      "Recommended path · consulting + seats",
+    );
+    await expect(page.getByRole("heading", { name: "Pair a field system with human coaching." })).toBeVisible();
 
-    await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("section-pathways")).toBeVisible();
-    await expect(page.getByRole("link", { name: /explore consulting services/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /explore the platform/i })).toBeVisible();
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(combinedOption).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("field-brief-pathfinder")).toContainText(
+      "Recommended path · consulting + seats",
+    );
   });
 
   test("workspace appearance survives a public-page refresh", async ({ page }) => {
@@ -669,12 +668,12 @@ test.describe("public website release gate", () => {
         "data-route-surface",
         "public",
       );
-      await expect(page.locator("html")).toHaveAttribute("data-theme-mode", "dark");
-      await expect(page.locator("html")).toHaveAttribute("data-accent", "purple");
-      await expect(page.locator("html")).toHaveAttribute("data-bg", "forest");
+      await expect(page.locator("html")).toHaveAttribute("data-theme-mode", "light");
+      await expect(page.locator("html")).toHaveAttribute("data-accent", "red");
+      await expect(page.locator("html")).toHaveAttribute("data-bg", "soft");
       await expect(page.locator("html")).toHaveAttribute(
         "data-theme-preset",
-        "custom",
+        "spartan",
       );
       await expectSavedAppearance();
     };
@@ -728,7 +727,7 @@ test.describe("public website release gate", () => {
       await expect(header).toBeVisible();
       await expect(navigation).toBeVisible();
       await expect(search).toBeHidden();
-      await expect(menu).toBeHidden();
+      await expect(menu).toBeVisible();
       await expect(login).toBeVisible();
       await expect(primaryAction).toBeVisible();
       await expectNoHorizontalOverflow(page, `${width}px public header`);
@@ -744,24 +743,36 @@ test.describe("public website release gate", () => {
     }
   });
 
-  test("desktop navigation links stay keyboard-navigable at xl", async ({ page }, testInfo) => {
+  test("desktop navigation dropdowns stay keyboard-navigable at xl", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chromium", "Desktop navigation is not rendered on mobile");
     await page.setViewportSize({ width: 1280, height: 900 });
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts?.ready);
 
-    const navigation = page.getByRole("navigation", { name: "Main navigation" });
-    const links = navigation.getByRole("link");
-    await expect(navigation).toBeVisible();
-    await expect(links).toHaveCount(4);
-    await expectNoHorizontalOverflow(page, "xl desktop navigation");
+    const dropdown = page.getByTestId("dropdown-consulting");
+    const trigger = dropdown.getByRole("button", { name: "Consulting menu" });
+    const menu = dropdown.getByRole("menu", { name: "Consulting" });
+    const menuItems = menu.getByRole("menuitem");
 
-    const linkCount = await links.count();
-    for (let index = 0; index < linkCount; index += 1) {
-      await links.nth(index).focus();
-      await expectKeyboardFocus(links.nth(index), `desktop navigation link ${index + 1}`);
+    await expect(trigger).toBeVisible();
+    await expect(menu).toBeHidden();
+
+    await trigger.focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(menu).toBeVisible();
+    await expectNoHorizontalOverflow(page, "xl desktop navigation dropdown");
+
+    const itemCount = await menuItems.count();
+    expect(itemCount, "desktop dropdown must contain navigable items").toBeGreaterThan(1);
+    for (let index = 0; index < itemCount; index += 1) {
+      await expectKeyboardFocus(menuItems.nth(index), `desktop dropdown item ${index + 1}`);
+      await page.keyboard.press("ArrowDown");
     }
+
+    await page.keyboard.press("Escape");
+    await expect(menu).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 
   test("mobile header keeps search and menu usable at 390px", async ({ page }, testInfo) => {

@@ -17,16 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Copy, Loader2, Mail, Smartphone } from "lucide-react";
-import {
-  addAdminOrganizationNote,
-  createAdminOrganizationBillingContract,
-  extendAdminOrganizationTrial,
-  getAdminOrganization,
-  getAdminSubscriberMobileUsage,
-  updateAdminOrganizationBillingSeats,
-  updateAdminOrganizationPipeline,
-  updateAdminOrganizationStatus,
-} from "@workspace/api-client-react";
+import { adminFetch } from "@/lib/adminApi";
 import {
   ORG_NOTE_TEMPLATES,
   copyText,
@@ -47,15 +38,6 @@ type Props = {
   orgId: number;
   onBack: () => void;
 };
-type OrgDetail = {
-  organization: any;
-  members: any[];
-  requests: any[];
-  timeline: any[];
-  activatedCount: number;
-  activated: boolean;
-  usageLast7Days: number;
-};
 
 export function OrgDetailPanel({ orgId, onBack }: Props) {
   const { toast } = useToast();
@@ -71,14 +53,14 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
   const [contractMode, setContractMode] = useState<"send_invoice" | "offline">("send_invoice");
   const [seatEdit, setSeatEdit] = useState("");
 
-  const { data, isLoading, refetch } = useQuery<OrgDetail>({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/organizations", orgId],
-    queryFn: async () => (await getAdminOrganization(String(orgId), { credentials: "include" })) as unknown as OrgDetail,
+    queryFn: () => adminFetch(`/api/admin/organizations/${orgId}`),
   });
 
   const { data: mobileUsageData } = useQuery<{ usage: Array<{ memberId: number; mobileEvents: number; webEvents: number }> }>({
     queryKey: ["/api/admin/subscriber-mobile-usage"],
-    queryFn: async () => (await getAdminSubscriberMobileUsage({ credentials: "include" })) as unknown as { usage: Array<{ memberId: number; mobileEvents: number; webEvents: number }> },
+    queryFn: () => adminFetch("/api/admin/subscriber-mobile-usage"),
   });
 
   const mobileUsageMap = new Map<number, { mobileEvents: number; webEvents: number }>(
@@ -125,11 +107,14 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
   const pipelineMut = useMutation({
     mutationFn: () =>
-      updateAdminOrganizationPipeline(String(orgId), {
-        pipelineStatus: pipeline,
-        nextFollowUpAt: followUp ? new Date(followUp).toISOString() : null,
-        lostReason: pipeline === "lost" || pipeline === "churned" ? lostReason || null : null,
-      }, { credentials: "include" }),
+      adminFetch(`/api/admin/organizations/${orgId}/pipeline`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          pipelineStatus: pipeline,
+          nextFollowUpAt: followUp ? new Date(followUp).toISOString() : null,
+          lostReason: pipeline === "lost" || pipeline === "churned" ? lostReason || null : null,
+        }),
+      }),
     onSuccess: () => {
       toast({ title: "Pipeline updated" });
       invalidateAll();
@@ -139,7 +124,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
   const noteMut = useMutation({
     mutationFn: (body: string) =>
-      addAdminOrganizationNote(String(orgId), { body }, { credentials: "include" }),
+      adminFetch(`/api/admin/organizations/${orgId}/notes`, {
+        method: "POST",
+        body: JSON.stringify({ body }),
+      }),
     onSuccess: () => {
       toast({ title: "Note added" });
       setNote("");
@@ -159,7 +147,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
   const statusMut = useMutation({
     mutationFn: (status: string) =>
-      updateAdminOrganizationStatus(String(orgId), { status }, { credentials: "include" }),
+      adminFetch(`/api/admin/organizations/${orgId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      }),
     onSuccess: (data: any, status) => {
       if (status === "active") {
         toastEmail("Client activated", data, "Hospice Sales Pro access email sent to org members.");
@@ -179,13 +170,16 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         return Promise.reject(new Error("Weekly per-seat price must be at least $0.50"));
       }
       const unitAmountCents = Math.round(dollars * 100);
-      return createAdminOrganizationBillingContract(String(orgId), {
+      return adminFetch(`/api/admin/organizations/${orgId}/billing/contract`, {
+        method: "POST",
+        body: JSON.stringify({
           seats,
           unitAmountCents,
           contractRef: contractRef.trim() || undefined,
           collectionMode: contractMode,
           currency: "usd",
-        }, { credentials: "include" });
+        }),
+      });
     },
     onSuccess: (data: any) => {
       toast({
@@ -199,7 +193,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
   const seatsMut = useMutation({
     mutationFn: (seats: number) =>
-      updateAdminOrganizationBillingSeats(String(orgId), { seats }, { credentials: "include" }),
+      adminFetch(`/api/admin/organizations/${orgId}/billing/seats`, {
+        method: "PATCH",
+        body: JSON.stringify({ seats }),
+      }),
     onSuccess: (data: any) => {
       toast({ title: "Seats updated", description: data?.message || "Seat limit saved." });
       invalidateAll();
@@ -209,7 +206,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
 
   const extendMut = useMutation({
     mutationFn: (hours: number) =>
-      extendAdminOrganizationTrial(String(orgId), { hours }, { credentials: "include" }),
+      adminFetch(`/api/admin/organizations/${orgId}/extend-trial`, {
+        method: "POST",
+        body: JSON.stringify({ hours }),
+      }),
     onSuccess: (data: any, hours) => {
       toastEmail("Trial extended", data, `+${hours}h. Members notified by email.`);
       invalidateAll();

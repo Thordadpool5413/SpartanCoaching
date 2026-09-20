@@ -82,41 +82,6 @@ import {
   type FieldWorkHealthResponse,
 } from "./analytics/fieldWorkHealth";
 
-type PublicTestimonial = Pick<
-  SelectTestimonial,
-  | "id"
-  | "name"
-  | "title"
-  | "company"
-  | "quote"
-  | "outcome"
-  | "category"
-  | "featured"
-  | "displayOrder"
-  | "timeframe"
-  | "evidenceSource"
-  | "measurementContext"
-  | "verificationStatus"
-  | "attributionLimitations"
->;
-
-type PublicCaseStudy = Pick<
-  SelectCaseStudy,
-  | "id"
-  | "title"
-  | "clientLabel"
-  | "challenge"
-  | "solution"
-  | "results"
-  | "category"
-  | "displayOrder"
-  | "timeframe"
-  | "evidenceSource"
-  | "measurementContext"
-  | "verificationStatus"
-  | "attributionLimitations"
->;
-
 // Storage interface for CRUD operations
 export interface IStorage {
   // User operations (Replit Auth - blueprint:javascript_log_in_with_replit)
@@ -186,15 +151,11 @@ export interface IStorage {
   updateSignedAgreementPdf(id: number, pdfData: string): Promise<void>;
   // Testimonial operations
   getTestimonials(): Promise<SelectTestimonial[]>;
-  getTestimonial(id: number): Promise<SelectTestimonial | undefined>;
-  getPublicTestimonials(): Promise<PublicTestimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial>;
   updateTestimonial(id: number, testimonial: Partial<InsertTestimonial>): Promise<SelectTestimonial>;
   deleteTestimonial(id: number): Promise<void>;
   // Case study operations
   getCaseStudies(): Promise<SelectCaseStudy[]>;
-  getCaseStudy(id: number): Promise<SelectCaseStudy | undefined>;
-  getPublicCaseStudies(): Promise<PublicCaseStudy[]>;
   createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy>;
   updateCaseStudy(id: number, study: Partial<InsertCaseStudy>): Promise<SelectCaseStudy>;
   deleteCaseStudy(id: number): Promise<void>;
@@ -780,41 +741,6 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(testimonials).orderBy(testimonials.displayOrder, testimonials.id);
   }
 
-  async getTestimonial(id: number): Promise<SelectTestimonial | undefined> {
-    const [result] = await db.select().from(testimonials).where(eq(testimonials.id, id));
-    return result;
-  }
-
-  async getPublicTestimonials(): Promise<PublicTestimonial[]> {
-    return await db
-      .select({
-        id: testimonials.id,
-        name: testimonials.name,
-        title: testimonials.title,
-        company: testimonials.company,
-        quote: testimonials.quote,
-        outcome: testimonials.outcome,
-        category: testimonials.category,
-        featured: testimonials.featured,
-        displayOrder: testimonials.displayOrder,
-        timeframe: testimonials.timeframe,
-        evidenceSource: testimonials.evidenceSource,
-        measurementContext: testimonials.measurementContext,
-        verificationStatus: testimonials.verificationStatus,
-        attributionLimitations: testimonials.attributionLimitations,
-      })
-      .from(testimonials)
-      .where(and(
-        eq(testimonials.approvalStatus, "approved"),
-        isNotNull(testimonials.approvedAt),
-        isNotNull(testimonials.approvalReference),
-        isNotNull(testimonials.approvalScope),
-        isNotNull(testimonials.evidenceSource),
-        isNotNull(testimonials.timeframe),
-      ))
-      .orderBy(testimonials.displayOrder, testimonials.id);
-  }
-
   async createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial> {
     const [result] = await db.insert(testimonials).values(testimonial).returning();
     return result;
@@ -831,40 +757,6 @@ export class DatabaseStorage implements IStorage {
 
   async getCaseStudies(): Promise<SelectCaseStudy[]> {
     return await db.select().from(caseStudies).orderBy(caseStudies.displayOrder, caseStudies.id);
-  }
-
-  async getCaseStudy(id: number): Promise<SelectCaseStudy | undefined> {
-    const [result] = await db.select().from(caseStudies).where(eq(caseStudies.id, id));
-    return result;
-  }
-
-  async getPublicCaseStudies(): Promise<PublicCaseStudy[]> {
-    return await db
-      .select({
-        id: caseStudies.id,
-        title: caseStudies.title,
-        clientLabel: caseStudies.clientLabel,
-        challenge: caseStudies.challenge,
-        solution: caseStudies.solution,
-        results: caseStudies.results,
-        category: caseStudies.category,
-        displayOrder: caseStudies.displayOrder,
-        timeframe: caseStudies.timeframe,
-        evidenceSource: caseStudies.evidenceSource,
-        measurementContext: caseStudies.measurementContext,
-        verificationStatus: caseStudies.verificationStatus,
-        attributionLimitations: caseStudies.attributionLimitations,
-      })
-      .from(caseStudies)
-      .where(and(
-        eq(caseStudies.approvalStatus, "approved"),
-        isNotNull(caseStudies.approvedAt),
-        isNotNull(caseStudies.approvalReference),
-        isNotNull(caseStudies.approvalScope),
-        isNotNull(caseStudies.evidenceSource),
-        isNotNull(caseStudies.timeframe),
-      ))
-      .orderBy(caseStudies.displayOrder, caseStudies.id);
   }
 
   async createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy> {

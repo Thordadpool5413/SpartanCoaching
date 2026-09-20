@@ -1,11 +1,19 @@
-import { Link } from "wouter";
-import { ArrowRight, Check } from "lucide-react";
-import { SEO } from "@/components/SEO";
+import { AccentText } from "@/components/AccentText";
+import { Card } from "@/components/ui/card";
+import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X, Shield, MonitorSmartphone } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { PersuasionShell } from "@/components/PersuasionShell";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
-import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
-import { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Services() {
   const individualServices = [
@@ -188,213 +196,529 @@ export default function Services() {
     },
   ];
 
-  const categories = [
-    { id: "individual", label: "Individual Execution", services: individualServices },
-    { id: "leadership", label: "Leadership Coaching", services: leadershipServices },
-    { id: "corporate", label: "Corporate Programs", services: corporateServices },
-    { id: "tech", label: "System Delivery", services: techServices },
-  ];
-
-  const [activeCategory, setActiveCategory] = useState("individual");
-
-  const activeServices = categories.find(c => c.id === activeCategory)?.services || [];
-
   return (
-    <div className="page-persuasion font-sans">
-      <SEO title="Consulting & Systems | Spartan Coaching" />
+    <PersuasionShell>
+      <SEO />
       <BackButton />
+      <div className="text-center max-w-4xl mx-auto mb-14 sm:mb-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent blur-3xl -z-10" />
+        <p className="text-kicker mb-4 animate-fade-in-up">Hospice growth consulting</p>
+        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up font-display leading-[1.1] tracking-[-0.01em]" data-testid="text-services-title">
+          Work <span className="text-primary">With Us</span>
+        </h1>
+        <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up max-w-2xl mx-auto" style={{ animationDelay: "0.1s" }}>
+          Human coaching, team systems, and leadership rhythms for hospice growth — so the right conversations happen when eligible patients need care.
+        </p>
+        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: "0.2s" }}>
+          Every engagement exists because good people still miss referrals without structure. We install the coaching and the weekly system — not a slide deck you forget on Monday.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+          <Button size="lg" asChild className="font-bold">
+            <Link href="/contact">
+              Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="font-bold">
+            <Link href="/method">See the Spartan Method</Link>
+          </Button>
+        </div>
+      </div>
 
-      {/* Hero */}
-      <section className="fi-dark fi-section bg-[var(--fi-ink)]">
-        <div className="mx-auto max-w-[1440px] px-5 py-24 md:px-10 md:py-32">
-          <div className="flex flex-col justify-between gap-10 border-b border-[var(--fi-line-light)] pb-12 md:flex-row md:items-end">
-            <div>
-              <p className="fi-kicker fi-kicker-light mb-8">Consulting & Systems</p>
-              <h1 className="fi-serif text-[clamp(3.5rem,7vw,7rem)] leading-[0.9] max-w-[800px]" data-testid="text-services-title">
-                When effort is high <span className="text-[var(--fi-red)]">but execution is inconsistent.</span>
-              </h1>
-            </div>
-            <p className="max-w-[340px] text-[1.125rem] leading-[1.6] text-white/80 font-medium">
-              For liaisons, sales leaders, and provider teams who need a clearer market plan, a coachable field standard, or a purpose-built workflow. We operate across 12 capabilities and deliver an integrated suite of field software tools.
+      {/* Engagement guide — help visitors choose before the full catalog */}
+      <div
+        className="max-w-6xl mx-auto mb-12 sm:mb-16"
+        data-testid="section-engagement-guide"
+      >
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <p className="text-kicker justify-center mb-3">Start with the right fit</p>
+          <h2 className="text-h2 font-display text-foreground leading-[1.15] tracking-[-0.01em]">What kind of <span className="text-primary">help</span> do you need?</h2>
+             <p className="text-[15px] text-muted-foreground leading-[1.65] mt-4">
+            Choose the closest match. Each path opens the kind of conversation, time commitment, and next step you can expect.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            t: "Individual coaching",
+            frame: "Session-based",
+            d: "One rep’s obstacle, territory, or conversation. Investment is scoped on the call.",
+            href: "#individual",
+            action: "See individual options",
+          },
+          {
+            t: "Team workshops",
+            frame: "Typically 1–2 days",
+            d: "Shared language, practice, and a repeatable team process for your market.",
+            href: "#leadership",
+            action: "See team options",
+          },
+          {
+            t: "Leadership & strategy",
+            frame: "Monthly or multi-month",
+            d: "Director coaching, growth systems, and multi-market execution with a clear roadmap.",
+            href: "#corporate",
+            action: "See leadership options",
+          },
+          {
+            t: "Technology solutions",
+            frame: "Custom engagement",
+            d: "Purpose-built CRM, iOS, or web tools for hospice-specific workflows.",
+            href: "#technology",
+            action: "See technology options",
+          },
+        ].map((s) => (
+          <Card key={s.t} className="border border-border/80 bg-card p-5 text-left h-full flex flex-col">
+            <p className="mb-1 text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-primary">
+              {s.frame}
             </p>
+            <h3 className="text-base font-display font-bold text-foreground mb-2 leading-[1.15] tracking-[-0.01em]"><AccentText>{s.t}</AccentText></h3>
+             <p className="text-[15px] text-muted-foreground leading-[1.65] flex-1">{s.d}</p>
+            <Link
+              href={s.href}
+              className="inline-flex items-center gap-1.5 mt-5 min-h-11 text-sm font-bold text-primary hover:underline underline-offset-4"
+              data-testid={`link-engagement-${s.t.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              {s.action}
+              <ArrowRight className="w-4 h-4" aria-hidden />
+            </Link>
+          </Card>
+        ))}
+        </div>
+      </div>
+
+      {/* How engagements work — craft strip, coaching-first */}
+      <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-16 sm:mb-20">
+        {[
+          { t: "Diagnose", d: "Territory, team, and referral pattern — honest read, no fluff." },
+          { t: "Install", d: "Coaching, workshops, and a weekly rhythm the team can run without you." },
+          { t: "Sustain", d: "Scorecards, ridealongs, and leadership coaching that hold through busy season." },
+        ].map((s) => (
+          <Card key={s.t} className="border border-border/80 bg-card p-5 text-center sm:text-left">
+            <p className="text-kicker mb-2 justify-center sm:justify-start">{s.t}</p>
+             <p className="text-[15px] text-muted-foreground leading-[1.65]">{s.d}</p>
+          </Card>
+        ))}
+      </div>
+
+      {/* Individual Sales Reps Section */}
+      <div id="individual" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 flex items-center justify-center flex-shrink-0">
+            <UserCheck className="w-7 h-7" />
           </div>
-          
-          <div className="mt-16 grid gap-12 md:grid-cols-3">
-            {[
-              { num: "01", title: "Diagnose", copy: "Clarify the business condition, market reality, people involved, and decision that needs to change." },
-              { num: "02", title: "Design", copy: "Choose the smallest useful engagement and define the operating standard, scope, and responsibilities." },
-              { num: "03", title: "Install", copy: "Coach the work, practice the behavior, and leave leaders with a repeatable rhythm they can sustain." }
-            ].map(({ num, title, copy }) => (
-              <div key={num} className="pt-6 border-t border-[var(--fi-line-light)]">
-                <span className="text-[0.75rem] font-bold text-[var(--fi-red)] font-mono">{num}</span>
-                <h3 className="mt-4 text-xl font-bold uppercase tracking-wider">{title}</h3>
-                <p className="mt-4 text-sm leading-[1.6] text-white/70 font-medium">{copy}</p>
-              </div>
-            ))}
+          <div>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Individual <span className="text-primary">Sales Reps</span></h2>
+            <p className="text-body text-muted-foreground">Get better at the job you&apos;re doing right now.</p>
           </div>
         </div>
-      </section>
 
-      {/* Services Portfolio */}
-      <section className="fi-section bg-[var(--fi-paper)]">
-        <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
-          <div
-            className="mb-14 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[var(--fi-line)]"
-            role="tablist"
-            aria-label="Consulting capability categories"
-          >
-            {categories.map(c => (
-              <button
-                key={c.id}
-                id={`services-tab-${c.id}`}
-                type="button"
-                role="tab"
-                aria-selected={activeCategory === c.id}
-                aria-controls="services-category-panel"
-                onClick={() => setActiveCategory(c.id)}
-                className={`pb-4 text-[0.75rem] font-bold font-mono uppercase tracking-[.15em] transition-colors ${
-                  activeCategory === c.id 
-                    ? "border-b-2 border-[var(--fi-red)] text-[var(--fi-red)]" 
-                    : "text-black/50 hover:text-[var(--fi-ink)]"
-                }`}
-                data-testid={
-                  c.id === "individual" ? "pathway-coaching" : 
-                  c.id === "corporate" ? "pathway-workshops" : 
-                  c.id === "tech" ? "pathway-technology" : undefined
-                }
-              >
-                {c.label}
-              </button>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {individualServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card bg-card dark:border-border border-l-4 border-l-primary" data-testid={`card-individual-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
+                </div>
+
+                <div className="mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
+                  <ul className="space-y-3">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
+                </div>
+              </div>
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-individual-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+      {/* Sales Leadership Section */}
+      <div id="leadership" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Users className="w-8 h-8 text-white" />
           </div>
-
-          <div
-            id="services-category-panel"
-            className="space-y-16 lg:space-y-24"
-            role="tabpanel"
-            aria-labelledby={`services-tab-${activeCategory}`}
-          >
-            {activeServices.map((service, sIdx) => (
-              <ServiceBlock key={sIdx} service={service} index={sIdx} />
-            ))}
+          <div>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Sales <span className="text-primary">Leadership</span></h2>
+            <p className="text-body text-muted-foreground">Build teams that execute consistently and scale what works.</p>
           </div>
         </div>
-      </section>
 
-      {/* Software Catalog */}
-      <section id="field-tools" className="fi-section bg-white">
-         <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
-            <div className="mb-16 max-w-2xl">
-              <p className="fi-kicker mb-8">Software Ecosystem</p>
-              <h2 className="fi-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[.9]">Field tools &<br />advanced intelligence.</h2>
-              <p className="mt-6 text-[1.125rem] leading-[1.6] font-medium text-black/70">
-                Our coaching can be paired with a purpose-built field product spanning 15 active field tools and 14 advanced AI systems. Availability depends on plan, role, clinical permission, and enabled features.
-              </p>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {leadershipServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card bg-card dark:border-border border-l-4 border-l-primary" data-testid={`card-leadership-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
 
-            <div className="space-y-20">
-              {/* Classic Tools */}
-              <div>
-                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Active Field Tools</h3>
-                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                  {FIELD_KIT_TOOLS.map((tool) => (
-                    <div key={tool.id} className="flex flex-col">
-                      <span className="mb-4 text-[0.75rem] font-bold uppercase tracking-wider text-[var(--fi-red)] font-mono">{tool.category}</span>
-                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.title}</h4>
-                      <p className="mb-6 flex-1 text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
-                      <div className="mt-auto space-y-2 text-[0.75rem] font-bold font-mono">
-                        <span className="block border border-[var(--fi-line)] px-3 py-2 uppercase tracking-wider bg-[var(--fi-paper)]">
-                          {tool.public
-                            ? "Public preview"
-                            : `${tool.membership === "elite" ? "Elite" : "Standard"} · ${
-                                tool.mobile === "native"
-                                  ? "Web + iPhone"
-                                  : tool.mobile === "webview"
-                                    ? "Web + iPhone web"
-                                    : "Web"
-                              }`}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
+                </div>
+
+                <div className="mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
+                  <ul className="space-y-3">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-leadership-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+      {/* Corporate Providers Section */}
+      <div id="corporate" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Building2 className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-2 font-display tracking-[-0.01em] leading-[1.15]">For Corporate <span className="text-primary">Hospice Providers</span></h2>
+            <p className="text-body text-muted-foreground">Scale execution across markets and make growth predictable.</p>
+          </div>
+        </div>
 
-              {/* AI Tools */}
-              <div>
-                <h3 className="mb-10 text-xl font-bold uppercase tracking-wider border-b border-[var(--fi-line)] pb-4">Advanced Intelligence</h3>
-                <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                  {SPARTAN_AI_TOOLS.map((tool) => (
-                    <div key={tool.id} className="flex flex-col">
-                      <div className="mb-4 flex justify-between items-start gap-4 font-mono">
-                        <span className="text-[0.75rem] font-bold uppercase tracking-wider text-black/50">{tool.category}</span>
-                        <span className={`text-[0.75rem] font-bold uppercase tracking-wider px-2 py-1 border border-[var(--fi-line)] ${
-                          tool.permission === "clinical:use" ? "bg-red-50 text-[var(--fi-red)] border-[var(--fi-red)]" : "bg-[var(--fi-paper)]"
-                        }`}>
-                          {tool.permission === "clinical:use" ? "Clinical" : "Field Kit"}
-                        </span>
-                      </div>
-                      <h4 className="mb-3 text-[1.25rem] font-bold">{tool.name}</h4>
-                      <p className="text-[0.9rem] leading-[1.65] font-medium text-black/70">{tool.description}</p>
-                    </div>
-                  ))}
+        <Card className="flex items-center gap-4 p-4 border-2 border-primary/20 bg-primary/5" data-testid="card-corporate-compliance">
+          <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">HIPAA Compliant Engagement</p>
+            <p className="text-xs text-muted-foreground">No PHI stored or processed. BAA available for corporate accounts. <Link href="/compliance" className="text-primary font-semibold hover:underline">View compliance details</Link></p>
+          </div>
+          <Button size="sm" asChild className="font-bold shrink-0 gap-1" data-testid="button-request-baa-services">
+            <Link href="/contact?service=HIPAA+BAA+Request">
+              Request a BAA
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </Button>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {corporateServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-corporate-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
+                </div>
+
+                <div className="mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
+                  <ul className="space-y-3">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
-            </div>
-         </div>
-      </section>
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-corporate-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
 
+      {/* Technology Solutions Section */}
+      <div id="technology" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <MonitorSmartphone className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1">Technology <span className="text-spartan-red">Solutions</span></h2>
+            <p className="text-body text-muted-foreground">Custom-built tools designed specifically for hospice providers.</p>
+          </div>
+        </div>
+
+        <div className="bg-accent/20 rounded-xl p-5 border border-border mb-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Off-the-shelf software is built for generic sales teams. Hospice operations have specific workflows, compliance requirements, and relationship dynamics that generic tools don't account for. These engagements deliver purpose-built technology that fits your organization, not the other way around.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {techServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-technology-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
+                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
+                <p className="text-3xl font-black text-primary mb-6">{service.price}</p>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.problem}</p>
+                </div>
+
+                <div className="mb-5">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
+                  <p className="text-[15px] text-muted-foreground leading-[1.65]">{service.solution}</p>
+                </div>
+
+                <div className="mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
+                  <ul className="space-y-3">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-3">
+                        <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-[15px] leading-relaxed text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-5 mb-7">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
+                  <p className="text-[15px] leading-relaxed text-muted-foreground">{service.outcome}</p>
+                </div>
+              </div>
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-technology-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* What This Is All For — dark authority band inside hybrid page */}
+      <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
+        <h2 className="text-h2 font-black text-foreground mb-6">What This Is <span className="text-primary">All For</span></h2>
+        <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
+          Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button size="lg" asChild className="font-bold">
+            <Link href="/contact">
+              Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="font-bold">
+            <Link href="/method">See the Spartan Method</Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Application Process Section */}
+      <div className="mt-16 sm:mt-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 flex items-center justify-center flex-shrink-0">
+            <ClipboardList className="w-7 h-7" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">How we <span className="text-spartan-red">start</span></h2>
+            <p className="text-body text-muted-foreground">Four steps from first contact to weekly coaching.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              step: 1,
+              title: "Reach out",
+              description: "Tell us about your role, your challenges, and what you want to improve.",
+            },
+            {
+              step: 2,
+              title: "Initial consult",
+              description: "We review your situation and schedule a conversation to discuss fit.",
+            },
+            {
+              step: 3,
+              title: "Coaching plan",
+              description: "We build a plan with clear deliverables, timeline, and success metrics.",
+            },
+            {
+              step: 4,
+              title: "Execute and refine",
+              description: "Weekly coaching begins. We track progress, adjust, and build consistency.",
+            },
+          ].map((item) => (
+            <Card key={item.step} className="spacing-card border-2 relative" data-testid={`card-step-${item.step}`}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg flex-shrink-0">
+                  {item.step}
+                </div>
+                <h3 className="text-h3 font-bold text-foreground"><AccentText>{item.title}</AccentText></h3>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Common Questions Section */}
+      <div className="mt-16 sm:mt-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <MessageCircleQuestion className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1">Common <span className="text-spartan-red">Questions</span></h2>
+            <p className="text-body text-muted-foreground">Answers to the questions we hear most before getting started.</p>
+          </div>
+        </div>
+
+        <div className="max-w-3xl">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="engagement-length" data-testid="faq-engagement-length">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                How long is a typical engagement?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Engagements are flexible. Some clients do a focused 4 to 8 week sprint. Others maintain ongoing coaching. We recommend a timeline during your initial consult based on your goals.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="switch-types" data-testid="faq-switch-types">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                Can I switch between coaching types?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Yes. Many clients start with individual coaching and expand to team training as they see results. We can adjust scope as your needs evolve.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="not-right-fit" data-testid="faq-not-right-fit">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                What if coaching is not the right fit?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                We will tell you during the consult. If your challenge is better solved by a different approach, we will say so. No pressure, no wasted time.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="outside-us" data-testid="faq-outside-us">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                Do you work with hospice organizations outside the US?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Currently our coaching and consulting services focus on the US hospice market and Medicare regulations.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="time-commitment" data-testid="faq-time-commitment">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                What is the time commitment?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Plan for 2 to 3 hours per week, including prep work, the coaching session, and post-session execution. The system is designed to fit into a working week, not replace it.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
+        <h2 className="text-h2 font-black text-foreground mb-6"><AccentText>Not Sure Which Service Fits?</AccentText></h2>
+        <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          Every engagement starts with understanding your specific challenge. Let's talk about what is not working and build a plan that fixes it.
+        </p>
+        <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 text-white border-red-600" data-testid="button-services-contact">
+          <Link href="/contact">
+            <span>Book a strategy call</span>
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </Button>
+      </div>
       <PublicConversionPanel
         source="services"
-        audience="Leaders looking for structural coaching and strategic systems."
-        promise="A direct conversation about the reality of your market, not a generic pitch."
-        evidence="Built from the field for the field."
-        primary={{ label: "Book Strategy Call", href: "/contact", token: "strategy_call" }}
-        secondary={{ label: "View Our Method", href: "/method", token: "method" }}
+        audience="Hospice reps, sales leaders, and provider organizations with a specific execution or growth problem."
+        promise="A scoped engagement with live coaching, practical deliverables, and a next-step plan."
+        evidence="Services are organized by role and delivery format; the first conversation confirms fit before scope is set."
+        nextStep="Choose a service path and submit the short discovery form. Nick reviews the context and sends scheduling options within one business day."
+        primary={{ label: "Book a strategy call", href: "/contact?service=Consulting", token: "strategy_call" }}
+        secondary={{ label: "See structured programs", href: "/programs", token: "programs" }}
       />
-    </div>
-  );
-}
-
-function ServiceBlock({ service, index }: { service: any, index: number }) {
-  return (
-    <article className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 items-start">
-      <div>
-        <p className="mb-3 text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 font-mono">0{index + 1}</p>
-        <h3 className="fi-serif text-[clamp(2.2rem,4vw,3.5rem)] leading-[1] mb-6">{service.title}</h3>
-        {(service.duration || service.price) && (
-          <div className="mb-8 flex flex-wrap gap-4 text-[0.75rem] font-bold uppercase tracking-wider font-mono">
-            {service.duration && <span className="border border-[var(--fi-line)] bg-white px-4 py-2">{service.duration}</span>}
-            {service.price && <span className="border border-[var(--fi-line)] bg-white text-[var(--fi-ink)] px-4 py-2">{service.price}</span>}
-          </div>
-        )}
-        <div className="bg-white p-6 md:p-8 border border-[var(--fi-line)]">
-          <p className="fi-kicker mb-4">Target Outcome</p>
-          <p className="font-bold leading-[1.6] text-[1.125rem]">{service.outcome}</p>
-        </div>
-      </div>
-
-      <div className="space-y-10 lg:border-l lg:border-[var(--fi-line)] lg:pl-16 lg:pt-8">
-        <div>
-           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Problem</p>
-           <p className="text-[1.125rem] leading-[1.6] font-medium text-black/80">{service.problem}</p>
-        </div>
-        <div>
-           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-4 font-mono">The Solution</p>
-           <p className="text-[1.125rem] leading-[1.6] font-medium text-[var(--fi-red)]">{service.solution}</p>
-        </div>
-        <div className="border-t border-[var(--fi-line)] pt-8">
-           <p className="text-[0.75rem] font-bold uppercase tracking-[.2em] text-black/50 mb-5 font-mono">Scope & Deliverables</p>
-           <ul className="space-y-4">
-             {service.includes.map((item: string, i: number) => (
-               <li key={i} className="flex items-start gap-4 text-[1rem] font-bold text-black/80">
-                 <span className="mt-[8px] w-2 h-2 bg-[var(--fi-red)] shrink-0" />
-                 <span>{item}</span>
-               </li>
-             ))}
-           </ul>
-        </div>
-      </div>
-    </article>
+    </PersuasionShell>
   );
 }

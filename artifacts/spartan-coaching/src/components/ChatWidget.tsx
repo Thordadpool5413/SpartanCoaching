@@ -498,7 +498,6 @@ export function ChatWidget() {
     location === "/" ||
     location === "/services" ||
     location === "/programs" ||
-    location === "/hospice-sales-pro" ||
     location === "/about" ||
     location === "/contact" ||
     location === "/portal" ||

@@ -20,9 +20,7 @@ describe("native registration contract", () => {
     expect(screen).toContain("register-accept-terms");
     expect(screen).toContain("register-confirm-no-phi");
     expect(auth).toContain("registerMobile(input)");
-    expect(api).toContain('fetchAuthEndpoint("/api/auth/register"');
-    expect(api).toContain("AbortController");
-    expect(api).toContain("REQUEST_TIMEOUT");
+    expect(api).toContain('fetch(`${getBase()}/api/auth/register`');
     expect(api).toContain("acceptTerms: true");
     expect(api).toContain("noPhi: true");
     expect(login).toContain('router.push("/register" as Href)');

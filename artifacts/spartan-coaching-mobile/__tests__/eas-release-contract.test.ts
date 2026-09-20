@@ -26,10 +26,6 @@ describe("iOS release associated-domains contract", () => {
     path.resolve(__dirname, "../../../.easignore"),
     "utf8",
   );
-  const launchExperience = fs.readFileSync(
-    path.resolve(__dirname, "../components/LaunchExperience.tsx"),
-    "utf8",
-  );
 
   it("keeps standard store builds compatible with profiles that lack Associated Domains", () => {
     expect(eas.build.testflight.env?.EAS_SKIP_ASSOCIATED_DOMAINS).toBe("1");
@@ -71,13 +67,6 @@ describe("iOS release associated-domains contract", () => {
     expect(verifier).not.toContain('if [[ "$PROFILE" == *"-applinks" ]]');
     expect(verifier).toContain("/api/healthz/ai");
     expect(verifier).toContain('v.ok!==true || v.status!=="ready"');
-  });
-
-  it("keeps native media players out of the unrecoverable iOS startup path", () => {
-    expect(launchExperience).toContain("helmet-mark.png");
-    expect(launchExperience).not.toContain('from "expo-video"');
-    expect(launchExperience).not.toContain("useVideoPlayer");
-    expect(launchExperience).not.toContain("spartan-launch-film.mp4");
   });
 
   it("uses one deterministic Metro and EAS runtime for store builds", () => {

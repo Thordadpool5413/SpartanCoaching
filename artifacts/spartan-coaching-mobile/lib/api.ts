@@ -1,23 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import type { MemberWorkError } from "@workspace/api-contract";
-import type {
-  AppleBillingCatalog,
-  AppleBillingConfig,
-  AppleTransactionClaimInput,
-  AppleTransactionInput,
-  AppleVerificationResult,
-  BillingStatus,
-} from "@workspace/api-client-react";
-import {
-  getClaimAppleBillingTransactionUrl,
-  getGetAppleBillingCatalogUrl,
-  getGetAppleBillingConfigUrl,
-  getGetBillingStatusUrl,
-  getVerifyAppleBillingTransactionUrl,
-  getVerifyGuestAppleBillingTransactionUrl,
-} from "@workspace/api-client-react";
-export type { AppleBillingConfig, AppleVerificationResult, BillingStatus } from "@workspace/api-client-react";
 import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
@@ -345,44 +328,81 @@ export type MobileAuthUser = {
   };
 };
 
-export async function fetchAppleBillingCatalog(): Promise<AppleBillingCatalog> {
-  return apiGet<AppleBillingCatalog>(getGetAppleBillingCatalogUrl());
+/** Billing status from GET /api/billing/status */
+export type BillingStatus = {
+  configured: boolean;
+  appleBillingConfigured?: boolean;
+  individualWeeklyPriceConfigured: boolean;
+  individualWeeklyElitePriceConfigured?: boolean;
+  canCheckoutIndividual: boolean;
+  canOpenPortal: boolean;
+  organization: {
+    id: number;
+    type: string;
+    status: string;
+    billingPlan: string | null;
+    billingProvider?: string | null;
+    billingStatus: string | null;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    hasStripeCustomer: boolean;
+    hasStripeSubscription: boolean;
+    billableSeats: number | null;
+    seatLimit: number;
+    contractRef: string | null;
+  };
+};
+
+export type AppleBillingConfig = {
+  configured: boolean;
+  appAccountToken?: string;
+  products: Array<{ id: string; tier: "standard" | "elite" }>;
+};
+
+export type AppleVerificationResult = {
+  applied: boolean;
+  verified?: boolean;
+  active?: boolean;
+  tier?: "standard" | "elite";
+  productId?: string;
+  expiresAt?: string;
+};
+
+export async function fetchAppleBillingCatalog(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/catalog");
 }
 
 export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
-  return apiGet<AppleBillingConfig>(getGetAppleBillingConfigUrl());
+  return apiGet<AppleBillingConfig>("/api/billing/apple/config");
 }
 
 export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
-  const input: AppleTransactionInput = { signedTransaction };
-  return apiPost<AppleVerificationResult>(getVerifyAppleBillingTransactionUrl(), input);
+  return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
 }
 
 export async function verifyGuestAppleTransaction(
   signedTransaction: string,
   appAccountToken?: string,
 ): Promise<AppleVerificationResult> {
-  const input: AppleTransactionClaimInput = {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/guest-verify", {
     signedTransaction,
     ...(appAccountToken ? { appAccountToken } : {}),
-  };
-  return apiPost<AppleVerificationResult>(getVerifyGuestAppleBillingTransactionUrl(), input);
+  });
 }
 
 export async function claimAppleTransaction(
   signedTransaction: string,
   appAccountToken?: string,
 ): Promise<AppleVerificationResult> {
-  const input: AppleTransactionClaimInput = {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/claim", {
     signedTransaction,
     ...(appAccountToken ? { appAccountToken } : {}),
-  };
-  return apiPost<AppleVerificationResult>(getClaimAppleBillingTransactionUrl(), input);
+  });
 }
 
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   try {
-    return await apiGet<BillingStatus>(getGetBillingStatusUrl());
+    return await apiGet<BillingStatus>("/api/billing/status");
   } catch {
     return null;
   }
@@ -393,31 +413,15 @@ export function getWebSiteUrl(): string {
   return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
 
-async function fetchAuthEndpoint(path: string, body: unknown): Promise<Response> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
-  try {
-    return await fetch(`${getBase()}${path}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...clientPlatformHeaders(),
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new ApiError("Sign in took too long. Check your connection and try again.", 504, "REQUEST_TIMEOUT");
-    }
-    throw new ApiError("Spartan Coaching cannot be reached. Check your connection and try again.", 0, "NETWORK_UNAVAILABLE");
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 export async function loginMobile(email: string, password: string): Promise<MobileAuthUser & { token: string }> {
-  const res = await fetchAuthEndpoint("/api/auth/login", { email, password });
+  const res = await fetch(`${getBase()}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...clientPlatformHeaders(),
+    },
+    body: JSON.stringify({ email, password }),
+  });
   const data = (await res.json().catch(() => ({}))) as {
     error?: string | { message?: string; code?: string };
     code?: string;
@@ -445,12 +449,19 @@ export async function registerMobile(input: {
   email: string;
   password: string;
 }): Promise<MobileAuthUser & { token: string }> {
-  const res = await fetchAuthEndpoint("/api/auth/register", {
-    name: input.name.trim(),
-    email: input.email.trim().toLowerCase(),
-    password: input.password,
-    acceptTerms: true,
-    noPhi: true,
+  const res = await fetch(`${getBase()}/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...clientPlatformHeaders(),
+    },
+    body: JSON.stringify({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      password: input.password,
+      acceptTerms: true,
+      noPhi: true,
+    }),
   });
   const data = (await res.json().catch(() => ({}))) as {
     error?: string | { message?: string; code?: string };
@@ -527,9 +538,7 @@ export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
     // Only clear the session on explicit unauthenticated responses.
     // Network blips / 5xx must not log field users out.
     if (e instanceof ApiError && e.status === 401) {
-      // A stale startup request must not erase a newer token written by login.
-      const currentToken = await getSessionToken();
-      if (currentToken === token) await setSessionToken(null);
+      await setSessionToken(null);
       return null;
     }
     throw e;

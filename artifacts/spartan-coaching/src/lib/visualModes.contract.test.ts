@@ -43,28 +43,32 @@ describe("route-family visual contracts", () => {
     expect(css).toMatch(/\.field-workspace\s+\.resources-library-dock/);
   });
 
-  it("uses the selected appearance on public and workspace route surfaces", () => {
+  it("declares route-scoped appearance without persisting a route visit", () => {
     const app = read("App.tsx");
     const theme = read("lib/theme.ts");
 
     expect(app).toMatch(/dataset\.routeSurface/);
     expect(app).toMatch(/applyAppearance\(mode, accent, background, themePreset/);
-    expect(app).not.toMatch(/applyAppearance\("light", "red", "soft", "spartan"/);
+    expect(app).toMatch(/applyAppearance\("light", "red", "soft", "spartan"/);
     expect(theme).toMatch(/options:\s*\{\s*persist\?: boolean;\s*notify\?: boolean/);
     expect(theme).toMatch(/Route scopes use the same[\s\S]{0,40}renderer/);
 
     localStorage.clear();
-    applyAppearance("dark", "gold", "charcoal", "mamba", {
+    applyAppearance("dark", "gold", "charcoal", "mamba");
+    const savedWorkspaceTheme = localStorage.getItem("spartan_theme_preset");
+
+    applyAppearance("light", "red", "soft", "spartan", {
       persist: false,
       notify: false,
     });
 
-    expect(document.documentElement.dataset.themeMode).toBe("dark");
-    expect(document.documentElement.dataset.themePreset).toBe("mamba");
-    expect(document.documentElement.style.getPropertyValue("--background")).not.toBe("38 33% 97%");
+    expect(document.documentElement.dataset.themeMode).toBe("light");
+    expect(document.documentElement.dataset.themePreset).toBe("spartan");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe("38 33% 97%");
+    expect(localStorage.getItem("spartan_theme_preset")).toBe(savedWorkspaceTheme);
   });
 
-  it("preserves a selected appearance across public navigation and reload state", () => {
+  it("preserves the saved workspace appearance across public and workspace surfaces", () => {
     localStorage.clear();
     applyAppearance("dark", "purple", "midnight", "custom");
     const savedWorkspaceAppearance = readAppearanceStorage();
@@ -72,15 +76,15 @@ describe("route-family visual contracts", () => {
     const onRouteThemeChange = (event: Event) => routeThemeEvents.push(event);
     window.addEventListener("spartan-theme-change", onRouteThemeChange);
 
-    applyAppearance("dark", "purple", "midnight", "custom", {
+    applyAppearance("light", "red", "soft", "spartan", {
       persist: false,
       notify: false,
     });
 
-    expect(document.documentElement.dataset.themeMode).toBe("dark");
-    expect(document.documentElement.dataset.accent).toBe("purple");
-    expect(document.documentElement.dataset.bg).toBe("midnight");
-    expect(document.documentElement.dataset.themePreset).toBe("custom");
+    expect(document.documentElement.dataset.themeMode).toBe("light");
+    expect(document.documentElement.dataset.accent).toBe("red");
+    expect(document.documentElement.dataset.bg).toBe("soft");
+    expect(document.documentElement.dataset.themePreset).toBe("spartan");
     expect(readAppearanceStorage()).toEqual(savedWorkspaceAppearance);
     expect(routeThemeEvents).toHaveLength(0);
 

@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Linking,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import * as Clipboard from "expo-clipboard";
@@ -27,7 +26,6 @@ export default function BrandVideoScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [copied, setCopied] = useState(false);
-  const [videoError, setVideoError] = useState(false);
   const videoUrl = getVideoUrl();
 
   const handleCopyLink = async () => {
@@ -80,29 +78,17 @@ export default function BrandVideoScreen() {
             />
           ) : (
             <WebView
-              testID="brand-video-player"
               source={{ uri: videoUrl }}
               style={{ flex: 1, backgroundColor: "#000" }}
               allowsFullscreenVideo
               mediaPlaybackRequiresUserAction={false}
-              onError={() => setVideoError(true)}
             />
           )}
-          {videoError ? (
-            <View style={styles.videoError}>
-              <Text style={[styles.videoErrorText, { color: colors.primaryForeground }]}>Video unavailable.</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Retry brand video" onPress={() => setVideoError(false)}>
-                <Text style={[styles.videoRetry, { color: colors.accent }]}>Retry</Text>
-              </Pressable>
-            </View>
-          ) : null}
         </View>
 
         {/* Actions */}
         <View style={styles.actions}>
           <Pressable
-            testID="brand-video-copy-link"
-            accessibilityLabel="Copy brand video link"
             onPress={handleCopyLink}
             style={({ pressed }) => [
               styles.primaryBtn,
@@ -124,8 +110,6 @@ export default function BrandVideoScreen() {
             </Text>
           </Pressable>
           <Pressable
-            testID="brand-video-share"
-            accessibilityLabel="Share brand video"
             onPress={handleShare}
             style={({ pressed }) => [
               styles.secondaryBtn,
@@ -136,15 +120,6 @@ export default function BrandVideoScreen() {
             <Text style={[styles.secondaryBtnText, { color: colors.foreground, ...font("semibold") }]}>
               Share…
             </Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Open brand video"
-            onPress={() => void Linking.openURL(videoUrl)}
-            style={[styles.secondaryBtn, { borderColor: colors.border }]}
-          >
-            <Feather name="external-link" size={17} color={colors.foreground} />
-            <Text style={[styles.secondaryBtnText, { color: colors.foreground }, font("semibold")]}>Open</Text>
           </Pressable>
         </View>
 
@@ -263,7 +238,4 @@ const styles = StyleSheet.create({
   },
   howNumText: { fontSize: 12 },
   howText: { flex: 1, fontSize: 14, lineHeight: 20 },
-  videoError: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.86)", gap: 10 },
-  videoErrorText: { fontSize: 15, ...font("bold") },
-  videoRetry: { fontSize: 14, ...font("bold") },
 });

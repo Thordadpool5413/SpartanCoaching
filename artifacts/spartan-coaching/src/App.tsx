@@ -15,7 +15,6 @@ import { SEO } from "@/components/SEO";
 import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
 import { applyAppearance } from "@/lib/theme";
 import { useTheme } from "@/context/ThemeContext";
-import { trackAnalyticsVisitor } from "@workspace/api-client-react";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -190,7 +189,11 @@ function VisitorTracker() {
 
     timeoutRef.current = setTimeout(() => {
       lastTrackedRef.current = location;
-      void trackAnalyticsVisitor({ pagePath: location }).catch(() => {});
+      fetch("/api/analytics/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pagePath: location }),
+      }).catch(() => {});
       pageView(location);
     }, 500);
 
@@ -341,15 +344,26 @@ function AppLayout() {
   const onWorkspace =
     isAuthenticated && !isLoading && isWorkspacePath(location);
 
-  // Route ownership remains available to CSS, but every route renders the
-  // visitor's persisted appearance instead of replacing it during navigation.
+  // Public pages are always forced to light/spartan. Workspace pages honor
+  // the user's genuine persisted mode (light/dark) and accent preferences.
+  // This is route-scoped rather than persisted, so visiting a public page cannot
+  // rewrite the user's saved workspace appearance.
   useLayoutEffect(() => {
     const routeSurface = onWorkspace ? "workspace" : "public";
     document.documentElement.dataset.routeSurface = routeSurface;
-    applyAppearance(mode, accent, background, themePreset, {
-      persist: false,
-      notify: false,
-    });
+
+    if (onWorkspace) {
+      // Use the user's genuine theme preference for the authenticated workspace
+      applyAppearance(mode, accent, background, themePreset, {
+        persist: false,
+        notify: false,
+      });
+    } else {
+      applyAppearance("light", "red", "soft", "spartan", {
+        persist: false,
+        notify: false,
+      });
+    }
   }, [mode, accent, background, onWorkspace, themePreset]);
 
   // Deep link / refresh with expired session: send to login with return path.
