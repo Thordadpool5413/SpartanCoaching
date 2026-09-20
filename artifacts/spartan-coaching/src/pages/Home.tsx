@@ -23,134 +23,154 @@ import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel"
 import { useEffect, useRef, useState } from "react";
 import founderPhoto from "@assets/nick-photo-cropped.jpg";
 
-function HeroSystemPanel() {
+export function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoStatus, setVideoStatus] = useState<"loading" | "playing" | "paused" | "error">("loading");
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [videoState, setVideoState] = useState<"loading" | "playing" | "blocked" | "paused" | "error">("loading");
+  const [playbackSeconds, setPlaybackSeconds] = useState(0);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updatePreference = () => setReduceMotion(mediaQuery.matches);
-    updatePreference();
-    mediaQuery.addEventListener?.("change", updatePreference);
-    return () => mediaQuery.removeEventListener?.("change", updatePreference);
+    const handleChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    setReducedMotion(mediaQuery.matches);
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || videoState === "error") return;
 
-    if (reduceMotion) {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "true");
+    video.playsInline = true;
+
+    if (reducedMotion) {
       video.pause();
-      setVideoStatus("paused");
+      setVideoState("paused");
       return;
     }
 
-    const playPromise = video.play();
-    if (playPromise) {
-      void playPromise.catch(() => setVideoStatus("paused"));
+    const tryPlay = async () => {
+      try {
+        await video.play();
+      } catch {
+        setVideoState("blocked");
+      }
+    };
+
+    void tryPlay();
+    const blockedTimer = window.setTimeout(() => {
+      if (video.paused || video.currentTime === 0) setVideoState("blocked");
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(blockedTimer);
+    };
+  }, [reducedMotion, videoState === "error"]);
+
+  const startPlayback = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (videoState === "error") {
+      setVideoState("loading");
+      video.load();
     }
-  }, [reduceMotion]);
+    try {
+      await video.play();
+    } catch {
+      setVideoState("blocked");
+    }
+  };
 
   const togglePlayback = () => {
     const video = videoRef.current;
     if (!video) return;
-
-    if (video.paused) {
-      void video.play().catch(() => setVideoStatus("error"));
-    } else {
+    if (videoState === "playing") {
       video.pause();
-      setVideoStatus("paused");
+      setVideoState("paused");
+      return;
     }
-  };
-
-  const retryVideo = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    setVideoStatus("loading");
-    video.load();
-    if (!reduceMotion) {
-      void video.play().catch(() => setVideoStatus("paused"));
-    }
+    void startPlayback();
   };
 
   return (
-    <div data-testid="section-hero-panel" className="relative">
-      <div className="border border-black/15 bg-black p-2 shadow-[14px_14px_0_rgba(0,0,0,0.08)]">
-        <div
-          data-testid="hero-video-frame"
-          className="relative aspect-video overflow-hidden bg-black"
+    <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
+      <div
+        className="relative h-full w-full overflow-hidden bg-black"
+        data-testid="hero-video-frame"
+      >
+        {videoState === "error" && (
+          <img
+            src="/hero-poster.jpg"
+            alt="Spartan Coaching field operating system"
+            className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
+          />
+        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/hero-poster.jpg"
+          className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
+          data-testid="hero-video"
+          data-playback-state={videoState}
+          data-playback-seconds={playbackSeconds.toFixed(1)}
+          aria-label="Spartan Coaching field system in motion"
+          style={{ pointerEvents: "none", visibility: videoState === "error" ? "hidden" : "visible" }}
+          onLoadStart={() => setVideoState("loading")}
+          onPlaying={() => setVideoState("playing")}
+          onPause={() => {
+            if (!reducedMotion && videoRef.current?.currentTime) setVideoState("paused");
+          }}
+          onTimeUpdate={(event) => setPlaybackSeconds(event.currentTarget.currentTime)}
+          onError={() => setVideoState("error")}
         >
-          <video
-            ref={videoRef}
-            data-testid="hero-video"
-            className="h-full w-full object-cover"
-            poster="/hero-poster.jpg"
-            playsInline
-            muted
-            loop
-            autoPlay={!reduceMotion}
-            preload="metadata"
-            onCanPlay={() => setVideoStatus(videoRef.current?.paused ? "paused" : "playing")}
-            onPlay={() => setVideoStatus("playing")}
-            onPause={() => setVideoStatus("paused")}
-            onError={() => setVideoStatus("error")}
-            aria-label="Spartan Coaching field leadership film"
+          <source src="/hero-video-mobile.webm" media="(max-width: 767px)" type="video/webm" />
+          <source src="/hero-video.webm" type="video/webm" />
+          <source src="/hero-video-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
+
+        <div
+          className="absolute right-4 top-4 z-20 flex items-center gap-2 bg-black/45 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm md:right-8 md:top-8"
+          data-testid="hero-video-status"
+          data-state={videoState}
+          aria-live="polite"
+        >
+          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-[var(--fi-red)]"} />
+          {videoState === "playing" && "Field film playing"}
+          {videoState === "loading" && "Loading field film"}
+          {videoState === "paused" && (reducedMotion ? "Motion paused by preference" : "Field film paused")}
+          {videoState === "blocked" && "Playback needs permission"}
+          {videoState === "error" && "Field film unavailable"}
+          <button
+            type="button"
+            onClick={togglePlayback}
+            className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white px-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            data-testid="button-hero-video-play"
+            aria-label={videoState === "playing" ? "Pause background film" : videoState === "error" ? "Retry background film" : "Play background film"}
           >
-            <source src="/hero-video-mobile.webm" type="video/webm" media="(max-width: 767px)" />
-            <source src="/hero-video.webm" type="video/webm" />
-            <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10" />
-
-          <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
-            <div className="text-white">
-              <p className="text-[10px] font-black uppercase tracking-[.28em] text-white/65">
-                Field standard 01
-              </p>
-              <p className="mt-1 text-sm font-black uppercase tracking-[.08em]">
-                Prepared teams win.
-              </p>
-            </div>
-
-            {videoStatus === "error" ? (
-              <button
-                type="button"
-                onClick={retryVideo}
-                className="inline-flex min-h-11 items-center gap-2 border border-white/45 bg-black/65 px-4 text-xs font-black uppercase tracking-[.14em] text-white transition hover:bg-white hover:text-black"
-                aria-label="Retry field leadership film"
-              >
-                <RefreshCw className="h-4 w-4" aria-hidden="true" />
-                Retry
-              </button>
-            ) : (
-              <button
-                type="button"
-                data-testid="button-hero-video-play"
-                onClick={togglePlayback}
-                className="inline-flex min-h-11 items-center gap-2 border border-white/45 bg-black/65 px-4 text-xs font-black uppercase tracking-[.14em] text-white transition hover:bg-white hover:text-black"
-                aria-label={videoStatus === "playing" ? "Pause field leadership film" : "Play field leadership film"}
-              >
-                {videoStatus === "playing" ? (
-                  <Pause className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <Play className="h-4 w-4" aria-hidden="true" />
-                )}
-                {videoStatus === "playing" ? "Pause" : "Play"}
-              </button>
-            )}
-          </div>
+            {videoState === "playing" ? <Pause className="h-3 w-3" /> : videoState === "error" ? <RefreshCw className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+            {videoState === "playing" ? "Pause" : videoState === "error" ? "Retry" : "Play"}
+          </button>
         </div>
       </div>
-      <p data-testid="hero-video-status" className="sr-only" aria-live="polite">
-        {videoStatus === "loading" && "Field leadership film is loading."}
-        {videoStatus === "playing" && "Field leadership film is playing."}
-        {videoStatus === "paused" && "Field leadership film is paused."}
-        {videoStatus === "error" && "Field leadership film could not be loaded."}
-      </p>
-    </div>
+      <figcaption className="sr-only">
+        The Spartan field operating system: prepare, practice, execute, and review.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -235,21 +255,11 @@ const outcomes = [
 
 export default function Home() {
   const consultingClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.CTA_CLICK, {
-      page: "home",
-      destination: "/contact",
-      label,
-      offer: "consulting",
-    });
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label, { offer: "consulting" });
   };
 
   const servicesClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.CTA_CLICK, {
-      page: "home",
-      destination: "/services",
-      label,
-      offer: "consulting",
-    });
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label, { offer: "consulting" });
   };
 
   const structuredData = {
@@ -281,7 +291,6 @@ export default function Home() {
       <SEO
         title="Hospice Sales Consulting & Coaching | Spartan Coaching"
         description="Hospice-specific consulting, field coaching, sales training, and leadership systems that turn growth strategy into consistent execution."
-        path="/"
       />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
