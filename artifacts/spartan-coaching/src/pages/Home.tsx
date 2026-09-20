@@ -523,7 +523,7 @@ export default function Home() {
               <div className="absolute -bottom-4 -right-4 h-full w-full bg-[#d61f26]" aria-hidden="true" />
               <img
                 src={founderPhoto}
-                alt="Nick Bonitatibus, founder of Spartan Coaching"
+                alt="Nick Lynch, founder of Spartan Coaching"
                 width={416}
                 height={520}
                 decoding="async"
@@ -537,7 +537,7 @@ export default function Home() {
                 Built by someone who has carried the number.
               </h2>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-black/70">
-                Nick Bonitatibus built Spartan Coaching around a simple belief: hospice sales support should
+                Nick Lynch built Spartan Coaching around a simple belief: hospice sales support should
                 sound like the field, work in the field, and make leaders better at coaching the field.
               </p>
               <p className="mt-5 max-w-2xl leading-8 text-black/65">
