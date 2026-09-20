@@ -1,4 +1,3 @@
-import { AccentText } from "@/components/AccentText";
 /**
  * Trust Center (HSP-40) — pricing facts, consent model, and plain-language trust.
  */
@@ -18,7 +17,7 @@ import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function TrustCenter() {
   return (
-    <div className="page-persuasion max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-10" data-testid="page-trust-center">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-10" data-testid="page-trust-center">
       <SEO
         title="Trust Center | Spartan Coaching"
         description="How Hospice Sales Pro handles data, AI, billing, consent, and professional boundaries — plain language."
@@ -33,7 +32,7 @@ export default function TrustCenter() {
       </header>
 
       <Card className="border border-primary/25 bg-primary/[0.04] p-5 sm:p-6 space-y-3" data-testid="trust-pricing-facts">
-        <h2 className="text-lg font-bold text-foreground">Pricing <span className="text-spartan-red">facts</span></h2>
+        <h2 className="text-lg font-bold text-foreground">Pricing facts</h2>
         <ul className="space-y-2 text-sm text-foreground leading-relaxed">
           <li>
             <strong>{PRICING_FACTS.productName} individual:</strong>{" "}
@@ -55,7 +54,7 @@ export default function TrustCenter() {
       </Card>
 
       <Card className="border border-border p-5 sm:p-6 space-y-3" data-testid="trust-consent">
-        <h2 className="text-lg font-bold text-foreground">Consent & resource <span className="text-spartan-red">delivery</span></h2>
+        <h2 className="text-lg font-bold text-foreground">Consent & resource delivery</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {CONSENT_COPY.resourceDeliveryBody}
         </p>
@@ -79,7 +78,7 @@ export default function TrustCenter() {
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-display font-bold text-foreground">How we <span className="text-spartan-red">operate</span></h2>
+        <h2 className="text-xl font-display font-bold text-foreground">How we operate</h2>
         <div className="grid gap-4">
           {TRUST_CENTER_SECTIONS.map((section) => (
             <section
@@ -88,7 +87,7 @@ export default function TrustCenter() {
               className="rounded-xl border border-border bg-card p-5 space-y-2"
               data-testid={`trust-section-${section.id}`}
             >
-              <h3 className="text-base font-bold text-foreground"><AccentText>{section.title}</AccentText></h3>
+              <h3 className="text-base font-bold text-foreground">{section.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{section.body}</p>
             </section>
           ))}
@@ -96,7 +95,7 @@ export default function TrustCenter() {
       </div>
 
       <Card className="border border-border p-5 space-y-2">
-        <h2 className="text-base font-bold text-foreground">Field tool <span className="text-spartan-red">reminder</span></h2>
+        <h2 className="text-base font-bold text-foreground">Field tool reminder</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">{FIELD_KIT_PHI.banner}</p>
         <p className="text-xs text-muted-foreground">
           {PUBLIC_CLAIM_SAFE.fieldCraft} · {PUBLIC_CLAIM_SAFE.ethics}

@@ -60,7 +60,7 @@ describe("Resources loading and download states", () => {
       .mockReturnValueOnce({ isLoading: false, isError: false, data: { items: [] } });
     const open = vi.spyOn(window, "open").mockReturnValue(null);
     render(<Resources />);
-    fireEvent.click(screen.getByTestId("button-open-resource-1"));
+    fireEvent.click(screen.getByTestId("button-download-1"));
     expect(open).toHaveBeenCalledWith("/resources/files/visit.pdf", "_blank");
     open.mockRestore();
   });

@@ -17,6 +17,16 @@ afterEach(() => {
   proofQueryData.caseStudies = undefined;
 });
 
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver =
+  MockIntersectionObserver as unknown as typeof IntersectionObserver;
+
 // Mock matchMedia for motion preference
 Object.defineProperty(window, "matchMedia", {
   writable: true,
@@ -79,18 +89,17 @@ describe("Public Experience Design Standards", () => {
       renderWithProviders(<Home />);
       const title = screen.getByTestId("text-home-hero-title");
       expect(title).not.toBeNull();
-      
-      const consultCtas = screen.getAllByRole("link", { name: /Book a strategy call/i });
-      expect(consultCtas.length).toBeGreaterThanOrEqual(2);
 
-      const servicesCta = screen.getByRole("link", { name: /^Explore consulting$/i });
-      expect(servicesCta).not.toBeNull();
-      expect(screen.queryByRole("link", { name: /Explore Hospice Sales Pro/i })).toBeNull();
+      const consultCta = screen.getAllByText(/Book a strategy call/i);
+      expect(consultCta.length).toBeGreaterThanOrEqual(1);
+
+      const platformCta = screen.getAllByText(/Explore Hospice Sales Pro/i);
+      expect(platformCta.length).toBeGreaterThanOrEqual(1);
     });
 
     it("respects reduced motion preference (video autoplay fallback)", () => {
       renderWithProviders(<Home />);
-      const figure = screen.getByTestId("section-hero");
+      const figure = screen.getByTestId("hero-video");
       expect(figure).not.toBeNull();
     });
   });
@@ -112,9 +121,9 @@ describe("Public Experience Design Standards", () => {
       renderWithProviders(<Services />);
       
       // We expect exactly 3 pathways
-      expect(screen.getByTestId("pathway-coaching")).not.toBeNull();
-      expect(screen.getByTestId("pathway-workshops")).not.toBeNull();
-      expect(screen.getByTestId("pathway-technology")).not.toBeNull();
+      expect(screen.getByTestId("card-individual-0")).not.toBeNull();
+      expect(screen.getByTestId("card-leadership-0")).not.toBeNull();
+      expect(screen.getByTestId("card-corporate-0")).not.toBeNull();
     });
   });
 
@@ -122,7 +131,7 @@ describe("Public Experience Design Standards", () => {
     it("displays honest proof states and fallback", () => {
       renderWithProviders(<Testimonials />);
       expect(screen.getByTestId("section-proof-fallback")).not.toBeNull();
-      expect(screen.getByRole("heading", { name: /Operating Standards For The Field/i })).not.toBeNull();
+      expect(screen.getByRole("heading", { name: /Outcomes operators describe/i })).not.toBeNull();
     });
 
     it("renders a persisted record returned by the approved public API", () => {
@@ -147,7 +156,7 @@ describe("Public Experience Design Standards", () => {
       renderWithProviders(<Testimonials />);
 
       expect(screen.getByText("Approved Client")).not.toBeNull();
-      expect(screen.queryByTestId("section-proof-fallback")).not.toBeNull();
+      expect(screen.queryByTestId("section-proof-fallback")).toBeNull();
     });
   });
 });

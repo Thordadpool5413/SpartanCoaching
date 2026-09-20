@@ -1,4 +1,3 @@
-import { AccentText } from "@/components/AccentText";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,13 +33,6 @@ import { cn } from "@/lib/utils";
 import { PersuasionShell } from "@/components/PersuasionShell";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import {
-  CONSULTATION_BOOKING_EVENT,
-  CONSULTATION_BOOKING_OUTCOME,
-  getCalendlyConsultationUrl,
-  trackConsultationBookingEvent,
-} from "@/lib/consultingBookings";
-import { fetchConsultationBookingEnabled } from "@/lib/clientConfig";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -79,23 +71,9 @@ export default function Contact() {
   const [step, setStep] = useState(1);
   const [serviceParam, setServiceParam] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [bookingStatus, setBookingStatus] = useState<"booked" | "failed" | null>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const movedBetweenSteps = useRef(false);
   const hasTrackedStart = useRef(false);
-  const hasTrackedBookingFallback = useRef(false);
-  const [serverBookingEnabled, setServerBookingEnabled] = useState(false);
-  const calendlyUrl = getCalendlyConsultationUrl(serverBookingEnabled);
-
-  useEffect(() => {
-    let mounted = true;
-    void fetchConsultationBookingEnabled().then((enabled) => {
-      if (mounted) setServerBookingEnabled(enabled);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -107,31 +85,6 @@ export default function Contact() {
       if (prefill) {
         form.setValue("serviceType", prefill);
       }
-    }
-
-    const consultation = params.get("consultation");
-    if (consultation === "booked") {
-      setBookingStatus("booked");
-      trackConsultationBookingEvent(
-        CONSULTATION_BOOKING_EVENT.success,
-        CONSULTATION_BOOKING_OUTCOME.success,
-      );
-    } else if (consultation === "failed") {
-      setBookingStatus("failed");
-      trackConsultationBookingEvent(
-        CONSULTATION_BOOKING_EVENT.failure,
-        CONSULTATION_BOOKING_OUTCOME.failure,
-      );
-    }
-
-    if (consultation === "booked" || consultation === "failed") {
-      params.delete("consultation");
-      const query = params.toString();
-      window.history.replaceState(
-        {},
-        "",
-        `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
-      );
     }
   }, []);
 
@@ -178,13 +131,6 @@ export default function Contact() {
     },
     onSuccess: () => {
       trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactSubmit, "contact_form");
-      if (!calendlyUrl && !hasTrackedBookingFallback.current) {
-        hasTrackedBookingFallback.current = true;
-        trackConsultationBookingEvent(
-          CONSULTATION_BOOKING_EVENT.fallback,
-          CONSULTATION_BOOKING_OUTCOME.fallbackPrimary,
-        );
-      }
       setSubmitted(true);
       setSubmitError(null);
       form.reset();
@@ -201,22 +147,6 @@ export default function Contact() {
       });
     },
   });
-
-  const trackCalendlyClick = () => {
-    trackConsultationBookingEvent(
-      CONSULTATION_BOOKING_EVENT.click,
-      CONSULTATION_BOOKING_OUTCOME.click,
-    );
-  };
-
-  const keepAccessDeskFollowUp = () => {
-    if (hasTrackedBookingFallback.current) return;
-    hasTrackedBookingFallback.current = true;
-    trackConsultationBookingEvent(
-      CONSULTATION_BOOKING_EVENT.fallback,
-      CONSULTATION_BOOKING_OUTCOME.fallbackSelected,
-    );
-  };
 
   useEffect(() => {
     if (!movedBetweenSteps.current) return;
@@ -275,82 +205,22 @@ export default function Contact() {
           audience="Hospice professionals and provider leaders deciding whether coaching, a program, or team access fits."
           promise="A prepared discovery conversation with the service context kept with the request."
           evidence="A human review and scheduling options within one business day; no PHI is requested."
-          nextStep="Complete the three short steps below. Nick reviews your context and sends scheduling options within one business day."
           primary={{ label: "Complete the request below", href: "#contact-form", token: "complete_request" }}
           secondary={{ label: "Review data practices", href: "/trust", token: "trust_center" }}
           className="mb-10"
         />
 
-        {bookingStatus && (
-          <Card
-            className={cn(
-              "mb-6 border-2",
-              bookingStatus === "booked"
-                ? "border-primary/30 bg-primary/5"
-                : "border-destructive/30 bg-destructive/5",
-            )}
-            data-testid={`card-consultation-booking-${bookingStatus}`}
-          >
-            <CardContent className="flex items-start gap-3 p-5">
-              {bookingStatus === "booked" ? (
-                <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-              ) : (
-                <X className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-              )}
-              <div>
-                <p className="font-semibold text-foreground">
-                  {bookingStatus === "booked"
-                    ? "Your consultation time is booked."
-                    : "Calendly could not confirm the booking."}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {bookingStatus === "booked"
-                    ? "Your Access Desk request remains the source of truth. Nick will use it for any follow-up."
-                    : "Your Access Desk request is still the reliable path. Nick will follow up directly to schedule."}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <FadeIn delay={0.1}>
           {submitted ? (
             <Card className="spacing-card text-center border-2 bg-card shadow-sm" data-testid="card-contact-success">
-              <div className="flex flex-col items-center gap-6 py-10">
+              <div className="flex flex-col items-center gap-4 py-10">
                 <div className="w-16 h-16 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}>You&apos;re <span className="text-spartan-red">In</span></h2>
+                <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}>You're In</h2>
                 <p className="text-body-lg text-muted-foreground max-w-md">
                   Nick will review your submission and reach out within one business day to schedule a 30-minute discovery call.
                 </p>
-                 {calendlyUrl ? (
-                   <div className="flex flex-wrap justify-center gap-3">
-                     <Button asChild className="font-bold" data-testid="button-open-calendly">
-                       <a
-                         href={calendlyUrl}
-                         target="_blank"
-                         rel="noreferrer"
-                         onClick={trackCalendlyClick}
-                       >
-                         Choose a time in Calendly
-                       </a>
-                     </Button>
-                     <Button
-                       type="button"
-                       variant="outline"
-                       onClick={keepAccessDeskFollowUp}
-                       className="font-bold"
-                       data-testid="button-keep-access-desk"
-                     >
-                       Keep Access Desk follow-up
-                     </Button>
-                   </div>
-                 ) : (
-                   <p className="max-w-md text-sm text-muted-foreground" data-testid="text-calendly-disabled">
-                     Scheduling is being coordinated through Access Desk. No action is needed from you.
-                   </p>
-                 )}
                 <Button
                   variant="outline"
                   onClick={() => { setSubmitted(false); form.reset(); setStep(1); }}
@@ -367,7 +237,7 @@ export default function Contact() {
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm font-semibold text-primary uppercase tracking-[0.06em] flex-shrink-0">Inquiring about:</span>
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wide flex-shrink-0">Inquiring about:</span>
                     <span className="text-sm font-semibold text-foreground truncate">{serviceParam}</span>
                   </div>
                   <button
@@ -407,7 +277,7 @@ export default function Contact() {
                             <span className={cn("text-xs font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
                           )}
                         </div>
-                        <span className={cn("max-w-20 text-center text-xs font-semibold uppercase leading-[1.3] tracking-[0.04em]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
+                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </div>
                       {i < STEP_LABELS.length - 1 && (
                         <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
@@ -421,9 +291,11 @@ export default function Contact() {
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   onFocusCapture={trackStart}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
-                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only"><AccentText>Step {step}: {STEP_LABELS[step - 1]}</AccentText></h2>
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
+                    Step {step}: {STEP_LABELS[step - 1]}
+                  </h2>
                   {submitError && (
                     <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-foreground" data-testid="contact-submit-error">
                       <p className="font-semibold">Your request was not sent.</p>
@@ -441,8 +313,8 @@ export default function Contact() {
 
                   {/* ── STEP 1: About You ── */}
                   {step === 1 && (
-                    <div className="space-y-6" data-testid="section-step-1">
-                      <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="space-y-5" data-testid="section-step-1">
+                      <div className="grid sm:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="name"
@@ -471,7 +343,7 @@ export default function Contact() {
                         />
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="grid sm:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="phone"
@@ -529,8 +401,8 @@ export default function Contact() {
 
                   {/* ── STEP 2: Your Situation ── */}
                   {step === 2 && (
-                    <div className="space-y-6" data-testid="section-step-2">
-                      <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="space-y-5" data-testid="section-step-2">
+                      <div className="grid sm:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="census"
@@ -635,7 +507,7 @@ export default function Contact() {
 
                   {/* ── STEP 3: What You Need ── */}
                   {step === 3 && (
-                    <div className="space-y-6" data-testid="section-step-3">
+                    <div className="space-y-5" data-testid="section-step-3">
                       <FormField
                         control={form.control}
                         name="serviceType"

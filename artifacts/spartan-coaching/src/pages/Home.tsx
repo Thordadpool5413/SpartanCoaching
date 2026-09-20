@@ -1,27 +1,27 @@
 import { Link } from "wouter";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import {
-  ArrowRight,
-  BarChart3,
-  Building2,
-  Check,
-  ClipboardCheck,
-  Crosshair,
-  MapPin,
-  MessageSquareText,
-  Pause,
-  Play,
-  RefreshCw,
-  ShieldCheck,
-  TrendingUp,
-  UserRound,
-  Users,
-} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Briefcase, Pause, Play, RefreshCw, Wrench, CheckCircle, ShieldCheck, MapPinned, UserCheck, Check } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { TrustStrip } from "@/components/TrustStrip";
+import { ProofStrip } from "@/components/ProofStrip";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
-import { useEffect, useRef, useState } from "react";
-import founderPhoto from "@assets/nick-photo-cropped.jpg";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
+import { FieldBriefExperience } from "@/components/FieldBriefExperience";
+import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
+import founderPhoto from "@assets/nick-photo.jpg";
+
+const CANONICAL_ORIGIN = SITE_ORIGIN;
+const PUBLIC_BASE = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const HERO_VIDEO_SRC = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro.mp4`;
+const HERO_VIDEO_POSTER = `${PUBLIC_BASE}videos/spartan-hospice-coaching-intro-poster.jpg`;
 
 export function HeroSystemPanel() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -103,16 +103,16 @@ export function HeroSystemPanel() {
   };
 
   return (
-    <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
+    <figure className="hero-intro-figure absolute inset-x-0 top-[12%] z-10" data-testid="section-hero-panel">
       <div
-        className="home-photo-video relative w-full overflow-hidden bg-black"
+        className="hero-intro-frame relative aspect-video overflow-hidden border-2 border-foreground bg-foreground shadow-[10px_10px_0_hsl(var(--primary))]"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
           <img
-            src="/hero-poster.jpg"
+            src={HERO_VIDEO_POSTER}
             alt="Spartan Coaching field operating system"
-            className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
+            className="absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
           />
         )}
         <video
@@ -122,8 +122,8 @@ export function HeroSystemPanel() {
           loop
           playsInline
           preload="auto"
-          poster="/hero-poster.jpg"
-          className="fi-fade-image absolute inset-0 z-10 h-full w-full object-cover object-center opacity-90"
+          poster={HERO_VIDEO_POSTER}
+          className="absolute inset-0 z-10 h-full w-full object-cover object-center"
           data-testid="hero-video"
           data-playback-state={videoState}
           data-playback-seconds={playbackSeconds.toFixed(1)}
@@ -137,19 +137,16 @@ export function HeroSystemPanel() {
           onTimeUpdate={(event) => setPlaybackSeconds(event.currentTarget.currentTime)}
           onError={() => setVideoState("error")}
         >
-          <source src="/hero-video-mobile.webm" media="(max-width: 767px)" type="video/webm" />
-          <source src="/hero-video.webm" type="video/webm" />
-          <source src="/hero-video-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
-          <source src="/hero-video.mp4" type="video/mp4" />
+          <source src={HERO_VIDEO_SRC} type="video/mp4" />
         </video>
 
         <div
-          className="absolute right-4 top-4 z-20 flex items-center gap-2 bg-black/45 px-2.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm md:right-8 md:top-8"
+          className="absolute bottom-3 right-3 z-20 flex items-center gap-2 bg-background/95 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground"
           data-testid="hero-video-status"
           data-state={videoState}
           aria-live="polite"
         >
-          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-[var(--fi-red)]"} />
+          <span className={videoState === "playing" ? "h-1.5 w-1.5 rounded-full bg-green-400" : "h-1.5 w-1.5 rounded-full bg-primary"} />
           {videoState === "playing" && "Field film playing"}
           {videoState === "loading" && "Loading field film"}
           {videoState === "paused" && (reducedMotion ? "Motion paused by preference" : "Field film paused")}
@@ -158,478 +155,371 @@ export function HeroSystemPanel() {
           <button
             type="button"
             onClick={togglePlayback}
-            className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white px-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="ml-1 inline-flex min-h-8 items-center gap-1.5 border border-foreground/30 px-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             data-testid="button-hero-video-play"
             aria-label={videoState === "playing" ? "Pause background film" : videoState === "error" ? "Retry background film" : "Play background film"}
           >
             {videoState === "playing" ? <Pause className="h-3 w-3" /> : videoState === "error" ? <RefreshCw className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-            {videoState === "playing" ? "Pause" : videoState === "error" ? "Retry" : "Play"}
           </button>
         </div>
       </div>
-      <figcaption className="sr-only">
+      <figcaption id="home-hero-video-caption" className="sr-only">
         The Spartan field operating system: prepare, practice, execute, and review.
       </figcaption>
     </figure>
   );
 }
 
-const problems = [
-  {
-    icon: TrendingUp,
-    title: "Stalled referrals",
-    body: "Your market has opportunity, but the right accounts are not moving with enough urgency.",
-  },
-  {
-    icon: BarChart3,
-    title: "Activity without conversion",
-    body: "The team stays busy while admits, commitments, and account movement remain inconsistent.",
-  },
-  {
-    icon: Users,
-    title: "Managers chasing numbers",
-    body: "Leaders spend the week reacting instead of coaching the behaviors that create growth.",
-  },
-  {
-    icon: MessageSquareText,
-    title: "Inconsistent execution",
-    body: "Strong intentions break down in the field because the team lacks a shared operating standard.",
-  },
-];
-
-const audiences = [
-  {
-    icon: UserRound,
-    label: "Hospice sales teams",
-    body: "For liaisons who need sharper conversations, stronger account plans, and confidence in the field.",
-  },
-  {
-    icon: MapPin,
-    label: "Directors and regional leaders",
-    body: "For leaders who need a practical coaching rhythm that turns standards into daily execution.",
-  },
-  {
-    icon: Building2,
-    label: "Organizations ready to scale",
-    body: "For hospices that want repeatable growth across territories, branches, and markets.",
-  },
-];
-
-const engagementPaths = [
-  {
-    number: "01",
-    title: "Field coaching & ride-alongs",
-    body: "Observe the work where it happens, coach the next move, and build skill through real account conversations.",
-  },
-  {
-    number: "02",
-    title: "Team workshops & sales training",
-    body: "Focused, hospice-specific sessions that give your team language and tools they can use immediately.",
-  },
-  {
-    number: "03",
-    title: "Leadership coaching & performance systems",
-    body: "Equip managers with a clear cadence for expectations, accountability, and productive coaching.",
-  },
-  {
-    number: "04",
-    title: "Growth strategy & multi-market execution",
-    body: "Align priorities, territory strategy, and leadership routines so growth can travel across the organization.",
-  },
-];
-
-const outcomes = [
-  {
-    quote: "We finally had a shared language for hard conversations — not another binder no one opens.",
-    role: "Hospice sales leader",
-  },
-  {
-    quote: "Tuesday stopped being chaos. I know who to call first and what to say when they push back.",
-    role: "Hospice liaison",
-  },
-  {
-    quote: "I needed a system my directors could coach from — not generic sales training dressed up for hospice.",
-    role: "Executive leader",
-  },
-];
-
 export default function Home() {
-  const consultingClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label);
-  };
-
-  const servicesClick = (label: string) => {
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, label);
-  };
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "ProfessionalService",
-        name: "Spartan Coaching",
-        url: SITE_ORIGIN,
-        description:
-          "Hospice growth consulting, field coaching, sales training, and leadership systems built for measurable execution.",
-        serviceType: [
-          "Hospice growth consulting",
-          "Hospice sales coaching",
-          "Hospice leadership development",
-          "Hospice team workshops",
-        ],
-      },
-      {
-        "@type": "WebSite",
-        name: "Spartan Coaching",
-        url: SITE_ORIGIN,
-      },
-    ],
-  };
-
   return (
-    <>
-      <SEO
-        title="Hospice Sales Consulting & Coaching | Spartan Coaching"
-        description="Hospice-specific consulting, field coaching, sales training, and leadership systems that turn growth strategy into consistent execution."
-      />
+    <div className="public-home flex flex-col bg-background text-foreground font-sans">
+      <SEO />
       <Helmet>
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "ProfessionalService",
+                "@id": `${CANONICAL_ORIGIN}/#organization`,
+                name: "Spartan Coaching",
+                description: "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.",
+                url: CANONICAL_ORIGIN,
+                email: "nick@spartanhospicecoaching.com",
+                founder: {
+                  "@type": "Person",
+                  name: "Nick Lynch",
+                  jobTitle: "Founder",
+                  url: "https://www.linkedin.com/in/nicholas-lynch-coaching",
+                },
+                serviceType: [
+                  "Hospice Growth Coaching",
+                  "Sales Training",
+                  "Strategic Consulting",
+                  "Leadership Coaching",
+                ],
+                areaServed: "US",
+              },
+              {
+                "@type": "WebSite",
+                name: "Spartan Coaching",
+                url: CANONICAL_ORIGIN,
+                description: "Hospice sales consulting and growth coaching for liaisons, directors, and multi-market teams.",
+              },
+            ],
+          })}
+        </script>
       </Helmet>
 
-      <div className="home-photo-one overflow-hidden bg-white text-black" data-testid="page-home">
-        <section
-          data-testid="section-hero"
-          className="home-photo-hero border-b border-black/10 bg-white"
-        >
-          <div
-            data-testid="section-home-intro"
-            className="home-photo-frame home-photo-hero-grid"
-          >
-            <div className="home-photo-hero-copy">
-              <p className="home-photo-kicker mb-6 flex items-center gap-3">
-                <span className="h-px w-10 bg-[#d61f26]" aria-hidden="true" />
-                Hospice growth consulting
+      {/* ── 1. HERO — SPLIT LAYOUT ── */}
+      <section className="relative overflow-hidden border-b border-border bg-background" data-testid="section-hero" aria-labelledby="home-hero-title">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] xl:gap-16">
+            <div className="max-w-2xl text-left">
+              <p className="text-xs font-bold tracking-[0.15em] uppercase text-primary mb-6 flex items-center gap-2">
+                <span className="w-8 h-px bg-primary"></span>
+                Hospice Sales Consulting + Hospice Sales Pro
               </p>
               <h1
+                id="home-hero-title"
+                className="text-6xl sm:text-7xl lg:text-8xl font-display font-black tracking-tighter text-foreground uppercase leading-[0.9]"
                 data-testid="text-home-hero-title"
-                className="home-photo-hero-title max-w-[780px] font-display font-black uppercase leading-[.98]"
               >
-                Make the next hospice <span className="text-[#d61f26]">conversation</span> count.
+                Make the next<br/>
+                hospice<br/>
+                <span className="text-primary">conversation</span><br/>
+                count.
               </h1>
-              <p className="home-photo-hero-lede mt-7 max-w-2xl text-black/70">
-                Spartan Coaching helps hospice teams convert strategy into disciplined field execution — with
-                sharper conversations, stronger managers, and a growth system your people can actually run.
+              <p className="mt-8 max-w-lg text-lg text-muted-foreground font-medium leading-relaxed">
+                Practical consulting for growth leaders. A focused field system for the people who carry the work forward every day.
               </p>
-
-              <div className="home-photo-actions mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/contact"
-                  onClick={() => consultingClick("Hero: Book a strategy call")}
-                  className="home-photo-button home-photo-button-primary"
-                >
-                  Book a strategy call
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/services"
-                  onClick={() => servicesClick("Hero: Explore consulting")}
-                  className="home-photo-button home-photo-button-outline"
-                >
-                  Explore consulting
-                </Link>
-              </div>
-
-              <div className="home-photo-trust mt-10 grid grid-cols-1 gap-3 border-t border-black/15 pt-6 text-black/65 sm:grid-cols-3">
-                <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
-                  Hospice specific
-                </span>
-                <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
-                  Built for the field
-                </span>
-                <span className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
-                  Designed to stick
-                </span>
-              </div>
-            </div>
-
-            <div className="home-photo-hero-media"><HeroSystemPanel /></div>
-          </div>
-        </section>
-
-        <section data-testid="section-problems" className="home-photo-section bg-white">
-          <div className="home-photo-frame">
-            <div className="home-photo-split">
-              <div>
-                <p className="home-photo-kicker">
-                  Where growth gets stuck
-                </p>
-                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
-                  The problems we <span>solve.</span>
-                </h2>
-              </div>
-
-              <div className="home-photo-card-grid home-photo-card-grid-two">
-                {problems.map((problem) => {
-                  const Icon = problem.icon;
-                  return (
-                    <article key={problem.title} className="home-photo-card">
-                      <Icon className="h-6 w-6 text-[#d61f26]" strokeWidth={1.8} aria-hidden="true" />
-                      <h3>{problem.title}</h3>
-                      <p>{problem.body}</p>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section data-testid="section-audiences" className="home-photo-section home-photo-section-lined bg-white text-black">
-          <div className="home-photo-frame">
-            <div className="home-photo-audience-head">
-              <div>
-                <p className="home-photo-kicker">Who this is for</p>
-                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">Who we work with.</h2>
-              </div>
-              <p>Coaching and consulting shaped around the people responsible for hospice growth — from one territory to the entire organization.</p>
-            </div>
-
-            <div className="home-photo-audience-grid">
-              {audiences.map((audience) => {
-                const Icon = audience.icon;
-                return (
-                  <article key={audience.label}>
-                    <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.7} aria-hidden="true" />
-                    <h3>{audience.label}</h3>
-                    <p>{audience.body}</p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section data-testid="section-method" className="home-photo-section bg-white">
-          <div className="home-photo-frame">
-            <div className="home-photo-method-head">
-              <p className="home-photo-kicker">The Spartan method</p>
-              <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
-                Diagnose. Install. Sustain.
-              </h2>
-              <p>We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
-            </div>
-
-              <div className="home-photo-method-grid">
-                {[
-                  {
-                    number: "01",
-                    title: "Diagnose the constraint",
-                    body: "Separate symptoms from the real breakdown across market strategy, field behavior, and leadership cadence.",
-                    icon: Crosshair,
-                  },
-                  {
-                    number: "02",
-                    title: "Install the standard",
-                    body: "Create the language, routines, tools, and expectations your team needs to execute consistently.",
-                    icon: ClipboardCheck,
-                  },
-                  {
-                    number: "03",
-                    title: "Sustain the behavior",
-                    body: "Coach leaders and field teams until the system becomes the way the organization works.",
-                    icon: ShieldCheck,
-                  },
-                ].map((step) => {
-                  const Icon = step.icon;
-                  return (
-                    <article key={step.number}>
-                      <span className="home-photo-step-number">{step.number}</span>
-                      <div>
-                        <h3>{step.title}</h3>
-                        <p>{step.body}</p>
-                      </div>
-                      <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.5} aria-hidden="true" />
-                    </article>
-                  );
-                })}
-              </div>
-          </div>
-        </section>
-
-        <section data-testid="section-pathways" className="home-photo-section home-photo-section-lined border-y border-black/10 bg-white">
-          <div className="home-photo-frame">
-            <div className="home-photo-path-head">
-              <div>
-                <p className="home-photo-kicker">
-                  Consulting engagements
-                </p>
-                <h2 className="home-photo-section-title mt-5 max-w-4xl font-display font-black uppercase">
-                  Consulting engagement <span>paths.</span>
-                </h2>
-              </div>
-              <Link
-                href="/services"
-                onClick={() => servicesClick("Engagements: View consulting services")}
-                className="home-photo-text-link"
-              >
-                View consulting services
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </div>
-
-            <div className="home-photo-path-grid">
-              {engagementPaths.map((path) => (
-                <article key={path.number} className="group">
-                  <span>{path.number}</span>
-                  <h3>
-                    {path.title}
-                  </h3>
-                  <p>{path.body}</p>
-                  <Link
-                    href="/contact"
-                    onClick={() => consultingClick(`Engagement: ${path.title}`)}
-                    className="home-photo-text-link mt-8"
-                  >
-                    Start the conversation
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <div className="mt-10 flex flex-col sm:flex-row gap-3">
+                <Button size="lg" asChild className="font-display uppercase tracking-widest min-h-14 rounded-none bg-primary hover:bg-foreground text-primary-foreground border-none text-sm" data-testid="button-hero-consulting">
+                  <Link href="/services" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}>
+                    Explore consulting
+                    <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section data-testid="section-founder-authority" className="home-photo-section bg-white">
-          <div className="home-photo-frame home-photo-founder-grid">
-            <div className="home-photo-founder-image relative">
-              <div className="absolute -bottom-3 -right-3 h-full w-full bg-[#d61f26]" aria-hidden="true" />
-              <img
-                src={founderPhoto}
-                alt="Nick Lynch, founder of Spartan Coaching"
-                width={416}
-                height={520}
-                decoding="async"
-                className="relative h-full w-full object-cover grayscale"
-              />
-            </div>
-
-            <div>
-              <p className="home-photo-kicker">Meet your coach</p>
-              <h2 className="home-photo-founder-title fi-serif mt-5 max-w-4xl font-black leading-[.96] text-black/70">
-                Built by someone who has carried the number.
-              </h2>
-              <p className="home-photo-founder-lede mt-7 max-w-2xl text-black/70">
-                Nick Lynch built Spartan Coaching around a simple belief: hospice sales support should
-                sound like the field, work in the field, and make leaders better at coaching the field.
-              </p>
-              <p className="mt-5 max-w-2xl leading-8 text-black/65">
-                The work combines frontline experience, executive perspective, and a practical operating
-                system for teams that are accountable for growth every week.
-              </p>
-              <Link
-                href="/about"
-                className="home-photo-text-link mt-8"
-              >
-                Read the founder story
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section data-testid="section-results" className="home-photo-section home-photo-section-lined bg-white">
-          <div className="home-photo-frame">
-            <div className="home-photo-results-head">
-              <div>
-                <p className="home-photo-kicker">What changes</p>
-                <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
-                  A stronger tomorrow is <span>possible.</span>
-                </h2>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest min-h-14 rounded-none border-2 border-foreground text-foreground hover:bg-foreground hover:text-background text-sm" data-testid="button-hero-product">
+                  <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}>
+                    See Hospice Sales Pro
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
               </div>
-              <p>The goal is not a motivational week. It is clarity, confidence, and a standard leaders can coach long after the engagement ends.</p>
+
+              <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-foreground">Built for leaders.</span>
+                <span className="text-foreground">Driven by experience.</span>
+                <span className="text-foreground">Focused on results.</span>
+              </div>
             </div>
 
-              <div className="home-photo-results-grid">
-                  {outcomes.map((outcome) => (
-                    <figure key={outcome.role}>
-                      <blockquote>“{outcome.quote}”</blockquote>
-                      <figcaption>
-                        {outcome.role}
-                      </figcaption>
-                    </figure>
-                  ))}
-                <div className="home-photo-outcome bg-black text-white">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[.2em] text-[#ee3439]">The outcome</p>
-                    <p className="mt-2 text-2xl font-black uppercase">Repeatable execution.</p>
-                  </div>
-                  <p className="max-w-xl leading-7 text-white/65">
-                    One disciplined approach leaders can coach across territories, branches, and markets.
+            <div className="w-full min-w-0 flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[34rem] min-h-[28rem] sm:min-h-[36rem] lg:min-h-[42rem] overflow-hidden">
+                <div
+                  className="absolute inset-x-0 bottom-[12%] h-[36%] bg-primary"
+                  aria-hidden="true"
+                />
+                <div
+                  className="absolute right-0 top-[9%] h-px w-[78%] bg-foreground"
+                  aria-hidden="true"
+                />
+                <div
+                  className="absolute right-0 top-[calc(9%+8px)] h-px w-[38%] bg-primary"
+                  aria-hidden="true"
+                />
+                <HeroSystemPanel />
+                <div className="absolute bottom-5 left-0 z-20 border-l-4 border-primary bg-background/95 px-4 py-3">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+                    Field standard 01
+                  </p>
+                  <p className="mt-1 font-display text-xl uppercase leading-none text-foreground">
+                    Prepared beats improvised.
                   </p>
                 </div>
               </div>
-          </div>
-        </section>
-
-        <section data-testid="section-process" className="home-photo-section bg-white">
-          <div className="home-photo-frame">
-            <div className="max-w-4xl">
-              <p className="home-photo-kicker">How we work</p>
-              <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
-                Clear from first call to lasting change.
-              </h2>
             </div>
 
-            <div className="home-photo-process-grid">
-              {[
-                ["01", "Discovery call", "Get clear on the pressure, the goal, and what is getting in the way."],
-                ["02", "Customized plan", "Build the engagement around your team, market, and operating reality."],
-                ["03", "Get to work", "Coach in the moments where skill, leadership, and execution are tested."],
-                ["04", "Lasting results", "Leave behind standards and rhythms the organization can sustain."],
-              ].map(([number, title, body]) => (
-                <article key={number}>
-                  <span>{number}</span>
-                  <h3>{title}</h3>
-                  <p>{body}</p>
-                </article>
-              ))}
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section data-testid="section-closing" className="home-photo-closing-wrap bg-white">
-          <div className="home-photo-frame home-photo-closing bg-black text-white">
+      {/* CAPABILITY STRIP */}
+      <section className="border-b border-border bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex gap-4">
+            <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
             <div>
-              <p className="home-photo-kicker">The next move</p>
-              <h2 className="mt-5 font-display font-black uppercase">
-                Stop winging it.
-              </h2>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-white/65">
-                Build a hospice growth system your team can execute and your leaders can coach.
-              </p>
+              <p className="font-bold text-sm uppercase tracking-wide">Private & Secure</p>
+              <p className="text-xs text-muted-foreground mt-1">Your data. Your practice. Always protected.</p>
             </div>
+          </div>
+          <div className="flex gap-4">
+            <span className="text-4xl font-display font-black text-primary leading-none">
+              {FIELD_KIT_TOOLS.length}
+            </span>
+            <div>
+              <p className="font-bold text-sm uppercase tracking-wide">Field Tools</p>
+              <p className="text-xs text-muted-foreground mt-1">Built for the moments that matter most.</p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <Briefcase className="w-8 h-8 text-primary shrink-0" />
+            <div>
+              <p className="font-bold text-sm uppercase tracking-wide">Spartan Coach</p>
+              <p className="text-xs text-muted-foreground mt-1">Direct feedback. Real improvement.</p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <CheckCircle className="w-8 h-8 text-primary shrink-0" />
+            <div>
+              <p className="font-bold text-sm uppercase tracking-wide">Saved Work</p>
+              <p className="text-xs text-muted-foreground mt-1">Pick up where you left off. Stay ready.</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-muted py-4 border-t border-border flex items-center justify-center gap-6 px-4 text-center">
+           <p className="font-display font-black text-sm sm:text-base uppercase tracking-[0.2em] text-foreground">
+             One Platform. Every Advantage.
+           </p>
+           <p className="font-mono text-xs tracking-wider text-muted-foreground hidden sm:block">
+             www.spartanhospicecoaching.com
+           </p>
+        </div>
+      </section>
+
+      <FieldBriefExperience />
+
+      <section className="relative border-y border-border bg-card py-16 sm:py-24" data-testid="section-stakes">
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <FadeIn>
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-foreground text-background mb-8 rounded-none">
+              <span className="font-display font-black text-2xl">!</span>
+            </div>
+            <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">The real problem</p>
+            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 font-display uppercase tracking-tight" data-testid="text-stakes-title">
+              The gap is not clinical.<br/>It is <span className="text-primary">conversational.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground font-medium leading-relaxed mb-8 max-w-2xl mx-auto">
+              Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
+            </p>
+            <Link href="/manifesto" className="inline-flex items-center gap-2 text-sm font-display uppercase tracking-widest font-bold text-foreground hover:text-primary transition-colors border-b-2 border-primary pb-1">
+              Read the Spartan Ethos
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </FadeIn>
+        </div>
+      </section>
+
+      <section className="relative py-16 sm:py-24" data-testid="section-pillars">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <div className="text-center mb-12 sm:mb-16">
+              <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4">How Spartan helps</p>
+              <h2 className="text-4xl sm:text-5xl font-display font-black uppercase text-foreground">
+                <span className="text-primary">Two ways</span> to put it to work.
+              </h2>
+            </div>
+          </FadeIn>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {[
+              {
+                icon: Briefcase,
+                kicker: "Offer A \u00B7 Consulting",
+                title: "HUMAN COACHING",
+                desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
+                features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
+                href: "/services",
+                cta: "View consulting services",
+                primary: true,
+                testId: "card-door-consulting",
+              },
+              {
+                icon: Wrench,
+                kicker: "Offer B \u00B7 Hospice Sales Pro",
+                title: "THE TOOLS PRODUCT",
+                desc: "What you actually get: daily Command Center, practice tools, plans, calculators, and field resources.",
+                features: [
+                  "Sales Command Center",
+                  "Objections \u00B7 role-play \u00B7 email",
+                  "Weekly plan \u00B7 activity \u00B7 ROI",
+                ],
+                href: "/hospice-sales-pro",
+                cta: "Explore Hospice Sales Pro",
+                primary: false,
+                testId: "card-door-hospice-sales-pro",
+              },
+            ].map((p) => {
+              const Icon = p.icon;
+              return (
+                <StaggerItem key={p.title}>
+                  <Card
+                    className={`h-full p-8 sm:p-10 flex flex-col rounded-none shadow-none border-2 ${p.primary ? "border-foreground" : "border-border"}`}
+                    data-testid={p.testId}
+                  >
+                    <p className="text-xs font-bold tracking-[0.2em] uppercase text-primary mb-4">{p.kicker}</p>
+                    <h3 className="text-3xl sm:text-4xl font-display font-black text-foreground mb-4 tracking-tight uppercase">
+                      {p.primary ? (
+                        <>Human <span className="text-primary">coaching</span></>
+                      ) : (
+                        <>The tools <span className="text-primary">product</span></>
+                      )}
+                    </h3>
+                    <p className="text-base font-medium text-muted-foreground leading-relaxed mb-6">{p.desc}</p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm font-semibold text-foreground">
+                          <Check className="w-5 h-5 text-primary shrink-0" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button asChild className="font-display uppercase tracking-widest w-full min-h-14 rounded-none border-2" variant={p.primary ? "default" : "outline"}>
+                      <Link href={p.href} onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, p.primary ? "home_consulting" : "home_hospice_sales_pro")}>
+                        {p.cta}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </Card>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-foreground text-background" data-testid="section-founder-authority">
+        <div className="mx-auto grid max-w-7xl lg:grid-cols-[26rem_1fr]">
+          <div className="relative min-h-[26rem] overflow-hidden border-b border-background/20 lg:border-b-0 lg:border-r">
+            <img
+              src={founderPhoto}
+              alt="Nick Lynch, founder"
+              width={416}
+              height={520}
+              className="absolute inset-0 h-full w-full object-cover grayscale contrast-110"
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-2 bg-primary" aria-hidden="true" />
+          </div>
+          <div className="flex flex-col justify-center px-6 py-14 sm:px-10 lg:px-16 lg:py-20">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">
+              Field-built authority
+            </p>
+            <h2 className="mt-5 max-w-3xl font-display text-5xl uppercase leading-[0.92] text-background sm:text-6xl">
+              Built by someone who has <span className="text-primary">carried the number.</span>
+            </h2>
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-background/75">
+              Nick Lynch built Spartan Coaching from the field: hospice-specific sales, leadership,
+              and execution systems shaped by the conversations teams actually have to lead.
+            </p>
             <Link
-              href="/contact"
-              onClick={() => consultingClick("Closing: Book a strategy call")}
-              className="home-photo-button home-photo-button-primary"
+              href="/about"
+              className="mt-8 inline-flex min-h-11 w-fit items-center gap-2 border-b-2 border-primary font-mono text-xs font-bold uppercase tracking-[0.16em] text-background transition-colors hover:text-primary"
+              data-testid="link-founder-story"
             >
-              Book a strategy call
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Read the founder story
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
-          <div className="home-photo-frame home-photo-closing-trust">
-            <div>
-              <span>Hospice-specific strategy</span>
-              <span>Field-tested coaching</span>
-              <span>Leadership accountability</span>
-              <span>Repeatable execution</span>
+        </div>
+      </section>
+
+      <section className="relative bg-muted py-16 sm:py-24 border-t border-border" data-testid="section-results">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <ProofStrip />
+          </FadeIn>
+        </div>
+      </section>
+
+      <section className="relative bg-background py-16 sm:py-24 border-t border-border" data-testid="section-app-handoff">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <AppHandoffPanel
+              destination="command"
+              title="The field system does not stay at your desk."
+              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
+            />
+          </FadeIn>
+        </div>
+      </section>
+
+      <section className="relative bg-background py-16 sm:py-24 border-t border-border" data-testid="section-trust">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <TrustStrip className="border-2 border-border shadow-none rounded-none" />
+          </FadeIn>
+        </div>
+      </section>
+
+      <section className="relative bg-foreground text-background py-20 sm:py-32" data-testid="section-closing">
+        <FadeIn>
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-6">Ready to close the gap?</p>
+            <h2 className="text-5xl sm:text-7xl font-black text-background mb-8 font-display uppercase tracking-tight" data-testid="text-closing-title">
+              Stop <span className="text-primary">winging it.</span>
+            </h2>
+            <p className="text-lg text-background/75 font-medium max-w-2xl mx-auto mb-12 leading-relaxed">
+              Start with the next move that fits your work. We will keep the path clear from there.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none bg-primary text-primary-foreground hover:bg-background hover:text-foreground" data-testid="button-closing-contact">
+                <Link href="/contact" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")}>
+                  Book a strategy call
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-display uppercase tracking-widest px-10 min-h-14 rounded-none border-2 border-background text-background hover:bg-background hover:text-foreground" data-testid="button-closing-hospice-sales-pro">
+                <Link href="/hospice-sales-pro" onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")}>
+                  Explore Hospice Sales Pro
+                </Link>
+              </Button>
             </div>
           </div>
-        </section>
-      </div>
-    </>
+        </FadeIn>
+      </section>
+    </div>
   );
 }

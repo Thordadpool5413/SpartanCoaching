@@ -1,4 +1,3 @@
-import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -444,13 +443,13 @@ export default function Programs() {
   };
 
   return (
-    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
         <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-programs-title">
-          Hospice Provider <span className="text-spartan-red">Programs</span>
+          Hospice Provider <span className="text-gradient-primary">Programs</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           Full program builds intended to be purchased as discrete projects. Each includes a kickoff, weekly working sessions, optional field practice, and a final summary with wins, blockers, and next steps.
@@ -461,7 +460,7 @@ export default function Programs() {
           <Card key={idx} className="flex flex-col hover-card bg-card dark:border-border border-l-4 border-l-primary group relative spacing-card" data-testid={`card-program-${idx}`}>
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity" />
             <div className="relative flex-1">
-              <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{program.title}</AccentText></h3>
+              <h3 className="text-h3 font-bold text-foreground mb-3">{program.title}</h3>
               <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{program.description}</p>
               <div className="mb-4">
                 <p className="text-sm font-bold text-foreground mb-2">Key Deliverables:</p>
@@ -498,7 +497,7 @@ export default function Programs() {
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-foreground mt-16 mb-8 text-h2">
-            Program <span className="text-spartan-red">add-ons</span>
+            Program add-ons
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             Add these focused engagements to a program when your team needs more depth in a specific area. For standalone coaching options, start with Services.
@@ -509,7 +508,7 @@ export default function Programs() {
             <Card key={idx} className="flex flex-col hover-card bg-card dark:border-border border-l-4 border-l-primary group relative spacing-card" data-testid={`card-strategic-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity"></div>
               <div className="flex-1">
-                <h3 className="text-h3 font-bold text-foreground mb-3"><AccentText>{service.title}</AccentText></h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{service.description}</p>
                 <div className="mb-4">
                   <p className="text-sm font-bold text-foreground mb-2">Key Deliverables:</p>

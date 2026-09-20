@@ -7,42 +7,36 @@ const read = (relative: string) =>
 describe("web typography readability contracts", () => {
   it("keeps the approved homepage statement and hero media contract", () => {
     const home = read("../pages/Home.tsx");
-
-    expect(home).toMatch(/Make the next hospice[\s\S]{0,120}conversation[\s\S]{0,80}count\./);
+    expect(home).toMatch(/Make the next[\s\S]{0,80}hospice[\s\S]{0,80}conversation[\s\S]{0,80}count\./);
     expect(home).toContain("Book a strategy call");
     expect(home).toContain("Explore consulting");
-    expect(home).not.toContain("Explore Hospice Sales Pro");
+    expect(home).toContain("Explore Hospice Sales Pro");
     expect(home).toContain('data-testid="hero-video"');
     expect(home).toContain('data-testid="hero-video-status"');
-    expect(home).toContain('<source src="/hero-video-mobile.webm"');
-    expect(home).toContain('<source src="/hero-video.webm"');
-    expect(home).toContain('<source src="/hero-video-mobile.mp4"');
-    expect(home).toContain('<source src="/hero-video.mp4"');
-    expect(home).toContain('poster="/hero-poster.jpg"');
+    expect(home).toContain('src={HERO_VIDEO_POSTER}');
+    expect(home).toContain('<source src={HERO_VIDEO_SRC} type="video/mp4" />');
   });
 
   it("uses readable leading for the highest-risk public display text", () => {
     const home = read("../pages/Home.tsx");
     const manifesto = read("../pages/Manifesto.tsx");
     const css = read("../index.css");
-
-    expect(home).toContain("leading-[.98]");
+    expect(home).toContain("leading-[0.9]");
     expect(home).not.toContain("spartan-hero-title");
     expect(home.indexOf('data-testid="text-home-hero-title"')).toBeGreaterThan(home.indexOf('data-testid="section-home-intro"'));
-    expect(home).toMatch(/section-founder-authority[\s\S]*?fi-serif[\s\S]*?leading-\[\.96\][\s\S]*?text-black\/70[\s\S]*?Read the founder story/s);
+    expect(home).toMatch(/section-founder-authority[\s\S]*?font-display[\s\S]*?text-background\/75[\s\S]*?Read the founder story/s);
     expect(manifesto).not.toContain("leading-[0.9]");
     expect(manifesto).toContain("leading-[1.1]");
     expect(manifesto).toContain("justify-center bg-foreground overflow-hidden");
     expect(manifesto).toContain("font-black text-background leading-[1.1]");
     expect(css).toMatch(/\.page-persuasion h1\.font-display\s*\{[^}]*line-height:\s*1\.08/s);
-    expect(css).toMatch(/\.field-brief-artifact h5\s*\{[^}]*line-height:\s*1\.1/s);
+    expect(css).toMatch(/\.field-brief-artifact h5\s*\{[^}]*line-height:\s*0\.98/s);
   });
 
   it("keeps workspace headings, search, and onboarding readable on narrow screens", () => {
     const css = read("../styles/workspace.css");
     const globalCss = read("../index.css");
     const shell = read("../components/AppShell.tsx");
-
     expect(css).toMatch(/\.field-greeting\s*\{[^}]*line-height:\s*1\.04/s);
     expect(css).toMatch(/\.field-objective-heading\s*\{[^}]*line-height:\s*1\.08/s);
     expect(css).toMatch(/\.field-search-input\s*\{[^}]*font-size:\s*13px/s);

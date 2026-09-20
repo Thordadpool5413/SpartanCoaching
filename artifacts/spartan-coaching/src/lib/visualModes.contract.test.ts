@@ -32,12 +32,11 @@ function readAppearanceStorage() {
 describe("route-family visual contracts", () => {
   it("keeps Resources public styling free of workspace-only token overrides", () => {
     const css = read("index.css");
-
     expect(css).not.toMatch(
-      /\.resources-premium\s*>\s*div:first-of-type,[\s\S]{0,1200}--foreground:\s*0 0% 98%/,
+      /(?:^|\n)\.resources-premium\s*>\s*div:first-of-type,[\s\S]{0,1200}--foreground:\s*0 0% 98%/,
     );
     expect(css).not.toMatch(
-      /\.resources-premium\s+\.shadcn-card\s*\{[\s\S]{0,900}--card:\s*221 40% 10%/,
+      /(?:^|\n)\.resources-premium\s+\.shadcn-card\s*\{[\s\S]{0,900}--card:\s*221 40% 10%/,
     );
     expect(css).toMatch(/\.field-workspace\s+\.resources-premium\s+>\s*div:first-of-type/);
     expect(css).toMatch(/\.field-workspace\s+\.resources-library-dock/);
@@ -46,19 +45,13 @@ describe("route-family visual contracts", () => {
   it("uses the selected appearance on public and workspace route surfaces", () => {
     const app = read("App.tsx");
     const theme = read("lib/theme.ts");
-
     expect(app).toMatch(/dataset\.routeSurface/);
     expect(app).toMatch(/applyAppearance\(mode, accent, background, themePreset/);
     expect(app).not.toMatch(/applyAppearance\("light", "red", "soft", "spartan"/);
     expect(theme).toMatch(/options:\s*\{\s*persist\?: boolean;\s*notify\?: boolean/);
     expect(theme).toMatch(/Route scopes use the same[\s\S]{0,40}renderer/);
-
     localStorage.clear();
-    applyAppearance("dark", "gold", "charcoal", "mamba", {
-      persist: false,
-      notify: false,
-    });
-
+    applyAppearance("dark", "gold", "charcoal", "mamba", { persist: false, notify: false });
     expect(document.documentElement.dataset.themeMode).toBe("dark");
     expect(document.documentElement.dataset.themePreset).toBe("mamba");
     expect(document.documentElement.style.getPropertyValue("--background")).not.toBe("38 33% 97%");
@@ -71,31 +64,20 @@ describe("route-family visual contracts", () => {
     const routeThemeEvents: Event[] = [];
     const onRouteThemeChange = (event: Event) => routeThemeEvents.push(event);
     window.addEventListener("spartan-theme-change", onRouteThemeChange);
-
-    applyAppearance("dark", "purple", "midnight", "custom", {
-      persist: false,
-      notify: false,
-    });
-
+    applyAppearance("dark", "purple", "midnight", "custom", { persist: false, notify: false });
     expect(document.documentElement.dataset.themeMode).toBe("dark");
     expect(document.documentElement.dataset.accent).toBe("purple");
     expect(document.documentElement.dataset.bg).toBe("midnight");
     expect(document.documentElement.dataset.themePreset).toBe("custom");
     expect(readAppearanceStorage()).toEqual(savedWorkspaceAppearance);
     expect(routeThemeEvents).toHaveLength(0);
-
-    applyAppearance("dark", "purple", "midnight", "custom", {
-      persist: false,
-      notify: false,
-    });
-
+    applyAppearance("dark", "purple", "midnight", "custom", { persist: false, notify: false });
     expect(document.documentElement.dataset.themeMode).toBe("dark");
     expect(document.documentElement.dataset.accent).toBe("purple");
     expect(document.documentElement.dataset.bg).toBe("midnight");
     expect(document.documentElement.dataset.themePreset).toBe("custom");
     expect(readAppearanceStorage()).toEqual(savedWorkspaceAppearance);
     expect(routeThemeEvents).toHaveLength(0);
-
     window.removeEventListener("spartan-theme-change", onRouteThemeChange);
   });
 
@@ -120,11 +102,9 @@ describe("route-family visual contracts", () => {
       'path="/sign/:token"',
       "component={NotFound}",
     ];
-
     for (const route of requiredRoutes) {
       expect(app, `missing route contract: ${route}`).toContain(route);
     }
-
     expect(layout).toMatch(/public-site-footer/);
     expect(layout).not.toMatch(/isAuthenticated[\s\S]{0,160}public-site-footer/);
   });

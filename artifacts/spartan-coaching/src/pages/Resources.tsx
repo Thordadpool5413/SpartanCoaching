@@ -1,4 +1,3 @@
-import { AccentText } from "@/components/AccentText";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -26,7 +25,6 @@ import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { ExpandableText } from "@/components/ui/ExpandableText";
 import { StateBlock } from "@/components/StateBlock";
 import { UX_WORKSPACE_IMPROVEMENTS } from "@/lib/workspaceUxFlag";
-import { cn } from "@/lib/utils";
 import {
   FIELD_KIT_TOOLS,
   getResourceWorkGuide,
@@ -186,25 +184,6 @@ function resourceArchitecture(resource: SelectResource): ResourceArchitecture {
   );
 }
 
-type ResourceLifecycle = {
-  lifecycleStatus?: string | null;
-  versionLabel?: string | null;
-  isCurrent?: boolean | null;
-  supersededById?: number | null;
-};
-
-function resourceLifecycle(resource: SelectResource): ResourceLifecycle {
-  const item = resource as SelectResource & ResourceLifecycle;
-  return item;
-}
-
-function lifecycleLabel(resource: SelectResource): string {
-  const lifecycle = resourceLifecycle(resource);
-  if (lifecycle.isCurrent === false || lifecycle.lifecycleStatus === "superseded") return "Retained · historical";
-  if (lifecycle.lifecycleStatus === "retired" || lifecycle.lifecycleStatus === "archived") return lifecycle.lifecycleStatus;
-  return "Current";
-}
-
 /**
  * A download needs a job and a finish line. This intentionally uses only
  * resource metadata and catalog IDs, never member-entered content.
@@ -269,13 +248,6 @@ function resourceWorkflow(resource: SelectResource): ResourceWorkflow {
 export default function Resources() {
   const [, navigate] = useLocation();
   const { canUseFieldKit, member } = useAuth();
-  const renderMode: "public" | "locked" | "workspace" = !member
-    ? "public"
-    : canUseFieldKit
-      ? "workspace"
-      : "locked";
-  const isWorkspace = renderMode === "workspace";
-  const isLocked = renderMode === "locked";
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isOrgAdmin =
@@ -532,9 +504,9 @@ export default function Resources() {
 
   if (isLoading) {
     return (
-      <div className={renderMode === "public" ? "min-h-screen" : "min-h-[70vh] bg-background"} data-resource-mode={renderMode}>
+      <div className="min-h-screen">
         <SEO />
-        <div className={renderMode === "public" ? "w-full max-w-7xl mx-auto px-4 sm:px-6 py-12" : "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"}>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <Skeleton className="h-10 w-64 mb-4" />
           <Skeleton className="h-5 w-96 mb-8" />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
@@ -567,32 +539,24 @@ export default function Resources() {
   }
 
   if (resources.length === 0) {
-    if (renderMode === "public") {
-      return (
-        <div className="resources-premium w-full max-w-7xl mx-auto spacing-container spacing-section" data-resource-mode="public">
-          <SEO />
-          <div className="text-center max-w-2xl mx-auto py-20">
-            <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training <span className="text-primary">Resources Library</span></h1>
-            <p className="text-body-lg text-muted-foreground">No resources are available yet. You can continue with a focused tool or contact support.</p>
-            <div className="mt-5 flex flex-wrap justify-center gap-2"><Button asChild><Link href="/tools">Open Tools</Link></Button><Button asChild variant="outline"><Link href="/contact">Contact support</Link></Button></div>
-          </div>
-        </div>
-      );
-    }
     return (
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" data-resource-mode={renderMode}>
+      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
-        <div className="max-w-2xl mx-auto border border-border bg-card p-8 sm:p-12">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">{isWorkspace ? "Workspace library" : "Workspace preview"}</p>
-          <h1 className="text-2xl font-bold uppercase tracking-tight text-foreground font-display mb-3">No resources available</h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">{isWorkspace ? "Your organization library is empty right now. Check back after resources are published." : "Preview access is ready, but downloadable resources require an active Field Kit membership."}</p>
-          <div className="mt-6 flex flex-wrap gap-3"><Button asChild className="rounded-none uppercase tracking-widest text-xs font-bold"><Link href={isWorkspace ? "/tools" : "/hospice-sales-pro"}>{isWorkspace ? "Open Tools" : "View access options"}</Link></Button><Button asChild variant="outline" className="rounded-none uppercase tracking-widest text-xs font-bold"><Link href="/contact">Contact support</Link></Button></div>
+        <div className="text-center max-w-2xl mx-auto py-20">
+          <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training <span className="text-primary">Resources Library</span></h1>
+          <p className="text-body-lg text-muted-foreground">
+            No resources are available yet. You can continue with a focused tool or contact support.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <Button asChild><Link href="/tools">Open Tools</Link></Button>
+            <Button asChild variant="outline"><Link href="/contact">Contact support</Link></Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  const legacyPublic = (
+  return (
     <div className="resources-premium w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <div className="max-w-3xl mb-7">
@@ -1250,463 +1214,6 @@ export default function Resources() {
           primary={{ label: "Preview Hospice Sales Pro tools", href: "/tools", token: "tools_preview" }}
           secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
         />
-      )}
-    </div>
-  );
-
-  if (renderMode === "public") return legacyPublic;
-
-  return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" data-testid="page-resources" data-resource-mode={renderMode}>
-      <SEO />
-      <header className={isWorkspace ? "mb-10 border-b border-border pb-6" : "mb-10 border-b border-border pb-6"}>
-        <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-          {isWorkspace ? "Hospice Sales Pro · Field resources" : "Workspace preview"}
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display" data-testid="text-resources-title">
-          {isWorkspace ? "Field Resources" : "Resources Preview"}
-        </h1>
-        <p className="mt-2 text-[13px] font-mono tracking-widest text-muted-foreground uppercase max-w-2xl leading-relaxed">
-          {isWorkspace
-            ? "Current templates, scripts, and checklists for the field."
-            : "Browse current templates, scripts, checklists, and guides. Download access requires Field Kit membership."}
-        </p>
-      </header>
-
-      {!canUseFieldKit && <ContentNotice />}
-      <Card className="mb-8 flex flex-col gap-3 border border-primary/20 bg-primary/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between rounded-none shadow-sm" data-testid="resources-work-guide">
-        <div>
-          <p className="font-bold text-foreground text-sm uppercase tracking-wide">Keep professional context deidentified</p>
-          <p className="mt-1 text-sm text-muted-foreground">Do not enter patient identifiers, PHI, or clinical records. AI-adapted work can be saved to My Work.</p>
-        </div>
-        <Button asChild variant="outline" className="shrink-0 rounded-none font-bold uppercase tracking-widest text-xs"><Link href="/my-work">Open My Work</Link></Button>
-      </Card>
-      <section className="mb-12" aria-labelledby="core-library-heading">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-6">
-          <div className="relative w-full lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-            <Label htmlFor="resource-library-search" className="sr-only">Search core resources</Label>
-            <Input
-              id="resource-library-search"
-              type="search"
-              className="pl-9 rounded-none h-11 border-border font-mono text-sm"
-              placeholder="Search scripts, checklists, guides…"
-              value={resourceSearch}
-              onChange={(event) => setResourceSearch(event.target.value)}
-              data-testid="input-core-resource-search"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2 pb-1" aria-label="Filter resources by type">
-            {["all", "template", "script", "checklist", "guide"].map((category) => (
-              <Button
-                key={category}
-                type="button"
-                size="sm"
-                variant={resourceCategory === category ? "default" : "outline"}
-                className={cn("min-h-11 shrink-0 rounded-none uppercase tracking-widest text-[10px] font-bold", resourceCategory === category ? "bg-foreground text-background" : "")}
-                aria-pressed={resourceCategory === category}
-                onClick={() => setResourceCategory(category)}
-                data-testid={`resource-filter-${category}`}
-              >
-                {category === "all" ? `All (${resources.length})` : categoryNames[category]}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </section>
-      {canUseFieldKit && (
-        <div className="mb-12 space-y-4" data-testid="provider-resource-library">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
-                Provider organization
-              </p>
-              <h2 className="text-h2">Your private <span className="text-primary">library</span></h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                Organization-only scripts, coverage maps, escalation guides, and policies.
-                Clearly separate from{" "}
-                <span className="font-semibold text-foreground">
-                  {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
-                </span>
-                .
-              </p>
-            </div>
-            <div className="w-full sm:max-w-xs">
-            <Label htmlFor="provider-resource-search" className="sr-only">Search provider library</Label>
-            <Input
-              id="provider-resource-search"
-              placeholder="Search provider library"
-              value={providerSearch}
-              onChange={(e) => setProviderSearch(e.target.value)}
-              data-testid="input-provider-resource-search"
-            />
-            </div>
-          </div>
-
-          {isOrgAdmin && (
-            <details className="rounded-xl border border-border bg-card p-4">
-              <summary className="cursor-pointer text-sm font-bold text-foreground">Manage provider resources</summary>
-            <div className="mt-4 space-y-3">
-              <p className="text-sm font-semibold">Add provider resource (org admin)</p>
-              <div className="grid md:grid-cols-3 gap-3">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    data-testid="input-provider-title"
-                  />
-                </div>
-                <div>
-                  <Label>File URL (https or /objects/…)</Label>
-                  <Input
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                    data-testid="input-provider-file-url"
-                  />
-                </div>
-                <div>
-                  <Label>Kind</Label>
-                  <Input
-                    value={newKind}
-                    onChange={(e) => setNewKind(e.target.value)}
-                    placeholder="script, policy, form…"
-                    data-testid="input-provider-kind"
-                  />
-                </div>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                <p className="mb-3 text-sm font-semibold text-foreground">
-                  Optional field guidance
-                </p>
-                <ProviderWorkflowFields
-                  value={newWorkflow}
-                  onChange={setNewWorkflow}
-                  idPrefix="new-provider"
-                />
-              </div>
-              <Button
-                type="button"
-                disabled={
-                  !newTitle.trim() ||
-                  !newUrl.trim() ||
-                  createProviderMutation.isPending
-                }
-                onClick={() => createProviderMutation.mutate()}
-                data-testid="button-add-provider-resource"
-              >
-                {createProviderMutation.isPending ? "Saving…" : "Publish to library"}
-              </Button>
-            </div>
-            </details>
-          )}
-
-          {providerLoading ? (
-            <p className="text-sm text-muted-foreground">Loading provider library…</p>
-          ) : providerError ? (
-            <StateBlock
-              variant="error"
-              title="Provider library unavailable"
-              description="Your organization resources could not be loaded. Core Hospice Sales Pro resources are still available below."
-              action={{ label: "Try provider library again", onClick: () => void refetchProviderResources() }}
-              className="py-8"
-            />
-          ) : providerItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No provider-owned resources yet
-              {isOrgAdmin ? " — add one above." : "."}
-            </p>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
-              {providerItems.map((item) => {
-                const workflow = getResourceWorkGuide({
-                  category: item.kind,
-                  workflow: item.meta?.workflow,
-                });
-                const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
-                return (
-                  <div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-border bg-card hover:bg-muted/30 transition-colors"
-                    data-testid={`provider-resource-card-${item.id}`}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                         <span className="inline-flex items-center rounded-none px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary">
-                            Provider owned
-                         </span>
-                         <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-muted text-foreground">
-                            {item.kind}
-                         </span>
-                      </div>
-                      <h3 className="text-[15px] font-bold text-foreground truncate"><AccentText>{item.title}</AccentText></h3>
-                      <p className="text-[13px] text-muted-foreground truncate font-mono uppercase tracking-wide mt-0.5">Job: {workflow.job}</p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      {isOrgAdmin && editingProviderId === item.id ? (
-                        <div className="w-full basis-full rounded-none border border-border/70 bg-muted/20 p-3">
-                          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Edit field guidance</p>
-                          <ProviderWorkflowFields
-                            value={editingWorkflow}
-                            onChange={setEditingWorkflow}
-                            idPrefix={`edit-provider-${item.id}`}
-                          />
-                        </div>
-                      ) : null}
-                      {isOrgAdmin && editingProviderId === item.id ? (
-                        <div className="flex gap-2">
-                           <Button
-                             type="button"
-                             size="sm"
-                             className="rounded-none uppercase tracking-widest text-[10px] font-bold"
-                             onClick={() => updateProviderMutation.mutate({ item, workflow: editingWorkflow })}
-                           >
-                             Save
-                           </Button>
-                           <Button
-                             type="button"
-                             size="sm"
-                             variant="outline"
-                             className="rounded-none uppercase tracking-widest text-[10px] font-bold"
-                             onClick={() => setEditingProviderId(null)}
-                           >
-                             Cancel
-                           </Button>
-                        </div>
-                      ) : (
-                        <>
-                          <Button
-                            className="rounded-none uppercase tracking-widest text-[10px] font-bold min-h-9"
-                            onClick={() => {
-                              trackEvent("provider_resource_open", item.title);
-                              window.open(item.fileUrl, "_blank");
-                            }}
-                          >
-                            <Download className="mr-1.5 h-3.5 w-3.5" /> Download
-                          </Button>
-                          {canUseFieldKit && (
-                            <Button
-                              className="rounded-none uppercase tracking-widest text-[10px] font-bold min-h-9"
-                              variant="outline"
-                              onClick={() => applyResourceWithSpartan({ title: item.title, description: item.description, job: workflow.job, expectedOutcome: workflow.outputPreview })}
-                            >
-                              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Adapt
-                            </Button>
-                          )}
-                          {isOrgAdmin && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="rounded-none uppercase tracking-widest text-[10px] font-bold"
-                              onClick={() => { setEditingProviderId(item.id); setEditingWorkflow(workflowForm(item)); }}
-                            >
-                              Edit
-                            </Button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {canUseFieldKit && (
-        <div className="mb-12">
-          <ToolResultActions
-            toolId="resources"
-            title="Use the current copy in the field"
-            description="Opening or downloading a resource does not save it to My Work or sync it to iPhone. Return to this library when you need the current copy."
-            actions={[{ id: "open-tools", label: "Open Tools", href: "/tools" }]}
-            persistenceNote="Downloads remain separate from saved tool outputs."
-            testId="resources-next-action"
-          />
-        </div>
-      )}
-
-      <div className="space-y-10">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary">
-            {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
-          </Badge>
-          <p className="text-sm text-muted-foreground">
-            Shared product library (not organization-private)
-          </p>
-        </div>
-          <div className="flex flex-col border-t border-border mt-4">
-            {visibleResources.map((resource) => {
-              const workflow = resourceWorkflow(resource);
-              const arch = resourceArchitecture(resource);
-              return (
-                <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-border bg-card hover:bg-muted/30 transition-colors" data-testid={`resource-card-${resource.id}`}>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                       <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-muted text-foreground">
-                          {categoryNames[resource.category] || resource.category}
-                       </span>
-                       <span className={cn("inline-flex items-center rounded-none border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest", lifecycleLabel(resource) === "Current" ? "border-primary/30 text-primary" : "border-amber-500/40 text-amber-700")}>{lifecycleLabel(resource)}</span>
-                       {resourceLifecycle(resource).versionLabel && <span className="text-[10px] font-mono text-muted-foreground">v{resourceLifecycle(resource).versionLabel}</span>}
-                       {arch.experienceLevel && <span className="inline-flex items-center rounded-none px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-background">{arch.experienceLevel}</span>}
-                    </div>
-                    <h3 className="text-[15px] font-bold text-foreground truncate"><AccentText>{resource.title}</AccentText></h3>
-                    {lifecycleLabel(resource) !== "Current" && (
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700 mt-1">Historical copy — check for a newer version before use.</p>
-                    )}
-                    {resource.description && <p className="text-[13px] text-muted-foreground truncate mt-0.5">{resource.description}</p>}
-                    <p className="text-[13px] text-muted-foreground truncate font-mono uppercase tracking-wide mt-1">Job: {workflow.job}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Button className="rounded-none uppercase tracking-widest text-[10px] font-bold min-h-9" onClick={() => openDownload(resource)} data-testid={`button-open-resource-${resource.id}`}>
-                      <Download className="mr-1.5 h-3.5 w-3.5" /> Download
-                    </Button>
-                    {canUseFieldKit && (
-                      <Button variant="outline" className="rounded-none uppercase tracking-widest text-[10px] font-bold min-h-9" onClick={() => applyResourceWithSpartan({ title: resource.title, description: resource.description, job: workflow.job, expectedOutcome: arch.expectedOutcome })} data-testid={`button-ai-resource-${resource.id}`}>
-                        <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Adapt
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {visibleResources.length === 0 && (
-            <Card className="border border-border/70 bg-card p-8 text-center rounded-none shadow-sm mt-4">
-              <h2 className="text-xl font-bold tracking-tight text-foreground uppercase font-display">No resources match that <span className="text-primary">search</span></h2>
-              <p className="mt-2 text-sm text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
-              <Button type="button" variant="outline" className="mt-4 rounded-none font-bold uppercase tracking-widest text-[10px]" onClick={() => { setResourceSearch(""); setResourceCategory("all"); }}>
-                Clear filters
-              </Button>
-            </Card>
-          )}
-      </div>
-
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold uppercase tracking-tight text-foreground font-display mb-2 flex items-center gap-3 flex-wrap">
-          <AccentText>Printable Fill-In Templates</AccentText>
-        </h2>
-        <p className="text-muted-foreground text-sm mb-6">
-          {canUseFieldKit
-            ? "Open in your browser, fill in, and print — part of your membership resources."
-            : "Open in your browser, fill in, and print. No account required."}
-        </p>
-        <div className="flex flex-col border-t border-border mt-4">
-          {[
-            {
-              href: "/resources/weekly-plan",
-              title: "Weekly Activity Planner",
-              desc: "Interactive plan with save/resume across devices (signed in), print, and PDF. Purpose: Monday focus. Outcome: a completed week plan.",
-              interactive: true,
-            },
-            { href: "/resources/activity-tracker", title: "Weekly Activity Tracker", desc: "Detailed daily conversation log with Account, Contact, Topic, Stage, and Outcome columns. Includes weekly summary and reflection questions." },
-            { href: "/resources/quick-start-guide", title: "First 30 Days Guide", desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires." },
-            { href: "/resources/objection-cards", title: "Objection Response Cards", desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method." },
-            { href: "/resources/territory-template", title: "Territory Planning Template", desc: "Account priority matrix (A/B/C tier), 25-row account table, weekly route planner, and routing tips." },
-            { href: "/resources/metrics-dashboard", title: "Metrics Dashboard", desc: "Monthly tracking sheet for activity, conversions, speed to care, top referral sources, and reflections." },
-          ].map((item) => (
-            <div key={item.href} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-border bg-card hover:bg-muted/30 transition-colors">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                   <span className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-muted text-foreground">
-                      Template
-                   </span>
-                </div>
-                <h3 className="text-[15px] font-bold text-foreground truncate"><AccentText>{item.title}</AccentText></h3>
-                <p className="text-[13px] text-muted-foreground mt-0.5 max-w-2xl">{item.desc}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Link href={item.href}>
-                  <Button className="rounded-none uppercase tracking-widest text-[10px] font-bold min-h-9" data-testid={`button-open-${item.href.split("/").pop()}`}>
-                    <Printer className="mr-1.5 h-3.5 w-3.5" />
-                    {"interactive" in item && item.interactive
-                      ? "Open Interactive"
-                      : "Open & Print"}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Dialog open={gateOpen} onOpenChange={(open) => { setGateOpen(open); if (!open) setSelectedResource(null); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle><AccentText>Get Your Free Resource</AccentText></DialogTitle>
-            <DialogDescription>
-              Enter your name and email to download "{selectedResource?.title}". We'll also send you occasional hospice sales tips.
-            </DialogDescription>
-          </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (selectedResource && leadName.trim() && leadEmail.trim()) {
-                leadMutation.mutate({
-                  name: leadName.trim(),
-                  email: leadEmail.trim(),
-                  resourceId: selectedResource.id,
-                  resourceTitle: selectedResource.title,
-                });
-              }
-            }}
-            className="space-y-4"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="lead-name">Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="lead-name"
-                  placeholder="Your name"
-                  value={leadName}
-                  onChange={(e) => setLeadName(e.target.value)}
-                  className="pl-9"
-                  required
-                  data-testid="input-lead-name"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lead-email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="lead-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={leadEmail}
-                  onChange={(e) => setLeadEmail(e.target.value)}
-                  className="pl-9"
-                  required
-                  data-testid="input-lead-email"
-                />
-              </div>
-            </div>
-            <Button
-              type="submit"
-              className="w-full gap-2"
-              disabled={leadMutation.isPending}
-              data-testid="button-submit-lead"
-            >
-              <Download className="w-4 h-4" />
-              {leadMutation.isPending ? "Processing..." : "Download Now"}
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              We respect your privacy. Unsubscribe anytime.
-            </p>
-          </form>
-        </DialogContent>
-      </Dialog>
-      {isLocked && (
-        <Card className="mt-10 border border-primary/20 bg-primary/[0.04] p-5 rounded-none shadow-sm" data-testid="resources-locked-notice">
-          <p className="text-sm font-bold uppercase tracking-wide text-foreground">Preview mode</p>
-          <p className="mt-1 text-sm text-muted-foreground">You can browse the library and preview resource guidance. Sign in with Field Kit access to download and adapt materials.</p>
-          <Button asChild className="mt-4 rounded-none uppercase tracking-widest text-[10px] font-bold"><Link href="/hospice-sales-pro">View access options</Link></Button>
-        </Card>
       )}
     </div>
   );

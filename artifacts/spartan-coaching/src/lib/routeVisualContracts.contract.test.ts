@@ -27,21 +27,12 @@ describe("route visual matrix", () => {
     for (const route of routeVisualContracts) {
       const workspaceCapable = isWorkspacePath(route.path);
       const requiresAuth = requiresAuthenticationPath(route.path);
-
       expect(route.authenticatedSurface === "workspace").toBe(workspaceCapable);
       expect(route.anonymousSurface === "redirect").toBe(requiresAuth);
-      expect(route.auth).toBe(
-        requiresAuth ? "required" : workspaceCapable ? "optional" : "anonymous",
-      );
-
-      if (route.authenticatedSurface === "workspace") {
-        expect(route.authenticatedTheme).toBe("workspace-user");
-      }
-      if (route.anonymousSurface === "public") {
-        expect(route.anonymousTheme).toMatch(/^(spartan|print)-light$/);
-      }
+      expect(route.auth).toBe(requiresAuth ? "required" : workspaceCapable ? "optional" : "anonymous");
+      if (route.authenticatedSurface === "workspace") expect(route.authenticatedTheme).toBe("workspace-user");
+      if (route.anonymousSurface === "public") expect(route.anonymousTheme).toMatch(/^(spartan|print)-light$/);
     }
-
     expect(routeVisualContracts.find((route) => route.path === "/tools")).toMatchObject({
       auth: "optional",
       anonymousSurface: "public",
@@ -81,7 +72,6 @@ describe("route visual matrix", () => {
     root.walkDecls((declaration) => {
       if (!/^(?:color|background(?:-color)?|border-color)$/i.test(declaration.prop)) return;
       if (!/^(?:#|rgb\()/i.test(declaration.value.trim())) return;
-
       const parents = ancestors(declaration);
       const inPrint = parents.some(
         (node) =>
@@ -93,14 +83,9 @@ describe("route visual matrix", () => {
         .filter((node) => node.type === "rule")
         .map((node) => (node as Rule).selector)
         .join(" ");
-      const allowed =
-        inPrint ||
-        /brand|hero|gradient|from-red|print-panel|print-metric/i.test(selector);
-
+      const allowed = inPrint || /brand|hero|gradient|from-red|print-panel|print-metric/i.test(selector);
       if (!allowed) {
-        violations.push(
-          `${declaration.source?.start?.line ?? "?"}: ${declaration.toString()}`,
-        );
+        violations.push(`${declaration.source?.start?.line ?? "?"}: ${declaration.toString()}`);
       }
     });
 

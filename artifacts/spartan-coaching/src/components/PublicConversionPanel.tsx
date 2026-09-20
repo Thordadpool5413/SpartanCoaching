@@ -35,7 +35,7 @@ export function PublicConversionPanel({
   audience,
   promise,
   evidence,
-  nextStep = "Follow the primary action above. The next page will keep access, timing, and any information needed explicit.",
+  nextStep,
   primary,
   secondary,
   showOfferPaths = false,
@@ -47,94 +47,96 @@ export function PublicConversionPanel({
 
   const trackCta = (token: string) => {
     trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, `${source}:${token}`);
-    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.workspaceHandoff, `${source}:${token}`);
   };
 
   return (
     <section
-      className={cn("fi-section bg-white px-5 py-20 md:px-10 md:py-28", className)}
+      className={cn("mt-14 sm:mt-20", className)}
       aria-label="Your next step"
       data-testid={`public-conversion-${source}`}
     >
-      <div className="mx-auto max-w-[1440px]">
-        <div className="grid gap-12 lg:grid-cols-[1fr_0.8fr] lg:gap-24 items-start">
-          <div>
-            <p className="fi-kicker mb-6">A clear next step</p>
-            <h2 className="fi-serif text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.9] mb-10">
-              Choose the path that matches the <span className="text-[var(--fi-red)]">work in front of you.</span>
-            </h2>
-            <dl className="grid gap-6 sm:grid-cols-3 pt-8 border-t border-[var(--fi-line)]">
-              <div>
-                <dt className="text-[0.65rem] font-bold font-mono uppercase tracking-[.2em] text-black/50 mb-2">For</dt>
-                <dd className="text-[0.95rem] leading-[1.6] font-medium text-black/80">{audience}</dd>
-              </div>
-              <div>
-                <dt className="text-[0.65rem] font-bold font-mono uppercase tracking-[.2em] text-black/50 mb-2">What this helps with</dt>
-                <dd className="text-[0.95rem] leading-[1.6] font-medium text-black/80">{promise}</dd>
-              </div>
-              <div>
-                <dt className="text-[0.65rem] font-bold font-mono uppercase tracking-[.2em] text-black/50 mb-2">Why trust it</dt>
-                <dd className="text-[0.95rem] leading-[1.6] font-medium text-black/80">{evidence}</dd>
-              </div>
-            </dl>
-          </div>
-          
-          <div className="bg-[var(--fi-paper)] p-8 md:p-12 border border-[var(--fi-line)] flex flex-col">
-            <div className="flex flex-col gap-4 mb-8">
-              <Link href={primary.href} onClick={() => trackCta(primary.token)} className="fi-btn-primary !w-full justify-center">
-                {primary.label}
-              </Link>
-              {secondary ? (
-                <Link href={secondary.href} onClick={() => trackCta(secondary.token)} className="fi-btn-outline !w-full justify-center">
-                  {secondary.label}
-                </Link>
+      <Card className="overflow-hidden border border-primary/20 bg-card shadow-sm">
+        <div className="p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div>
+              <p className="text-kicker">A clear next step</p>
+              <h2 className="mt-3 text-h2 font-display uppercase tracking-tight text-foreground">
+                Choose the path that matches the <span className="text-primary">work in front of you.</span>
+              </h2>
+              <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+                <div>
+                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">For</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{audience}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">What this helps with</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{promise}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">Why trust it</dt>
+                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{evidence}</dd>
+                </div>
+              </dl>
+              {nextStep ? (
+                <p className="mt-5 max-w-3xl border-l-2 border-primary pl-4 text-sm leading-relaxed text-muted-foreground">
+                  {nextStep}
+                </p>
               ) : null}
             </div>
-            
-            <p className="text-center text-[0.8rem] leading-[1.6] text-black/60 font-medium mb-8">
-              {PRICING_FACTS.consultingSeparate}
-            </p>
-            
-            <div className="border-t border-[var(--fi-line)] pt-6 mt-auto">
-              <p className="text-[0.65rem] font-bold font-mono uppercase tracking-[.2em] text-black/50 mb-2">What happens next</p>
-              <p className="text-[0.95rem] leading-[1.6] font-medium text-black/80">{nextStep}</p>
+            <div className="flex flex-col gap-3 lg:items-stretch">
+              <Button asChild size="lg" className="font-display uppercase tracking-widest min-h-14 rounded-none">
+                <Link href={primary.href} onClick={() => trackCta(primary.token)}>
+                  {primary.label}
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+              {secondary ? (
+                <Button asChild variant="outline" size="lg" className="font-display uppercase tracking-widest min-h-14 rounded-none">
+                  <Link href={secondary.href} onClick={() => trackCta(secondary.token)}>
+                    {secondary.label}
+                  </Link>
+                </Button>
+              ) : null}
+              <p className="text-center text-xs leading-relaxed text-muted-foreground">
+                {PRICING_FACTS.consultingSeparate}
+              </p>
             </div>
           </div>
-        </div>
 
-        {showOfferPaths ? (
-          <div className="mt-20 grid gap-6 sm:grid-cols-2 xl:grid-cols-4 pt-12 border-t border-[var(--fi-line)]">
-            <OfferPath
-              source={source}
-              href="/services"
-              icon={BriefcaseBusiness}
-              label="Consulting"
-              detail="Human coaching, workshops, and team systems."
-            />
-            <OfferPath
-              source={source}
-              href="/hospice-sales-pro"
-              icon={Wrench}
-              label="Individual Hospice Sales Pro"
-              detail={`Standard ${PRICING_FACTS.individualWeeklyLabel}; Elite ${PRICING_FACTS.eliteWeeklyLabel}.`}
-            />
-            <OfferPath
-              source={source}
-              href="/request-access"
-              icon={Users}
-              label="Team access"
-              detail={PRICING_FACTS.teamNote}
-            />
-            <OfferPath
-              source={source}
-              href="/app"
-              icon={Smartphone}
-              label="iPhone app"
-              detail="Use the same permitted account on web and iPhone."
-            />
-          </div>
-        ) : null}
-      </div>
+          {showOfferPaths ? (
+            <div className="mt-8 grid gap-3 border-t border-border pt-6 sm:grid-cols-2 xl:grid-cols-4">
+              <OfferPath
+                source={source}
+                href="/services"
+                icon={BriefcaseBusiness}
+                label="Consulting"
+                detail="Human coaching, workshops, and team systems."
+              />
+              <OfferPath
+                source={source}
+                href="/hospice-sales-pro"
+                icon={Wrench}
+                label="Individual Hospice Sales Pro"
+                detail={`Standard ${PRICING_FACTS.individualWeeklyLabel}; Elite ${PRICING_FACTS.eliteWeeklyLabel}.`}
+              />
+              <OfferPath
+                source={source}
+                href="/request-access"
+                icon={Users}
+                label="Team access"
+                detail={PRICING_FACTS.teamNote}
+              />
+              <OfferPath
+                source={source}
+                href="/app"
+                icon={Smartphone}
+                label="iPhone app"
+                detail="Use the same permitted account on web and iPhone."
+              />
+            </div>
+          ) : null}
+        </div>
+      </Card>
     </section>
   );
 }
@@ -161,11 +163,11 @@ function OfferPath({
           `${source}:offer_path_${label.toLowerCase().replace(/\s+/g, "_")}`,
         )
       }
-      className="border border-[var(--fi-line)] bg-[var(--fi-paper)] p-6 transition-colors hover:border-[var(--fi-ink)] hover:bg-white flex flex-col"
+      className=" border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
     >
-      <Icon className="h-5 w-5 text-[var(--fi-red)] mb-4" aria-hidden />
-      <p className="text-[1.125rem] font-bold text-[var(--fi-ink)] mb-2">{label}</p>
-      <p className="text-[0.9rem] leading-[1.6] font-medium text-black/60">{detail}</p>
+      <Icon className="h-4 w-4 text-primary" aria-hidden />
+      <p className="mt-2 text-sm font-bold text-foreground">{label}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
     </Link>
   );
 }

@@ -1,4 +1,3 @@
-import { AccentText } from "@/components/AccentText";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +21,7 @@ export default function Podcasts() {
 
   if (isLoading) {
     return (
-      <div className="page-persuasion min-h-screen">
+      <div className="min-h-screen">
         <SEO />
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <Skeleton className="h-10 w-64 mb-4" />
@@ -45,7 +44,7 @@ export default function Podcasts() {
 
   if (podcasts.length === 0) {
     return (
-      <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
         <div className="mb-8">
           <BackButton />
@@ -61,7 +60,7 @@ export default function Podcasts() {
   }
 
   return (
-    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <div className="mb-8">
         <BackButton />
@@ -85,7 +84,7 @@ export default function Podcasts() {
               <Radio className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold text-foreground mb-1"><span className="text-spartan-red">Season 1</span> is in production</h2>
+              <h2 className="text-lg font-bold text-foreground mb-1">Season 1 is in production</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 All episodes are currently being recorded and edited. Subscribe below and you will be among the first to know when new episodes drop.
               </p>
@@ -114,7 +113,9 @@ export default function Podcasts() {
                 </div>
               )}
 
-              <h3 className="text-h3 text-foreground mb-4 leading-tight" data-testid={`title-podcast-${podcast.id}`}><AccentText>{podcast.title}</AccentText></h3>
+              <h3 className="text-h3 text-foreground mb-4 leading-tight" data-testid={`title-podcast-${podcast.id}`}>
+                {podcast.title}
+              </h3>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">

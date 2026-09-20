@@ -1,7 +1,3 @@
-/**
- * Wave 4 — funnel contract (static product rules the UI must honor).
- * Not a browser E2E; guards against regression of access model copy/logic assumptions.
- */
 import { describe, it, expect } from "vitest";
 import { FIELD_KIT_TOOLS, mobileDeliveryLabel, mobileParityDebt } from "@workspace/field-kit-catalog";
 import { BG_PRESETS } from "./theme";
@@ -37,7 +33,6 @@ describe("Membership funnel + catalog contracts", () => {
   });
 
   it("happy-path surface routes exist as strings (IA contract)", () => {
-    // Register → Account Day Zero → Checkout → Portal → Command
     const path = [
       "/register",
       "/account?welcome=1",

@@ -29,20 +29,17 @@ describe("consulting and workspace coexistence", () => {
     expect(workspace).toContain("/tools/sales-workflow");
   });
 
-  it("keeps the homepage consulting-first and product promotion in navigation", () => {
+  it("keeps the approved two-path homepage and product promotion in navigation", () => {
     const home = read("../pages/Home.tsx");
     const layout = read("./Layout.tsx");
 
     expect(home).toMatch(/href="\/contact"[\s\S]{0,400}Book a strategy call/);
     expect(home).toMatch(/href="\/services"[\s\S]{0,400}Explore consulting/);
-    expect(home).toContain("The problems we");
-    expect(home).toContain("solve.");
-    expect(home).toContain("Diagnose.");
-    expect(home).toContain("Consulting engagement");
-    expect(home).toContain("paths.");
-    expect(home).not.toContain('href="/hospice-sales-pro"');
-    expect(home).not.toContain("Explore Hospice Sales Pro");
-    expect(home).not.toContain('href="#homepage-pathfinder"');
-    expect(layout).toContain('<NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>');
+    expect(home).toContain("The gap is not clinical.");
+    expect(home).toContain("Two ways");
+    expect(home).toContain("Consulting");
+    expect(home).toContain("Hospice Sales Pro");
+    expect(layout).toContain('<MobileNavLink href="/hospice-sales-pro"');
+    expect(layout).toContain("navSections");
   });
 });

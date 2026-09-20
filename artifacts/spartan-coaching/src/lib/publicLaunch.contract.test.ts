@@ -47,21 +47,12 @@ describe("public launch contract", () => {
 
   it("keeps metadata and index policy explicit for every routed page", () => {
     expect(readSource("App.tsx")).toContain("<SEO />");
-
     for (const route of appRoutePaths()) {
       const isDynamic = route.includes(":");
       const hasExplicitPolicy = hasExplicitSEOConfig(route) || isNoIndexPath(route);
-
-      expect(
-        hasExplicitPolicy,
-        `${route} must have route-specific metadata or an explicit no-index policy`,
-      ).toBe(true);
-
+      expect(hasExplicitPolicy, `${route} must have route-specific metadata or an explicit no-index policy`).toBe(true);
       if (isDynamic) {
-        expect(
-          isNoIndexPath(route),
-          `${route} is dynamic and must stay out of search until it has a canonical public-route policy`,
-        ).toBe(true);
+        expect(isNoIndexPath(route), `${route} is dynamic and must stay out of search until it has a canonical public-route policy`).toBe(true);
       }
     }
   });
@@ -70,7 +61,6 @@ describe("public launch contract", () => {
     const configs = PUBLIC_SITEMAP_PATHS.map((route) => getSEOConfig(route));
     const titles = configs.map((config) => config.title);
     const descriptions = configs.map((config) => config.description);
-
     expect(new Set(titles).size).toBe(titles.length);
     expect(new Set(descriptions).size).toBe(descriptions.length);
   });
@@ -78,7 +68,6 @@ describe("public launch contract", () => {
   it("keeps the catch-all Not Found page out of search", () => {
     const appSource = readSource("App.tsx");
     const notFoundSource = readSource("pages/not-found.tsx");
-
     expect(appSource).toContain("<Route component={NotFound} />");
     expect(notFoundSource).toMatch(/<SEO[\s\S]*\bnoIndex\b/);
   });

@@ -29,7 +29,6 @@ describe("a11y contracts (source-level)", () => {
 
   it("header brand mark is not a document h1 (page owns h1)", () => {
     const layout = read("components/Layout.tsx");
-    // Logo should not steal the page heading level
     expect(layout).not.toMatch(/data-testid="link-home"[\s\S]{0,200}<h1/);
     expect(layout).toMatch(/SPARTAN COACHING/);
   });
@@ -87,7 +86,6 @@ describe("a11y contracts (source-level)", () => {
   it("animation primitives honor prefers-reduced-motion", () => {
     const anim = read("components/animations.tsx");
     expect(anim).toMatch(/prefersReducedMotion/);
-    // All major motion wrappers short-circuit when reduce is true
     expect(anim).toMatch(/if \(reduce\)/);
     expect((anim.match(/if \(reduce\)/g) || []).length).toBeGreaterThanOrEqual(4);
   });
@@ -97,7 +95,6 @@ describe("a11y contracts (source-level)", () => {
     expect(tool).toMatch(/showChrome=\{false\}/);
   });
 
-  // —— HSP-35 extensions ——
   it("paid AppShell exposes navigation landmark and search label", () => {
     const shell = read("components/AppShell.tsx");
     expect(shell).toMatch(/aria-label="Workspace navigation"/);
