@@ -75,3 +75,11 @@ Target route: `/`
 - P0 blockers: none found.
 - P1 visual/functional regressions: mobile hero overflow found in CI evidence and fixed.
 - P2 polish items: none blocking release.
+
+## 2026-09-20 recurrence correction
+
+- Root cause: later Replit publication commits replaced the approved Photo 1 `Home.tsx` with the retired product-led homepage while leaving the newer stylesheet in place.
+- Correction: restored the approved consulting-first homepage on top of current `main`, preserving all newer iOS startup and shared-layout work.
+- Regression protection: added a dedicated Photo 1 release contract that fails if the retired two-path/product-led homepage returns, if the consulting sections disappear, or if the mobile hero guardrails are removed.
+- Verification: 62 test files and 324 tests passed before adding the new two-test release contract; TypeScript and the production Vite build also passed.
+- Visual verification status: awaiting the GitHub browser-release evidence generated from this correction branch.
