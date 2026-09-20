@@ -105,7 +105,7 @@ export function HeroSystemPanel() {
   return (
     <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
       <div
-        className="relative h-full w-full overflow-hidden bg-black"
+        className="relative aspect-video w-full overflow-hidden bg-black"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
@@ -296,7 +296,7 @@ export default function Home() {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
-      <main className="overflow-hidden bg-white text-black">
+      <div className="overflow-hidden bg-white text-black" data-testid="page-home">
         <section
           data-testid="section-hero"
           className="border-b border-black/10 bg-white"
@@ -651,7 +651,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }
