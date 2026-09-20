@@ -290,22 +290,25 @@ test.describe("public website release gate", () => {
     });
   }
 
-  test("home preserves the approved business hierarchy", async ({ page }) => {
+  test("home preserves the approved consulting-first business hierarchy", async ({ page }) => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
-    await expect(page.locator("main")).toContainText("Two ways to engage");
-    await expect(page.locator("main")).toContainText("Spartan Consulting");
-    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
+    await expect(page.getByRole("link", { name: /explore consulting/i }).first()).toBeVisible();
+    await expect(page.locator("main")).toContainText("The problems we solve.");
+    await expect(page.locator("main")).toContainText("Who we work with.");
+    await expect(page.locator("main")).toContainText("Diagnose.");
+    await expect(page.locator("main")).toContainText("Install.");
+    await expect(page.locator("main")).toContainText("Sustain.");
+    await expect(page.locator("main")).not.toContainText("Hospice Sales Pro");
     await expect(page.locator("main")).toContainText(
-      /Built by someone\s*who has actually\s*carried the number\./,
+      /Built by someone\s*who has\s*carried the number\./,
     );
   });
 
-  test("primary navigation reaches both customer paths", async ({ page }) => {
+  test("consulting CTA and product route remain stable", async ({ page }) => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -313,9 +316,7 @@ test.describe("public website release gate", () => {
     await expect(page).toHaveURL(/\/contact$/);
     await expect(page.locator("h1").first()).toBeVisible();
 
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: /explore hospice sales pro/i }).first().click();
-    await expect(page).toHaveURL(/\/hospice-sales-pro$/);
+    await page.goto("/hospice-sales-pro", { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1").first()).toContainText("Walk in ready.");
     await expect(page.locator("main")).toContainText("Hospice Sales Pro");
     await expect(page.locator("h1").first()).toContainText("Leave with the next move.");
@@ -356,19 +357,20 @@ test.describe("public website release gate", () => {
     await attachRegion(page, testInfo, "section-hero", "home-hero-reduced-motion");
   });
 
-  test("homepage customer paths remain stable after navigation and reload", async ({ page }) => {
+  test("homepage consulting paths remain stable after navigation and reload", async ({ page }) => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "networkidle" });
 
-    const consulting = page.getByRole("link", { name: /explore consulting services/i });
-    const platform = page.getByRole("link", { name: /explore the platform/i });
+    const consulting = page.getByRole("link", { name: /^explore consulting$/i }).first();
+    const booking = page.getByRole("link", { name: /book a strategy call/i }).first();
     await expect(consulting).toHaveAttribute("href", "/services");
-    await expect(platform).toHaveAttribute("href", "/hospice-sales-pro");
+    await expect(booking).toHaveAttribute("href", "/contact");
+    await expect(page.locator('main a[href="/hospice-sales-pro"]')).toHaveCount(0);
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("section-pathways")).toBeVisible();
-    await expect(page.getByRole("link", { name: /explore consulting services/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /explore the platform/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /^explore consulting$/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
   });
 
   test("workspace appearance survives a public-page refresh", async ({ page }) => {
