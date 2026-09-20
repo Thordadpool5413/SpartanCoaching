@@ -15,7 +15,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { registerRescheduleTask } from "@/lib/notifications";
+import { registerNotificationRescheduleTask } from "@/lib/notificationReschedule";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import { trackMobileEvent } from "@/lib/analytics";
 import { fetchClientConfig } from "@/lib/clientConfig";
@@ -26,7 +26,10 @@ import { LaunchExperience } from "@/components/LaunchExperience";
 import { CoachSessionProvider } from "@/lib/CoachSessionContext";
 import { VoiceActivityBanner } from "@/components/VoiceActivityBanner";
 
-SplashScreen.preventAutoHideAsync();
+// Native splash APIs can reject when a release resumes after iOS has already
+// dismissed the launch screen. Never turn that recoverable race into an
+// unhandled startup rejection.
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 SplashScreen.setOptions({ duration: 260, fade: true });
 
 const queryClient = new QueryClient();
@@ -140,11 +143,13 @@ export default function RootLayout() {
   );
 
   useEffect(() => {
-    registerRescheduleTask();
+    void registerNotificationRescheduleTask();
   }, []);
 
   useEffect(() => {
-    if (Platform.OS === "ios" || fontsLoaded || fontError) SplashScreen.hideAsync();
+    if (Platform.OS === "ios" || fontsLoaded || fontError) {
+      void SplashScreen.hideAsync().catch(() => undefined);
+    }
   }, [fontsLoaded, fontError]);
 
   if (Platform.OS !== "ios" && !fontsLoaded && !fontError) return null;

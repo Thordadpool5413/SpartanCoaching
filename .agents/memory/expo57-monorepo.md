@@ -20,3 +20,9 @@ Clear any inherited Expo token only inside the create-launch session-login subpr
 **Why:** Replit may provide an Expo token that prevents create-launch from accepting its physical-device session credential, while the rest of the Expo startup can still use the normal environment.
 
 **How to apply:** Run create-launch login in a subshell that unsets the Expo token, pass the session through the environment, and never print the session value.
+
+Keep native headless task definitions in platform-specific modules resolved through a global static import.
+
+**Why:** A platform guard around a dynamic import can be defeated by another transitive import, while defining the task from a React effect breaks Android background launches because no view mounts. React Native platform resolution avoids both failures.
+
+**How to apply:** Put Android TaskManager definition and registration in a `.android.ts` module, provide a no-op generic counterpart for iOS/web, import the extensionless module globally, and test that Android defines the task at module evaluation.

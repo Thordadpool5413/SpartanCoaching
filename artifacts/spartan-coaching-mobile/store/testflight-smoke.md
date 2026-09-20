@@ -2,20 +2,35 @@
 
 Run on a **physical iPhone** after each TestFlight build. Demo account with entitlement preferred.
 
-## Current session record — 2026-09-06
+## Current release investigation — 2026-09-20
 
 | Field | Record |
 |---|---|
-| EAS TestFlight build observed | `1.0.0 (42)` · build id `ddc98f36-529a-4499-bda7-7293d857fc2d` |
-| Build commit | `7dac7a397e3bb6b747efc6da1ab66e137f2fd45c` |
+| EAS TestFlight build observed | `1.0.0 (52)` · build id `98f40a01-3278-4d14-8039-eee4ed3815fa` |
+| Build commit | `45e0120444c149c1adb5be21b0f507739aac54e1` |
+| EAS profile | `testflight` · Associated Domains omitted |
+| Release environment | Production API and domain: `https://spartanhospicecoaching.com` |
+| Source correlation | Build includes the native launch-video removal and supported absolute-fill fix |
+| Crash diagnostic | **Not present in the workspace or EAS build metadata; obtain the symbolicated `.ips` report from App Store Connect or Xcode Organizer** |
 | Device | **Not available in this workspace** |
 | Tester | **Not assigned** |
-| Result | **BLOCKED — the TestFlight binary was not installed or launched on a physical iPhone** |
+| Result | **BLOCKED — build 52 crash cannot be classified without the symbolicated report and a physical-iPhone launch** |
 
-The EAS build is finished and the local release contract is green, but this
-record intentionally does not claim the device-only appearance sign-off.
-Promotion remains blocked until a tester completes the Mamba persistence,
-contrast, clipping, and navigation checks below on the submitted build.
+Build 52 is not a stale pre-fix binary: its commit contains both startup fixes
+that removed native video initialization and replaced the unsupported
+absolute-fill style. The next candidate build also aligns every Expo SDK 57
+native patch version and avoids evaluating Android background-task modules on
+iOS startup. This record intentionally does not claim a device pass.
+
+### Startup crash evidence
+
+Attach the symbolicated TestFlight/Xcode report and record its first failing
+frame before changing more providers or native modules.
+
+| Build | Device / iOS | Launch condition | Exception / first failing frame | Result |
+|---|---|---|---|---|
+| `1.0.0 (52)` | Unknown | Reported TestFlight launch crash | Awaiting `.ips` report | Blocked |
+| `1.0.0 (53)` · EAS `65339fa8-ca8c-4724-b1e1-aeb2c817e4dd` · fingerprint `d6cb96f0f68524c35e0084b725589927761029d6` | | Fresh install / force quit / offline / repeat | No Associated Domains; build finished 2026-09-20 | Awaiting device |
 
 ### Device-only handoff
 

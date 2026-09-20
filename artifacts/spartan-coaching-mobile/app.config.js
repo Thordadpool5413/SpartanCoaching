@@ -210,6 +210,7 @@ module.exports = {
           },
         },
       ],
+      "expo-asset",
       "expo-font",
       "expo-secure-store",
       [

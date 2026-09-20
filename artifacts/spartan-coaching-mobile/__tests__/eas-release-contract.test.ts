@@ -30,6 +30,22 @@ describe("iOS release associated-domains contract", () => {
     path.resolve(__dirname, "../components/LaunchExperience.tsx"),
     "utf8",
   );
+  const rootLayout = fs.readFileSync(
+    path.resolve(__dirname, "../app/_layout.tsx"),
+    "utf8",
+  );
+  const sharedNotifications = fs.readFileSync(
+    path.resolve(__dirname, "../lib/notifications.ts"),
+    "utf8",
+  );
+  const notificationReschedule = fs.readFileSync(
+    path.resolve(__dirname, "../lib/notificationReschedule.ts"),
+    "utf8",
+  );
+  const androidNotificationReschedule = fs.readFileSync(
+    path.resolve(__dirname, "../lib/notificationReschedule.android.ts"),
+    "utf8",
+  );
 
   it("keeps standard store builds compatible with profiles that lack Associated Domains", () => {
     expect(eas.build.testflight.env?.EAS_SKIP_ASSOCIATED_DOMAINS).toBe("1");
@@ -78,6 +94,29 @@ describe("iOS release associated-domains contract", () => {
     expect(launchExperience).not.toContain('from "expo-video"');
     expect(launchExperience).not.toContain("useVideoPlayer");
     expect(launchExperience).not.toContain("spartan-launch-film.mp4");
+  });
+
+  it("keeps Android background workers out of the iOS startup path", () => {
+    expect(rootLayout).toContain(
+      'from "@/lib/notificationReschedule"',
+    );
+    expect(notificationReschedule).not.toContain('"expo-background-fetch"');
+    expect(notificationReschedule).not.toContain('"expo-task-manager"');
+    expect(sharedNotifications).not.toContain('"expo-background-fetch"');
+    expect(sharedNotifications).not.toContain('"expo-task-manager"');
+    expect(sharedNotifications).not.toContain("TaskManager.defineTask");
+    expect(androidNotificationReschedule).toContain('"expo-background-fetch"');
+    expect(androidNotificationReschedule).toContain('"expo-task-manager"');
+    expect(androidNotificationReschedule).toContain("TaskManager.defineTask");
+  });
+
+  it("handles native splash races without an unhandled startup rejection", () => {
+    expect(rootLayout).toContain(
+      "SplashScreen.preventAutoHideAsync().catch(() => undefined)",
+    );
+    expect(rootLayout).toContain(
+      "SplashScreen.hideAsync().catch(() => undefined)",
+    );
   });
 
   it("uses one deterministic Metro and EAS runtime for store builds", () => {

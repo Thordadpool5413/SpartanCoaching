@@ -1,7 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as BackgroundFetch from "expo-background-fetch";
 import * as Notifications from "expo-notifications";
-import * as TaskManager from "expo-task-manager";
 import { Platform } from "react-native";
 
 import { REMINDER_STORAGE_KEY } from "@/hooks/useReminderHistory";
@@ -16,96 +14,6 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-
-const RESCHEDULE_TASK = "SPARTAN_RESCHEDULE_NOTIFICATIONS";
-
-TaskManager.defineTask(RESCHEDULE_TASK, async () => {
-  try {
-    const raw = await AsyncStorage.getItem(REMINDER_STORAGE_KEY);
-    const all: PendingReminder[] = raw ? JSON.parse(raw) : [];
-    const now = Date.now();
-
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    const scheduledIds = new Set(scheduled.map((n) => n.identifier));
-
-    // Remove past-due entries that no longer have a matching OS notification —
-    // they either already fired or were dropped after a reboot.
-    const live = all.filter(
-      (r) => r.scheduledFor > now || scheduledIds.has(r.id)
-    );
-    if (live.length !== all.length) {
-      await AsyncStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(live));
-    }
-
-    const still_pending = live.filter((r) => r.scheduledFor > now);
-
-    if (still_pending.length === 0) {
-      return BackgroundFetch.BackgroundFetchResult.NoData;
-    }
-
-    for (const reminder of still_pending) {
-      if (scheduledIds.has(reminder.id)) continue;
-
-      const secondsUntil = Math.floor((reminder.scheduledFor - now) / 1000);
-      if (secondsUntil <= 0) continue;
-
-      const newId = await Notifications.scheduleNotificationAsync({
-        identifier: reminder.id,
-        content: {
-          // Prefer generic titles when possible — avoid PHI on lock screen
-          title: reminder.title || "Follow-up reminder",
-          body: reminder.body || "Open Hospice Sales Pro for your next action.",
-          sound: true,
-          data: {
-            deepLink: "spartan-coaching-mobile://command",
-            deepLinkKey: "command",
-          },
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-          date: new Date(reminder.scheduledFor),
-        },
-      });
-
-      if (newId !== reminder.id) {
-        const updated = live.map((r) =>
-          r.id === reminder.id ? { ...r, id: newId } : r
-        );
-        await AsyncStorage.setItem(
-          REMINDER_STORAGE_KEY,
-          JSON.stringify(updated)
-        );
-      }
-    }
-
-    return BackgroundFetch.BackgroundFetchResult.NewData;
-  } catch {
-    return BackgroundFetch.BackgroundFetchResult.Failed;
-  }
-});
-
-export async function registerRescheduleTask(): Promise<void> {
-  if (Platform.OS !== "android") return;
-
-  try {
-    const status = await BackgroundFetch.getStatusAsync();
-    if (
-      status === BackgroundFetch.BackgroundFetchStatus.Restricted ||
-      status === BackgroundFetch.BackgroundFetchStatus.Denied
-    ) {
-      return;
-    }
-
-    const isRegistered = await TaskManager.isTaskRegisteredAsync(RESCHEDULE_TASK);
-    if (!isRegistered) {
-      await BackgroundFetch.registerTaskAsync(RESCHEDULE_TASK, {
-        minimumInterval: 60,
-        stopOnTerminate: false,
-        startOnBoot: true,
-      });
-    }
-  } catch {}
-}
 
 export async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === "web") return false;
