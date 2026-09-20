@@ -67,10 +67,11 @@ Target route: `/`
 - Production build: passed.
 - Performance budget: passed.
 - Static public-site audit: passed.
-- Browser console and CI visual artifact: pending pull-request CI because the managed local preview could not access this monorepo's workspace dependencies.
+- Browser release gate: passed for desktop and mobile customer journeys.
+- CI visual evidence: inspected at desktop and iPhone dimensions; the first pass exposed mobile hero overflow, which was corrected before merge.
 
 ## Severity review
 
 - P0 blockers: none found.
-- P1 visual/functional regressions: none found in source, tests, or production build.
-- P2 polish items: final CI screenshot comparison pending.
+- P1 visual/functional regressions: mobile hero overflow found in CI evidence and fixed.
+- P2 polish items: none blocking release.
