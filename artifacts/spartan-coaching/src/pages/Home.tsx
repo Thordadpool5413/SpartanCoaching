@@ -99,8 +99,10 @@ function HeroSystemPanel() {
             onError={() => setVideoStatus("error")}
             aria-label="Spartan Coaching field leadership film"
           >
-            <source src="/spartan-launch-film.webm" type="video/webm" />
-            <source src="/spartan-launch-film.mp4" type="video/mp4" />
+            <source src="/hero-video-mobile.webm" type="video/webm" media="(max-width: 767px)" />
+            <source src="/hero-video.webm" type="video/webm" />
+            <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+            <source src="/hero-video.mp4" type="video/mp4" />
           </video>
 
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10" />
@@ -302,7 +304,7 @@ export default function Home() {
                 Hospice growth consulting
               </p>
               <h1
-                data-testid="title-home"
+                data-testid="text-home-hero-title"
                 className="max-w-[780px] font-display text-[clamp(3.6rem,7.5vw,7.5rem)] font-black uppercase leading-[.98] tracking-[-.055em]"
               >
                 Make the next hospice <span className="text-[#d61f26]">conversation</span> count.
