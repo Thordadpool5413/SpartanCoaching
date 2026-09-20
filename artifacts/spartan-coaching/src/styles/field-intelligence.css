@@ -217,6 +217,10 @@ html[data-route-surface="public"] ::selection {
   line-height: 0.98;
 }
 
+.home-photo-hero-title > span {
+  display: block;
+}
+
 .home-photo-hero-lede {
   font-size: clamp(1rem, 1.3vw, 1.22rem);
   line-height: 1.62;
@@ -651,7 +655,8 @@ html[data-route-surface="public"] ::selection {
   .home-photo-path-head,
   .home-photo-closing { grid-template-columns: 1fr; }
   .home-photo-hero-grid { min-height: 0; gap: 3.5rem; padding-block: 54px 64px; }
-  .home-photo-hero-title { font-size: clamp(3.45rem, 15vw, 5.2rem); letter-spacing: -0.07em; }
+  .home-photo-hero-title { max-width: 100%; font-size: clamp(2.65rem, 11vw, 4.25rem); letter-spacing: -0.07em; }
+  .home-photo-actions .home-photo-button { width: 100%; max-width: 100%; }
   .home-photo-hero-media { transform: none; }
   .home-photo-video { min-height: 0; aspect-ratio: 1.45 / 1; }
   .home-photo-section { padding-block: 78px; }
