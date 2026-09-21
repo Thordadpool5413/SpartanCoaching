@@ -5,7 +5,6 @@
  */
 import React, { useEffect, useRef } from "react";
 import { Linking, Platform } from "react-native";
-import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import {
   deepLinkFromNotificationData,
@@ -18,7 +17,6 @@ import {
 } from "@/lib/deepLinks";
 import { clearGenerateQueue } from "@/lib/offlineQueue";
 import { clearLegacyGeneratedToolStorage } from "@/lib/generatedToolPrivacy";
-import { removeReminderFromHistory } from "@/lib/notifications";
 import { useAuth } from "@/lib/AuthContext";
 
 function navigateTarget(
@@ -69,27 +67,39 @@ export function DeepLinkRouter() {
 
     void Linking.getInitialURL().then((url) => {
       if (url && !handledInitial.current) handleUrl(url);
-    });
+    }).catch(() => undefined);
 
     const linkSub = Linking.addEventListener("url", ({ url }) => handleUrl(url));
+    let cancelled = false;
+    let responseSub: { remove: () => void } | undefined;
 
-    const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
-      const id = response.notification.request.identifier;
-      void removeReminderFromHistory(id);
-      const data = response.notification.request.content.data as Record<string, unknown> | undefined;
-      const target = deepLinkFromNotificationData(data);
-      if (target) {
-        // Defer slightly so tabs mount
-        setTimeout(() => navigateTarget(target, handledInitial, authOpts()), 300);
-      }
-    });
+    // Notifications are useful, but they are not allowed to sit on the native
+    // startup path. A missing or mismatched optional module must never prevent
+    // the first frame from rendering in a TestFlight build.
+    void Promise.all([
+      import("expo-notifications"),
+      import("@/lib/notifications"),
+    ]).then(([Notifications, { removeReminderFromHistory }]) => {
+      if (cancelled) return;
 
-    void Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (!response || handledInitial.current) return;
-      const data = response.notification.request.content.data as Record<string, unknown> | undefined;
-      const target = deepLinkFromNotificationData(data);
-      if (target) setTimeout(() => navigateTarget(target, handledInitial, authOpts()), 500);
-    });
+      responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
+        const id = response.notification.request.identifier;
+        void removeReminderFromHistory(id);
+        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+        const target = deepLinkFromNotificationData(data);
+        if (target) {
+          // Defer slightly so tabs mount.
+          setTimeout(() => navigateTarget(target, handledInitial, authOpts()), 300);
+        }
+      });
+
+      void Notifications.getLastNotificationResponseAsync().then((response) => {
+        if (!response || handledInitial.current) return;
+        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+        const target = deepLinkFromNotificationData(data);
+        if (target) setTimeout(() => navigateTarget(target, handledInitial, authOpts()), 500);
+      }).catch(() => undefined);
+    }).catch(() => undefined);
 
     // Retire raw request bodies that may have been queued by an earlier
     // version before any retry can send them from this device.
@@ -98,7 +108,8 @@ export function DeepLinkRouter() {
 
     return () => {
       linkSub.remove();
-      responseSub.remove();
+      cancelled = true;
+      responseSub?.remove();
     };
   }, [user?.member.id]);
 

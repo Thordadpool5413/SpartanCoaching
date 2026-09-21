@@ -122,9 +122,12 @@ describe("Public Experience Design Standards", () => {
       renderWithProviders(<Services />);
       
       // We expect exactly 3 pathways
-      expect(screen.getByTestId("card-individual-0")).not.toBeNull();
-      expect(screen.getByTestId("card-leadership-0")).not.toBeNull();
-      expect(screen.getByTestId("card-corporate-0")).not.toBeNull();
+      expect(screen.getByTestId("card-consulting-01")).not.toBeNull();
+      expect(screen.getByTestId("card-consulting-02")).not.toBeNull();
+      expect(screen.getByTestId("card-consulting-03")).not.toBeNull();
+      expect(screen.getByText("Field Performance Intensive")).not.toBeNull();
+      expect(screen.getByText("Sales Team Operating System")).not.toBeNull();
+      expect(screen.getByText("Growth Leadership Partnership")).not.toBeNull();
     });
   });
 
