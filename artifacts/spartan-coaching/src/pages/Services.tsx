@@ -251,7 +251,7 @@ export default function Services() {
           <Link
             href="/contact?service=Consulting"
             onClick={() => trackCta("closing_strategy_call")}
-            className="inline-flex min-h-[52px] items-center justify-center gap-3 bg-[#d51f26] px-7 font-mono text-xs font-bold uppercase tracking-[.12em] text-white transition-colors hover:bg-white hover:text-black"
+            className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#d51f26] px-7 font-mono text-xs font-bold uppercase tracking-[.12em] text-white transition-colors hover:bg-white hover:text-black"
             data-testid="button-services-contact"
           >
             Book a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
