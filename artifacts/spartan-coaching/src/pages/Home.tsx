@@ -413,17 +413,27 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-method" className="home-photo-section bg-black text-white">
+        <section id="spartan-method" data-testid="section-method" className="public-dark-surface home-photo-section bg-black text-white">
           <div className="home-photo-frame">
             <div className="home-photo-method-head">
-              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The Spartan method</p>
-              <h2 className="home-photo-section-title text-white mt-5 font-display font-black uppercase">
-                Diagnose. Install. Sustain.
-              </h2>
-              <p className="text-white/60">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+              <p className="home-photo-kicker text-[#d61f26]">The Spartan method · operating doctrine</p>
+              <div>
+                <h2
+                  aria-label="Diagnose. Install. Sustain."
+                  className="home-photo-section-title mt-5 font-display font-black uppercase text-white"
+                >
+                  Diagnose. Install. <span className="text-[#d61f26]">Sustain.</span>
+                </h2>
+              </div>
+              <div className="border-l border-[#d61f26] pl-6">
+                <p className="text-white/70">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+                <p className="mt-5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-white/45">
+                  Built for field execution · Coachable by leaders · Measured in behavior
+                </p>
+              </div>
             </div>
 
-              <div className="home-photo-method-grid border-t-white/10">
+              <div className="home-photo-method-grid border-t-white/15">
                 {[
                   {
                     number: "01",
@@ -446,13 +456,16 @@ export default function Home() {
                 ].map((step) => {
                   const Icon = step.icon;
                   return (
-                    <article key={step.number} className="border-l-white/10">
-                      <span className="home-photo-step-number text-white/5">{step.number}</span>
+                    <article key={step.number} className="group border-l-white/10 transition-colors hover:bg-white/[0.035]">
+                      <span className="home-photo-step-number">{step.number}</span>
                       <div className="relative z-10">
-                        <h3 className="tracking-tight">{step.title}</h3>
-                        <p className="text-white/60">{step.body}</p>
+                        <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#d61f26]">
+                          Phase {step.number}
+                        </p>
+                        <h3 className="tracking-tight text-white">{step.title}</h3>
+                        <p className="text-white/65">{step.body}</p>
                       </div>
-                      <Icon className="h-8 w-8 text-[#d61f26] absolute top-8 right-8 z-10" strokeWidth={1.5} aria-hidden="true" />
+                      <Icon className="absolute right-8 top-8 z-10 h-8 w-8 text-[#d61f26]" strokeWidth={1.5} aria-hidden="true" />
                     </article>
                   );
                 })}
@@ -503,7 +516,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-founder-authority" className="home-photo-section bg-black text-white">
+        <section data-testid="section-founder-authority" className="public-dark-surface home-photo-section bg-black text-white">
           <div className="home-photo-frame home-photo-founder-grid">
             <div className="home-photo-founder-image relative">
               <div className="absolute -bottom-6 -right-6 h-full w-full bg-[#d61f26]" aria-hidden="true" />
@@ -603,7 +616,7 @@ export default function Home() {
 
         <section data-testid="section-closing" className="bg-[#f5f3ef] py-20">
           <div className="home-photo-frame">
-            <div className="home-photo-closing relative z-10 bg-black text-white shadow-2xl">
+            <div className="public-dark-surface home-photo-closing relative z-10 bg-black text-white shadow-2xl">
               <div>
                 <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The next move</p>
                 <h2 className="mt-5 font-display text-[clamp(4.5rem,10vw,9rem)] font-black uppercase leading-[0.85] tracking-[-0.04em]">

@@ -217,30 +217,48 @@ export default function Services() {
           </div>
         </section>
 
-        <section className="py-20 lg:py-32">
-          <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-24">
+        <section id="spartan-method" className="public-dark-surface -mx-4 bg-black px-4 py-20 text-white sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-16 lg:py-28" data-testid="section-services-method">
+          <div className="grid gap-12 border-b border-white/15 pb-14 lg:grid-cols-[1.15fr_.85fr] lg:items-end lg:gap-24">
             <div>
-              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The Spartan method</p>
-              <h2 className="mt-6 font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
-                Diagnose. Design. Install. <span className="text-[#d61f26]">Sustain.</span>
+              <p className="home-photo-kicker text-[#d61f26]">The Spartan method · consulting standard</p>
+              <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.2rem,6vw,6.5rem)] font-black uppercase leading-[0.88] tracking-[-0.055em] text-white">
+                We do not deliver training. We install <span className="text-[#d61f26]">performance.</span>
               </h2>
-              <p className="mt-8 max-w-lg text-[1.1rem] leading-[1.6] text-[#11131d]/70">
-                Training is an event. Change is an operating rhythm. Every engagement is built to leave the organization stronger after the work ends.
-              </p>
             </div>
-            <ol className="border-t-2 border-[#11131d]">
-              {process.map(([number, title, body]) => (
-                <li key={number} className="grid gap-4 border-b border-[#11131d]/10 py-8 sm:grid-cols-[64px_220px_1fr] sm:items-start">
-                  <span className="font-mono text-sm font-bold tracking-[.16em] text-[#d61f26]">{number}</span>
-                  <h3 className="font-display text-[1.4rem] font-black uppercase leading-tight text-[#11131d]">{title}</h3>
-                  <p className="text-[1rem] leading-[1.6] text-[#11131d]/70">{body}</p>
-                </li>
-              ))}
-            </ol>
+            <div className="border-l border-[#d61f26] pl-6 lg:mb-2">
+              <p className="text-[1.1rem] leading-[1.7] text-white/72">
+                Every engagement follows one disciplined operating sequence. It turns pressure into a clear diagnosis, a field-ready standard, and leadership behavior that lasts after the engagement ends.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.63rem] font-bold uppercase tracking-[0.14em] text-white/45">
+                <span>Hospice-specific</span>
+                <span>Field-tested</span>
+                <span>Leader-coachable</span>
+              </div>
+            </div>
+          </div>
+
+          <ol className="grid border-b border-white/15 lg:grid-cols-4">
+            {process.map(([number, title, body]) => (
+              <li key={number} className="group relative min-h-[310px] border-t border-white/15 px-0 py-9 transition-colors hover:bg-white/[0.035] lg:border-l lg:border-t-0 lg:px-8 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0">
+                <span className="font-display text-[4.7rem] font-black leading-none tracking-[-0.08em] text-white/[0.09] transition-colors group-hover:text-[#d61f26]/20">{number}</span>
+                <div className="mt-10 h-px w-10 bg-[#d61f26]" aria-hidden="true" />
+                <h3 className="mt-6 font-display text-[1.55rem] font-black uppercase leading-tight text-white">{title}</h3>
+                <p className="mt-4 text-[0.98rem] leading-[1.7] text-white/62">{body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
+            <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/72">
+              The standard is visible, repeatable, and coachable — so progress does not depend on charisma, memory, or another one-time event.
+            </p>
+            <Link href="/method" className="home-photo-button home-photo-button-outline shrink-0 border-white/25 text-white hover:border-white hover:bg-white hover:text-black">
+              Explore the full method <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
           </div>
         </section>
 
-        <section className="bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12">
+        <section className="public-dark-surface bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12">
           <div>
             <p className="font-mono text-[.75rem] font-bold uppercase tracking-[.18em] text-[#d61f26]">The first conversation</p>
             <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">

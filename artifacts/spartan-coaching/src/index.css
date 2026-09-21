@@ -748,6 +748,60 @@ body {
     color: hsl(var(--muted-foreground)) !important;
   }
 
+  /*
+   * Public dark surfaces are intentional authority bands, not theme remnants.
+   * They must keep their light-on-dark contrast in every saved appearance mode.
+   */
+  html[data-route-surface="public"] .public-dark-surface {
+    color: #ffffff !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface h1,
+  html[data-route-surface="public"] .public-dark-surface h2,
+  html[data-route-surface="public"] .public-dark-surface h3,
+  html[data-route-surface="public"] .public-dark-surface h4,
+  html[data-route-surface="public"] .public-dark-surface h5,
+  html[data-route-surface="public"] .public-dark-surface h6,
+  html[data-route-surface="public"] .public-dark-surface .text-white,
+  html[data-route-surface="public"] .public-dark-surface .text-zinc-50 {
+    color: #ffffff !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/90 {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/80 {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/75,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/72,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/70,
+  html[data-route-surface="public"] .public-dark-surface .text-zinc-300 {
+    color: rgba(255, 255, 255, 0.72) !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/65,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/62,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/60,
+  html[data-route-surface="public"] .public-dark-surface .text-zinc-400 {
+    color: rgba(255, 255, 255, 0.64) !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/55,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/50,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/48,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/45,
+  html[data-route-surface="public"] .public-dark-surface .text-zinc-500 {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+  html[data-route-surface="public"] .public-dark-surface .text-white\/40,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/35,
+  html[data-route-surface="public"] .public-dark-surface .text-white\/30 {
+    color: rgba(255, 255, 255, 0.38) !important;
+  }
+
+  /* Keep legacy printable public resources readable on their dark callouts too. */
+  html[data-route-surface="public"] .bg-gray-900.text-white,
+  html[data-route-surface="public"] .bg-gray-900 .text-white {
+    color: #ffffff !important;
+  }
+
   /* Zinc/gray utilities written for dark UIs */
   html[data-theme-mode="light"] .text-zinc-50,
   html[data-theme-mode="light"] .text-zinc-100,

@@ -1,10 +1,9 @@
-import { AccentText } from "@/components/AccentText";
-import { Card } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
-import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame } from "lucide-react";
+import {
+  Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock,
+  Database, UserCheck, ArrowRight, Flame
+} from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
@@ -13,9 +12,6 @@ export default function Method() {
     {
       title: "Discovery",
       icon: Compass,
-      color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-50 dark:bg-blue-950/30",
-      borderColor: "border-blue-200 dark:border-blue-800",
       purpose: "Discovery is learning about the contact and their individual needs. This is where we identify what matters to them, what they need help with, and what they require in order to feel confident moving a patient toward hospice.",
       executionStandard: "Ask targeted questions about workflow, decision-making preferences, and patient transition concerns. Listen for the specific language the contact uses to describe their challenges. Document their priorities, communication preferences, and the criteria they use to evaluate a hospice partner. Confirm your understanding before leaving the conversation.",
       measurableOutput: "A completed contact profile that captures the individual's stated needs, preferred communication style, decision-making role, and the specific conditions under which they would feel confident initiating a hospice referral."
@@ -23,9 +19,6 @@ export default function Method() {
     {
       title: "Connecting",
       icon: Users,
-      color: "text-purple-600 dark:text-purple-400",
-      bgColor: "bg-purple-50 dark:bg-purple-950/30",
-      borderColor: "border-purple-200 dark:border-purple-800",
       purpose: "Connecting happens after Discovery, once we have learned what the individual needs are. This is where we connect with the contact based on what they told us they need, and we align to how they want to work, communicate, and move decisions forward.",
       executionStandard: "Reference specific needs the contact shared during Discovery. Demonstrate alignment by adapting your communication cadence, format, and content to match their stated preferences. Show how your team operates in ways that fit their workflow, not the other way around. Confirm mutual understanding of how you will work together going forward.",
       measurableOutput: "A documented working agreement that reflects the contact's preferred communication method, frequency, and the specific ways your team will support their workflow. Both sides can describe how the relationship operates."
@@ -33,9 +26,6 @@ export default function Method() {
     {
       title: "Guiding",
       icon: Target,
-      color: "text-orange-600 dark:text-orange-400",
-      bgColor: "bg-orange-50 dark:bg-orange-950/30",
-      borderColor: "border-orange-200 dark:border-orange-800",
       purpose: "Guiding is using the solutions we have as a hospice provider to solve and improve the needs of the contact and the account. This is where we show how we support their goals, reduce friction, and make hospice easier to use for the right patients.",
       executionStandard: "Present specific hospice capabilities that directly address the needs and friction points identified in Discovery. Use real examples, case-level scenarios, or clinical support tools that demonstrate how your team reduces burden and improves outcomes. Make the connection between their problem and your solution unmistakable. Let them see the path, not just hear the pitch.",
       measurableOutput: "The contact can articulate at least one specific way your hospice team solves a problem they previously identified. They understand how to use your services for the patients who qualify, and they see hospice as a tool that makes their job easier."
@@ -43,9 +33,6 @@ export default function Method() {
     {
       title: "Commitment",
       icon: CheckCircle,
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-50 dark:bg-green-950/30",
-      borderColor: "border-green-200 dark:border-green-800",
       purpose: "Commitment is getting the contact and the account to commit to a patient referral. This is where the next step becomes clear action. Who calls, when they call, what triggers the call, and what happens once the referral is made.",
       executionStandard: "Define the referral trigger clearly. What clinical or situational signal tells the contact it is time to call. Establish who makes the call, what information is needed, and what happens on your end once the referral is received. Remove ambiguity from every step. Walk through the process together so the contact knows exactly what to expect.",
       measurableOutput: "A referral pathway document or verbal commitment that names the trigger, the caller, the method, and the follow-up process. The contact can describe when and how they will refer without needing to ask."
@@ -117,172 +104,196 @@ export default function Method() {
   ];
 
   return (
-    <div className="page-persuasion w-full max-w-7xl mx-auto spacing-container spacing-section surface-page">
+    <div className="page-persuasion w-full surface-page bg-background text-foreground">
       <SEO />
-      <BackButton />
 
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent blur-3xl -z-10" />
-        <p className="text-kicker mb-4 animate-fade-in-up">Methodology</p>
-        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up" data-testid="text-method-title">
-          The <span className="text-primary">Spartan Method</span>
-        </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-          A complete methodology for hospice sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
-        </p>
-        <p className="text-sm text-muted-foreground mt-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-          Coaching installs the method. Practice happens in the field — with human accountability, not a software pitch.
-        </p>
+      {/* Navigation Band */}
+      <div className="max-w-6xl mx-auto px-6 py-6 border-b border-border">
+        <BackButton />
       </div>
 
-      <div className="max-w-5xl mx-auto space-y-8 md:space-y-12 lg:space-y-16">
-        {/* Mission */}
-        <Card className="relative border border-border/80 shadow-elite spacing-card overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" />
-          <div className="relative">
-            <h2 className="text-h2 text-foreground mb-6 font-display tracking-tight">The Spartan <span className="text-spartan-red">Mission</span></h2>
-            <p className="text-body-lg text-foreground/90 leading-relaxed mb-6">
-              Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
-            </p>
-            <p className="text-body-lg text-foreground/90 leading-relaxed">
-              To us, 'Spartan' means a disciplined commitment to a higher purpose. It's about preparing with intent, practicing under pressure, and measuring progress in the open. Our method is built on clarity, compassionate accountability, and a relentless focus on patient-first outcomes.
-            </p>
-          </div>
-        </Card>
-
-        {/* Three Pillars */}
-        <section>
-          <h2 className="text-h2 text-foreground mb-4 text-center">The Three <span className="text-spartan-red">Pillars</span></h2>
-          <p className="text-center text-body-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-            The philosophical foundation that guides everything we do
+      {/* Hero */}
+      <section className="py-20 md:py-32 border-b border-border bg-background">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="fi-kicker mb-8 animate-fade-in-up">Methodology</div>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold tracking-tight text-foreground leading-[0.95] mb-10 animate-fade-in-up" data-testid="text-method-title">
+            The <span className="text-primary">Spartan Method</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-foreground/85 leading-relaxed max-w-3xl font-medium animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            A complete methodology for hospice sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
           </p>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="discipline">
-              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
-                Discipline
-              </AccordionTrigger>
-              <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
-                <p>
-                  Success in hospice sales requires more than good intentions. It demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
-                </p>
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2"><AccentText>Key Components:</AccentText></h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>Weekly territory planning with clear objectives and named accounts</li>
-                    <li>Standardized call preparation and follow-up protocols that fit clinical workflows</li>
-                    <li>Metrics tracking for activity and outcomes (not vanity numbers)</li>
-                    <li>Continuous skill development through deliberate practice, not hope</li>
-                  </ul>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="empathy">
-              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
-                Empathy
-              </AccordionTrigger>
-              <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
-                <p>
-                  At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity. This means understanding that a case manager at 2pm on Friday has different needs than a physician at 8am Monday morning.
-                </p>
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2"><AccentText>Core Practices:</AccentText></h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>Active listening techniques for clinical conversations (not sales pitches)</li>
-                    <li>Understanding provider pain points and workflow constraints</li>
-                    <li>Building long-term relationships over transactional wins</li>
-                    <li>Patient-centered communication that honors dignity and choice</li>
-                  </ul>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="strategy">
-              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
-                Strategy
-              </AccordionTrigger>
-              <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
-                <p>
-                  Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and proven tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
-                </p>
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-bold mb-2"><AccentText>Strategic Elements:</AccentText></h4>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>Data-driven territory analysis and segmentation (not guesswork)</li>
-                    <li>Competitive intelligence and market positioning based on real gaps</li>
-                    <li>Research and insights tools that save time</li>
-                    <li>Intentional account prioritization based on patient impact and referral potential</li>
-                  </ul>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-
-        {/* Healthcare Sales Mastery Model */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-mastery-model-title">Healthcare Sales <span className="text-spartan-red">Mastery Model</span></h2>
-            <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              This model is built for hospice providers who want referrals to be consistent, appropriate, and repeatable inside an account. Not because someone is "great with people," but because the referral source has a clear path, clear expectations, and a clear reason to call you when the right patient shows up.
+          <div className="mt-10 p-6 bg-muted/30 border-l-4 border-primary inline-block animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+            <p className="text-sm text-foreground/70 font-mono leading-relaxed max-w-2xl uppercase tracking-wide">
+              Coaching installs the method. Practice happens in the field — with human accountability, not a software pitch.
             </p>
           </div>
+        </div>
+      </section>
 
-          <Card className="mb-10 spacing-card border-2" data-testid="card-model-context">
-            <div className="space-y-4">
-              <p className="text-body text-foreground/90 leading-relaxed">
-                Hospice referrals do not break because the account does not care. They break because the process is unclear. The triggers are fuzzy. The conversation feels risky. The workflow feels like extra work. This model removes that friction by giving your team a simple, coachable process that works across different roles, different personalities, and different levels of account engagement.
+      {/* Mission */}
+      <section className="border-b border-border bg-muted/10">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-[minmax(0,1fr)_1.5fr] items-stretch">
+            <div className="py-16 md:py-24 md:pr-16 border-b md:border-b-0 md:border-r border-border">
+              <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight text-foreground uppercase mb-6">
+                The Spartan <br /><span className="text-primary">Mission</span>
+              </h2>
+            </div>
+            <div className="py-16 md:py-24 md:pl-16 space-y-6 text-lg md:text-xl text-foreground/90 leading-relaxed">
+              <p>
+                Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
               </p>
-              <p className="text-body text-muted-foreground leading-relaxed">
-                The model is structured into four subjects. Each subject has a purpose, an execution standard, and a measurable output. We run them in sequence every time, because skipping steps is how you end up "checking in" for six months and calling it relationship building.
+              <p>
+                To us, 'Spartan' means a disciplined commitment to a higher purpose. It's about preparing with intent, practicing under pressure, and measuring progress in the open. Our method is built on clarity, compassionate accountability, and a relentless focus on patient-first outcomes.
               </p>
             </div>
-          </Card>
+          </div>
+        </div>
+      </section>
 
-          <div className="relative" data-testid="subjects-container">
+      {/* Three Pillars */}
+      <section className="py-20 md:py-32 border-b border-border bg-background">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-24">
+            <div>
+              <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-6 tracking-tight text-foreground uppercase">
+                The Three <br /><span className="text-primary">Pillars</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                The philosophical foundation that guides everything we do.
+              </p>
+            </div>
+
+            <div className="space-y-16">
+              {/* Discipline */}
+              <div>
+                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                  <span>01</span>
+                  <span>Discipline</span>
+                </h3>
+                <p className="text-lg text-foreground/90 leading-relaxed mb-6">
+                  Success in hospice sales requires more than good intentions. It demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
+                </p>
+                <div className="bg-muted/30 p-6 border-l-2 border-primary">
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Key Components</h4>
+                  <ul className="space-y-3 text-sm text-foreground/80">
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Weekly territory planning with clear objectives and named accounts</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Standardized call preparation and follow-up protocols that fit clinical workflows</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Metrics tracking for activity and outcomes (not vanity numbers)</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Continuous skill development through deliberate practice, not hope</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Empathy */}
+              <div>
+                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                  <span>02</span>
+                  <span>Empathy</span>
+                </h3>
+                <p className="text-lg text-foreground/90 leading-relaxed mb-6">
+                  At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity. This means understanding that a case manager at 2pm on Friday has different needs than a physician at 8am Monday morning.
+                </p>
+                <div className="bg-muted/30 p-6 border-l-2 border-primary">
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Core Practices</h4>
+                  <ul className="space-y-3 text-sm text-foreground/80">
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Active listening techniques for clinical conversations (not sales pitches)</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Understanding provider pain points and workflow constraints</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Building long-term relationships over transactional wins</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Patient-centered communication that honors dignity and choice</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Strategy */}
+              <div>
+                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                  <span>03</span>
+                  <span>Strategy</span>
+                </h3>
+                <p className="text-lg text-foreground/90 leading-relaxed mb-6">
+                  Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and proven tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
+                </p>
+                <div className="bg-muted/30 p-6 border-l-2 border-primary">
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Strategic Elements</h4>
+                  <ul className="space-y-3 text-sm text-foreground/80">
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Data-driven territory analysis and segmentation (not guesswork)</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Competitive intelligence and market positioning based on real gaps</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Research and insights tools that save time</li>
+                    <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Intentional account prioritization based on patient impact and referral potential</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Healthcare Sales Mastery Model */}
+      <section className="public-dark-surface py-20 md:py-32 border-y border-zinc-800 bg-zinc-950 text-zinc-50">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="mb-20 text-center max-w-3xl mx-auto">
+            <h2 className="font-display text-4xl md:text-5xl font-extrabold mb-8 tracking-tight text-white uppercase" data-testid="text-mastery-model-title">
+              Healthcare Sales <span className="text-primary">Mastery Model</span>
+            </h2>
+            <div className="space-y-6 text-lg md:text-xl leading-relaxed text-zinc-300" data-testid="card-model-context">
+              <p>
+                This model is built for hospice providers who want referrals to be consistent, appropriate, and repeatable inside an account. Not because someone is "great with people," but because the referral source has a clear path, clear expectations, and a clear reason to call you when the right patient shows up.
+              </p>
+              <p>
+                Hospice referrals do not break because the account does not care. They break because the process is unclear. The triggers are fuzzy. The conversation feels risky. The workflow feels like extra work. This model removes that friction by giving your team a simple, coachable process that works across different roles, different personalities, and different levels of account engagement.
+              </p>
+              <p className="text-base font-mono text-primary pt-4 uppercase tracking-widest">
+                The model is structured into four subjects. We run them in sequence every time, because skipping steps is how you end up "checking in" for six months and calling it relationship building.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-12" data-testid="subjects-container">
             {subjects.map((subject, idx) => {
               const Icon = subject.icon;
               const isLast = idx === subjects.length - 1;
               return (
                 <div key={idx} className="relative">
-                  <Card className={`border-2 ${subject.borderColor} spacing-card shadow-lg`} data-testid={`card-subject-${idx}`}>
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className={`flex-shrink-0 p-3 rounded-md ${subject.bgColor}`}>
-                        <Icon className={`w-6 h-6 ${subject.color}`} />
+                  <div className="border border-zinc-800 bg-zinc-900/50 p-8 md:p-12 transition-colors hover:border-primary/50" data-testid={`card-subject-${idx}`}>
+                    <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+                      <div className="flex-shrink-0 flex flex-col items-center md:items-start gap-4 w-24">
+                        <div className="font-mono text-5xl md:text-6xl font-bold text-zinc-800 select-none">
+                          0{idx + 1}
+                        </div>
+                        <Icon className="w-10 h-10 text-primary" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className={`text-h3 font-bold ${subject.color} mb-1`}><AccentText>{subject.title}</AccentText></h3>
-                        <p className="text-sm text-muted-foreground italic">Subject {idx + 1} of 4</p>
+
+                      <div className="flex-1 space-y-10">
+                        <div className="border-b border-zinc-800 pb-6">
+                          <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-white mb-2">
+                            {subject.title}
+                          </h3>
+                          <p className="font-mono text-sm tracking-widest text-zinc-500 uppercase">Subject {idx + 1} of 4</p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-10">
+                          <div>
+                            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-primary mb-4">Purpose</h4>
+                            <p className="text-base leading-relaxed text-zinc-300">{subject.purpose}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-primary mb-4">Execution Standard</h4>
+                            <p className="text-base leading-relaxed text-zinc-300">{subject.executionStandard}</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-zinc-900 p-6 border-l-2 border-primary">
+                          <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-white mb-3">Measurable Output</h4>
+                          <p className="text-base font-medium leading-relaxed text-zinc-300">{subject.measurableOutput}</p>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Purpose</AccentText></h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{subject.purpose}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Execution Standard</AccentText></h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{subject.executionStandard}</p>
-                      </div>
-
-                      <div className={`p-3 rounded-md ${subject.bgColor} border ${subject.borderColor}`}>
-                        <h4 className="font-bold text-sm text-foreground mb-1"><AccentText>Measurable Output</AccentText></h4>
-                        <p className="text-sm text-foreground">{subject.measurableOutput}</p>
-                      </div>
-                    </div>
-                  </Card>
+                  </div>
 
                   {!isLast && (
-                    <div className="flex justify-center py-3" data-testid={`connector-subject-${idx}`}>
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="w-0.5 h-4 bg-muted-foreground/30"></div>
-                        <ArrowDown className="w-5 h-5 text-muted-foreground/50" />
-                        <div className="w-0.5 h-4 bg-muted-foreground/30"></div>
-                      </div>
+                    <div className="flex justify-center -mb-12 mt-6 h-12 relative z-10" data-testid={`connector-subject-${idx}`}>
+                      <div className="w-px h-full bg-zinc-800"></div>
                     </div>
                   )}
                 </div>
@@ -290,177 +301,194 @@ export default function Method() {
             })}
           </div>
 
-          <Card className="bg-muted/30 text-center spacing-card mt-8">
-            <p className="text-sm text-muted-foreground italic">
-              <strong className="text-foreground">Design Version:</strong> 2026-01-15. Field-tested. Prepare with intent. Practice under pressure. Measure in the open. Correct fast. Finish strong. Honor choice. Support clinical judgment. Prove progress in the customer's numbers.
-            </p>
-          </Card>
-        </section>
-
-        {/* Five Fundamentals */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-fundamentals-title"><span className="text-spartan-red">Five Fundamentals</span> That Govern Every Subject</h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              These principles anchor every activity, every conversation, every decision
-            </p>
+          <div className="mt-20 py-8 border-y border-zinc-800 font-mono text-xs text-center uppercase tracking-widest text-zinc-500 leading-loose">
+            Design Version: 2026-01-15 <br className="md:hidden" /><span className="hidden md:inline"> • </span> Field-tested <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prepare with intent <br className="md:hidden" /><span className="hidden md:inline"> • </span> Practice under pressure <br className="md:hidden" /><span className="hidden md:inline"> • </span> Measure in the open <br className="md:hidden" /><span className="hidden md:inline"> • </span> Correct fast <br className="md:hidden" /><span className="hidden md:inline"> • </span> Finish strong <br className="md:hidden" /><span className="hidden md:inline"> • </span> Honor choice <br className="md:hidden" /><span className="hidden md:inline"> • </span> Support clinical judgment <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prove progress in the customer's numbers
           </div>
+        </div>
+      </section>
 
-          <div className="grid gap-4">
-            {fundamentals.map((fundamental, idx) => (
-              <Card key={idx} className="border-2 spacing-card shadow-lg" data-testid={`card-fundamental-${idx}`}>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-base font-bold text-primary">{idx + 1}</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-h3 text-foreground mb-2"><AccentText>{fundamental.title}</AccentText></h3>
-                    <p className="text-body text-muted-foreground leading-relaxed">{fundamental.description}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Ethics */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-ethics-title"><span className="text-spartan-red">Ethics</span> That Anchor The Model</h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              These values are non-negotiable and visible in every interaction
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
-            {ethics.map((ethic, idx) => {
-              const Icon = ethic.icon;
-              return (
-                <Card key={idx} className="text-center border-2 spacing-card shadow-lg" data-testid={`card-ethic-${idx}`}>
-                  <div className="flex justify-center mb-6">
-                    <div className="p-4 rounded-full bg-spartan-gradient shadow-lg">
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-h3 text-foreground mb-3"><AccentText>{ethic.title}</AccentText></h3>
-                  <p className="text-body text-muted-foreground leading-relaxed">{ethic.description}</p>
-                </Card>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Why the Method Exists */}
-        <section>
-          <Card className="relative border-2 shadow-lg spacing-card bg-card">
-            <div className="text-center mb-8">
-              <h2 className="text-h2 text-foreground mb-4">Why the Method <span className="text-spartan-red">Exists</span></h2>
-              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                The Spartan Method is not a sales training framework. It is a patient access framework.
+      {/* Five Fundamentals */}
+      <section className="py-20 md:py-32 border-b border-border bg-background">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-24">
+            <div>
+              <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-6 tracking-tight text-foreground uppercase" data-testid="text-fundamentals-title">
+                Five <span className="text-primary">Fundamentals</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                These principles anchor every activity, every conversation, every decision. They govern every subject in the model.
               </p>
             </div>
-            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {[
-                {
-                  heading: "When Discovery is skipped",
-                  outcome: "The rep shows up with a pitch instead of a question. The contact feels sold to. Trust erodes. Referrals stay inconsistent.",
-                },
-                {
-                  heading: "When Connecting is done well",
-                  outcome: "The contact knows you understand their workflow. They pick up your calls because they trust that you have something worth hearing.",
-                },
-                {
-                  heading: "When Guiding lands",
-                  outcome: "The physician sees hospice as a clinical tool that makes their job easier, not a sales call they have to manage.",
-                },
-                {
-                  heading: "When Commitment is clear",
-                  outcome: "A patient who qualifies gets referred when the moment is right. Not someday. Not maybe. On a specific day with a specific next step.",
-                },
-              ].map((item, i) => (
-                <div key={i} className="bg-muted/60 border border-border rounded-lg p-5 space-y-2">
-                  <p className="text-sm font-bold text-primary uppercase tracking-wide">{item.heading}</p>
-                  <p className="text-body text-muted-foreground leading-relaxed">{item.outcome}</p>
+
+            <div className="grid gap-6">
+              {fundamentals.map((fundamental, idx) => (
+                <div key={idx} className="group flex flex-col sm:flex-row gap-6 p-6 sm:p-8 border border-border bg-muted/10 hover:bg-muted/30 transition-colors" data-testid={`card-fundamental-${idx}`}>
+                  <div className="font-mono text-4xl font-extrabold text-border group-hover:text-primary transition-colors flex-shrink-0 sm:w-16">
+                    0{idx + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold mb-3 uppercase tracking-wide">{fundamental.title}</h3>
+                    <p className="text-foreground/80 leading-relaxed text-lg">{fundamental.description}</p>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="text-center mt-8">
-              <p className="text-body-lg text-muted-foreground font-semibold max-w-2xl mx-auto leading-relaxed">
-                Every step of the method exists to reduce the friction between a qualifying patient and the care team that can help them. The rep is the bridge. The method is what keeps the bridge standing.
-              </p>
-            </div>
-          </Card>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        {/* Traceability */}
-        <section data-testid="section-traceability">
-          <div className="text-center mb-12">
-            <h2 className="text-h2 text-spartan-red mb-4" data-testid="text-traceability-title"><AccentText>Traceability</AccentText></h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
+      {/* Ethics */}
+      <section className="py-20 md:py-32 border-b border-border bg-muted/20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-16 text-center max-w-2xl mx-auto">
+            <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-6 tracking-tight text-foreground uppercase" data-testid="text-ethics-title">
+              Ethics That Anchor <br className="hidden md:block" />The Model
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              These values are non-negotiable and visible in every interaction.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border">
+            {ethics.map((ethic, idx) => {
+              const Icon = ethic.icon;
+              return (
+                <div key={idx} className="bg-background p-10 flex flex-col items-center text-center group hover:bg-muted/10 transition-colors" data-testid={`card-ethic-${idx}`}>
+                  <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
+                    <Icon className="w-8 h-8 text-foreground group-hover:text-primary transition-colors stroke-[1.5]" />
+                  </div>
+                  <h3 className="font-display text-lg font-bold mb-4 uppercase tracking-wide leading-tight h-14 flex items-center justify-center">{ethic.title}</h3>
+                  <p className="text-base text-muted-foreground leading-relaxed">{ethic.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Why the Method Exists */}
+      <section className="py-20 md:py-32 border-b border-border bg-background">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="mb-20 text-center">
+            <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-8 tracking-tight text-foreground uppercase">
+              Why the Method <span className="text-primary">Exists</span>
+            </h2>
+            <p className="text-xl md:text-2xl font-serif text-foreground/80 max-w-3xl mx-auto italic">
+              "The Spartan Method is not a sales training framework. It is a patient access framework."
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-px bg-border border border-border">
+            {[
+              {
+                heading: "When Discovery is skipped",
+                outcome: "The rep shows up with a pitch instead of a question. The contact feels sold to. Trust erodes. Referrals stay inconsistent.",
+              },
+              {
+                heading: "When Connecting is done well",
+                outcome: "The contact knows you understand their workflow. They pick up your calls because they trust that you have something worth hearing.",
+              },
+              {
+                heading: "When Guiding lands",
+                outcome: "The physician sees hospice as a clinical tool that makes their job easier, not a sales call they have to manage.",
+              },
+              {
+                heading: "When Commitment is clear",
+                outcome: "A patient who qualifies gets referred when the moment is right. Not someday. Not maybe. On a specific day with a specific next step.",
+              },
+            ].map((item, i) => (
+              <div key={i} className="bg-background p-10 flex flex-col justify-center min-h-[220px]">
+                <p className="font-mono text-xs font-bold text-primary uppercase tracking-widest mb-6">{item.heading}</p>
+                <p className="text-foreground/90 text-lg leading-relaxed">{item.outcome}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-20 p-8 md:p-12 border border-zinc-200 dark:border-zinc-800 bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 text-center font-medium text-xl leading-relaxed max-w-4xl mx-auto">
+            Every step of the method exists to reduce the friction between a qualifying patient and the care team that can help them. The rep is the bridge. The method is what keeps the bridge standing.
+          </div>
+        </div>
+      </section>
+
+      {/* Traceability */}
+      <section className="py-20 md:py-32 border-b border-border bg-muted/10" data-testid="section-traceability">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="mb-16 md:text-center">
+            <h2 className="font-display text-3xl md:text-5xl font-extrabold mb-6 tracking-tight text-primary uppercase" data-testid="text-traceability-title">
+              Traceability
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Every principle maps to a subject. The Mamba standard is not separate from the model. It is woven into every step.
             </p>
           </div>
 
-          <div className="grid gap-3">
+          <div className="space-y-3">
             {traceabilityMap.map((item, idx) => {
               const Icon = item.icon;
               const isEthicsRow = idx === traceabilityMap.length - 1;
               return (
-                <Card
+                <div
                   key={idx}
-                  className={`border-2 spacing-card ${isEthicsRow ? 'border-primary/30 bg-primary/5' : ''}`}
+                  className={`flex flex-col md:flex-row md:items-center gap-6 p-6 border ${isEthicsRow ? 'border-primary bg-primary/5 mt-8' : 'border-border bg-background'}`}
                   data-testid={`card-traceability-${idx}`}
                 >
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                      <Flame className="w-5 h-5 text-orange-500 dark:text-orange-400 flex-shrink-0" />
-                      <span className="text-body font-medium text-foreground">{item.mamba}</span>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex items-center gap-3 flex-1 min-w-[160px]">
-                      <div className="p-2 rounded-md bg-muted/50">
-                        <Icon className="w-4 h-4 text-primary" />
-                      </div>
-                      <span className={`text-body font-semibold ${isEthicsRow ? 'text-primary' : 'text-foreground'}`}>{item.subject}</span>
-                    </div>
+                  <div className="flex-1 font-mono text-sm md:text-base font-bold text-foreground flex items-center gap-4">
+                    <Flame className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span>{item.mamba}</span>
                   </div>
-                </Card>
+
+                  <div className="hidden md:flex items-center text-muted-foreground/30 font-mono flex-shrink-0 px-4">
+                    <span className="tracking-widest">------------</span>
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </div>
+                  <div className="md:hidden flex items-center text-muted-foreground/30 font-mono pl-9">
+                    <ArrowRight className="w-5 h-5 transform rotate-90" />
+                  </div>
+
+                  <div className={`flex-1 font-display text-lg md:text-xl font-bold uppercase tracking-wide flex items-center gap-4 ${isEthicsRow ? 'text-primary' : 'text-foreground'}`}>
+                    <Icon className={`w-6 h-6 flex-shrink-0 ${isEthicsRow ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span>{item.subject}</span>
+                  </div>
+                </div>
               );
             })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Closing */}
-        <Card className="relative overflow-hidden border border-border/80 shadow-elite spacing-card bg-card">
-          <div className="relative text-center">
-            <h3 className="text-h3 text-foreground mb-6 font-display tracking-tight" data-testid="text-closing-title"><AccentText>Built in the Field. Proven in Practice.</AccentText></h3>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-              Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-              <Button asChild className="font-bold" data-testid="button-method-contact">
-                <Link href="/contact">
-                  Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="font-bold" data-testid="button-method-services">
-                <Link href="/services">View coaching services</Link>
-              </Button>
-              <Button asChild variant="ghost" className="font-bold" data-testid="button-method-manifesto">
-                <Link href="/manifesto">Read the Spartan Ethos</Link>
-              </Button>
-            </div>
+      {/* Closing */}
+      <section className="public-dark-surface py-24 md:py-32 bg-zinc-950 text-zinc-50 text-center border-y border-zinc-800">
+        <div className="max-w-4xl mx-auto px-6">
+          <h3 className="font-display text-4xl md:text-6xl font-extrabold mb-10 uppercase tracking-tight" data-testid="text-closing-title">
+            Built in the Field.<br />
+            <span className="text-primary">Proven in Practice.</span>
+          </h3>
+          <p className="text-lg md:text-xl text-zinc-300 leading-relaxed mb-16 max-w-3xl mx-auto">
+            Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
+            <Link href="/contact" data-testid="button-method-contact" className="fi-btn-primary w-full sm:w-auto">
+              Book a strategy call <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+            <Link href="/services" data-testid="button-method-services" className="fi-btn-outline-light w-full sm:w-auto">
+              View coaching services
+            </Link>
+            <Link href="/manifesto" data-testid="button-method-manifesto" className="text-zinc-400 hover:text-white font-mono text-xs font-bold uppercase tracking-widest transition-colors mt-6 sm:mt-0 sm:ml-4 underline underline-offset-4 decoration-zinc-800 hover:decoration-zinc-400">
+              Read the Spartan Ethos
+            </Link>
           </div>
-        </Card>
-        <PublicConversionPanel
-          source="method"
-          audience="Hospice operators who want an ethical, repeatable way to prepare, practice, and follow through."
-          promise="A shared language for turning field preparation into better conversations and measurable next actions."
-          evidence="The method maps each principle to a subject, a behavior, and a traceable field output rather than a vague promise."
-          primary={{ label: "Apply the method with coaching", href: "/contact?service=Hospice+Sales+Coaching", token: "strategy_call" }}
-          secondary={{ label: "Read the Spartan Ethos", href: "/manifesto", token: "manifesto" }}
-        />
-      </div>
+        </div>
+      </section>
+
+      <PublicConversionPanel
+        source="method"
+        audience="Hospice operators who want an ethical, repeatable way to prepare, practice, and follow through."
+        promise="A shared language for turning field preparation into better conversations and measurable next actions."
+        evidence="The method maps each principle to a subject, a behavior, and a traceable field output rather than a vague promise."
+        primary={{ label: "Apply the method with coaching", href: "/contact?service=Hospice+Sales+Coaching", token: "strategy_call" }}
+        secondary={{ label: "Read the Spartan Ethos", href: "/manifesto", token: "manifesto" }}
+      />
     </div>
   );
 }

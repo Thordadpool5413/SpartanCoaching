@@ -37,10 +37,10 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-2.5 py-2 xl:px-3 text-[11px] font-mono font-bold uppercase tracking-[0.12em] transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
+        "relative block whitespace-nowrap border border-transparent px-3 py-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white/72 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] hover:text-white 2xl:px-4",
         isActive
-          ? "text-foreground border-border bg-muted/20"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+          ? "border-white/20 bg-white/[0.08] !text-white shadow-[inset_0_-2px_0_#d61f26]"
+          : "text-white/72"
       )}
     >
       {children}
@@ -154,10 +154,10 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "px-2.5 py-2 xl:px-3 border border-transparent hover:border-border text-[11px] font-mono font-bold uppercase tracking-[0.12em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
+          "flex cursor-pointer items-center gap-2 whitespace-nowrap border border-transparent px-3 py-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white/72 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] hover:text-white 2xl:px-4",
           isGroupActive || open
-            ? "text-primary border-b-2 border-primary rounded-none"
-            : "text-foreground hover:text-foreground"
+            ? "border-white/20 bg-white/[0.08] !text-white shadow-[inset_0_-2px_0_#d61f26]"
+            : "text-white/72"
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -180,7 +180,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         {label}
         <ChevronDown
           className={cn(
-            "w-3 h-3 transition-transform duration-200",
+            "h-3.5 w-3.5 text-[#d61f26] transition-transform duration-200",
             open && "rotate-180",
           )}
           aria-hidden
@@ -214,12 +214,12 @@ export function NavDropdown({ label, items, dataTestId }: {
           }
         }}
         className={cn(
-          "absolute top-full left-0 pt-2 z-50 min-w-[220px]",
+          "absolute left-0 top-full z-50 min-w-[320px] pt-3",
           open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
           "transition-opacity duration-150",
         )}
       >
-        <div className="bg-popover border rounded-lg shadow-lg py-2">
+        <div className="border border-white/15 bg-[#101012] p-2 shadow-[0_24px_70px_rgba(0,0,0,.55)]">
           {items.map(item => (
             <Link
               key={item.path}
@@ -227,16 +227,16 @@ export function NavDropdown({ label, items, dataTestId }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "block px-4 py-2.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none",
+                "group block border border-transparent px-4 py-3.5 transition-colors hover:border-white/10 hover:bg-white/[0.06] focus-visible:border-[#d61f26] focus-visible:bg-white/[0.06] focus-visible:outline-none",
                 location === item.path
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-foreground"
+                  ? "border-[#d61f26]/50 bg-[#d61f26]/10 text-white"
+                  : "text-white"
               )}
               data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
               onClick={() => setOpen(false)}
             >
-              <div className="font-medium">{item.label}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+              <div className="font-display text-[0.86rem] font-extrabold uppercase tracking-[-0.01em] text-white">{item.label}</div>
+              <div className="mt-1 text-xs leading-relaxed text-white/55 transition-colors group-hover:text-white/70">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -278,10 +278,11 @@ export function Header() {
 
   return (
     <header
-      className="public-site-header sticky top-0 z-50 w-full dark-authority-header safe-area-top"
+      className="public-site-header safe-area-top sticky top-0 z-50 w-full border-b border-white/10 bg-[#0b0b0d] text-white shadow-[0_12px_40px_-18px_rgba(0,0,0,.85)]"
       data-testid="site-header"
     >
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-[1440px] items-center px-4 safe-area-x sm:px-6 md:h-20 xl:px-8">
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-[#d61f26]" aria-hidden="true" />
+      <div className="safe-area-x mx-auto flex h-[4.75rem] w-full max-w-[1520px] items-center px-4 sm:px-6 md:h-[5.5rem] xl:px-8">
         {/* Brand — fixed footprint, never collides with nav */}
         <div className="flex min-w-0 shrink items-center pr-2 sm:pr-4 xl:pr-6">
           <Link href={homeHref}>
@@ -292,17 +293,17 @@ export function Header() {
               <img
                 src="/spartan-logo-stamp.png"
                 alt=""
-                className="h-8 w-8 shrink-0 object-contain drop-shadow-none sm:h-9 sm:w-9"
-                width={36}
-                height={36}
+                className="h-9 w-9 shrink-0 object-contain sm:h-11 sm:w-11"
+                width={44}
+                height={44}
                 decoding="async"
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.03em] text-primary group-hover:text-primary min-[390px]:text-base sm:text-xl md:text-[1.35rem]">
-                  SPARTAN COACHING
+                <span className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-white min-[390px]:text-base sm:text-xl md:text-[1.3rem]">
+                  SPARTAN <span className="text-[#d61f26]">COACHING</span>
                 </span>
-                <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
+                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/48 md:block">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -312,7 +313,7 @@ export function Header() {
 
         {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-0 px-2 xl:flex 2xl:px-5"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-3 xl:flex 2xl:gap-2 2xl:px-6"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -333,11 +334,11 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 border-l border-border/50 pl-2 sm:gap-2 sm:pl-4 xl:pl-5">
+        <div className="ml-auto flex shrink-0 items-center gap-2 border-l border-white/12 pl-2 sm:pl-4 xl:pl-5">
           <Button
             variant="ghost"
             size="icon"
-            className="hidden touch-manipulation text-foreground sm:inline-flex xl:hidden"
+            className="hidden touch-manipulation text-white hover:bg-white/10 hover:text-white sm:inline-flex xl:hidden"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -349,10 +350,10 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-              className="inline-flex h-10 border border-foreground/20 bg-background px-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.08em] !text-foreground shadow-none transition-colors hover:border-primary hover:bg-primary hover:!text-primary-foreground sm:px-4"
+              className="inline-flex h-11 border border-white/25 bg-transparent px-3 font-mono text-[0.67rem] font-bold uppercase tracking-[0.12em] !text-white shadow-none transition-all hover:border-white hover:bg-white hover:!text-black sm:px-4"
               data-testid="button-login"
             >
-              <Link href="/login" className="!text-foreground hover:!text-primary">
+              <Link href="/login" className="!text-white group-hover:!text-black">
                 <LogIn className="hidden h-4 w-4 sm:block" />
                 Login
               </Link>
@@ -362,7 +363,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden xl:inline-flex font-bold px-4 shrink-0"
+              className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-5 font-bold text-white shadow-[0_8px_28px_-12px_rgba(214,31,38,.85)] hover:bg-[#b91920] xl:inline-flex"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -373,7 +374,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden xl:inline-flex font-bold px-4 shrink-0"
+              className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-5 font-bold text-white shadow-[0_8px_28px_-12px_rgba(214,31,38,.85)] hover:bg-[#b91920] xl:inline-flex"
               data-testid="button-book-call"
             >
               <Link href="/contact">Request a strategy call</Link>
@@ -386,7 +387,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="touch-manipulation border border-transparent hover:border-border xl:hidden"
+                className="touch-manipulation border border-white/15 text-white hover:border-white/35 hover:bg-white/10 hover:text-white xl:hidden"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >
