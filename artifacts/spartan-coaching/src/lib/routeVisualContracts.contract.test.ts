@@ -68,7 +68,7 @@ describe("route visual matrix", () => {
 
     const layout = fs.readFileSync(path.join(srcRoot, "components/Layout.tsx"), "utf8");
     const tabs = fs.readFileSync(path.join(srcRoot, "components/ui/tabs.tsx"), "utf8");
-    expect(layout).toMatch(/public-site-header public-dark-surface/);
+    expect(layout).toMatch(/public-site-header[^"]*bg-\[#f7f4ed\][^"]*text-\[#151316\]/);
     expect(tabs).toContain("bg-card");
     expect(tabs).toContain("text-card-foreground");
   });

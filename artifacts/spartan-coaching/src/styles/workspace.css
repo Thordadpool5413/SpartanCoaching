@@ -12,6 +12,41 @@
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/*
+ * Workspace readability floor.
+ * Product surfaces are used for sustained field work, so secondary copy and
+ * utility labels must remain readable rather than merely passing contrast math.
+ */
+.workspace-premium .text-muted-foreground {
+  color: hsl(var(--foreground) / 0.78);
+}
+
+.workspace-premium .text-xs,
+.workspace-premium .text-\[11px\] {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.workspace-premium .text-\[10px\],
+.workspace-premium .text-\[9px\] {
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.workspace-premium .shadcn-card,
+.workspace-premium [class~="bg-card"] {
+  border-color: hsl(var(--border) / 0.95);
+}
+
+html[data-theme-mode="dark"] .workspace-premium .shadcn-card,
+html[data-theme-mode="dark"] .workspace-premium [class~="bg-card"] {
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.045) inset,
+    0 16px 36px -28px hsl(0 0% 0% / 0.9);
 }
 
 .field-sidebar {
@@ -35,15 +70,15 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 56px;
-  padding: 0 20px;
+  height: 68px;
+  padding: 0 22px;
   border-bottom: 1px solid hsl(var(--sidebar-border));
   background-color: hsl(var(--sidebar));
 }
 
 .field-brand-mark {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   border-radius: 4px;
 }
@@ -56,7 +91,7 @@
 .field-brand-text strong {
   font-family: var(--font-display);
   text-transform: uppercase;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   letter-spacing: 0.02em;
   color: hsl(var(--sidebar-foreground));
@@ -64,35 +99,36 @@
 
 .field-brand-text small {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: hsl(var(--sidebar-primary, var(--primary)));
   font-weight: 700;
   margin-top: 2px;
 }
 
 .field-nav-group-label {
-  padding: 24px 20px 8px;
+  padding: 25px 22px 9px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: hsl(var(--sidebar-foreground) / 0.6);
+  color: hsl(var(--sidebar-foreground) / 0.76);
 }
 
 .field-nav-link {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 2px 12px;
-  padding: 10px 12px;
-  border-radius: 7px;
+  margin: 3px 12px;
+  min-height: 46px;
+  padding: 11px 14px;
+  border-radius: 6px;
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  color: hsl(var(--sidebar-foreground) / 0.65);
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(var(--sidebar-foreground) / 0.82);
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   border-left: 2px solid transparent;
 }
@@ -126,9 +162,9 @@
   z-index: 40;
   display: flex;
   align-items: center;
-  min-height: 56px;
+  min-height: 64px;
   height: auto;
-  padding: 8px 16px;
+  padding: 10px 20px;
   gap: 12px;
   flex-wrap: wrap;
   background-color: hsl(var(--background) / 0.98);
@@ -145,13 +181,13 @@
 
 .field-search-input {
   width: 100%;
-  height: 40px;
+  height: 44px;
   padding: 0 16px 0 36px;
   border-radius: 7px;
   border: 1px solid hsl(var(--border));
   background-color: hsl(var(--muted) / 0.5);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   color: hsl(var(--foreground));
   transition: all 0.2s ease;
@@ -280,7 +316,7 @@
   border-top: 1px solid hsl(var(--border));
   background-color: hsl(var(--muted) / 0.3);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: hsl(var(--muted-foreground));

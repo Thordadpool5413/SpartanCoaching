@@ -356,7 +356,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside
         className={cn(
           "field-sidebar hidden md:flex",
-          collapsed ? "w-[4.5rem]" : "w-[15.5rem]"
+          collapsed ? "w-[5rem]" : "w-[17rem]"
         )}
         data-testid="workspace-sidebar"
       >

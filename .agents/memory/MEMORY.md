@@ -18,3 +18,4 @@
 - [Medicare request budgets](medicare-request-budgets.md) — browser read deadlines must exceed valid CMS pipeline latency; waiting budgets must not be mistaken for upstream cancellation.
 - [Post-merge workflow ports](post-merge-workflow-ports.md) — failed restarts may be stale servers holding artifact ports; clear only registered port owners before reconciling workflows.
 - [Public product screenshots](public-product-screenshots.md) — marketing assets must remove admin identity and navigation at the pixel level, not hide them with CSS.
+- [Authenticated readability verification](authenticated-readability-verification.md) — contrast audits alone miss tiny type and weak hierarchy; verify signed-in pages at viewport scale.

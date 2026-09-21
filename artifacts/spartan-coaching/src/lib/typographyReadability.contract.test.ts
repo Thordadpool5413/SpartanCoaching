@@ -42,7 +42,7 @@ describe("web typography readability contracts", () => {
     const shell = read("../components/AppShell.tsx");
     expect(css).toMatch(/\.field-greeting\s*\{[^}]*line-height:\s*1\.04/s);
     expect(css).toMatch(/\.field-objective-heading\s*\{[^}]*line-height:\s*1\.08/s);
-    expect(css).toMatch(/\.field-search-input\s*\{[^}]*font-size:\s*13px/s);
+    expect(css).toMatch(/\.field-search-input\s*\{[^}]*font-size:\s*14px/s);
     expect(css).toMatch(/\.field-search-result-desc\s*\{[^}]*-webkit-line-clamp:\s*2/s);
     expect(globalCss).toMatch(/@media \(max-width: 768px\)\s*\{[\s\S]*?\.workspace-onboarding-strip\s*\{[^}]*grid-template-columns:\s*1fr/s);
     expect(globalCss).toMatch(/@media \(max-width: 768px\)\s*\{[\s\S]*?\.tools-search-dock,[\s\S]*?\.resources-library-dock\s*\{[^}]*top:\s*124px/s);

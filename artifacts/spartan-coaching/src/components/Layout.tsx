@@ -37,10 +37,10 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.76rem] font-bold uppercase tracking-[0.14em] text-white/75 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.055] hover:text-white 2xl:px-7",
+        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.78rem] font-bold uppercase tracking-[0.13em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
         isActive
-          ? "border-white/15 bg-white/[0.075] !text-white shadow-[inset_0_-3px_0_#d61f26]"
-          : "text-white/75"
+          ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
+          : "text-[#272329]"
       )}
     >
       {children}
@@ -140,10 +140,6 @@ export function NavDropdown({ label, items, dataTestId }: {
       ref={rootRef}
       className="relative"
       data-testid={dataTestId}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => {
-        if (!rootRef.current?.contains(document.activeElement)) setOpen(false);
-      }}
       onBlur={(event) => {
         if (!rootRef.current?.contains(event.relatedTarget as Node | null)) {
           setOpen(false);
@@ -154,10 +150,10 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.76rem] font-bold uppercase tracking-[0.14em] text-white/75 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.055] hover:text-white 2xl:px-7",
+          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.78rem] font-bold uppercase tracking-[0.13em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
           isGroupActive || open
-            ? "border-white/15 bg-white/[0.075] !text-white shadow-[inset_0_-3px_0_#d61f26]"
-            : "text-white/75"
+            ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
+            : "text-[#272329]"
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -214,7 +210,7 @@ export function NavDropdown({ label, items, dataTestId }: {
           }
         }}
         className={cn(
-          "absolute left-1/2 top-full z-50 min-w-[340px] -translate-x-1/2 pt-3",
+          "absolute left-1/2 top-full z-50 min-w-[370px] -translate-x-1/2 pt-3",
           open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
           "transition-opacity duration-150",
         )}
@@ -227,7 +223,7 @@ export function NavDropdown({ label, items, dataTestId }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "group block border border-transparent px-4 py-3.5 transition-colors hover:border-white/10 hover:bg-white/[0.06] focus-visible:border-[#d61f26] focus-visible:bg-white/[0.06] focus-visible:outline-none",
+                "group block border border-transparent px-5 py-4 transition-colors hover:border-white/15 hover:bg-white/[0.07] focus-visible:border-[#d61f26] focus-visible:bg-white/[0.07] focus-visible:outline-none",
                 location === item.path
                   ? "border-[#d61f26]/50 bg-[#d61f26]/10 text-white"
                   : "text-white"
@@ -235,8 +231,8 @@ export function NavDropdown({ label, items, dataTestId }: {
               data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
               onClick={() => setOpen(false)}
             >
-              <div className="font-display text-[0.86rem] font-extrabold uppercase tracking-[-0.01em] text-white">{item.label}</div>
-              <div className="mt-1 text-xs leading-relaxed text-white/55 transition-colors group-hover:text-white/70">{item.description}</div>
+              <div className="font-display text-[0.96rem] font-extrabold uppercase tracking-[-0.01em] text-white">{item.label}</div>
+              <div className="mt-1.5 text-[0.82rem] leading-relaxed text-white/75 transition-colors group-hover:text-white/90">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -278,7 +274,7 @@ export function Header() {
 
   return (
     <header
-      className="public-site-header public-dark-surface safe-area-top sticky top-0 z-50 w-full border-b border-white/10 bg-[#09090b] text-white shadow-[0_18px_55px_-24px_rgba(0,0,0,.95)]"
+      className="public-site-header safe-area-top sticky top-0 z-50 w-full border-b border-black/15 bg-[#f7f4ed] text-[#151316] shadow-[0_18px_45px_-28px_rgba(20,16,14,.45)]"
       data-testid="site-header"
     >
       <div className="absolute inset-x-0 top-0 h-[2px] bg-[#d61f26]" aria-hidden="true" />
@@ -300,10 +296,10 @@ export function Header() {
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-white min-[390px]:text-base sm:text-xl md:text-[1.3rem]">
+                <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-[#151316] min-[390px]:text-base sm:text-xl md:text-[1.4rem]">
                   SPARTAN <span className="text-[#d61f26]">COACHING</span>
                 </span>
-                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/48 md:block">
+                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.58rem] font-bold uppercase tracking-[0.18em] text-black/55 md:block">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -314,7 +310,7 @@ export function Header() {
         <div className="hidden min-w-0 items-center justify-center xl:flex">
           <div className="flex items-center gap-4">
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
-            <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.2em] text-white/55">
+            <p className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em] text-black/60">
               Field authority for hospice growth leaders
             </p>
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
@@ -323,7 +319,7 @@ export function Header() {
 
         {/* Desktop Navigation — a dedicated row keeps every destination legible */}
         <nav
-          className="hidden min-w-0 items-stretch justify-center border-t border-white/10 xl:col-span-3 xl:col-start-1 xl:row-start-2 xl:flex"
+          className="hidden min-w-0 items-stretch justify-center border-t border-black/10 xl:col-span-3 xl:col-start-1 xl:row-start-2 xl:flex"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -344,11 +340,11 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center gap-2 border-l border-white/12 pl-2 sm:pl-4 xl:col-start-3 xl:pl-5">
+        <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center gap-2 border-l border-black/15 pl-2 sm:pl-4 xl:col-start-3 xl:pl-5">
           <Button
             variant="ghost"
             size="icon"
-            className="hidden touch-manipulation text-white hover:bg-white/10 hover:text-white sm:inline-flex xl:hidden"
+            className="hidden touch-manipulation text-[#151316] hover:bg-black/5 hover:text-black sm:inline-flex xl:hidden"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -360,10 +356,10 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-               className="inline-flex h-11 border border-white/25 bg-transparent px-3 font-mono text-[0.69rem] font-bold uppercase tracking-[0.12em] !text-white shadow-none transition-all hover:border-white hover:bg-white hover:!text-black sm:px-5"
+               className="inline-flex h-11 border border-black/35 bg-transparent px-3 font-mono text-[0.69rem] font-bold uppercase tracking-[0.12em] !text-[#151316] shadow-none transition-all hover:border-black hover:bg-[#151316] hover:!text-white sm:px-5"
               data-testid="button-login"
             >
-              <Link href="/login" className="!text-white group-hover:!text-black">
+              <Link href="/login">
                 <LogIn className="hidden h-4 w-4 sm:block" />
                 Login
               </Link>
@@ -397,7 +393,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="touch-manipulation border border-white/15 text-white hover:border-white/35 hover:bg-white/10 hover:text-white xl:hidden"
+                className="touch-manipulation border border-black/25 text-[#151316] hover:border-black/50 hover:bg-black/5 hover:text-black xl:hidden"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >
