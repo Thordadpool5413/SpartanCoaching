@@ -83,14 +83,6 @@ export default defineConfig({
         ]
       : []),
   ],
-  css: {
-    postcss: {
-      plugins: [
-        (await import("tailwindcss")).default,
-        (await import("autoprefixer")).default,
-      ],
-    },
-  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),

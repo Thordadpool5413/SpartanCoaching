@@ -71,7 +71,30 @@ describe("Home Command Center", () => {
     mockIsAuthenticated = false;
     mockCanUseFieldKit = false;
     mockUser = null;
-    (apiGet as jest.Mock).mockResolvedValue({ items: [] });
+    (apiGet as jest.Mock).mockImplementation((path) => {
+      if (path === "/api/v1/workspace/next-move") {
+        return Promise.resolve({
+          recommendation: {
+            id: "restored-session-move",
+            stage: "Prepare",
+            title: "Prepare for the next conversation",
+            description: "Review the account before the call.",
+            reason: "A prepared follow-up is due.",
+            mobileHref: "/(tabs)/tools",
+          },
+          context: {
+            contextAvailable: true,
+            hasJobRole: true,
+            hasCommitment: false,
+            hasDraftWork: false,
+            hasReviewableWork: false,
+            canUseElite: false,
+            alsoLeadsTeam: false,
+          },
+        });
+      }
+      return Promise.resolve({ items: [] });
+    });
 
     const view = render(<HomeScreen />);
 

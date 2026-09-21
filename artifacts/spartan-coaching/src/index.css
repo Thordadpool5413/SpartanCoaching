@@ -763,7 +763,7 @@ body {
     color: hsl(0 0% 100% / 0.7) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-\[\#d61f26\] {
-    color: #ef343b !important;
+    color: hsl(var(--primary)) !important;
   }
   html[data-theme-mode="light"] [data-testid="mobile-menu-sheet"] [data-testid^="link-mobile-"],
   html[data-theme-mode="light"] [data-testid="mobile-menu-sheet"] [data-testid="button-mobile-request"] {
@@ -776,9 +776,7 @@ body {
     color: hsl(0 0% 100%) !important;
   }
 
-  /* Preserve white text on brand / primary / hero surfaces */
-  html[data-theme-mode="light"] .bg-primary,
-  html[data-theme-mode="light"] .bg-primary *,
+  /* Preserve white text on brand / hero surfaces */
   html[data-theme-mode="light"] [class*="bg-spartan-gradient"],
   html[data-theme-mode="light"] [class*="bg-spartan-gradient"] *,
   html[data-theme-mode="light"] [class*="from-red-"],
@@ -790,23 +788,8 @@ body {
   html[data-theme-mode="light"] [data-testid="section-hero"],
   html[data-theme-mode="light"] [data-testid="section-hero"] *,
   html[data-theme-mode="light"] [data-testid="section-faq-cta"],
-  html[data-theme-mode="light"] [data-testid="section-faq-cta"] *,
-  html[data-theme-mode="light"] button.bg-primary,
-  html[data-theme-mode="light"] button.bg-primary *,
-  html[data-theme-mode="light"] .text-primary-foreground,
-  html[data-theme-mode="light"] .text-primary-foreground * {
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"] * {
     color: inherit;
-  }
-  /* Explicit primary-foreground on primary fills (buttons, badges) */
-  html[data-theme-mode="light"] .bg-primary .text-primary-foreground,
-  html[data-theme-mode="light"] button.bg-primary,
-  html[data-theme-mode="light"] a.bg-primary {
-    color: hsl(var(--primary-foreground)) !important;
-  }
-  html[data-theme-mode="light"] .bg-primary,
-  html[data-theme-mode="light"] button[class*="bg-primary"],
-  html[data-theme-mode="light"] a[class*="bg-primary"] {
-    color: hsl(var(--primary-foreground)) !important;
   }
   html[data-theme-mode="light"] [class*="from-red-"] {
     color: #fff !important;
@@ -858,6 +841,26 @@ body {
   .dark textarea::placeholder {
     color: hsl(var(--muted-foreground) / 0.7);
   }
+}
+
+/* Keep primary-fill overrides outside Tailwind layers. Inside @layer base,
+   Tailwind treats these selectors as utility definitions and incorrectly
+   expands state variants into selectors such as `[data-state="checked"]button`. */
+html[data-theme-mode="light"] .bg-primary,
+html[data-theme-mode="light"] .bg-primary *,
+html[data-theme-mode="light"] button.bg-primary,
+html[data-theme-mode="light"] button.bg-primary *,
+html[data-theme-mode="light"] .text-primary-foreground,
+html[data-theme-mode="light"] .text-primary-foreground * {
+  color: inherit;
+}
+
+html[data-theme-mode="light"] .bg-primary .text-primary-foreground,
+html[data-theme-mode="light"] button.bg-primary,
+html[data-theme-mode="light"] a.bg-primary,
+html[data-theme-mode="light"] button[class*="bg-primary"],
+html[data-theme-mode="light"] a[class*="bg-primary"] {
+  color: hsl(var(--primary-foreground)) !important;
 }
 
 @layer utilities {
@@ -1106,10 +1109,6 @@ body {
     background-color: var(--elevate-2);
   }
 
-  .border.toggle-elevate::before {
-    inset: -1px;
-  }
-
   .hover-elevate:not(.no-default-hover-elevate),
   .active-elevate:not(.no-default-active-elevate),
   .hover-elevate-2:not(.no-default-hover-elevate),
@@ -1138,14 +1137,6 @@ body {
   .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
   .active-elevate-2:active:not(.no-default-active-elevate)::after {
     background-color: var(--elevate-2);
-  }
-
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
-    inset: -1px;
   }
 
   .no-print {
@@ -2585,6 +2576,20 @@ body {
       background-position: 200% center;
     }
   }
+}
+
+/* Keep border/elevation combinations outside Tailwind layers. Tailwind would
+   otherwise expand `after:border` against these custom utility selectors and
+   create source-less pseudo-element declarations in the PostCSS result. */
+.border.toggle-elevate::before {
+  inset: -1px;
+}
+
+.border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate:not(.no-active-interaction-elevate)::after,
+.border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate-2:not(.no-active-interaction-elevate)::after {
+  inset: -1px;
 }
 
 /* Typing indicator bounce animation */
