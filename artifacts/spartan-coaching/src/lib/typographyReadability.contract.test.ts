@@ -8,7 +8,7 @@ describe("web typography readability contracts", () => {
   it("keeps the approved homepage statement and hero media contract", () => {
     const home = read("../pages/Home.tsx");
     expect(home).toMatch(/Make the next[\s\S]{0,80}hospice[\s\S]{0,80}conversation[\s\S]{0,80}count\./);
-    expect(home).toContain("Book a strategy call");
+    expect(home).toContain("Request a strategy call");
     expect(home).toContain("Explore consulting");
     expect(home).not.toContain("Explore Hospice Sales Pro");
     expect(home).toContain('data-testid="hero-video"');

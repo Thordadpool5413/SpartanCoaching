@@ -324,10 +324,10 @@ export default function Home() {
               <div className="home-photo-actions mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/contact"
-                  onClick={() => consultingClick("Hero: Book a strategy call")}
+                  onClick={() => consultingClick("Hero: Request a strategy call")}
                   className="home-photo-button home-photo-button-primary"
                 >
-                  Book a strategy call
+                  Request a strategy call
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
@@ -613,10 +613,10 @@ export default function Home() {
             </div>
             <Link
               href="/contact"
-              onClick={() => consultingClick("Closing: Book a strategy call")}
+              onClick={() => consultingClick("Closing: Request a strategy call")}
               className="home-photo-button home-photo-button-primary"
             >
-              Book a strategy call
+              Request a strategy call
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>

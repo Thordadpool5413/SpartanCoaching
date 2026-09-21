@@ -56,7 +56,7 @@ export const navSections: SiteNavSection[] = [
       { path: "/programs", label: "Programs", description: "Team workshops and growth systems", icon: GraduationCap },
       { path: "/method", label: "The Spartan Method", description: "Discipline, empathy, and strategy", icon: Shield },
       { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan", icon: Flame },
-      { path: "/contact", label: "Book a strategy call", description: "Talk with Nick about Spartan Consulting", icon: Phone },
+      { path: "/contact", label: "Request a strategy call", description: "Talk with Nick about Spartan Consulting", icon: Phone },
     ],
   },
   {
@@ -67,6 +67,7 @@ export const navSections: SiteNavSection[] = [
       { path: "/resources", label: "Field resources", description: "Downloadable templates, scripts, and checklists", icon: FolderOpen },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
+      { path: "/app", label: "iPhone app", description: "Use Hospice Sales Pro on iPhone", icon: Phone },
     ],
   },
   {
@@ -85,7 +86,7 @@ export const navSections: SiteNavSection[] = [
 export const additionalPages: SiteNavItem[] = [
   { path: "/", label: "Home", description: "Main landing page", icon: Home },
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
-  { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
+  { path: "/contact", label: "Contact", description: "Request a strategy call", icon: Phone },
   { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
   { path: "/portal/learn", label: "Learn", description: "Hospice sales knowledge, practice, and field lessons", icon: GraduationCap },
   { path: "/my-work", label: "My Work", description: "Saved tool results, briefs, and next actions", icon: FolderOpen },

@@ -34,7 +34,7 @@ describe("consulting and workspace coexistence", () => {
     const layout = read("./Layout.tsx");
     const navigation = read("../lib/navigation.ts");
 
-    expect(home).toMatch(/href="\/contact"[\s\S]{0,400}Book a strategy call/);
+    expect(home).toMatch(/href="\/contact"[\s\S]{0,400}Request a strategy call/);
     expect(home).toMatch(/href="\/services"[\s\S]{0,400}Explore consulting/);
     expect(home).toContain("The problems we");
     expect(home).toContain("solve.");

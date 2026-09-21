@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent } from "@/components/ui/card";
-import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +42,10 @@ import { fetchConsultationBookingEnabled } from "@/lib/clientConfig";
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
+  phone: z.string().refine(
+    (value) => !value.trim() || value.replace(/\D/g, "").length >= 10,
+    "Please enter a valid phone number",
+  ),
   company: z.string().min(1, "Organization is required"),
   role: z.string().min(1, "Please select your role"),
   census: z.string().min(1, "Please select your current census"),
@@ -252,15 +254,14 @@ export default function Contact() {
   return (
     <PersuasionShell>
       <SEO />
-      <BackButton />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 w-full">
         <FadeIn>
           <div className="text-center mb-10 sm:mb-12">
             <h1 className="text-h1 text-foreground mb-6" data-testid="text-contact-title">
-              Book a <span className="text-primary">Discovery Call</span>
+              Request a <span className="text-primary">Strategy Call</span>
             </h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
-              Share a little context so Nick can come prepared. After you submit, expect scheduling options within one business day.
+              Tell Nick where growth is getting stuck. He will personally review the request and send scheduling options within one business day.
             </p>
             <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground" data-testid="section-contact-compliance">
               <Shield className="w-3.5 h-3.5 text-primary" />
@@ -269,32 +270,21 @@ export default function Contact() {
           </div>
         </FadeIn>
         <section
-          className="mb-10 grid gap-8 border border-border bg-card p-6 shadow-sm sm:p-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center"
-          aria-labelledby="contact-next-step-title"
+          className="mx-auto mb-6 grid max-w-3xl gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4"
+          aria-label="What to expect after submitting"
           data-testid="public-conversion-contact"
         >
-          <div>
-            <p className="text-kicker">A clear next step</p>
-            <h2 id="contact-next-step-title" className="mt-4 font-display text-[clamp(2rem,4vw,3.7rem)] font-black uppercase leading-[.92] tracking-[-.045em] text-foreground">
-              Tell us what is <span className="text-primary">not working.</span>
-            </h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground">
-              This is a short fit request, not a patient intake form. Give Nick enough context to understand the pressure and prepare for a useful first conversation.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              ["01", "Your context", "Who you lead, the size of the team, and where performance is stuck."],
-              ["02", "Your priority", "The outcome you need and how quickly the organization needs movement."],
-              ["03", "The response", "A human review and scheduling options within one business day."],
-            ].map(([number, title, body]) => (
-              <article key={number} className="border-l-2 border-primary pl-4">
-                <span className="font-mono text-[.65rem] font-bold tracking-[.15em] text-primary">{number}</span>
-                <h3 className="mt-3 font-display text-base font-black uppercase leading-tight text-foreground">{title}</h3>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
-              </article>
-            ))}
-          </div>
+          {[
+            ["Human review", "Personally reviewed by Nick"],
+            ["Privacy", "No patient information requested"],
+            ["Timing", "Response within one business day"],
+            ["No pressure", "A fit conversation, not a sales ambush"],
+          ].map(([title, body]) => (
+            <div key={title} className="bg-card px-4 py-4 sm:px-5">
+              <p className="font-mono text-[.65rem] font-bold uppercase tracking-[.14em] text-primary">{title}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
+            </div>
+          ))}
         </section>
 
         {bookingStatus && (
@@ -495,7 +485,7 @@ export default function Contact() {
                           name="phone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Phone *</FormLabel>
+                              <FormLabel>Phone <span className="font-normal text-muted-foreground">(optional)</span></FormLabel>
                               <FormControl>
                                 <Input type="tel" placeholder="(555) 123-4567" {...field} data-testid="input-contact-phone" />
                               </FormControl>

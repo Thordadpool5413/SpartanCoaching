@@ -26,7 +26,6 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
-import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
 
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
@@ -331,16 +330,10 @@ export function Header() {
           {isAuthenticated && (
             <NavLink href="/portal">Workspace</NavLink>
           )}
-          <NavLink href="/app">iPhone app</NavLink>
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
         <div className="ml-auto flex shrink-0 items-center gap-2 border-l border-border/50 pl-3 sm:pl-4 xl:pl-5">
-          <AppearanceControls
-            compact
-            className="touch-manipulation"
-            testId="button-appearance-header"
-          />
           <Button
             variant="ghost"
             size="icon"
@@ -383,7 +376,7 @@ export function Header() {
               className="hidden xl:inline-flex font-bold px-4 shrink-0"
               data-testid="button-book-call"
             >
-              <Link href="/contact">Book a strategy call</Link>
+              <Link href="/contact">Request a strategy call</Link>
             </Button>
           )}
 
@@ -433,7 +426,7 @@ export function Header() {
                     <MobileNavLink href="/services" label="Consulting for teams" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/hospice-sales-pro" label="Hospice Sales Pro · daily work" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/contact" label="Book a strategy call" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/contact" label="Request a strategy call" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavSection title="Account & app" />
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
@@ -465,7 +458,7 @@ export function Header() {
               <AppearancePanel className="pb-1" />
               <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
                 <Link href="/contact?service=Consulting" onClick={() => setMobileMenuOpen(false)}>
-                  Book a strategy call
+                  Request a strategy call
                 </Link>
               </Button>
               {canUseFieldKit && (
@@ -571,7 +564,7 @@ export function Footer() {
     { href: "/services", label: "Consulting" },
     { href: "/register", label: "Create account" },
     { href: "/about", label: "About" },
-    { href: "/contact", label: "Book a call" },
+    { href: "/contact", label: "Request a call" },
     { href: "/request-access", label: "Team access" },
     { href: "/login", label: "Client Login" },
     { href: "/resources", label: "Resources" },
@@ -599,12 +592,12 @@ export function Footer() {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {canUseFieldKit
                   ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
-                  : "Hospice growth consulting and Hospice Sales Pro (tools & resources) on web and iPhone — two clear offers, one firm."}
+                  : "Hospice growth consulting for leaders and teams, with Hospice Sales Pro available as the separate field-tools platform."}
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime`}
+                  : "Diagnose the constraint · Install the standard · Sustain the behavior"}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
@@ -647,9 +640,6 @@ export function Footer() {
             {!canUseFieldKit && (
               <div className="flex flex-col gap-4" data-testid="section-newsletter">
                 <p className="text-xs font-bold text-foreground uppercase tracking-widest">Optional email updates</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {CONSENT_COPY.newsletterExplicit}
-                </p>
                 <NewsletterSignup />
               </div>
             )}

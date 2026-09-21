@@ -90,7 +90,7 @@ describe("Public Experience Design Standards", () => {
       const title = screen.getByTestId("text-home-hero-title");
       expect(title).not.toBeNull();
 
-      const consultCtas = screen.getAllByRole("link", { name: /Book a strategy call/i });
+      const consultCtas = screen.getAllByRole("link", { name: /Request a strategy call/i });
       expect(consultCtas.length).toBeGreaterThanOrEqual(2);
 
       const servicesCta = screen.getByRole("link", { name: /^Explore consulting$/i });

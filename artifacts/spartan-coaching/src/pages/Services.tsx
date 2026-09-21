@@ -5,7 +5,6 @@ import {
   Check,
   ClipboardCheck,
   Crosshair,
-  ShieldCheck,
   Target,
   UserRound,
   Users,
@@ -125,7 +124,7 @@ export default function Services() {
               onClick={() => trackCta("hero_strategy_call")}
               className="mt-7 inline-flex min-h-12 items-center gap-3 bg-primary px-6 font-mono text-xs font-bold uppercase tracking-[.12em] text-primary-foreground transition-colors hover:bg-foreground hover:text-background"
             >
-              Book a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
+              Request a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
         </section>
@@ -254,7 +253,7 @@ export default function Services() {
             className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#d51f26] px-7 font-mono text-xs font-bold uppercase tracking-[.12em] text-white transition-colors hover:bg-white hover:text-black"
             data-testid="button-services-contact"
           >
-            Book a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
+            Request a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </section>
 
@@ -288,18 +287,6 @@ export default function Services() {
           </Accordion>
         </section>
 
-        <div className="mb-16 flex flex-col items-start justify-between gap-5 border border-border bg-muted/20 p-6 sm:flex-row sm:items-center sm:p-8">
-          <div className="flex gap-4">
-            <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-primary" aria-hidden />
-            <div>
-              <p className="font-display text-xl font-black uppercase text-foreground">Need an organizational or custom systems engagement?</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Market analysis, executive advisory, CRM workflow design, and custom technology are scoped through the same strategy call.</p>
-            </div>
-          </div>
-          <Link href="/contact?service=Corporate+Consulting" className="shrink-0 font-mono text-xs font-bold uppercase tracking-[.12em] text-primary hover:text-foreground">
-            Discuss the scope <ArrowRight className="ml-2 inline h-4 w-4" aria-hidden />
-          </Link>
-        </div>
       </div>
     </PersuasionShell>
   );
