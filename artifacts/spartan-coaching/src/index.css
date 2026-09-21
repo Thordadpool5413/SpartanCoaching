@@ -720,6 +720,7 @@ body {
    * They must keep their light-on-dark contrast in every saved appearance mode.
    */
   html[data-route-surface="public"] .public-dark-surface {
+    --public-dark-accent: 357 86% 57%;
     color: hsl(0 0% 100%) !important;
   }
   html[data-route-surface="public"] .public-dark-surface h1,
@@ -763,7 +764,7 @@ body {
     color: hsl(0 0% 100% / 0.7) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-\[\#d61f26\] {
-    color: hsl(var(--primary)) !important;
+    color: hsl(var(--public-dark-accent)) !important;
   }
   html[data-theme-mode="light"] [data-testid="mobile-menu-sheet"] [data-testid^="link-mobile-"],
   html[data-theme-mode="light"] [data-testid="mobile-menu-sheet"] [data-testid="button-mobile-request"] {
