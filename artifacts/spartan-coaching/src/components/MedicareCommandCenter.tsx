@@ -13,12 +13,12 @@ const actions: Array<{ mission: Mission; eyebrow: string; title: string; detail:
 
 export function MedicareCommandCenter({ onOpen }: { onOpen: (mission: Mission) => void }) {
   return <div className="space-y-5" data-testid="medicare-command-center">
-    <Card className="overflow-hidden border-primary/25 bg-gradient-to-br from-slate-950 via-slate-900 to-primary/80 p-6 text-white shadow-xl sm:p-8">
+    <Card className="overflow-hidden border-primary/50 bg-gradient-to-br from-slate-950 via-slate-900 to-primary/80 p-6 text-white shadow-xl sm:p-8">
       <div className="grid gap-7 lg:grid-cols-[1fr_19rem] lg:items-end">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300">Command center</p>
           <h2 className="mt-3 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl">Know what is true. See what is missing. Make the next move.</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">One Spartan workspace for public CMS evidence, conservative calculations, field decisions, and accountable follow-through.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-100 sm:text-base">One Spartan workspace for public CMS evidence, conservative calculations, field decisions, and accountable follow-through.</p>
         </div>
         <div className="grid gap-2 text-xs">
           <Signal icon={ShieldCheck} title="Evidence stays attached" text="Source, period, and limitation travel with the result." />
@@ -42,5 +42,5 @@ export function MedicareCommandCenter({ onOpen }: { onOpen: (mission: Mission) =
 }
 
 function Signal({ icon: Icon, title, text }: { icon: typeof ShieldCheck; title: string; text: string }) {
-  return <div className="flex gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" /><span><strong className="block text-white">{title}</strong><span className="mt-0.5 block leading-5 text-slate-300">{text}</span></span></div>;
+  return <div className="flex gap-3 rounded-2xl border border-white/25 bg-white/10 p-3 backdrop-blur"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" /><span><strong className="block text-white">{title}</strong><span className="mt-0.5 block leading-5 text-slate-100">{text}</span></span></div>;
 }

@@ -358,12 +358,12 @@ export default function Manifesto() {
       </section>
 
       {/* CTA */}
-      <section className="relative bg-background py-28 sm:py-36 overflow-hidden">
+      <section className="public-dark-surface relative overflow-hidden bg-[#09090b] py-28 text-white sm:py-36">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <img src="/spartan-logo-stamp.png" alt="" aria-hidden className="absolute inset-0 w-full h-full object-contain opacity-[0.03] select-none pointer-events-none" />
         <FadeIn>
           <div className="relative max-w-3xl mx-auto px-6 sm:px-8 text-center">
-            <p className="text-white/40 text-xs font-semibold tracking-[0.4em] uppercase mb-6">Ready to close the gap?</p>
+            <p className="text-white/75 text-xs font-semibold tracking-[0.4em] uppercase mb-6">Ready to close the gap?</p>
             <h2
               className="font-display font-black text-white leading-[1.1] tracking-[-0.01em] mb-6"
               style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}
@@ -371,7 +371,7 @@ export default function Manifesto() {
               If this resonates,<br />
               <span className="text-[#e8291e]">reach out.</span>
             </h2>
-            <p className="text-white/55 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-10">
+            <p className="text-white/80 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-10">
               No obligation, no pressure. Just an honest conversation about where your team is and what it would take to close the gap.
             </p>
             <Button

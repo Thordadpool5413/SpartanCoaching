@@ -243,7 +243,7 @@ export default function Method() {
               <p>
                 Hospice referrals do not break because the account does not care. They break because the process is unclear. The triggers are fuzzy. The conversation feels risky. The workflow feels like extra work. This model removes that friction by giving your team a simple, coachable process that works across different roles, different personalities, and different levels of account engagement.
               </p>
-              <p className="text-base font-mono text-primary pt-4 uppercase tracking-widest">
+              <p className="pt-4 font-mono text-base uppercase tracking-widest text-[#f23a41]">
                 The model is structured into four subjects. We run them in sequence every time, because skipping steps is how you end up "checking in" for six months and calling it relationship building.
               </p>
             </div>
@@ -255,10 +255,10 @@ export default function Method() {
               const isLast = idx === subjects.length - 1;
               return (
                 <div key={idx} className="relative">
-                  <div className="border border-zinc-800 bg-zinc-900/50 p-8 md:p-12 transition-colors hover:border-primary/50" data-testid={`card-subject-${idx}`}>
+                  <div className="border border-zinc-700 bg-zinc-900/80 p-8 text-white md:p-12 transition-colors hover:border-primary/70" data-testid={`card-subject-${idx}`}>
                     <div className="flex flex-col md:flex-row gap-8 md:gap-12">
                       <div className="flex-shrink-0 flex flex-col items-center md:items-start gap-4 w-24">
-                        <div className="font-mono text-5xl md:text-6xl font-bold text-zinc-800 select-none">
+                        <div className="font-mono text-5xl md:text-6xl font-bold text-primary/70 select-none">
                           0{idx + 1}
                         </div>
                         <Icon className="w-10 h-10 text-primary" />
@@ -269,7 +269,7 @@ export default function Method() {
                           <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-white mb-2">
                             {subject.title}
                           </h3>
-                          <p className="font-mono text-sm tracking-widest text-zinc-500 uppercase">Subject {idx + 1} of 4</p>
+                          <p className="font-mono text-sm tracking-widest text-zinc-300 uppercase">Subject {idx + 1} of 4</p>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-10">
@@ -283,7 +283,7 @@ export default function Method() {
                           </div>
                         </div>
 
-                        <div className="bg-zinc-900 p-6 border-l-2 border-primary">
+                        <div className="bg-zinc-800/90 p-6 border-l-2 border-primary text-white">
                           <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-white mb-3">Measurable Output</h4>
                           <p className="text-base font-medium leading-relaxed text-zinc-300">{subject.measurableOutput}</p>
                         </div>
@@ -301,7 +301,7 @@ export default function Method() {
             })}
           </div>
 
-          <div className="mt-20 py-8 border-y border-zinc-800 font-mono text-xs text-center uppercase tracking-widest text-zinc-500 leading-loose">
+          <div className="mt-20 py-8 border-y border-zinc-700 font-mono text-xs text-center uppercase tracking-widest text-zinc-300 leading-loose">
             Design Version: 2026-01-15 <br className="md:hidden" /><span className="hidden md:inline"> • </span> Field-tested <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prepare with intent <br className="md:hidden" /><span className="hidden md:inline"> • </span> Practice under pressure <br className="md:hidden" /><span className="hidden md:inline"> • </span> Measure in the open <br className="md:hidden" /><span className="hidden md:inline"> • </span> Correct fast <br className="md:hidden" /><span className="hidden md:inline"> • </span> Finish strong <br className="md:hidden" /><span className="hidden md:inline"> • </span> Honor choice <br className="md:hidden" /><span className="hidden md:inline"> • </span> Support clinical judgment <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prove progress in the customer's numbers
           </div>
         </div>
@@ -404,7 +404,7 @@ export default function Method() {
             ))}
           </div>
 
-          <div className="mt-20 p-8 md:p-12 border border-zinc-200 dark:border-zinc-800 bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 text-center font-medium text-xl leading-relaxed max-w-4xl mx-auto">
+          <div className="public-dark-surface mt-20 max-w-4xl mx-auto border border-zinc-700 bg-zinc-900 p-8 text-center text-xl font-medium leading-relaxed text-white md:p-12">
             Every step of the method exists to reduce the friction between a qualifying patient and the care team that can help them. The rep is the bridge. The method is what keeps the bridge standing.
           </div>
         </div>

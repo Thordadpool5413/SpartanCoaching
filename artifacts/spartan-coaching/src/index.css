@@ -733,34 +733,34 @@ body {
     color: hsl(0 0% 100%) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/90 {
-    color: hsl(0 0% 100% / 0.9) !important;
+    color: hsl(0 0% 100% / 0.96) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/80 {
-    color: hsl(0 0% 100% / 0.8) !important;
+    color: hsl(0 0% 100% / 0.9) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/75,
   html[data-route-surface="public"] .public-dark-surface .text-white\/72,
   html[data-route-surface="public"] .public-dark-surface .text-white\/70,
   html[data-route-surface="public"] .public-dark-surface .text-zinc-300 {
-    color: hsl(0 0% 100% / 0.72) !important;
+    color: hsl(0 0% 100% / 0.88) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/65,
   html[data-route-surface="public"] .public-dark-surface .text-white\/62,
   html[data-route-surface="public"] .public-dark-surface .text-white\/60,
   html[data-route-surface="public"] .public-dark-surface .text-zinc-400 {
-    color: hsl(0 0% 100% / 0.64) !important;
+    color: hsl(0 0% 100% / 0.82) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/55,
   html[data-route-surface="public"] .public-dark-surface .text-white\/50,
   html[data-route-surface="public"] .public-dark-surface .text-white\/48,
   html[data-route-surface="public"] .public-dark-surface .text-white\/45,
   html[data-route-surface="public"] .public-dark-surface .text-zinc-500 {
-    color: hsl(0 0% 100% / 0.5) !important;
+    color: hsl(0 0% 100% / 0.76) !important;
   }
   html[data-route-surface="public"] .public-dark-surface .text-white\/40,
   html[data-route-surface="public"] .public-dark-surface .text-white\/35,
   html[data-route-surface="public"] .public-dark-surface .text-white\/30 {
-    color: hsl(0 0% 100% / 0.38) !important;
+    color: hsl(0 0% 100% / 0.7) !important;
   }
 
   /* Keep legacy printable public resources readable on their dark callouts too. */

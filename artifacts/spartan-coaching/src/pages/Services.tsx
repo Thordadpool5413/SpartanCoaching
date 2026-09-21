@@ -220,7 +220,7 @@ export default function Services() {
         <section id="spartan-method" className="public-dark-surface -mx-4 bg-black px-4 py-20 text-white sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-16 lg:py-28" data-testid="section-services-method">
           <div className="grid gap-12 border-b border-white/15 pb-14 lg:grid-cols-[1.15fr_.85fr] lg:items-end lg:gap-24">
             <div>
-              <p className="home-photo-kicker text-[#d61f26]">The Spartan method · consulting standard</p>
+              <p className="home-photo-kicker !text-[#f23a41]">The Spartan method · consulting standard</p>
               <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.2rem,6vw,6.5rem)] font-black uppercase leading-[0.88] tracking-[-0.055em] text-white">
                 We do not deliver training. We install <span className="text-[#d61f26]">performance.</span>
               </h2>
@@ -240,7 +240,7 @@ export default function Services() {
           <ol className="grid border-b border-white/15 lg:grid-cols-4">
             {process.map(([number, title, body]) => (
               <li key={number} className="group relative min-h-[310px] border-t border-white/15 px-0 py-9 transition-colors hover:bg-white/[0.035] lg:border-l lg:border-t-0 lg:px-8 first:lg:border-l-0 first:lg:pl-0 last:lg:pr-0">
-                <span className="font-display text-[4.7rem] font-black leading-none tracking-[-0.08em] text-white/[0.09] transition-colors group-hover:text-[#d61f26]/20">{number}</span>
+                <span className="font-display text-[4.7rem] font-black leading-none tracking-[-0.08em] text-[#f23a41] transition-colors group-hover:text-white">{number}</span>
                 <div className="mt-10 h-px w-10 bg-[#d61f26]" aria-hidden="true" />
                 <h3 className="mt-6 font-display text-[1.55rem] font-black uppercase leading-tight text-white">{title}</h3>
                 <p className="mt-4 text-[0.98rem] leading-[1.7] text-white/62">{body}</p>
@@ -252,7 +252,7 @@ export default function Services() {
             <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/72">
               The standard is visible, repeatable, and coachable — so progress does not depend on charisma, memory, or another one-time event.
             </p>
-            <Link href="/method" className="home-photo-button home-photo-button-outline shrink-0 border-white/25 text-white hover:border-white hover:bg-white hover:text-black">
+            <Link href="/method" className="home-photo-button home-photo-dark-button shrink-0">
               Explore the full method <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
@@ -260,7 +260,7 @@ export default function Services() {
 
         <section className="public-dark-surface bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12">
           <div>
-            <p className="font-mono text-[.75rem] font-bold uppercase tracking-[.18em] text-[#d61f26]">The first conversation</p>
+            <p className="font-mono text-[.75rem] font-bold uppercase tracking-[.18em] text-[#f23a41]">The first conversation</p>
             <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">
               We will tell you what we see. Even if the answer is <span className="text-[#d61f26]">not us.</span>
             </h2>

@@ -445,6 +445,50 @@ html[data-route-surface="public"] ::selection {
   line-height: 0.8;
 }
 
+/*
+ * The homepage uses dark editorial bands inside an otherwise light composition.
+ * Rebind its local ink variables and higher-specificity prose rules so those
+ * bands can never inherit black text from the light page.
+ */
+.home-photo-one .public-dark-surface {
+  --home-ink: #ffffff;
+  --home-line: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.home-photo-one .public-dark-surface .home-photo-kicker,
+.home-photo-one .public-dark-surface .home-photo-phase-label {
+  color: #f23a41;
+}
+
+.home-photo-one .public-dark-surface .home-photo-method-head > p {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.home-photo-one .public-dark-surface .home-photo-method-grid p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.home-photo-one .public-dark-surface .home-photo-method-grid .home-photo-phase-label {
+  color: #f23a41;
+}
+
+.home-photo-one .public-dark-surface .home-photo-step-number {
+  color: #f23a41;
+}
+
+.home-photo-one .public-dark-surface .home-photo-dark-button {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #11131d !important;
+}
+
+.home-photo-one .public-dark-surface .home-photo-dark-button:hover {
+  border-color: #f23a41;
+  background: #f23a41;
+  color: #ffffff !important;
+}
+
 .home-photo-method-grid h3 {
   margin-top: 3rem;
   font-size: 1.35rem;

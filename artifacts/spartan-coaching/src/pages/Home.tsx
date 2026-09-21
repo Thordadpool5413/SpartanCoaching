@@ -459,7 +459,7 @@ export default function Home() {
                     <article key={step.number} className="group border-l-white/10 transition-colors hover:bg-white/[0.035]">
                       <span className="home-photo-step-number">{step.number}</span>
                       <div className="relative z-10">
-                        <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#d61f26]">
+                        <p className="home-photo-phase-label font-mono text-[0.72rem] font-bold uppercase tracking-[0.16em] text-[#d61f26]">
                           Phase {step.number}
                         </p>
                         <h3 className="tracking-tight text-white">{step.title}</h3>
