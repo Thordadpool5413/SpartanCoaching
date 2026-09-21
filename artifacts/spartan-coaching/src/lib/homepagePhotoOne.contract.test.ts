@@ -21,20 +21,21 @@ describe("Photo 1 homepage release contract", () => {
     expect(home).not.toContain("FieldBriefExperience");
   });
 
-  it("preserves the large editorial hero and responsive mobile guardrails", () => {
+  it("opens with the full field film before the editorial statement", () => {
     const home = read("../pages/Home.tsx");
     const indexCss = read("../index.css");
     const css = read("../styles/field-intelligence.css");
 
-    expect(home).toContain('className="home-photo-frame home-photo-hero-grid"');
-    expect(home).toContain('className="home-photo-video');
+    expect(home).toContain('className="w-full aspect-video bg-black');
+    expect(home.indexOf("<HeroSystemPanel />")).toBeLessThan(
+      home.indexOf('data-testid="section-home-intro"'),
+    );
+    expect(home).toContain('className="relative w-full h-full overflow-hidden bg-black"');
     expect(indexCss).toContain('@import "./styles/field-intelligence.css";');
     expect(indexCss).toContain("family=Instrument+Serif");
     expect(indexCss).toContain("family=Plus+Jakarta+Sans");
     expect(css).toMatch(/\.home-photo-one\s*\{[^}]*--font-display:\s*'Plus Jakarta Sans'/s);
-    expect(css).toMatch(/\.home-photo-hero-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*0\.96fr\)\s+minmax\(520px,\s*1\.04fr\)/s);
-    expect(css).toMatch(/\.home-photo-hero-title\s*\{[^}]*max-width:\s*690px[^}]*font-size:\s*clamp\(4rem,\s*5\.25vw,\s*6\.25rem\)/s);
-    expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-hero-title\s*\{[^}]*max-width:\s*100%/s);
-    expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-actions \.home-photo-button\s*\{[^}]*width:\s*100%/s);
+    expect(home).toContain("aspect-video");
+    expect(home).toContain('className="flex flex-col sm:flex-row gap-4"');
   });
 });

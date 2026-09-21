@@ -108,94 +108,97 @@ export default function Services() {
       <BackButton />
 
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8" data-testid="page-services">
-        <section className="grid gap-10 border-b border-border pb-14 pt-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,.65fr)] lg:items-end lg:pb-20">
+        <section className="grid gap-10 pb-14 pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,.65fr)] lg:items-end lg:pb-24">
           <div>
-            <p className="text-kicker mb-5">Hospice growth consulting</p>
-            <h1 className="max-w-4xl font-display text-[clamp(3.4rem,7vw,7.4rem)] font-black uppercase leading-[.88] tracking-[-.06em] text-foreground" data-testid="text-services-title">
-              Turn growth pressure into <span className="text-primary">field execution.</span>
+            <p className="home-photo-kicker text-[#d61f26] border-[#d61f26] mb-6 flex items-center gap-3">
+                <span className="h-px w-10 bg-[#d61f26]" aria-hidden="true" />
+                Hospice growth consulting
+              </p>
+            <h1 className="max-w-4xl font-display text-[clamp(3.5rem,8vw,7.4rem)] font-black uppercase leading-[0.88] tracking-[-0.04em] text-[#11131d]" data-testid="text-services-title">
+              Turn growth pressure into <span className="text-[#d61f26]">field execution.</span>
             </h1>
           </div>
-          <div className="border-l-2 border-primary pl-6 lg:mb-1">
-            <p className="text-lg leading-8 text-muted-foreground">
+          <div className="border-l border-[#d61f26]/30 pl-8 lg:mb-2">
+            <p className="text-[1.1rem] leading-[1.65] text-[#11131d]/70">
               This is not a menu of disconnected services. We find the constraint, build the right engagement, and stay close enough to make the new behavior stick.
             </p>
             <Link
               href="/contact?service=Consulting"
               onClick={() => trackCta("hero_strategy_call")}
-              className="mt-7 inline-flex min-h-12 items-center gap-3 bg-primary px-6 font-mono text-xs font-bold uppercase tracking-[.12em] text-primary-foreground transition-colors hover:bg-foreground hover:text-background"
+              className="mt-8 home-photo-button home-photo-button-primary"
             >
               Request a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
         </section>
 
-        <section className="py-16 sm:py-20" aria-labelledby="consulting-fit-title">
-          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-20">
+        <section className="py-20 border-t border-[#11131d]/10" aria-labelledby="consulting-fit-title">
+          <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-24">
             <div>
-              <p className="text-kicker">Start with the pressure</p>
-              <h2 id="consulting-fit-title" className="mt-5 max-w-xl font-display text-[clamp(2.8rem,5vw,5.25rem)] font-black uppercase leading-[.9] tracking-[-.055em] text-foreground">
-                Where is growth getting <span className="text-primary">stuck?</span>
+              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">Start with the pressure</p>
+              <h2 id="consulting-fit-title" className="mt-6 max-w-xl font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
+                Where is growth getting <span className="text-[#d61f26]">stuck?</span>
               </h2>
-              <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
+              <p className="mt-8 max-w-lg text-[1.1rem] leading-[1.6] text-[#11131d]/70">
                 The right engagement is determined by the breakdown, not by forcing you into a prebuilt package.
               </p>
             </div>
-            <div className="grid border-l border-t border-border sm:grid-cols-3">
+            <div className="grid sm:grid-cols-3 bg-white shadow-xl">
               {decisionSignals.map(({ icon: Icon, title, body }) => (
-                <article key={title} className="min-h-64 border-b border-r border-border p-6 sm:p-7">
-                  <Icon className="h-6 w-6 text-primary" strokeWidth={1.8} aria-hidden />
-                  <h3 className="mt-10 font-display text-xl font-black uppercase leading-tight tracking-tight text-foreground">{title}</h3>
-                  <p className="mt-4 text-sm leading-6 text-muted-foreground">{body}</p>
+                <article key={title} className="flex flex-col min-h-[300px] border-b border-r border-[#11131d]/10 p-8 hover:bg-neutral-50 transition-colors">
+                  <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.8} aria-hidden />
+                  <h3 className="mt-10 font-display text-[1.25rem] font-black uppercase leading-[1.1] tracking-tight text-[#11131d]">{title}</h3>
+                  <p className="mt-4 text-[0.95rem] leading-[1.6] text-[#11131d]/70 flex-1">{body}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-y border-border bg-muted/20 px-0 py-16 sm:py-20" data-testid="section-engagement-guide">
-          <div className="mb-12 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <section className="bg-[#f5f3ef] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-20 lg:py-24 border-y border-[#11131d]/10" data-testid="section-engagement-guide">
+          <div className="mb-16 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
-              <p className="text-kicker">Three ways to engage</p>
-              <h2 className="mt-5 max-w-4xl font-display text-[clamp(2.8rem,5vw,5.4rem)] font-black uppercase leading-[.9] tracking-[-.055em] text-foreground">
-                The right level of support. <span className="text-primary">No catalog maze.</span>
+              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">Three ways to engage</p>
+              <h2 className="mt-6 max-w-4xl font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
+                The right level of support. <span className="text-[#d61f26]">No catalog maze.</span>
               </h2>
             </div>
-            <p className="max-w-md text-base leading-7 text-muted-foreground">
+            <p className="max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/70 lg:mb-2">
               Scope and investment are confirmed only after we understand the problem, the people involved, and what success must look like.
             </p>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3">
             {engagements.map((engagement) => {
               const Icon = engagement.icon;
               return (
-                <article key={engagement.id} id={engagement.id} className="flex min-h-full flex-col border border-border bg-background p-7 shadow-sm sm:p-8" data-testid={`card-consulting-${engagement.number}`}>
+                <article key={engagement.id} id={engagement.id} className="flex min-h-full flex-col border border-[#11131d]/10 bg-white p-8 sm:p-10 shadow-xl" data-testid={`card-consulting-${engagement.number}`}>
                   <div className="flex items-start justify-between gap-4">
-                    <span className="font-mono text-xs font-bold tracking-[.18em] text-primary">{engagement.number}</span>
-                    <Icon className="h-7 w-7 text-primary" strokeWidth={1.7} aria-hidden />
+                    <span className="font-mono text-xs font-bold tracking-[.18em] text-[#d61f26]">{engagement.number}</span>
+                    <Icon className="h-8 w-8 text-[#d61f26]" strokeWidth={1.5} aria-hidden />
                   </div>
-                  <p className="mt-10 font-mono text-[.68rem] font-bold uppercase tracking-[.16em] text-primary">{engagement.eyebrow}</p>
-                  <h3 className="mt-3 font-display text-3xl font-black uppercase leading-[.98] tracking-[-.04em] text-foreground">{engagement.title}</h3>
+                  <p className="mt-12 font-mono text-[.68rem] font-bold uppercase tracking-[.16em] text-[#d61f26]">{engagement.eyebrow}</p>
+                  <h3 className="mt-4 font-display text-[1.8rem] font-black uppercase leading-[1.05] tracking-tight text-[#11131d]">{engagement.title}</h3>
 
-                  <dl className="mt-7 space-y-5">
+                  <dl className="mt-8 space-y-6 flex-1">
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-muted-foreground">Best fit</dt>
-                      <dd className="mt-2 text-sm leading-6 text-foreground">{engagement.fit}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">Best fit</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.fit}</dd>
                     </div>
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-muted-foreground">How it works</dt>
-                      <dd className="mt-2 text-sm leading-6 text-foreground">{engagement.format}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">How it works</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.format}</dd>
                     </div>
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-muted-foreground">What changes</dt>
-                      <dd className="mt-2 text-sm leading-6 text-foreground">{engagement.outcome}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">What changes</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.outcome}</dd>
                     </div>
                   </dl>
 
-                  <ul className="mt-7 space-y-3 border-t border-border pt-6">
+                  <ul className="mt-8 space-y-3 border-t border-[#11131d]/10 pt-8">
                     {engagement.includes.map((item) => (
-                      <li key={item} className="flex gap-3 text-sm leading-6 text-muted-foreground">
-                        <Check className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                      <li key={item} className="flex gap-3 text-[0.9rem] leading-[1.6] text-[#11131d]/70">
+                        <Check className="mt-[2px] h-4 w-4 shrink-0 text-[#d61f26]" aria-hidden />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -204,7 +207,7 @@ export default function Services() {
                   <Link
                     href={`/contact?service=${encodeURIComponent(engagement.title)}`}
                     onClick={() => trackCta(engagement.id)}
-                    className="mt-8 inline-flex min-h-12 items-center justify-between border border-foreground px-5 font-mono text-[.7rem] font-bold uppercase tracking-[.12em] text-foreground transition-colors hover:bg-foreground hover:text-background"
+                    className="mt-10 home-photo-button home-photo-button-outline w-full justify-between"
                   >
                     Discuss this engagement <ArrowRight className="h-4 w-4" aria-hidden />
                   </Link>
@@ -214,75 +217,75 @@ export default function Services() {
           </div>
         </section>
 
-        <section className="py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:gap-20">
+        <section className="py-20 lg:py-32">
+          <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr] lg:gap-24">
             <div>
-              <p className="text-kicker">The Spartan method</p>
-              <h2 className="mt-5 font-display text-[clamp(2.8rem,5vw,5.3rem)] font-black uppercase leading-[.9] tracking-[-.055em] text-foreground">
-                Diagnose. Design. Install. <span className="text-primary">Sustain.</span>
+              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The Spartan method</p>
+              <h2 className="mt-6 font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
+                Diagnose. Design. Install. <span className="text-[#d61f26]">Sustain.</span>
               </h2>
-              <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
+              <p className="mt-8 max-w-lg text-[1.1rem] leading-[1.6] text-[#11131d]/70">
                 Training is an event. Change is an operating rhythm. Every engagement is built to leave the organization stronger after the work ends.
               </p>
             </div>
-            <ol className="border-t border-foreground">
+            <ol className="border-t-2 border-[#11131d]">
               {process.map(([number, title, body]) => (
-                <li key={number} className="grid gap-3 border-b border-border py-7 sm:grid-cols-[64px_180px_1fr] sm:items-start">
-                  <span className="font-mono text-xs font-bold tracking-[.16em] text-primary">{number}</span>
-                  <h3 className="font-display text-xl font-black uppercase text-foreground">{title}</h3>
-                  <p className="text-sm leading-6 text-muted-foreground">{body}</p>
+                <li key={number} className="grid gap-4 border-b border-[#11131d]/10 py-8 sm:grid-cols-[64px_220px_1fr] sm:items-start">
+                  <span className="font-mono text-sm font-bold tracking-[.16em] text-[#d61f26]">{number}</span>
+                  <h3 className="font-display text-[1.4rem] font-black uppercase leading-tight text-[#11131d]">{title}</h3>
+                  <p className="text-[1rem] leading-[1.6] text-[#11131d]/70">{body}</p>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        <section className="grid gap-8 bg-[#0b0d14] px-7 py-12 text-white sm:px-10 lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
+        <section className="bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12">
           <div>
-            <p className="font-mono text-[.68rem] font-bold uppercase tracking-[.18em] text-[#ee3439]">The first conversation</p>
-            <h2 className="mt-5 max-w-4xl font-display text-[clamp(3rem,6vw,6.6rem)] font-black uppercase leading-[.86] tracking-[-.06em]">
-              We will tell you what we see. Even if the answer is <span className="text-[#ee3439]">not us.</span>
+            <p className="font-mono text-[.75rem] font-bold uppercase tracking-[.18em] text-[#d61f26]">The first conversation</p>
+            <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">
+              We will tell you what we see. Even if the answer is <span className="text-[#d61f26]">not us.</span>
             </h2>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-white/65">
+            <p className="mt-8 max-w-3xl text-[1.2rem] leading-[1.6] text-white/70">
               Bring the pressure, the number, and the part that keeps breaking. You will leave with a clearer view of the problem and the next move.
             </p>
           </div>
           <Link
             href="/contact?service=Consulting"
             onClick={() => trackCta("closing_strategy_call")}
-            className="inline-flex min-h-12 items-center justify-center gap-3 bg-[#d51f26] px-7 font-mono text-xs font-bold uppercase tracking-[.12em] text-white transition-colors hover:bg-white hover:text-black"
+            className="home-photo-button home-photo-button-primary bg-[#d61f26] border-[#d61f26] mt-10 lg:mt-0"
             data-testid="button-services-contact"
           >
             Request a strategy call <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </section>
 
-        <section className="grid gap-12 py-16 sm:py-20 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+        <section className="grid gap-12 py-20 lg:py-32 lg:grid-cols-[.8fr_1.2fr] lg:gap-24">
           <div>
-            <div className="flex h-11 w-11 items-center justify-center border border-primary/30 bg-primary/5">
-              <ClipboardCheck className="h-5 w-5 text-primary" aria-hidden />
+            <div className="flex h-14 w-14 items-center justify-center border border-[#d61f26]/20 bg-[#d61f26]/5 rounded-sm">
+              <ClipboardCheck className="h-6 w-6 text-[#d61f26]" aria-hidden />
             </div>
-            <h2 className="mt-6 font-display text-4xl font-black uppercase tracking-[-.04em] text-foreground">Questions before the call?</h2>
-            <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
+            <h2 className="mt-8 font-display text-[2.5rem] font-black uppercase tracking-tight leading-[1.05] text-[#11131d]">Questions before the call?</h2>
+            <p className="mt-6 max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/70">
               The call is a working conversation, not a sales ambush. These are the questions leaders usually ask first.
             </p>
           </div>
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="length">
-              <AccordionTrigger className="text-left font-semibold text-foreground">How long is an engagement?</AccordionTrigger>
-              <AccordionContent className="leading-7 text-muted-foreground">Focused work can be completed in a single session or field day. Team and leadership engagements usually run from 30 days to several months, depending on the constraint and the reinforcement required.</AccordionContent>
+            <AccordionItem value="length" className="border-b border-[#11131d]/10 py-2">
+              <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">How long is an engagement?</AccordionTrigger>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">Focused work can be completed in a single session or field day. Team and leadership engagements usually run from 30 days to several months, depending on the constraint and the reinforcement required.</AccordionContent>
             </AccordionItem>
-            <AccordionItem value="investment">
-              <AccordionTrigger className="text-left font-semibold text-foreground">Why is pricing customized?</AccordionTrigger>
-              <AccordionContent className="leading-7 text-muted-foreground">A field ride-along, a leadership operating system, and a multi-market growth partnership are materially different engagements. Scope, travel, team size, and deliverables are confirmed before any commitment.</AccordionContent>
+            <AccordionItem value="investment" className="border-b border-[#11131d]/10 py-2">
+              <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">Why is pricing customized?</AccordionTrigger>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">A field ride-along, a leadership operating system, and a multi-market growth partnership are materially different engagements. Scope, travel, team size, and deliverables are confirmed before any commitment.</AccordionContent>
             </AccordionItem>
-            <AccordionItem value="fit">
-              <AccordionTrigger className="text-left font-semibold text-foreground">What if consulting is not the right fit?</AccordionTrigger>
-              <AccordionContent className="leading-7 text-muted-foreground">You will be told directly. If the problem is staffing capacity, clinical operations, or something another expert should own, the call will not be used to force a consulting proposal.</AccordionContent>
+            <AccordionItem value="fit" className="border-b border-[#11131d]/10 py-2">
+              <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">What if consulting is not the right fit?</AccordionTrigger>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">You will be told directly. If the problem is staffing capacity, clinical operations, or something another expert should own, the call will not be used to force a consulting proposal.</AccordionContent>
             </AccordionItem>
-            <AccordionItem value="compliance">
-              <AccordionTrigger className="text-left font-semibold text-foreground">How is sensitive information handled?</AccordionTrigger>
-              <AccordionContent className="leading-7 text-muted-foreground">Discovery does not require patient information. No PHI should be submitted through the website. A BAA can be discussed when an organizational engagement requires it.</AccordionContent>
+            <AccordionItem value="compliance" className="border-b border-[#11131d]/10 py-2">
+              <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">How is sensitive information handled?</AccordionTrigger>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">Discovery does not require patient information. No PHI should be submitted through the website. A BAA can be discussed when an organizational engagement requires it.</AccordionContent>
             </AccordionItem>
           </Accordion>
         </section>

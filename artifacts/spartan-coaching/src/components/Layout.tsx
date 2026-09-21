@@ -281,9 +281,9 @@ export function Header() {
       className="public-site-header sticky top-0 z-50 w-full dark-authority-header safe-area-top"
       data-testid="site-header"
     >
-      <div className="mx-auto flex h-[4.25rem] w-full max-w-[1440px] items-center px-4 safe-area-x sm:h-[4.5rem] sm:px-6 md:h-20 xl:px-8">
+      <div className="mx-auto flex h-[4.5rem] w-full max-w-[1440px] items-center px-4 safe-area-x sm:px-6 md:h-20 xl:px-8">
         {/* Brand — fixed footprint, never collides with nav */}
-        <div className="flex shrink-0 items-center pr-4 xl:pr-6">
+        <div className="flex min-w-0 shrink items-center pr-2 sm:pr-4 xl:pr-6">
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
@@ -292,14 +292,14 @@ export function Header() {
               <img
                 src="/spartan-logo-stamp.png"
                 alt=""
-                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-none shrink-0"
+                className="h-8 w-8 shrink-0 object-contain drop-shadow-none sm:h-9 sm:w-9"
                 width={36}
                 height={36}
                 decoding="async"
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
+                <span className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.03em] text-primary group-hover:text-primary min-[390px]:text-base sm:text-xl md:text-[1.35rem]">
                   SPARTAN COACHING
                 </span>
                 <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
@@ -333,11 +333,11 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="ml-auto flex shrink-0 items-center gap-2 border-l border-border/50 pl-3 sm:pl-4 xl:pl-5">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 border-l border-border/50 pl-2 sm:gap-2 sm:pl-4 xl:pl-5">
           <Button
             variant="ghost"
             size="icon"
-            className="xl:hidden touch-manipulation text-foreground"
+            className="hidden touch-manipulation text-foreground sm:inline-flex xl:hidden"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -349,11 +349,11 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-              className="hidden xl:inline-flex font-semibold !text-foreground hover:!text-primary"
+              className="inline-flex h-10 border border-foreground/20 bg-background px-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.08em] !text-foreground shadow-none transition-colors hover:border-primary hover:bg-primary hover:!text-primary-foreground sm:px-4"
               data-testid="button-login"
             >
               <Link href="/login" className="!text-foreground hover:!text-primary">
-                <LogIn className="w-4 h-4" />
+                <LogIn className="hidden h-4 w-4 sm:block" />
                 Login
               </Link>
             </Button>
@@ -386,7 +386,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="xl:hidden touch-manipulation"
+                className="touch-manipulation border border-transparent hover:border-border xl:hidden"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >

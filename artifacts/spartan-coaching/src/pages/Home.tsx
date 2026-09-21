@@ -103,9 +103,9 @@ export function HeroSystemPanel() {
   };
 
   return (
-    <figure className="relative z-0 h-full w-full" data-testid="section-hero-panel">
+    <figure className="relative z-0 h-full w-full bg-black" data-testid="section-hero-panel">
       <div
-        className="home-photo-video relative w-full overflow-hidden bg-black"
+        className="relative w-full h-full overflow-hidden bg-black"
         data-testid="hero-video-frame"
       >
         {videoState === "error" && (
@@ -158,7 +158,7 @@ export function HeroSystemPanel() {
           <button
             type="button"
             onClick={togglePlayback}
-            className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white px-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="ml-1 inline-flex min-h-8 items-center gap-1.5 rounded border border-white px-2 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors hover:bg-white hover:text-black"
             data-testid="button-hero-video-play"
             aria-label={videoState === "playing" ? "Pause background film" : videoState === "error" ? "Retry background film" : "Play background film"}
           >
@@ -296,50 +296,53 @@ export default function Home() {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
-      <div className="home-photo-one overflow-hidden bg-white text-black" data-testid="page-home">
+      <div className="home-photo-one overflow-x-hidden bg-white text-black" data-testid="page-home">
         <section
           data-testid="section-hero"
-          className="home-photo-hero border-b border-black/10 bg-white"
+          className="bg-white pt-6 pb-20"
         >
-          <div
-            data-testid="section-home-intro"
-            className="home-photo-frame home-photo-hero-grid"
-          >
-            <div className="home-photo-hero-copy">
+          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 xl:px-8">
+            <div className="w-full aspect-video bg-black relative mb-16 shadow-2xl border border-black/5 ring-1 ring-black/5">
+               <HeroSystemPanel />
+            </div>
+
+            <div className="max-w-6xl" data-testid="section-home-intro">
               <p className="home-photo-kicker mb-6 flex items-center gap-3">
                 <span className="h-px w-10 bg-[#d61f26]" aria-hidden="true" />
                 Hospice growth consulting
               </p>
               <h1
                 data-testid="text-home-hero-title"
-                className="home-photo-hero-title max-w-[780px] font-display font-black uppercase leading-[.98]"
+                className="font-display text-[clamp(2.55rem,8vw,8rem)] font-black uppercase leading-[.98] tracking-[-0.05em] text-[#11131d] [overflow-wrap:normal]"
               >
                 Make the next hospice <span className="text-[#d61f26]">conversation</span> count.
               </h1>
-              <p className="home-photo-hero-lede mt-7 max-w-2xl text-black/70">
-                Spartan Coaching helps hospice teams convert strategy into disciplined field execution — with
-                sharper conversations, stronger managers, and a growth system your people can actually run.
-              </p>
 
-              <div className="home-photo-actions mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/contact"
-                  onClick={() => consultingClick("Hero: Request a strategy call")}
-                  className="home-photo-button home-photo-button-primary"
-                >
-                  Request a strategy call
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/services"
-                  onClick={() => servicesClick("Hero: Explore consulting")}
-                  className="home-photo-button home-photo-button-outline"
-                >
-                  Explore consulting
-                </Link>
+              <div className="mt-10 grid lg:grid-cols-[1fr_auto] gap-10 items-end">
+                <p className="max-w-2xl text-[1.1rem] leading-relaxed text-black/70">
+                  Spartan Coaching helps hospice teams convert strategy into disciplined field execution — with
+                  sharper conversations, stronger managers, and a growth system your people can actually run.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href="/contact"
+                    onClick={() => consultingClick("Hero: Request a strategy call")}
+                    className="home-photo-button home-photo-button-primary"
+                  >
+                    Request a strategy call
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    href="/services"
+                    onClick={() => servicesClick("Hero: Explore consulting")}
+                    className="home-photo-button home-photo-button-outline"
+                  >
+                    Explore consulting
+                  </Link>
+                </div>
               </div>
 
-              <div className="home-photo-trust mt-10 grid grid-cols-1 gap-3 border-t border-black/15 pt-6 text-black/65 sm:grid-cols-3">
+              <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-black/10 pt-8 text-xs font-bold uppercase tracking-widest text-black/60">
                 <span className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
                   Hospice specific
@@ -354,8 +357,6 @@ export default function Home() {
                 </span>
               </div>
             </div>
-
-            <div className="home-photo-hero-media"><HeroSystemPanel /></div>
           </div>
         </section>
 
@@ -371,13 +372,13 @@ export default function Home() {
                 </h2>
               </div>
 
-              <div className="home-photo-card-grid home-photo-card-grid-two">
+              <div className="home-photo-card-grid home-photo-card-grid-two bg-white shadow-xl">
                 {problems.map((problem) => {
                   const Icon = problem.icon;
                   return (
-                    <article key={problem.title} className="home-photo-card">
+                    <article key={problem.title} className="home-photo-card hover:bg-neutral-50 transition-colors">
                       <Icon className="h-6 w-6 text-[#d61f26]" strokeWidth={1.8} aria-hidden="true" />
-                      <h3>{problem.title}</h3>
+                      <h3 className="tracking-tight">{problem.title}</h3>
                       <p>{problem.body}</p>
                     </article>
                   );
@@ -402,9 +403,9 @@ export default function Home() {
                 const Icon = audience.icon;
                 return (
                   <article key={audience.label}>
-                    <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.7} aria-hidden="true" />
-                    <h3>{audience.label}</h3>
-                    <p>{audience.body}</p>
+                    <Icon className="h-8 w-8 text-[#d61f26]" strokeWidth={1.7} aria-hidden="true" />
+                    <h3 className="tracking-tight text-xl">{audience.label}</h3>
+                    <p className="text-base">{audience.body}</p>
                   </article>
                 );
               })}
@@ -412,17 +413,17 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-method" className="home-photo-section bg-[#f5f3ef]">
+        <section data-testid="section-method" className="home-photo-section bg-black text-white">
           <div className="home-photo-frame">
             <div className="home-photo-method-head">
-              <p className="home-photo-kicker">The Spartan method</p>
-              <h2 className="home-photo-section-title mt-5 font-display font-black uppercase">
+              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The Spartan method</p>
+              <h2 className="home-photo-section-title text-white mt-5 font-display font-black uppercase">
                 Diagnose. Install. Sustain.
               </h2>
-              <p>We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+              <p className="text-white/60">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
             </div>
 
-              <div className="home-photo-method-grid">
+              <div className="home-photo-method-grid border-t-white/10">
                 {[
                   {
                     number: "01",
@@ -445,13 +446,13 @@ export default function Home() {
                 ].map((step) => {
                   const Icon = step.icon;
                   return (
-                    <article key={step.number}>
-                      <span className="home-photo-step-number">{step.number}</span>
-                      <div>
-                        <h3>{step.title}</h3>
-                        <p>{step.body}</p>
+                    <article key={step.number} className="border-l-white/10">
+                      <span className="home-photo-step-number text-white/5">{step.number}</span>
+                      <div className="relative z-10">
+                        <h3 className="tracking-tight">{step.title}</h3>
+                        <p className="text-white/60">{step.body}</p>
                       </div>
-                      <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.5} aria-hidden="true" />
+                      <Icon className="h-8 w-8 text-[#d61f26] absolute top-8 right-8 z-10" strokeWidth={1.5} aria-hidden="true" />
                     </article>
                   );
                 })}
@@ -459,7 +460,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-pathways" className="home-photo-section home-photo-section-lined border-y border-black/10 bg-[#f5f3ef]">
+        <section data-testid="section-pathways" className="home-photo-section bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-path-head">
               <div>
@@ -480,11 +481,11 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="home-photo-path-grid">
+            <div className="home-photo-path-grid bg-white shadow-xl">
               {engagementPaths.map((path) => (
-                <article key={path.number} className="group">
-                  <span>{path.number}</span>
-                  <h3>
+                <article key={path.number} className="group hover:bg-neutral-50 transition-colors">
+                  <span className="text-[#d61f26]">{path.number}</span>
+                  <h3 className="tracking-tight text-[1.25rem]">
                     {path.title}
                   </h3>
                   <p>{path.body}</p>
@@ -502,10 +503,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-founder-authority" className="home-photo-section bg-white">
+        <section data-testid="section-founder-authority" className="home-photo-section bg-black text-white">
           <div className="home-photo-frame home-photo-founder-grid">
             <div className="home-photo-founder-image relative">
-              <div className="absolute -bottom-3 -right-3 h-full w-full bg-[#d61f26]" aria-hidden="true" />
+              <div className="absolute -bottom-6 -right-6 h-full w-full bg-[#d61f26]" aria-hidden="true" />
               <img
                 src={founderPhoto}
                 alt="Nick Lynch, founder of Spartan Coaching"
@@ -516,22 +517,22 @@ export default function Home() {
               />
             </div>
 
-            <div>
-              <p className="home-photo-kicker">Meet your coach</p>
-              <h2 className="home-photo-founder-title fi-serif mt-5 max-w-4xl font-black leading-[.96] text-black/70">
+            <div className="lg:pl-10">
+              <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">Meet your coach</p>
+              <h2 className="fi-serif mt-6 max-w-4xl text-[clamp(4rem,7vw,6.5rem)] leading-[.96] tracking-[-0.03em] text-white">
                 Built by someone who has carried the number.
               </h2>
-              <p className="home-photo-founder-lede mt-7 max-w-2xl text-black/70">
+              <p className="mt-8 max-w-2xl text-[1.2rem] leading-relaxed text-white/80">
                 Nick Lynch built Spartan Coaching around a simple belief: hospice sales support should
                 sound like the field, work in the field, and make leaders better at coaching the field.
               </p>
-              <p className="mt-5 max-w-2xl leading-8 text-black/65">
+              <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/60">
                 The work combines frontline experience, executive perspective, and a practical operating
                 system for teams that are accountable for growth every week.
               </p>
               <Link
                 href="/about"
-                className="home-photo-text-link mt-8"
+                className="home-photo-text-link mt-10 text-white hover:text-[#d61f26]"
               >
                 Read the founder story
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -540,7 +541,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-results" className="home-photo-section home-photo-section-lined bg-[#f5f3ef]">
+        <section data-testid="section-results" className="home-photo-section bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-results-head">
               <div>
@@ -552,21 +553,21 @@ export default function Home() {
               <p>The goal is not a motivational week. It is clarity, confidence, and a standard leaders can coach long after the engagement ends.</p>
             </div>
 
-              <div className="home-photo-results-grid">
+              <div className="home-photo-results-grid bg-white shadow-xl">
                   {outcomes.map((outcome) => (
-                    <figure key={outcome.role}>
-                      <blockquote>“{outcome.quote}”</blockquote>
-                      <figcaption>
+                    <figure key={outcome.role} className="flex flex-col">
+                      <blockquote className="flex-1 text-[1.15rem] leading-[1.6]">“{outcome.quote}”</blockquote>
+                      <figcaption className="mt-8 pt-6 border-t border-black/10">
                         {outcome.role}
                       </figcaption>
                     </figure>
                   ))}
-                <div className="home-photo-outcome bg-black text-white">
+                <div className="home-photo-outcome bg-[#d61f26] text-white flex-col items-start gap-4">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[.2em] text-[#ee3439]">The outcome</p>
-                    <p className="mt-2 text-2xl font-black uppercase">Repeatable execution.</p>
+                    <p className="text-[11px] font-black uppercase tracking-[.2em] text-white/80">The outcome</p>
+                    <p className="mt-4 text-4xl font-display font-black uppercase tracking-tight">Repeatable execution.</p>
                   </div>
-                  <p className="max-w-xl leading-7 text-white/65">
+                  <p className="max-w-xl leading-relaxed text-white/90 text-lg">
                     One disciplined approach leaders can coach across territories, branches, and markets.
                   </p>
                 </div>
@@ -574,7 +575,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-process" className="home-photo-section bg-white">
+        <section data-testid="section-process" className="home-photo-section bg-white border-y border-black/10">
           <div className="home-photo-frame">
             <div className="max-w-4xl">
               <p className="home-photo-kicker">How we work</p>
@@ -591,41 +592,35 @@ export default function Home() {
                 ["04", "Lasting results", "Leave behind standards and rhythms the organization can sustain."],
               ].map(([number, title, body]) => (
                 <article key={number}>
-                  <span>{number}</span>
-                  <h3>{title}</h3>
-                  <p>{body}</p>
+                  <span className="text-[#d61f26]">{number}</span>
+                  <h3 className="tracking-tight text-xl">{title}</h3>
+                  <p className="text-base">{body}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section data-testid="section-closing" className="home-photo-closing-wrap bg-white">
-          <div className="home-photo-frame home-photo-closing bg-black text-white">
-            <div>
-              <p className="home-photo-kicker">The next move</p>
-              <h2 className="mt-5 font-display font-black uppercase">
-                Stop winging it.
-              </h2>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-white/65">
-                Build a hospice growth system your team can execute and your leaders can coach.
-              </p>
-            </div>
-            <Link
-              href="/contact"
-              onClick={() => consultingClick("Closing: Request a strategy call")}
-              className="home-photo-button home-photo-button-primary"
-            >
-              Request a strategy call
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="home-photo-frame home-photo-closing-trust">
-            <div>
-              <span>Hospice-specific strategy</span>
-              <span>Field-tested coaching</span>
-              <span>Leadership accountability</span>
-              <span>Repeatable execution</span>
+        <section data-testid="section-closing" className="bg-[#f5f3ef] py-20">
+          <div className="home-photo-frame">
+            <div className="home-photo-closing relative z-10 bg-black text-white shadow-2xl">
+              <div>
+                <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">The next move</p>
+                <h2 className="mt-5 font-display text-[clamp(4.5rem,10vw,9rem)] font-black uppercase leading-[0.85] tracking-[-0.04em]">
+                  Stop winging it.
+                </h2>
+                <p className="mt-10 max-w-2xl text-[1.25rem] leading-[1.6] text-white/70">
+                  Build a hospice growth system your team can execute and your leaders can coach.
+                </p>
+              </div>
+              <Link
+                href="/contact"
+                onClick={() => consultingClick("Closing: Request a strategy call")}
+                className="home-photo-button home-photo-button-primary bg-[#d61f26] border-[#d61f26]"
+              >
+                Request a strategy call
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>

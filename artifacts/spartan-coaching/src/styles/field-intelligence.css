@@ -1,18 +1,19 @@
 /* Spartan public surface */
 html[data-route-surface="public"] {
-  --fi-ink: #101113;
-  --fi-paper: #f4f4f2;
+  --fi-ink: #11131d;
+  --fi-paper: #f5f3ef;
   --fi-surface: #ffffff;
-  --fi-red: #a40f22;
-  --fi-red-hover: #7d0b19;
-  --fi-line: rgba(10, 10, 10, 0.12);
+  --fi-red: #d51f26;
+  --fi-red-hover: #b01a20;
+  --fi-line: rgba(17, 19, 29, 0.12);
   --fi-line-light: rgba(255, 255, 255, 0.15);
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 html[data-route-surface="public"] .page-persuasion,
 html[data-route-surface="public"] .public-layout {
   color: var(--fi-ink);
-  background: var(--fi-paper);
+  background: var(--fi-surface);
   font-family: 'DM Sans', sans-serif;
 }
 
@@ -24,7 +25,7 @@ html[data-route-surface="public"] .public-layout {
 }
 
 html[data-route-surface="public"] body {
-  background-color: var(--fi-paper);
+  background-color: var(--fi-surface);
   color: var(--fi-ink);
 }
 
