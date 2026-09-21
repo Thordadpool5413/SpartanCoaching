@@ -226,7 +226,154 @@ async function expectKeyboardFocus(locator: Locator, label: string) {
   ).toBe(true);
 }
 
+type AppearanceMode = "light" | "dark";
+
+async function usePublicAppearance(page: Page, mode: AppearanceMode) {
+  await page.addInitScript((appearanceMode) => {
+    localStorage.setItem("spartan_theme", JSON.stringify(appearanceMode));
+    localStorage.setItem("spartan_bg", appearanceMode === "light" ? "soft" : "midnight");
+    localStorage.setItem("spartan_accent", "red");
+    localStorage.setItem("spartan_theme_preset", "custom");
+  }, mode);
+}
+
+async function expectReadableContrast(locator: Locator, label: string) {
+  await expect(locator, `${label} must be visible`).toBeVisible();
+
+  const failures = await locator.evaluate((root) => {
+    type Rgba = { r: number; g: number; b: number; a: number };
+    const parseColor = (value: string): Rgba | null => {
+      const match = value.match(/rgba?\(([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\)/);
+      if (!match) return null;
+      return {
+        r: Number(match[1]),
+        g: Number(match[2]),
+        b: Number(match[3]),
+        a: match[4] === undefined ? 1 : Number(match[4]),
+      };
+    };
+    const composite = (front: Rgba, back: Rgba): Rgba => {
+      const alpha = front.a + back.a * (1 - front.a);
+      if (alpha === 0) return { r: 0, g: 0, b: 0, a: 0 };
+      return {
+        r: (front.r * front.a + back.r * back.a * (1 - front.a)) / alpha,
+        g: (front.g * front.a + back.g * back.a * (1 - front.a)) / alpha,
+        b: (front.b * front.a + back.b * back.a * (1 - front.a)) / alpha,
+        a: alpha,
+      };
+    };
+    const backgroundFor = (element: Element): Rgba => {
+      const layers: Rgba[] = [];
+      let current: Element | null = element;
+      while (current) {
+        const color = parseColor(getComputedStyle(current).backgroundColor);
+        if (color && color.a > 0) layers.push(color);
+        current = current.parentElement;
+      }
+      return layers.reduceRight(
+        (background, layer) => composite(layer, background),
+        { r: 255, g: 255, b: 255, a: 1 },
+      );
+    };
+    const luminance = ({ r, g, b }: Rgba) => {
+      const channel = (value: number) => {
+        const normalized = value / 255;
+        return normalized <= 0.04045
+          ? normalized / 12.92
+          : ((normalized + 0.055) / 1.055) ** 2.4;
+      };
+      return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+    };
+    const contrast = (first: Rgba, second: Rgba) => {
+      const lighter = Math.max(luminance(first), luminance(second));
+      const darker = Math.min(luminance(first), luminance(second));
+      return (lighter + 0.05) / (darker + 0.05);
+    };
+    const candidates = Array.from(
+      root.querySelectorAll<HTMLElement>("h1, h2, h3, h4, p, span, a, button, [role='button']"),
+    ).filter((element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        Number(style.opacity) > 0 &&
+        rect.width > 0 &&
+        rect.height > 0 &&
+        Boolean(element.textContent?.trim()) &&
+        element.getAttribute("aria-hidden") !== "true" &&
+        !element.querySelector("h1, h2, h3, h4, p, span, a, button, [role='button']")
+      );
+    });
+
+    return candidates.flatMap((element) => {
+      const style = getComputedStyle(element);
+      const foreground = parseColor(style.color);
+      if (!foreground) return [`${element.tagName}: unparseable color ${style.color}`];
+      const background = backgroundFor(element);
+      const renderedForeground = composite(foreground, background);
+      const ratio = contrast(renderedForeground, background);
+      const fontSize = Number.parseFloat(style.fontSize);
+      const fontWeight = Number.parseInt(style.fontWeight, 10) || 400;
+      const largeText = fontSize >= 24 || (fontSize >= 18.66 && fontWeight >= 700);
+      const required = element.matches("button, [role='button']") ? 3 : largeText ? 3 : 4.5;
+      return ratio + 0.01 < required
+        ? [`${element.tagName} "${element.textContent?.trim().replace(/\s+/g, " ").slice(0, 80)}" ${ratio.toFixed(2)}:1 < ${required}:1 (color ${style.color}; background ${background.r.toFixed(0)}, ${background.g.toFixed(0)}, ${background.b.toFixed(0)})`]
+        : [];
+    });
+  });
+
+  expect(failures, `${label} has unreadable rendered text:\n${failures.join("\n")}`).toEqual([]);
+}
+
 test.describe("public website release gate", () => {
+  for (const mode of ["light", "dark"] as const) {
+    test(`intentional dark public sections retain readable text in ${mode} appearance`, async ({
+      page,
+    }) => {
+      await isolatePublicPage(page);
+      await usePublicAppearance(page, mode);
+
+      for (const region of [
+        { path: "/", testId: "section-method", label: "Home method section" },
+        { path: "/services", testId: "section-services-closing", label: "Consulting closing section" },
+        { path: "/method", testId: "section-method-closing", label: "Spartan Method closing section" },
+      ]) {
+        await page.goto(region.path, { waitUntil: "domcontentloaded" });
+        await expect(page.locator("html")).toHaveAttribute("data-theme-mode", mode);
+        await expectReadableContrast(page.getByTestId(region.testId), `${region.label} (${mode})`);
+      }
+    });
+
+    test(`public header controls retain readable contrast in ${mode} appearance`, async ({
+      page,
+    }, testInfo) => {
+      await isolatePublicPage(page);
+      await usePublicAppearance(page, mode);
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await expect(page.locator("html")).toHaveAttribute("data-theme-mode", mode);
+
+      const header = page.getByTestId("site-header");
+      await expect(header.getByTestId("link-home")).toBeVisible();
+
+      if (testInfo.project.name === "desktop-chromium") {
+        await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+        await expect(page.getByTestId("button-login")).toBeVisible();
+        await expect(page.getByTestId("button-book-call")).toBeVisible();
+        await expectReadableContrast(header, `desktop header (${mode})`);
+      } else {
+        await expect(page.getByTestId("button-mobile-menu")).toBeVisible();
+        await expectReadableContrast(header, `phone header (${mode})`);
+        await page.getByTestId("button-mobile-menu").click();
+        const menu = page.getByRole("dialog");
+        await expect(menu.getByRole("navigation", { name: "Mobile navigation" })).toBeVisible();
+        await expect(menu.getByText("Client Login", { exact: true })).toBeVisible();
+        await expect(menu.getByTestId("button-mobile-book-call")).toBeVisible();
+        await expectReadableContrast(menu, `phone menu (${mode})`);
+      }
+    });
+  }
+
   test("renders Calendly recovery states and removes the consultation token from history", async ({
     page,
   }) => {
@@ -768,7 +915,7 @@ test.describe("public website release gate", () => {
     }
   });
 
-  test("mobile header keeps search and menu usable at 390px", async ({ page }, testInfo) => {
+  test("mobile header keeps branding and menu usable at 390px", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await isolatePublicPage(page);
@@ -776,33 +923,25 @@ test.describe("public website release gate", () => {
     await page.evaluate(() => document.fonts?.ready);
 
     const header = page.locator("header.public-site-header");
-    const search = page.getByTestId("button-mobile-search");
     const menu = page.getByTestId("button-mobile-menu");
 
     await expect(header).toBeVisible();
-    await expect(search).toBeVisible();
+    await expect(header.getByTestId("link-home")).toBeVisible();
     await expect(menu).toBeVisible();
-    await expect(page.getByTestId("button-login")).toBeHidden();
+    await expect(page.getByTestId("button-login")).toBeVisible();
     await expect(page.getByTestId("button-book-call")).toBeHidden();
     await expectNoHorizontalOverflow(page, "390px public header");
 
     await page.keyboard.press("Tab");
-    await search.focus();
-    await page.keyboard.press("Tab");
+    await menu.focus();
     await expectKeyboardFocus(menu, "390px menu control");
-    await page.keyboard.press("Shift+Tab");
-    await expectKeyboardFocus(search, "390px search control");
-
-    await search.click();
-    await expect(page.getByTestId("dialog-search")).toBeVisible();
-    await expect(page.getByTestId("input-search")).toBeFocused();
-    await expectNoHorizontalOverflow(page, "390px search dialog");
-    await page.keyboard.press("Escape");
-    await expect(page.getByTestId("dialog-search")).toBeHidden();
 
     await menu.click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Mobile navigation" })).toBeVisible();
+    const mobileMenu = page.getByRole("dialog");
+    await expect(mobileMenu).toBeVisible();
+    await expect(mobileMenu.getByRole("navigation", { name: "Mobile navigation" })).toBeVisible();
+    await expect(mobileMenu.getByText("Client Login", { exact: true })).toBeVisible();
+    await expect(mobileMenu.getByTestId("button-mobile-book-call")).toBeVisible();
     await expectNoHorizontalOverflow(page, "390px mobile menu");
 
     await testInfo.attach(`public-header-mobile-menu-${testInfo.project.name}`, {

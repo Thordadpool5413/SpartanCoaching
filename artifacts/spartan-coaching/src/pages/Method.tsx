@@ -457,7 +457,7 @@ export default function Method() {
       </section>
 
       {/* Closing */}
-      <section className="public-dark-surface py-24 md:py-32 bg-zinc-950 text-zinc-50 text-center border-y border-zinc-800">
+      <section className="public-dark-surface py-24 md:py-32 bg-zinc-950 text-zinc-50 text-center border-y border-zinc-800" data-testid="section-method-closing">
         <div className="max-w-4xl mx-auto px-6">
           <h3 className="font-display text-4xl md:text-6xl font-extrabold mb-10 uppercase tracking-tight" data-testid="text-closing-title">
             Built in the Field.<br />

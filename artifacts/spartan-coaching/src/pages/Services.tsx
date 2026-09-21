@@ -258,7 +258,7 @@ export default function Services() {
           </div>
         </section>
 
-        <section className="public-dark-surface bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12">
+        <section className="public-dark-surface bg-black text-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-16 py-20 lg:py-28 lg:grid lg:grid-cols-[1fr_auto] lg:items-end gap-12" data-testid="section-services-closing">
           <div>
             <p className="font-mono text-[.75rem] font-bold uppercase tracking-[.18em] text-[#f23a41]">The first conversation</p>
             <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">

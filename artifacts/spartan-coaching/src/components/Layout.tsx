@@ -297,7 +297,7 @@ export function Header() {
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
                 <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-[#151316] min-[390px]:text-base sm:text-xl md:text-[1.4rem]">
-                  SPARTAN <span className="text-[#d61f26]">COACHING</span>
+                  SPARTAN <span className="text-[#b91920]">COACHING</span>
                 </span>
                 <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.58rem] font-bold uppercase tracking-[0.18em] text-black/55 md:block">
                   Consulting · Hospice Sales Pro
@@ -400,7 +400,7 @@ export function Header() {
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
+            <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border" data-testid="mobile-menu-sheet">
             <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
@@ -463,7 +463,7 @@ export function Header() {
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
               <AppearancePanel className="pb-1" />
-              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+              <Button size="lg" asChild className="w-full border border-[#d61f26] bg-[#d61f26] font-bold text-white touch-manipulation hover:bg-[#b91920] hover:text-white" data-testid="button-mobile-book-call">
                 <Link href="/contact?service=Consulting" onClick={() => setMobileMenuOpen(false)}>
                   Request a strategy call
                 </Link>
@@ -482,8 +482,8 @@ export function Header() {
                       Create account · Hospice Sales Pro
                     </Link>
                   </Button>
-                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
-                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
+                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold text-foreground touch-manipulation" data-testid="button-mobile-request">
+                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)} style={{ color: "hsl(var(--foreground))" }}>
                       Team / evaluation access
                     </Link>
                   </Button>

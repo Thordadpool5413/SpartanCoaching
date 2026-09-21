@@ -457,7 +457,7 @@ export default function Home() {
                   const Icon = step.icon;
                   return (
                     <article key={step.number} className="group border-l-white/10 transition-colors hover:bg-white/[0.035]">
-                      <span className="home-photo-step-number">{step.number}</span>
+                      <span className="home-photo-step-number" aria-hidden="true">{step.number}</span>
                       <div className="relative z-10">
                         <p className="home-photo-phase-label font-mono text-[0.72rem] font-bold uppercase tracking-[0.16em] text-[#d61f26]">
                           Phase {step.number}
