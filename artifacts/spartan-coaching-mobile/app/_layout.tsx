@@ -12,7 +12,6 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
 import { Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { registerNotificationRescheduleTask } from "@/lib/notificationReschedule";
@@ -30,7 +29,6 @@ import { VoiceActivityBanner } from "@/components/VoiceActivityBanner";
 // dismissed the launch screen. Never turn that recoverable race into an
 // unhandled startup rejection.
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
-SplashScreen.setOptions({ duration: 260, fade: true });
 
 const queryClient = new QueryClient();
 
@@ -163,14 +161,18 @@ export default function RootLayout() {
               <CoachSessionProvider>
                 <ClientConfigGate>
                   <AppOpenTracker />
-                  <DeepLinkRouter />
-                  <ActivationCeremony />
                   <NativeChrome />
                   <GestureHandlerRootView style={{ flex: 1 }}>
-                    <KeyboardProvider>
+                    {!launchVisible ? (
+                      <>
+                        <DeepLinkRouter />
+                        <ActivationCeremony />
+                      </>
+                    ) : null}
+                    <View style={{ flex: 1 }}>
                       <VoiceActivityBanner />
                       <RootLayoutNav />
-                    </KeyboardProvider>
+                    </View>
                     {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
                   </GestureHandlerRootView>
                 </ClientConfigGate>

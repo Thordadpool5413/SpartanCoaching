@@ -178,7 +178,7 @@ html[data-route-surface="public"] ::selection {
 }
 
 .home-photo-frame {
-  width: min(1280px, calc(100% - 96px));
+  width: min(1340px, calc(100% - 96px));
   margin-inline: auto;
 }
 
@@ -194,8 +194,8 @@ html[data-route-surface="public"] ::selection {
 
 .home-photo-hero-grid {
   display: grid;
-  min-height: 690px;
-  grid-template-columns: minmax(0, 1.04fr) minmax(480px, 0.96fr);
+  min-height: 720px;
+  grid-template-columns: minmax(0, 0.96fr) minmax(520px, 1.04fr);
   align-items: center;
   gap: clamp(3.5rem, 6vw, 7rem);
   padding-block: 76px 84px;
@@ -208,14 +208,16 @@ html[data-route-surface="public"] ::selection {
 
 .home-photo-hero-title {
   color: var(--home-ink);
-  font-size: clamp(4.5rem, 6.35vw, 7.5rem);
-  letter-spacing: -0.065em;
-  text-wrap: balance;
+  max-width: 690px;
+  font-size: clamp(4rem, 5.25vw, 6.25rem);
+  letter-spacing: -0.058em;
+  overflow-wrap: normal;
+  text-wrap: pretty;
 }
 
 .page-persuasion .home-photo-hero-title {
-  letter-spacing: -0.065em;
-  line-height: 0.98;
+  letter-spacing: -0.058em;
+  line-height: 0.94;
 }
 
 .home-photo-hero-title > span {
@@ -229,13 +231,13 @@ html[data-route-surface="public"] ::selection {
 
 .home-photo-hero-media {
   width: 100%;
-  transform: translateY(-7%);
+  transform: translateY(-4%);
 }
 
 .home-photo-video {
-  aspect-ratio: 1.62 / 1;
-  min-height: 330px;
-  box-shadow: 22px 24px 0 rgba(213, 31, 38, 0.08);
+  aspect-ratio: 16 / 10;
+  min-height: 390px;
+  box-shadow: 18px 18px 0 rgba(213, 31, 38, 0.1);
 }
 
 .home-photo-button {
@@ -636,10 +638,10 @@ html[data-route-surface="public"] ::selection {
 }
 
 @media (max-width: 1100px) {
-  .home-photo-frame { width: min(100% - 56px, 1280px); }
-  .home-photo-hero-grid { grid-template-columns: 1fr 0.92fr; min-height: 620px; gap: 3rem; }
-  .home-photo-hero-title { font-size: clamp(3.75rem, 6.7vw, 5.8rem); }
-  .home-photo-video { min-height: 260px; }
+  .home-photo-frame { width: min(100% - 56px, 1340px); }
+  .home-photo-hero-grid { grid-template-columns: 1fr 0.92fr; min-height: 640px; gap: 2.75rem; }
+  .home-photo-hero-title { font-size: clamp(3.55rem, 6.2vw, 5.25rem); }
+  .home-photo-video { min-height: 300px; }
   .home-photo-path-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .home-photo-path-grid article:nth-child(3) { border-left: 0; border-top: 1px solid var(--home-line); }
   .home-photo-path-grid article:nth-child(4) { border-top: 1px solid var(--home-line); }

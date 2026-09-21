@@ -85,3 +85,44 @@ Target route: `/`
 - Visual verification: GitHub browser evidence from CI run #818 was inspected at desktop and iPhone dimensions. The hero scale, two-column desktop composition, mobile stack, consulting paths, founder treatment, results, and closing section match the approved Photo 1 direction with no horizontal overflow.
 
 Final result: passed.
+
+---
+
+# Consulting conversion and iOS startup QA — 2026-09-21
+
+## Reference defects
+
+- Homepage screenshot: the display headline crossed into the video column and the video read as a small floating card.
+- Contact screenshot: the generic three-column explanation was compressed inside a narrow form container, producing one- and two-word text columns.
+- Consulting screenshot: twelve similarly weighted service cards created a long catalog with weak decision guidance.
+- Header screenshot: navigation, utilities, and the primary CTA competed for one crowded desktop row.
+- TestFlight report: the release build could terminate before the recoverable React interface appeared.
+
+## Corrections verified
+
+- Homepage hero uses a bounded 690px headline, a wider media column, and responsive single-column mobile rules; the original message and film are unchanged.
+- Alternating paper-tone sections restore visible rhythm without introducing decorative containers or changing the approved editorial system.
+- Contact briefing now uses a readable two-column desktop layout and a single-column mobile layout; the form stays constrained independently below it.
+- Consulting now guides buyers from growth symptom to one of three engagement levels, with explicit fit, format, outcome, and included work.
+- Desktop navigation begins at the `xl` breakpoint with tighter label spacing; narrower widths use the mobile menu before the row can collide.
+- The iOS root no longer mounts `react-native-keyboard-controller`, configures splash animation synchronously, or imports notifications eagerly before the first frame.
+
+## Verification evidence
+
+- Web TypeScript: passed.
+- Web unit and contract tests: 63 files and 326 tests passed.
+- Web production build: passed.
+- Mobile TypeScript: passed.
+- Mobile Jest suite: 59 suites and 291 tests passed.
+- Expo Doctor: 21 of 21 checks passed.
+- iOS production bundle: 2,258 modules bundled; 4,867,044-byte output produced.
+- Release gate: every automated critical suite passed; database-backed and live/device checks remain environment-dependent.
+- Managed browser preview was unavailable because the monorepo preview sandbox could not resolve its hoisted Vite dependency and direct preview access was blocked. Responsive layout contracts and production rendering tests were used for this pass.
+
+## Severity review
+
+- P0 blockers: none in automated checks.
+- P1 issues fixed: hero/media collision risk, unreadable contact explainer, crowded header, eager optional native startup modules.
+- P2 issues fixed: page rhythm and consulting decision clarity.
+
+Final result: passed.

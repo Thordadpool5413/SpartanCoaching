@@ -38,7 +38,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative px-4 py-2 text-xs font-mono font-bold uppercase tracking-widest transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
+        "relative px-2.5 py-2 xl:px-3 text-[11px] font-mono font-bold uppercase tracking-[0.12em] transition-colors block whitespace-nowrap rounded-none border border-transparent hover:border-border",
         isActive
           ? "text-foreground border-border bg-muted/20"
           : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -155,7 +155,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "px-4 py-2 border border-transparent hover:border-border text-xs font-mono font-bold uppercase tracking-widest transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer rounded-none",
+          "px-2.5 py-2 xl:px-3 border border-transparent hover:border-border text-[11px] font-mono font-bold uppercase tracking-[0.12em] transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer rounded-none",
           isGroupActive || open
             ? "text-primary border-b-2 border-primary rounded-none"
             : "text-foreground hover:text-foreground"
@@ -282,9 +282,9 @@ export function Header() {
       className="public-site-header sticky top-0 z-50 w-full dark-authority-header safe-area-top"
       data-testid="site-header"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
+      <div className="mx-auto flex h-[4.25rem] w-full max-w-[1440px] items-center px-4 safe-area-x sm:h-[4.5rem] sm:px-6 md:h-20 xl:px-8">
         {/* Brand — fixed footprint, never collides with nav */}
-        <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">
+        <div className="flex shrink-0 items-center pr-4 xl:pr-6">
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
@@ -313,7 +313,7 @@ export function Header() {
 
         {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0 px-2 xl:flex 2xl:px-5"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -335,7 +335,7 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
+        <div className="ml-auto flex shrink-0 items-center gap-2 border-l border-border/50 pl-3 sm:pl-4 xl:pl-5">
           <AppearanceControls
             compact
             className="touch-manipulation"
@@ -344,7 +344,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden touch-manipulation text-foreground"
+            className="xl:hidden touch-manipulation text-foreground"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -356,7 +356,7 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-              className="hidden lg:inline-flex font-semibold !text-foreground hover:!text-primary"
+              className="hidden xl:inline-flex font-semibold !text-foreground hover:!text-primary"
               data-testid="button-login"
             >
               <Link href="/login" className="!text-foreground hover:!text-primary">
@@ -369,7 +369,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              className="hidden xl:inline-flex font-bold px-4 shrink-0"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -380,7 +380,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              className="hidden xl:inline-flex font-bold px-4 shrink-0"
               data-testid="button-book-call"
             >
               <Link href="/contact">Book a strategy call</Link>
@@ -393,7 +393,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden touch-manipulation"
+                className="xl:hidden touch-manipulation"
                 aria-label="Toggle menu"
                 data-testid="button-mobile-menu"
               >

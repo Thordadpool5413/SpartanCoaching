@@ -34,6 +34,14 @@ describe("iOS release associated-domains contract", () => {
     path.resolve(__dirname, "../app/_layout.tsx"),
     "utf8",
   );
+  const deepLinkRouter = fs.readFileSync(
+    path.resolve(__dirname, "../components/DeepLinkRouter.tsx"),
+    "utf8",
+  );
+  const keyboardAwareScrollView = fs.readFileSync(
+    path.resolve(__dirname, "../components/KeyboardAwareScrollViewCompat.tsx"),
+    "utf8",
+  );
   const sharedNotifications = fs.readFileSync(
     path.resolve(__dirname, "../lib/notifications.ts"),
     "utf8",
@@ -117,6 +125,17 @@ describe("iOS release associated-domains contract", () => {
     expect(rootLayout).toContain(
       "SplashScreen.hideAsync().catch(() => undefined)",
     );
+    expect(rootLayout).not.toContain("SplashScreen.setOptions");
+  });
+
+  it("keeps optional native integrations off the first-render path", () => {
+    expect(rootLayout).not.toContain("KeyboardProvider");
+    expect(packageJson.devDependencies["react-native-keyboard-controller"]).toBe("1.21.9");
+    expect(keyboardAwareScrollView).toContain("KeyboardAvoidingView");
+    expect(keyboardAwareScrollView).not.toContain("react-native-keyboard-controller");
+    expect(deepLinkRouter).not.toContain('import * as Notifications from "expo-notifications"');
+    expect(deepLinkRouter).toContain('import("expo-notifications")');
+    expect(deepLinkRouter).toContain('.catch(() => undefined)');
   });
 
   it("uses one deterministic Metro and EAS runtime for store builds", () => {

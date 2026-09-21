@@ -32,7 +32,8 @@ describe("Photo 1 homepage release contract", () => {
     expect(indexCss).toContain("family=Instrument+Serif");
     expect(indexCss).toContain("family=Plus+Jakarta+Sans");
     expect(css).toMatch(/\.home-photo-one\s*\{[^}]*--font-display:\s*'Plus Jakarta Sans'/s);
-    expect(css).toMatch(/\.home-photo-hero-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.04fr\)\s+minmax\(480px,\s*0\.96fr\)/s);
+    expect(css).toMatch(/\.home-photo-hero-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*0\.96fr\)\s+minmax\(520px,\s*1\.04fr\)/s);
+    expect(css).toMatch(/\.home-photo-hero-title\s*\{[^}]*max-width:\s*690px[^}]*font-size:\s*clamp\(4rem,\s*5\.25vw,\s*6\.25rem\)/s);
     expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-hero-title\s*\{[^}]*max-width:\s*100%/s);
     expect(css).toMatch(/@media \(max-width:\s*767px\)[\s\S]*?\.home-photo-actions \.home-photo-button\s*\{[^}]*width:\s*100%/s);
   });

@@ -359,7 +359,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-problems" className="home-photo-section bg-white">
+        <section data-testid="section-problems" className="home-photo-section bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-split">
               <div>
@@ -412,7 +412,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-method" className="home-photo-section bg-white">
+        <section data-testid="section-method" className="home-photo-section bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-method-head">
               <p className="home-photo-kicker">The Spartan method</p>
@@ -459,7 +459,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-pathways" className="home-photo-section home-photo-section-lined border-y border-black/10 bg-white">
+        <section data-testid="section-pathways" className="home-photo-section home-photo-section-lined border-y border-black/10 bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-path-head">
               <div>
@@ -540,7 +540,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section data-testid="section-results" className="home-photo-section home-photo-section-lined bg-white">
+        <section data-testid="section-results" className="home-photo-section home-photo-section-lined bg-[#f5f3ef]">
           <div className="home-photo-frame">
             <div className="home-photo-results-head">
               <div>
