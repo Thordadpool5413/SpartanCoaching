@@ -5,6 +5,12 @@ import { trackMobileEvent } from "@/lib/analytics";
 import HomeScreen from "../app/(tabs)/index";
 
 let mockCanUseElite = false;
+let mockCanUseFieldKit = true;
+let mockIsAuthenticated = true;
+let mockUser: { member: { id: number; name: string } } | null = {
+  member: { id: 1, name: "Test" },
+};
+const mockRefresh = jest.fn();
 const mockListCoachMemory = jest.fn();
 const mockLoadCachedCommitment = jest.fn();
 
@@ -17,11 +23,11 @@ jest.mock("@/lib/analytics", () => ({
 }));
 jest.mock("@/lib/AuthContext", () => ({
   useAuth: () => ({
-    canUseFieldKit: true,
+    canUseFieldKit: mockCanUseFieldKit,
     canUseElite: mockCanUseElite,
-    isAuthenticated: true,
-    user: { member: { id: 1, name: "Test" } },
-    refresh: jest.fn(),
+    isAuthenticated: mockIsAuthenticated,
+    user: mockUser,
+    refresh: mockRefresh,
   }),
 }));
 jest.mock("@/lib/coachApi", () => ({
@@ -54,8 +60,31 @@ describe("Home Command Center", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCanUseElite = false;
+    mockCanUseFieldKit = true;
+    mockIsAuthenticated = true;
+    mockUser = { member: { id: 1, name: "Test" } };
     mockListCoachMemory.mockResolvedValue([]);
     mockLoadCachedCommitment.mockResolvedValue(null);
+  });
+
+  it("restores a cached session without changing the React hook order", async () => {
+    mockIsAuthenticated = false;
+    mockCanUseFieldKit = false;
+    mockUser = null;
+    (apiGet as jest.Mock).mockResolvedValue({ items: [] });
+
+    const view = render(<HomeScreen />);
+
+    await act(async () => {
+      mockIsAuthenticated = true;
+      mockCanUseFieldKit = true;
+      mockUser = { member: { id: 1, name: "Test" } };
+      view.rerender(<HomeScreen />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("What conversation needs your best thinking?")).toBeTruthy();
+    });
   });
 
   it("renders server recommendation and tracks analytics", async () => {

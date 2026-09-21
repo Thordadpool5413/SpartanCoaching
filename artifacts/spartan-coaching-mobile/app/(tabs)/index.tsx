@@ -91,6 +91,10 @@ export default function HomeScreen() {
   } | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
   const trackedNextMove = React.useRef(false);
+  // This hook must stay above every conditional return. Authentication is
+  // restored asynchronously from SecureStore on startup, so placing it below
+  // the welcome-screen returns changes the hook count and crashes React.
+  const [navigating, setNavigating] = useState(false);
 
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
@@ -356,7 +360,6 @@ export default function HomeScreen() {
     return true;
   });
 
-  const [navigating, setNavigating] = useState(false);
   const open = (dest: { id: string; route: Href }, isPrimary: boolean) => {
     if (navigating) return;
     setNavigating(true);
