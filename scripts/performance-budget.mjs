@@ -53,15 +53,18 @@ const BUDGETS = {
    * headroom. Tighten again once large per-route chunks (e.g. Admin) are split further.
    */
   maxJsTotal: 3.2 * 1024 * 1024,
-  /** Any single CSS file */
-  maxCssChunk: 250 * 1024,
+  /**
+   * Any single CSS file. The public contrast and Tailwind selector-safety rules
+   * produce a 255.4 KiB main stylesheet; keep a narrow 260 KiB ceiling.
+   */
+  maxCssChunk: 260 * 1024,
   /**
    * Total CSS across dist/public, including emitted root-level lazy assets.
-   * CI measures 412.6 KiB after the approved public-site appearance and
-   * responsive homepage expansion. Keep a narrow 420 KiB ceiling so the
-   * intentional design system fits while future CSS growth still fails fast.
+   * CI measures 420.3 KiB after the approved public dark-surface contrast
+   * coverage and Tailwind selector-safety fixes. Keep a narrow 430 KiB ceiling
+   * so the intentional design system fits while future CSS growth still fails fast.
    */
-  maxCssTotal: 420 * 1024,
+  maxCssTotal: 430 * 1024,
   /** Initial HTML must remain small enough for a fast document response. */
   maxHtmlDocument: 100 * 1024,
   /** Desktop hero media is intentionally cinematic, but must remain capped. */
