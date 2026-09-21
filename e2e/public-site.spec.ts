@@ -295,7 +295,7 @@ test.describe("public website release gate", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await expect(page.locator("h1:visible").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /request a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore consulting/i }).first()).toBeVisible();
     await expect(page.locator("main")).toContainText("The problems we solve.");
     await expect(page.locator("main")).toContainText("Who we work with.");
@@ -312,7 +312,7 @@ test.describe("public website release gate", () => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    await page.getByRole("link", { name: /book a strategy call/i }).first().click();
+    await page.getByRole("link", { name: /request a strategy call/i }).first().click();
     await expect(page).toHaveURL(/\/contact$/);
     await expect(page.locator("h1").first()).toBeVisible();
 
@@ -356,7 +356,7 @@ test.describe("public website release gate", () => {
     await page.goto("/", { waitUntil: "networkidle" });
 
     const consulting = page.getByRole("link", { name: /^explore consulting$/i }).first();
-    const booking = page.getByRole("link", { name: /book a strategy call/i }).first();
+    const booking = page.getByRole("link", { name: /request a strategy call/i }).first();
     await expect(consulting).toHaveAttribute("href", "/services");
     await expect(booking).toHaveAttribute("href", "/contact");
     await expect(page.locator('main a[href="/hospice-sales-pro"]')).toHaveCount(0);
@@ -364,7 +364,7 @@ test.describe("public website release gate", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("section-pathways")).toBeVisible();
     await expect(page.getByRole("link", { name: /^explore consulting$/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /request a strategy call/i }).first()).toBeVisible();
   });
 
   test("workspace appearance survives a public-page refresh", async ({ page }) => {
@@ -753,7 +753,8 @@ test.describe("public website release gate", () => {
     const links = navigation.getByRole("link");
     const menuButtons = navigation.getByRole("button");
     await expect(navigation).toBeVisible();
-    await expect(links).toHaveCount(2);
+    await expect(links).toHaveCount(1);
+    await expect(navigation.getByRole("link", { name: /^about$/i })).toBeVisible();
     await expect(menuButtons).toHaveCount(3);
     await expectNoHorizontalOverflow(page, "xl desktop navigation");
 
