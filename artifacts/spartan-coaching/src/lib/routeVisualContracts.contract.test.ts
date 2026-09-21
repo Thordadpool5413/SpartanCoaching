@@ -55,6 +55,24 @@ describe("route visual matrix", () => {
     expect(css).toMatch(/html\[data-route-surface="public"\]/);
   });
 
+  it("does not recolor text utilities without also knowing their surface", () => {
+    expect(css).not.toMatch(
+      /html\[data-theme-mode="light"\][^{]*(?:main|header|footer|\.page-persuasion|\.surface-band)[^{]*\.text-white/,
+    );
+    expect(css).not.toMatch(
+      /html\[data-theme-mode="light"\]\s+\.(?:text-zinc|text-gray|text-slate)-/,
+    );
+    expect(css).not.toMatch(
+      /html\[data-theme-mode="dark"\]\s+\.(?:text-black|text-zinc|text-gray|text-slate)-/,
+    );
+
+    const layout = fs.readFileSync(path.join(srcRoot, "components/Layout.tsx"), "utf8");
+    const tabs = fs.readFileSync(path.join(srcRoot, "components/ui/tabs.tsx"), "utf8");
+    expect(layout).toMatch(/public-site-header public-dark-surface/);
+    expect(tabs).toContain("bg-card");
+    expect(tabs).toContain("text-card-foreground");
+  });
+
   it("allows literal high-visibility colors only for print or brand imagery", () => {
     const violations: string[] = [];
     const root = postcss.parse(css, { from: path.join(srcRoot, "index.css") });

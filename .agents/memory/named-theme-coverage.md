@@ -39,8 +39,8 @@ Authenticated routes that reuse a public presentation wrapper must reassert work
 
 **How to apply:** When a route can render under both public and authenticated shells, inspect computed styles in both contexts and keep the workspace correction scoped under `.workspace-premium`.
 
-Inverse sections inside a light public shell must use semantic opposite-surface tokens rather than literal white text utilities.
+Never remap foreground utility classes globally based only on appearance mode. Contrast rules must be scoped to a known surface, with explicit inverse-surface contracts for dark bands and chrome.
 
-**Why:** The light-mode compatibility layer can remap legacy white utilities to dark foreground colors, turning dark inverse sections into dark-on-dark content even though their local markup looks correct.
+**Why:** A light-mode compatibility layer recolored white and zinc text without knowing its background, turning dark cards, tabs, navigation, and authority bands into dark-on-dark content across unrelated routes.
 
-**How to apply:** Pair `background` with `foreground` semantically in both directions, and verify inverse sections in the actual light public shell rather than judging utility names in isolation.
+**How to apply:** Pair every semantic background with its foreground token. Mark intentional inverse regions explicitly, and reject route-wide rules that target `.text-white`, `.text-black`, or numbered gray/zinc utilities without a paired surface selector.

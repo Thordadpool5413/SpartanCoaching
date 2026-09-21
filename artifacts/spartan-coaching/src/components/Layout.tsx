@@ -37,10 +37,10 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative block whitespace-nowrap border border-transparent px-3 py-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white/72 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] hover:text-white 2xl:px-4",
+        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.76rem] font-bold uppercase tracking-[0.14em] text-white/75 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.055] hover:text-white 2xl:px-7",
         isActive
-          ? "border-white/20 bg-white/[0.08] !text-white shadow-[inset_0_-2px_0_#d61f26]"
-          : "text-white/72"
+          ? "border-white/15 bg-white/[0.075] !text-white shadow-[inset_0_-3px_0_#d61f26]"
+          : "text-white/75"
       )}
     >
       {children}
@@ -154,10 +154,10 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "flex cursor-pointer items-center gap-2 whitespace-nowrap border border-transparent px-3 py-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.14em] text-white/72 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] hover:text-white 2xl:px-4",
+          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.76rem] font-bold uppercase tracking-[0.14em] text-white/75 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.055] hover:text-white 2xl:px-7",
           isGroupActive || open
-            ? "border-white/20 bg-white/[0.08] !text-white shadow-[inset_0_-2px_0_#d61f26]"
-            : "text-white/72"
+            ? "border-white/15 bg-white/[0.075] !text-white shadow-[inset_0_-3px_0_#d61f26]"
+            : "text-white/75"
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -214,12 +214,12 @@ export function NavDropdown({ label, items, dataTestId }: {
           }
         }}
         className={cn(
-          "absolute left-0 top-full z-50 min-w-[320px] pt-3",
+          "absolute left-1/2 top-full z-50 min-w-[340px] -translate-x-1/2 pt-3",
           open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
           "transition-opacity duration-150",
         )}
       >
-        <div className="border border-white/15 bg-[#101012] p-2 shadow-[0_24px_70px_rgba(0,0,0,.55)]">
+        <div className="border border-white/15 bg-[#101012] p-2 shadow-[0_30px_80px_rgba(0,0,0,.68)]">
           {items.map(item => (
             <Link
               key={item.path}
@@ -278,11 +278,11 @@ export function Header() {
 
   return (
     <header
-      className="public-site-header safe-area-top sticky top-0 z-50 w-full border-b border-white/10 bg-[#0b0b0d] text-white shadow-[0_12px_40px_-18px_rgba(0,0,0,.85)]"
+      className="public-site-header public-dark-surface safe-area-top sticky top-0 z-50 w-full border-b border-white/10 bg-[#09090b] text-white shadow-[0_18px_55px_-24px_rgba(0,0,0,.95)]"
       data-testid="site-header"
     >
       <div className="absolute inset-x-0 top-0 h-[2px] bg-[#d61f26]" aria-hidden="true" />
-      <div className="safe-area-x mx-auto flex h-[4.75rem] w-full max-w-[1520px] items-center px-4 sm:px-6 md:h-[5.5rem] xl:px-8">
+      <div className="safe-area-x mx-auto grid h-[4.75rem] w-full max-w-[1520px] grid-cols-[minmax(0,1fr)_auto] items-center px-4 sm:px-6 md:h-[5.5rem] xl:h-[9.25rem] xl:grid-cols-[auto_1fr_auto] xl:grid-rows-[5.5rem_3.75rem] xl:px-8">
         {/* Brand — fixed footprint, never collides with nav */}
         <div className="flex min-w-0 shrink items-center pr-2 sm:pr-4 xl:pr-6">
           <Link href={homeHref}>
@@ -300,7 +300,7 @@ export function Header() {
               />
               <div className="min-w-0">
                 {/* Not h1 — page content owns the document title heading (a11y) */}
-                <span className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-white min-[390px]:text-base sm:text-xl md:text-[1.3rem]">
+                <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-white min-[390px]:text-base sm:text-xl md:text-[1.3rem]">
                   SPARTAN <span className="text-[#d61f26]">COACHING</span>
                 </span>
                 <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.55rem] font-bold uppercase tracking-[0.18em] text-white/48 md:block">
@@ -311,9 +311,19 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation — elite restraint: few labels + one CTA */}
+        <div className="hidden min-w-0 items-center justify-center xl:flex">
+          <div className="flex items-center gap-4">
+            <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
+            <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[0.2em] text-white/55">
+              Field authority for hospice growth leaders
+            </p>
+            <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
+          </div>
+        </div>
+
+        {/* Desktop Navigation — a dedicated row keeps every destination legible */}
         <nav
-          className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-3 xl:flex 2xl:gap-2 2xl:px-6"
+          className="hidden min-w-0 items-stretch justify-center border-t border-white/10 xl:col-span-3 xl:col-start-1 xl:row-start-2 xl:flex"
           aria-label="Main navigation"
         >
           {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
@@ -334,7 +344,7 @@ export function Header() {
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
-        <div className="ml-auto flex shrink-0 items-center gap-2 border-l border-white/12 pl-2 sm:pl-4 xl:pl-5">
+        <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center gap-2 border-l border-white/12 pl-2 sm:pl-4 xl:col-start-3 xl:pl-5">
           <Button
             variant="ghost"
             size="icon"
@@ -350,7 +360,7 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-              className="inline-flex h-11 border border-white/25 bg-transparent px-3 font-mono text-[0.67rem] font-bold uppercase tracking-[0.12em] !text-white shadow-none transition-all hover:border-white hover:bg-white hover:!text-black sm:px-4"
+               className="inline-flex h-11 border border-white/25 bg-transparent px-3 font-mono text-[0.69rem] font-bold uppercase tracking-[0.12em] !text-white shadow-none transition-all hover:border-white hover:bg-white hover:!text-black sm:px-5"
               data-testid="button-login"
             >
               <Link href="/login" className="!text-white group-hover:!text-black">
@@ -363,7 +373,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-5 font-bold text-white shadow-[0_8px_28px_-12px_rgba(214,31,38,.85)] hover:bg-[#b91920] xl:inline-flex"
+               className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-6 font-bold text-white shadow-[0_10px_34px_-12px_rgba(214,31,38,.9)] hover:bg-[#b91920] xl:inline-flex"
               data-testid="button-open-workspace"
             >
               <Link href={canUseFieldKit ? "/portal" : "/account"}>
@@ -374,7 +384,7 @@ export function Header() {
             <Button
               size="sm"
               asChild
-              className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-5 font-bold text-white shadow-[0_8px_28px_-12px_rgba(214,31,38,.85)] hover:bg-[#b91920] xl:inline-flex"
+               className="hidden h-11 shrink-0 border border-[#d61f26] bg-[#d61f26] px-6 font-bold text-white shadow-[0_10px_34px_-12px_rgba(214,31,38,.9)] hover:bg-[#b91920] xl:inline-flex"
               data-testid="button-book-call"
             >
               <Link href="/contact">Request a strategy call</Link>
