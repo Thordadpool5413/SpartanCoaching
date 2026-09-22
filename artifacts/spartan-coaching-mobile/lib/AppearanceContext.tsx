@@ -23,7 +23,7 @@ const AppearanceContext = createContext<AppearanceContextValue>({
 
 function applyPreference(preference: AppearancePreference) {
   Appearance.setColorScheme(
-    preference === "system" ? "unspecified" : preference === "mamba" ? "dark" : preference,
+    preference === "system" ? null : preference === "mamba" ? "dark" : preference,
   );
 }
 
@@ -36,14 +36,20 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     let active = true;
     void AsyncStorage.getItem(STORAGE_KEY).then(async (stored) => {
       if (!active) return;
-       const storedPreference: AppearancePreference =
+      const storedPreference: AppearancePreference =
           stored === "light" || stored === "dark" || stored === "mamba" ? stored : "mamba";
-       const next: AppearancePreference =
-         stored === "system" && (await AsyncStorage.getItem(CHOICE_KEY)) !== "1"
-           ? "mamba"
-           : storedPreference;
+      const next: AppearancePreference =
+        stored === "system" && (await AsyncStorage.getItem(CHOICE_KEY)) !== "1"
+          ? "mamba"
+          : storedPreference;
       setPreferenceState(next);
       applyPreference(next);
+      setHydrated(true);
+    }).catch(() => {
+      // A damaged or unavailable preference store must not block first paint.
+      if (!active) return;
+      setPreferenceState("mamba");
+      applyPreference("mamba");
       setHydrated(true);
     });
     return () => {

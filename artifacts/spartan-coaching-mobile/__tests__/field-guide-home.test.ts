@@ -43,7 +43,9 @@ describe("Field Guide experience contract", () => {
     expect(tour).toContain("field tools by the job you need to do");
     expect(tour).not.toContain("every Library resource");
     expect(tourState).toContain("shouldAutoPresentGuidedTour");
-    expect(welcome).toContain("shouldAutoPresentGuidedTour");
+    expect(welcome).toContain("beginGuidedTour");
+    expect(welcome).not.toContain("shouldAutoPresentGuidedTour");
+    expect(welcome).not.toContain("setTimeout");
     expect(account).toContain("hard deleted after 90 days");
     expect(account).toContain("Organization admins never see prompts, drafts, recordings, transcripts, or unshared outputs");
     expect(rootLayout).toContain('name="tour"');

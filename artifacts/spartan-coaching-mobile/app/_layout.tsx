@@ -163,17 +163,18 @@ export default function RootLayout() {
                   <AppOpenTracker />
                   <NativeChrome />
                   <GestureHandlerRootView style={{ flex: 1 }}>
-                    {!launchVisible ? (
+                    {launchVisible ? (
+                      <LaunchExperience onComplete={completeLaunch} />
+                    ) : (
                       <>
                         <DeepLinkRouter />
                         <ActivationCeremony />
+                        <View style={{ flex: 1 }}>
+                          <VoiceActivityBanner />
+                          <RootLayoutNav />
+                        </View>
                       </>
-                    ) : null}
-                    <View style={{ flex: 1 }}>
-                      <VoiceActivityBanner />
-                      <RootLayoutNav />
-                    </View>
-                    {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+                    )}
                   </GestureHandlerRootView>
                 </ClientConfigGate>
               </CoachSessionProvider>

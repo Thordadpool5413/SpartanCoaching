@@ -1,13 +1,13 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
-import { beginGuidedTour, shouldAutoPresentGuidedTour } from "@/lib/guidedTour";
+import { beginGuidedTour } from "@/lib/guidedTour";
 
 const PILLARS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" },
@@ -19,24 +19,19 @@ const PILLARS = [
 export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { topPad: number; bottomPad: number; signedIn?: boolean }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const autoTourStarted = useRef(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const timer = setTimeout(() => {
-      void shouldAutoPresentGuidedTour().then(async (shouldPresent) => {
-        if (cancelled || !shouldPresent || autoTourStarted.current) return;
-        autoTourStarted.current = true;
-        await beginGuidedTour();
-        router.push("/tour" as Href);
-      });
-    }, 900);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, []);
 
   const open = (route: string) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(route as Href);
+  };
+
+  const openTour = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // The tour is optional and must never control app startup. Persist its
+    // state best-effort, but always let an explicit user action open it.
+    void beginGuidedTour()
+      .catch(() => undefined)
+      .finally(() => router.push("/tour" as Href));
   };
 
   return (
@@ -93,7 +88,7 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
 
         <Pressable
           accessibilityRole="button"
-          onPress={() => open("/tour")}
+          onPress={openTour}
           style={({ pressed }) => [styles.tourRow, pressed && styles.pressed]}
           testID="button-guided-tour"
         >

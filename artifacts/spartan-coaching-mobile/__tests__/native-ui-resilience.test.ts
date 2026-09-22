@@ -27,7 +27,18 @@ describe("native interface resilience", () => {
     expect(fallback).toContain('accessibilityLabel="Reload Spartan Coaching"');
     expect(fallback).toContain('accessibilityLabel="Open error details"');
     expect(fallback).toContain('accessibilityLabel="Close error details"');
+    expect(fallback).not.toContain("__DEV__ &&");
     expect(fallback).toContain("borderBottomColor: colors.border");
     expect(fallback).not.toMatch(/#[0-9a-f]{7}(?![0-9a-f])/i);
+  });
+
+  it("mounts only the launch experience until native startup completes", () => {
+    const layout = read("app/_layout.tsx");
+
+    expect(layout).toContain("launchVisible ? (");
+    expect(layout).toContain("<LaunchExperience onComplete={completeLaunch} />");
+    expect(layout).toContain("<RootLayoutNav />");
+    expect(layout.indexOf("<LaunchExperience onComplete={completeLaunch} />"))
+      .toBeLessThan(layout.indexOf("<RootLayoutNav />"));
   });
 });
