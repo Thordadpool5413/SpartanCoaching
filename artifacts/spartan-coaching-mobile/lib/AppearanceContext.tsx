@@ -23,7 +23,7 @@ const AppearanceContext = createContext<AppearanceContextValue>({
 
 function applyPreference(preference: AppearancePreference) {
   Appearance.setColorScheme(
-    preference === "system" ? null : preference === "mamba" ? "dark" : preference,
+    preference === "system" ? "unspecified" : preference === "mamba" ? "dark" : preference,
   );
 }
 
