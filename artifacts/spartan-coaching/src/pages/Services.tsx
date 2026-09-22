@@ -33,6 +33,21 @@ type Engagement = {
   icon: typeof UserRound;
 };
 
+type ConsultingService = {
+  title: string;
+  duration: string;
+  description: string;
+  includes: string[];
+};
+
+type ConsultingServiceGroup = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  services: ConsultingService[];
+};
+
 const engagements: Engagement[] = [
   {
     id: "field-performance",
@@ -66,6 +81,113 @@ const engagements: Engagement[] = [
     outcome: "Clear priorities, accountable leaders, and a repeatable growth system that does not depend on heroics.",
     includes: ["Growth constraint assessment", "Leadership coaching", "Execution scorecard and review rhythm"],
     icon: BriefcaseBusiness,
+  },
+];
+
+const consultingServiceGroups: ConsultingServiceGroup[] = [
+  {
+    id: "individual-coaching",
+    eyebrow: "Individual services",
+    title: "Coaching for field performance",
+    description: "Focused support for representatives who need stronger conversations, clearer territory priorities, and coaching in the work itself.",
+    services: [
+      {
+        title: "Virtual Coaching Sessions",
+        duration: "30 or 60 minutes",
+        description: "Targeted, real-time coaching for a specific objection, stalled account, territory challenge, or referral conversation.",
+        includes: ["Pre-session problem diagnosis", "Live role-play with real scenarios", "One-page immediate action plan"],
+      },
+      {
+        title: "Field Coaching Ridealongs",
+        duration: "Full day",
+        description: "Live field observation and coaching with real referral sources, followed by practical correction and repeatable talk tracks.",
+        includes: ["Pre-work goal setting", "Full day of field observation", "Written action summary and talk tracks"],
+      },
+      {
+        title: "Territory Management Coaching",
+        duration: "2–3 sessions",
+        description: "A practical territory system that clarifies where to go, who to see, and how to follow up with the accounts most likely to convert.",
+        includes: ["Territory and account analysis", "A/B/C account prioritization", "Weekly routing and follow-up cadence"],
+      },
+    ],
+  },
+  {
+    id: "leadership-development",
+    eyebrow: "Leadership services",
+    title: "Leadership and team development",
+    description: "Shared standards, coaching rhythms, and growth strategy for leaders who need to turn isolated wins into consistent team execution.",
+    services: [
+      {
+        title: "Team Training Workshops",
+        duration: "1–2 days",
+        description: "Customized, hospice-specific workshops that give the team one language, one process, and a playbook leaders can reinforce.",
+        includes: ["Customized market curriculum", "Live objection and discovery practice", "Written execution playbook"],
+      },
+      {
+        title: "Leadership Coaching",
+        duration: "Monthly or quarterly",
+        description: "Skill-based management coaching that helps leaders diagnose behavior, run useful pipeline reviews, and coach beyond the final number.",
+        includes: ["One-to-one leadership coaching", "Pipeline and huddle frameworks", "Behavior-based scorecard design"],
+      },
+      {
+        title: "Growth Strategy Consulting",
+        duration: "3–6 months",
+        description: "A market-specific roadmap showing where referral growth should come from and what must change to capture it.",
+        includes: ["Market and referral-pattern analysis", "Growth opportunity identification", "Sales-process redesign and reviews"],
+      },
+    ],
+  },
+  {
+    id: "corporate-consulting",
+    eyebrow: "Corporate services",
+    title: "Multi-market growth systems",
+    description: "Enterprise-level analysis, implementation, and executive support for providers that need one standard across markets.",
+    services: [
+      {
+        title: "Market & Territory Analysis",
+        duration: "4–6 weeks",
+        description: "A complete view of referral patterns, competitor position, territory design, and the highest-value growth opportunities.",
+        includes: ["Referral-source and diagnosis analysis", "Competitor and market assessment", "Top growth opportunities with action plans"],
+      },
+      {
+        title: "System Implementation & Training",
+        duration: "3–6 months",
+        description: "One documented execution system for prospecting, presenting, objection handling, follow-up, and performance visibility.",
+        includes: ["Sales-process design", "Virtual or on-site team rollout", "Manager coaching and performance dashboards"],
+      },
+      {
+        title: "Executive Consulting",
+        duration: "Ongoing retainer",
+        description: "Hospice-specific strategic guidance for market expansion, M&A integration, performance turnarounds, and sales-force effectiveness.",
+        includes: ["Monthly strategic planning", "Expansion and acquisition guidance", "Performance audits and turnaround support"],
+      },
+    ],
+  },
+  {
+    id: "technology-solutions",
+    eyebrow: "Technology services",
+    title: "Purpose-built technology",
+    description: "Custom systems designed around hospice sales workflows instead of forcing field teams into generic software.",
+    services: [
+      {
+        title: "Custom CRM Development",
+        duration: "Custom scope",
+        description: "A hospice-specific CRM for referral relationships, physician outreach, facility history, follow-up, and census impact.",
+        includes: ["Workflow discovery and mapping", "Custom pipelines and dashboards", "Referral-source tracking and team training"],
+      },
+      {
+        title: "iOS App Development",
+        duration: "Custom scope",
+        description: "Purpose-built iPhone and iPad tools for visit logging, account notes, commitments, and territory intelligence in the field.",
+        includes: ["Native iPhone and iPad experience", "Offline-capable field workflows", "Backend sync and deployment support"],
+      },
+      {
+        title: "Custom Website Development",
+        duration: "Custom scope",
+        description: "A differentiated hospice website that serves referral sources and gives families a clear, usable path to care.",
+        includes: ["Custom brand and market discovery", "Mobile-first design and intake flows", "Local SEO and performance foundation"],
+      },
+    ],
   },
 ];
 
@@ -214,6 +336,70 @@ export default function Services() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section className="py-20 lg:py-28" aria-labelledby="complete-services-title" data-testid="section-complete-services">
+          <div className="max-w-4xl">
+            <p className="home-photo-kicker text-[#d61f26] border-[#d61f26]">Complete consulting catalog</p>
+            <h2 id="complete-services-title" className="mt-6 font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
+              Every service is still <span className="text-[#d61f26]">available.</span>
+            </h2>
+            <p className="mt-8 max-w-3xl text-[1.1rem] leading-[1.7] text-[#11131d]/75">
+              The three engagement paths above help identify the right level of support. The complete individual, leadership, corporate, and technology service catalog is listed below.
+            </p>
+          </div>
+
+          <div className="mt-14 space-y-6">
+            {consultingServiceGroups.map((group) => (
+              <Accordion key={group.id} type="single" collapsible defaultValue={group.id}>
+                <AccordionItem value={group.id} className="border border-[#11131d]/12 bg-white px-6 shadow-sm sm:px-8">
+                  <AccordionTrigger className="py-7 text-left hover:no-underline">
+                    <span>
+                      <span className="block font-mono text-[0.72rem] font-bold uppercase tracking-[.15em] text-[#d61f26]">{group.eyebrow}</span>
+                      <span className="mt-2 block font-display text-[1.65rem] font-black uppercase leading-tight text-[#11131d]">{group.title}</span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-8">
+                    <p className="max-w-3xl text-[1rem] leading-[1.65] text-[#11131d]/72">{group.description}</p>
+                    <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                      {group.services.map((service) => (
+                        <article key={service.title} className="flex h-full flex-col border border-[#11131d]/10 bg-[#f5f3ef] p-6" data-testid={`service-${service.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                          <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[.12em] text-[#d61f26]">{service.duration}</p>
+                          <h3 className="mt-4 font-display text-[1.35rem] font-black uppercase leading-[1.08] text-[#11131d]">{service.title}</h3>
+                          <p className="mt-4 flex-1 text-[0.96rem] leading-[1.65] text-[#11131d]/75">{service.description}</p>
+                          <ul className="mt-6 space-y-2 border-t border-[#11131d]/10 pt-5">
+                            {service.includes.map((item) => (
+                              <li key={item} className="flex gap-2 text-[0.9rem] leading-[1.5] text-[#11131d]/78">
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#d61f26]" aria-hidden />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <Link
+                            href={`/contact?service=${encodeURIComponent(service.title)}`}
+                            onClick={() => trackCta(`catalog_${group.id}_${service.title}`)}
+                            className="mt-7 inline-flex min-h-11 items-center gap-2 font-bold text-[#d61f26] hover:text-[#11131d]"
+                          >
+                            Discuss this service <ArrowRight className="h-4 w-4" aria-hidden />
+                          </Link>
+                        </article>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            ))}
+          </div>
+
+          <div className="mt-12 flex flex-col gap-5 border-l-4 border-[#d61f26] bg-[#f5f3ef] p-7 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-display text-[1.45rem] font-black uppercase text-[#11131d]">Looking for the provider programs?</h3>
+              <p className="mt-2 text-[0.98rem] leading-relaxed text-[#11131d]/72">The full implementation-program catalog remains available on the Programs page.</p>
+            </div>
+            <Link href="/programs" className="home-photo-button home-photo-button-outline shrink-0">
+              View all programs <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
           </div>
         </section>
 

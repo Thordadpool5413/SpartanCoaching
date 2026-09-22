@@ -584,9 +584,15 @@ export function Footer() {
   return (
     <>
       <footer className="public-site-footer mt-auto border-t border-border bg-background no-print safe-area-bottom">
-        {/* 3-column main footer */}
+        {/* Main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
-          <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+          <div
+            className={`grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-10 ${
+              canUseFieldKit
+                ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_260px]"
+                : "lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.9fr)_minmax(0,1fr)_260px]"
+            }`}
+          >
 
             {/* Column 1 — Brand + contact */}
             <div className="flex flex-col gap-4">
@@ -651,6 +657,26 @@ export function Footer() {
               </div>
             )}
 
+            {/* Far-right trust badge */}
+            <div
+              id="site-trust-badge"
+              className="flex items-start justify-center md:col-span-2 lg:col-span-1 lg:justify-self-end"
+              data-testid="openai-baa-badge"
+            >
+              <Link
+                href="/compliance"
+                className="group inline-flex bg-white p-3 shadow-sm ring-1 ring-white/20 transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label="View compliance details for the OpenAI API Business Associate Program badge"
+              >
+                <img
+                  src="/openai-baa-badge.png"
+                  alt="OpenAI API Business Associate Program. BAA executed for eligible API services."
+                  className="h-auto w-[230px] lg:w-[244px]"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Link>
+            </div>
           </div>
         </div>
 

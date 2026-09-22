@@ -118,16 +118,37 @@ describe("Public Experience Design Standards", () => {
   });
 
   describe("Services Page", () => {
-    it("presents exactly three leading service pathways", () => {
+    it("presents three leading pathways and the complete consulting catalog", () => {
       renderWithProviders(<Services />);
       
-      // We expect exactly 3 pathways
       expect(screen.getByTestId("card-consulting-01")).not.toBeNull();
       expect(screen.getByTestId("card-consulting-02")).not.toBeNull();
       expect(screen.getByTestId("card-consulting-03")).not.toBeNull();
       expect(screen.getByText("Field Performance Intensive")).not.toBeNull();
       expect(screen.getByText("Sales Team Operating System")).not.toBeNull();
       expect(screen.getByText("Growth Leadership Partnership")).not.toBeNull();
+      expect(screen.getByTestId("section-complete-services")).not.toBeNull();
+      expect(screen.getByText("Coaching for field performance")).not.toBeNull();
+      expect(screen.getByText("Leadership and team development")).not.toBeNull();
+      expect(screen.getByText("Multi-market growth systems")).not.toBeNull();
+      expect(screen.getByText("Purpose-built technology")).not.toBeNull();
+      [
+        "Virtual Coaching Sessions",
+        "Field Coaching Ridealongs",
+        "Territory Management Coaching",
+        "Team Training Workshops",
+        "Leadership Coaching",
+        "Growth Strategy Consulting",
+        "Market & Territory Analysis",
+        "System Implementation & Training",
+        "Executive Consulting",
+        "Custom CRM Development",
+        "iOS App Development",
+        "Custom Website Development",
+      ].forEach((service) => {
+        expect(screen.getByText(service)).not.toBeNull();
+      });
+      expect(screen.getByRole("link", { name: /View all programs/i })).not.toBeNull();
     });
   });
 
