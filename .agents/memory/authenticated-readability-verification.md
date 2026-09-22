@@ -14,3 +14,9 @@ Public dark-surface helpers are not sufficient when later component CSS uses hig
 **Why:** A homepage section carried the correct dark-surface marker and white/red utilities, but local editorial selectors later replaced them with dark ink, producing black-on-black labels.
 
 **How to apply:** Audit rendered text nodes inside every intentional dark surface at both normal-text and large-text thresholds. Include component-specific CSS in the review and explicitly rebind local ink variables where light and dark bands share one stylesheet.
+
+Do not raise generic size utilities such as `text-xs` across the entire authenticated shell. Improve semantic prose and helper copy directly, while leaving badges, fixed-height status chips, charts, print rules, and dense data tables compact.
+
+**Why:** Shell-wide utility overrides also reach shared badges and profitability/admin tables, where larger line-height can clip fixed-height controls and destroy intentional data density.
+
+**How to apply:** Prefer page-level or semantic prose selectors. Add a contract that rejects workspace-wide overrides of generic small-text utilities and confirms representative badges and dense tables retain their compact classes.

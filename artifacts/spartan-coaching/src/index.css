@@ -2709,3 +2709,19 @@ html[data-theme-mode="light"] a[class*="bg-primary"] {
     margin-top: 24px;
   }
 }
+
+/* Public readability helper: prose should not collapse into label-sized text. */
+html[data-route-surface="public"] p.text-sm:not(.uppercase):not(.font-mono),
+html[data-route-surface="public"] p.text-xs:not(.uppercase):not(.font-mono) {
+  font-size: clamp(0.95rem, 1vw + 0.5rem, 1.05rem);
+  line-height: 1.6;
+}
+
+/* Giant display headings need enough line-height to wrap cleanly on phones. */
+@media (max-width: 640px) {
+  h1.font-display,
+  h2.font-display,
+  h3.font-display {
+    line-height: 1.08 !important;
+  }
+}

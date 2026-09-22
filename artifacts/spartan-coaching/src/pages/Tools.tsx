@@ -144,19 +144,19 @@ export default function Tools() {
                 {tool.category}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
-            <p className="text-[11px] text-muted-foreground leading-relaxed mb-2 uppercase tracking-wide">
+            <p className="text-[0.95rem] text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="mb-2 text-[0.8rem] font-semibold uppercase leading-relaxed tracking-wide text-muted-foreground">
               <span className="font-bold text-primary">
                 {getToolWorkGuide(tool).phase}
               </span>
               {" · "}
               {getToolWorkGuide(tool).audience}
             </p>
-            <p className="text-[11px] text-muted-foreground leading-relaxed flex-1 mb-6 uppercase tracking-wide">
+            <p className="mb-6 flex-1 text-[0.9rem] leading-relaxed text-muted-foreground">
               <span className="font-bold text-foreground">When: </span>
               {tool.whenToUse}
             </p>
-            <Button asChild className="w-full font-bold uppercase tracking-widest text-xs touch-manipulation py-3 min-h-[44px] rounded-none bg-foreground text-background hover:bg-primary hover:text-primary-foreground" size="lg">
+            <Button asChild className="w-full font-bold uppercase tracking-wider text-[0.85rem] touch-manipulation py-3 min-h-[44px] rounded-none bg-foreground text-background hover:bg-primary hover:text-primary-foreground" size="lg">
               <Link
                 href={href}
                 data-testid={`button-tool-${idx}`}
@@ -181,63 +181,63 @@ export default function Tools() {
 
         <header className="mb-10 border-b border-border pb-6">
           <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase font-display">Tool Catalog</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+          <p className="mt-2 max-w-2xl text-[1.05rem] leading-[1.65] text-muted-foreground">
             Choose the workspace that matches the result you need. Nothing opens until you select a tool below.
           </p>
         </header>
 
         <section className="mb-12">
           <div className="mb-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-foreground">Common outcomes</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Command Center is one option alongside the rest of your field tools.</p>
+            <h2 className="text-[0.75rem] font-bold uppercase tracking-wider text-foreground">Common outcomes</h2>
+            <p className="mt-1 text-[0.95rem] text-muted-foreground">Command Center is one option alongside the rest of your field tools.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border">
             <Link href="/tools/sales-workflow" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
                <Crosshair className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Prepare for a meeting</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Open Command Center to plan the visit, handle the objective, and protect the next move.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Open Command <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Prepare for a meeting</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Open Command Center to plan the visit, handle the objective, and protect the next move.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Open Command <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
 
             <Link href="/tools/objections" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
                <ChatIcon className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Handle an objection</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Get precise response language for common field objections.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Find a response <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Handle an objection</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Get precise response language for common field objections.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Find a response <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
 
             <Link href="/tools/intelligence" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col">
                <BrainCircuit className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Research an account</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Verify provider evidence and CMS policy.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Search CMS <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Research an account</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Verify provider evidence and CMS policy.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Search CMS <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
 
             <Link href="/tools/email-templates" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
                <Mail className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Write a follow-up</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Generate professional post-visit communications.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Draft email <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Write a follow-up</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Generate professional post-visit communications.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Draft email <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
 
             <Link href="/tools/role-play" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
                <Users className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Practice a conversation</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Pressure-test your script against an active scenario.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Start role-play <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Practice a conversation</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Pressure-test your script against an active scenario.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Start role-play <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
 
             <Link href="/tools/activity-calculator" className="p-8 hover:bg-muted/30 transition-colors group flex flex-col border-t border-border">
                <Calculator className="w-6 h-6 text-muted-foreground mb-4 group-hover:text-primary transition-colors" />
-               <h3 className="text-lg font-bold text-foreground uppercase tracking-wide mb-2">Measure activity</h3>
-               <p className="text-sm text-muted-foreground leading-relaxed flex-1">Determine required field volume based on close rates.</p>
-               <span className="text-xs font-bold text-primary tracking-widest uppercase mt-6 flex items-center">Calculate targets <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+               <h3 className="text-[1.15rem] font-bold text-foreground uppercase tracking-wide mb-2">Measure activity</h3>
+               <p className="text-[0.95rem] text-muted-foreground leading-relaxed flex-1">Determine required field volume based on close rates.</p>
+               <span className="text-[0.8rem] font-bold text-primary tracking-wider uppercase mt-6 flex items-center">Calculate targets <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
             </Link>
           </div>
         </section>
 
         <div className="flex items-center justify-between mb-6 pb-2 border-b border-border">
-           <h2 className="text-lg font-bold text-foreground uppercase tracking-widest">All tools</h2>
+           <h2 className="text-lg font-bold text-foreground uppercase tracking-wider">All tools</h2>
         </div>
 
         <div className="mb-8 relative max-w-md">
@@ -247,7 +247,7 @@ export default function Tools() {
               placeholder="Search all tools..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 rounded-none bg-card border-border font-mono text-sm h-11"
+              className="pl-10 rounded-none bg-card border-border font-mono text-[0.95rem] h-12"
             />
         </div>
 
@@ -257,7 +257,7 @@ export default function Tools() {
 
         {filteredTools.length === 0 && (
           <div className="text-center py-14 mt-10 border border-border bg-card">
-            <p className="text-sm font-mono uppercase tracking-widest text-muted-foreground">
+            <p className="text-[0.8rem] font-mono uppercase tracking-wider text-muted-foreground">
               No tools found matching &quot;{searchQuery}&quot;.
             </p>
           </div>
@@ -283,9 +283,9 @@ export default function Tools() {
 
       {UX_WORKSPACE_IMPROVEMENTS ? (
         <Card className="mb-8 border border-border/80 bg-card p-5" data-testid="tools-how-to-choose">
-          <p className="text-xs font-black uppercase tracking-widest text-highlight">How to choose</p>
+          <p className="text-[0.8rem] font-black uppercase tracking-wider text-highlight">How to choose</p>
           <h2 className="mt-1 text-xl font-black text-foreground"><AccentText>Start with the result you need</AccentText></h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Search the situation, choose the best-matched workspace, complete its primary action, then save or continue the result in My Work. If you are unsure, start with Command or ask Coach.</p>
+          <p className="mt-2 max-w-3xl text-[0.95rem] leading-relaxed text-muted-foreground">Search the situation, choose the best-matched workspace, complete its primary action, then save or continue the result in My Work. If you are unsure, start with Command or ask Coach.</p>
           <div className="mt-4 flex flex-wrap gap-2"><Button asChild><Link href="/tools/sales-workflow">Open Command</Link></Button><Button asChild variant="outline"><Link href="/portal/coach">Ask Coach</Link></Button></div>
         </Card>
       ) : null}
@@ -300,7 +300,7 @@ export default function Tools() {
             <Card key={title} className="flex h-full flex-col border border-primary/20 bg-primary/[0.04] p-5">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl bg-accent p-2.5 text-accent-foreground"><Icon className="h-5 w-5" /></div>
-                <div><p className="font-black text-foreground">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p></div>
+                <div><p className="font-black text-foreground">{title}</p><p className="mt-1 text-[0.95rem] leading-relaxed text-muted-foreground">{body}</p></div>
               </div>
               <Button asChild variant="outline" className="mt-4 min-h-11 font-bold">
                 <Link href={href} data-testid={testId}>{action}<ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -320,12 +320,12 @@ export default function Tools() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-foreground mb-1 tracking-tight"><AccentText>Preview open · live tools locked</AccentText></h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
+                  <p className="text-[0.95rem] text-muted-foreground leading-relaxed max-w-xl">
                     Browse every tool before you decide. Standard unlocks live field work and eligible saves;
                     Elite adds private Coach and deidentified hospice policy education. Already subscribed? Sign in with
                     the same email to restore access.
                   </p>
-                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-[0.85rem] text-muted-foreground">
                     <li className="flex gap-1.5">
                       <span className="text-highlight font-bold">✓</span> Live generation on field tools
                     </li>
@@ -366,17 +366,17 @@ export default function Tools() {
       {showCatalogGate && (
         <SlideUp delay={0.08}>
           <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
-            <p className="text-xs font-bold tracking-widest text-highlight uppercase mb-3">
+            <p className="text-[0.7rem] font-bold tracking-wider text-highlight uppercase mb-3">
               Sample output — Objection Handler
             </p>
-            <p className="text-sm text-muted-foreground mb-2">
+            <p className="text-[0.95rem] text-muted-foreground mb-2">
               <span className="font-semibold text-foreground">Objection: </span>
               {SAMPLE_OBJECTION.objection}
             </p>
-            <p className="text-sm text-foreground/90 leading-relaxed border-l-2 border-primary pl-4">
+            <p className="text-[1rem] text-foreground/90 leading-relaxed border-l-2 border-primary pl-4">
               {SAMPLE_OBJECTION.response}
             </p>
-            <p className="text-xs text-muted-foreground mt-4">
+            <p className="text-[0.8rem] text-muted-foreground mt-4">
               Open any tool card for the full interface. Live AI generation unlocks with Hospice Sales Pro.
             </p>
           </Card>
@@ -397,7 +397,7 @@ export default function Tools() {
               aria-label="Search tools and intents"
             />
           </div>
-          <p className="text-sm text-muted-foreground">{filteredTools.length} tools</p>
+          <p className="text-[0.95rem] text-muted-foreground">{filteredTools.length} tools</p>
         </div>
       </SlideUp>
 
@@ -407,14 +407,14 @@ export default function Tools() {
           <section className="tools-intent-map mb-12" data-testid="tools-intent-map">
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
-                <p className="text-xs font-bold tracking-widest text-highlight uppercase mb-1">
+                <p className="text-[0.8rem] font-bold tracking-wider text-highlight uppercase mb-1">
                   Start with the job
                 </p>
                 <h2 className="text-h2 text-foreground"><AccentText>Professional entry points</AccentText></h2>
               </div>
               <Link
                 href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
-                className="text-sm font-semibold text-highlight hover:underline"
+                className="text-[0.95rem] font-semibold text-highlight hover:underline"
                 data-testid="link-field-resources-from-tools"
               >
                   Templates & guides →
@@ -428,11 +428,11 @@ export default function Tools() {
                   data-testid={`intent-card-${intent.id}`}
                 >
                   <h3 className="text-base font-bold text-foreground"><AccentText>{intent.title}</AccentText></h3>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground break-words">
+                  <p className="mt-1 text-[0.85rem] leading-relaxed text-muted-foreground break-words">
                     {intent.description}
                   </p>
                   {intent.destinations[0] ? (
-                    <Link href={intent.destinations[0].webPath} className="mt-4 inline-flex min-h-10 items-center text-sm font-bold text-highlight hover:underline">
+                    <Link href={intent.destinations[0].webPath} className="mt-4 inline-flex min-h-10 items-center text-[0.95rem] font-bold text-highlight hover:underline">
                       {intent.destinations[0].label}<ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   ) : null}
@@ -454,9 +454,9 @@ export default function Tools() {
         <Card className="tools-catalog-disclosure border border-border/80 bg-card p-5 sm:p-6" data-testid="tools-catalog-disclosure">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-bold tracking-widest text-highlight uppercase">Full workspace</p>
+              <p className="text-[0.8rem] font-bold tracking-wider text-highlight uppercase">Full workspace</p>
               <h2 className="mt-1 text-xl font-display font-bold text-foreground"><AccentText>Know the tool you want?</AccentText></h2>
-              <p className="mt-1 text-sm text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
+              <p className="mt-1 text-[0.95rem] text-muted-foreground">Browse all {FIELD_KIT_TOOLS.length} workspaces by job and role.</p>
             </div>
             <Button
               type="button"
@@ -474,7 +474,7 @@ export default function Tools() {
       ) : !searchQuery.trim() ? (
         <div id="tools-full-catalog" className="space-y-12">
           <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+          <p className="text-[0.8rem] font-bold tracking-wider text-muted-foreground uppercase">
             All tools by job
           </p>
           <Button type="button" variant="ghost" size="sm" onClick={() => setShowCatalog(false)}>
@@ -495,11 +495,11 @@ export default function Tools() {
                         {TOOL_ICONS["sales-workflow"] ?? <Calculator className="w-8 h-8" />}
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-bold uppercase leading-relaxed tracking-[0.12em] text-highlight">
+                        <p className="text-[0.8rem] font-bold uppercase leading-relaxed tracking-wider text-highlight">
                           Next action spine · same as iPhone Command
                         </p>
                         <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight"><AccentText>{command.title}</AccentText></h2>
-                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
+                        <p className="text-[0.95rem] sm:text-[1.05rem] text-muted-foreground leading-relaxed max-w-2xl">
                           Your day starts here—not in a grid of equal tools. Plan the visit, practice if
                           needed, capture the outcome, lock the next step.
                         </p>
@@ -507,7 +507,7 @@ export default function Tools() {
                           {["Mission", "Prepare", "Practice", "Capture", "Next step"].map((s) => (
                             <span
                               key={s}
-                              className="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-xs font-semibold uppercase leading-none tracking-[0.05em]"
+                              className="rounded-md border border-border bg-background/60 px-2.5 py-1.5 text-[0.75rem] font-semibold uppercase leading-none tracking-wider"
                             >
                               {s}
                             </span>
@@ -558,7 +558,7 @@ export default function Tools() {
                 <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
                   <div>
                     <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>{job.title}</AccentText></h2>
-                    <p className="text-sm text-muted-foreground mt-1">{job.blurb}</p>
+                    <p className="text-[0.95rem] text-muted-foreground mt-1">{job.blurb}</p>
                   </div>
                 </div>
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
@@ -585,7 +585,7 @@ export default function Tools() {
                   <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
                     <div>
                       <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>Field support</AccentText></h2>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-[0.95rem] text-muted-foreground mt-1">
                         Satellite to Command — not a second product
                       </p>
                     </div>
@@ -603,7 +603,7 @@ export default function Tools() {
             <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
               <div>
                 <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>For directors &amp; leaders</AccentText></h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-[0.95rem] text-muted-foreground mt-1">
                   Activity, economics, and branch runway
                 </p>
               </div>
@@ -627,7 +627,7 @@ export default function Tools() {
               <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
                 <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
                   <h2 className="text-xl font-display font-bold text-foreground tracking-tight"><AccentText>{cat}</AccentText></h2>
-                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
+                  <span className="text-[0.85rem] font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
                 </div>
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
                   {rest.map((tool, idx) => renderCard(tool, idx + 40))}
@@ -646,7 +646,7 @@ export default function Tools() {
                   </div>
                   <div>
                     <h2 className="text-base font-display font-bold text-foreground tracking-tight"><AccentText>Advanced library</AccentText></h2>
-                    <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-0.5 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
                       Specialized AI workflows and permission-controlled nonclinical decision support — secondary to
                       your daily Hospice Sales Pro spine.
                     </p>

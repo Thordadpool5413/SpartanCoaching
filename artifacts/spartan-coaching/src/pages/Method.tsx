@@ -123,7 +123,7 @@ export default function Method() {
             A complete methodology for hospice sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
           </p>
           <div className="mt-10 p-6 bg-muted/30 border-l-4 border-primary inline-block animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
-            <p className="text-sm text-foreground/70 font-mono leading-relaxed max-w-2xl uppercase tracking-wide">
+            <p className="max-w-2xl text-[1rem] font-medium leading-[1.65] text-foreground/80">
               Coaching installs the method. Practice happens in the field — with human accountability, not a software pitch.
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function Method() {
             <div className="space-y-16">
               {/* Discipline */}
               <div>
-                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                <h3 className="font-mono text-[0.85rem] font-bold tracking-wider text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
                   <span>01</span>
                   <span>Discipline</span>
                 </h3>
@@ -175,8 +175,8 @@ export default function Method() {
                   Success in hospice sales requires more than good intentions. It demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
                 </p>
                 <div className="bg-muted/30 p-6 border-l-2 border-primary">
-                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Key Components</h4>
-                  <ul className="space-y-3 text-sm text-foreground/80">
+                  <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-foreground mb-4">Key Components</h4>
+                  <ul className="space-y-3 text-[0.95rem] text-foreground/80">
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Weekly territory planning with clear objectives and named accounts</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Standardized call preparation and follow-up protocols that fit clinical workflows</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Metrics tracking for activity and outcomes (not vanity numbers)</li>
@@ -187,7 +187,7 @@ export default function Method() {
 
               {/* Empathy */}
               <div>
-                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                <h3 className="font-mono text-[0.85rem] font-bold tracking-wider text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
                   <span>02</span>
                   <span>Empathy</span>
                 </h3>
@@ -195,8 +195,8 @@ export default function Method() {
                   At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity. This means understanding that a case manager at 2pm on Friday has different needs than a physician at 8am Monday morning.
                 </p>
                 <div className="bg-muted/30 p-6 border-l-2 border-primary">
-                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Core Practices</h4>
-                  <ul className="space-y-3 text-sm text-foreground/80">
+                  <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-foreground mb-4">Core Practices</h4>
+                  <ul className="space-y-3 text-[0.95rem] text-foreground/80">
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Active listening techniques for clinical conversations (not sales pitches)</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Understanding provider pain points and workflow constraints</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Building long-term relationships over transactional wins</li>
@@ -207,7 +207,7 @@ export default function Method() {
 
               {/* Strategy */}
               <div>
-                <h3 className="font-mono text-sm font-bold tracking-widest text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
+                <h3 className="font-mono text-[0.85rem] font-bold tracking-wider text-primary uppercase mb-4 border-b border-border pb-4 flex items-center justify-between">
                   <span>03</span>
                   <span>Strategy</span>
                 </h3>
@@ -215,8 +215,8 @@ export default function Method() {
                   Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and proven tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
                 </p>
                 <div className="bg-muted/30 p-6 border-l-2 border-primary">
-                  <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-foreground mb-4">Strategic Elements</h4>
-                  <ul className="space-y-3 text-sm text-foreground/80">
+                  <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-foreground mb-4">Strategic Elements</h4>
+                  <ul className="space-y-3 text-[0.95rem] text-foreground/80">
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Data-driven territory analysis and segmentation (not guesswork)</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Competitive intelligence and market positioning based on real gaps</li>
                     <li className="flex gap-3"><span className="text-primary mt-0.5 opacity-50">■</span> Research and insights tools that save time</li>
@@ -269,23 +269,23 @@ export default function Method() {
                           <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-white mb-2">
                             {subject.title}
                           </h3>
-                          <p className="font-mono text-sm tracking-widest text-zinc-300 uppercase">Subject {idx + 1} of 4</p>
+                          <p className="font-mono text-[0.85rem] tracking-wider text-zinc-300 uppercase">Subject {idx + 1} of 4</p>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-10">
                           <div>
-                            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-primary mb-4">Purpose</h4>
-                            <p className="text-base leading-relaxed text-zinc-300">{subject.purpose}</p>
+                            <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-primary mb-4">Purpose</h4>
+                            <p className="text-[1.05rem] leading-relaxed text-zinc-300">{subject.purpose}</p>
                           </div>
                           <div>
-                            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-primary mb-4">Execution Standard</h4>
-                            <p className="text-base leading-relaxed text-zinc-300">{subject.executionStandard}</p>
+                            <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-primary mb-4">Execution Standard</h4>
+                            <p className="text-[1.05rem] leading-relaxed text-zinc-300">{subject.executionStandard}</p>
                           </div>
                         </div>
 
                         <div className="bg-zinc-800/90 p-6 border-l-2 border-primary text-white">
-                          <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-white mb-3">Measurable Output</h4>
-                          <p className="text-base font-medium leading-relaxed text-zinc-300">{subject.measurableOutput}</p>
+                          <h4 className="font-mono text-[0.8rem] font-bold uppercase tracking-wider text-white mb-3">Measurable Output</h4>
+                          <p className="text-[1.05rem] font-medium leading-relaxed text-zinc-300">{subject.measurableOutput}</p>
                         </div>
                       </div>
                     </div>
@@ -301,7 +301,7 @@ export default function Method() {
             })}
           </div>
 
-          <div className="mt-20 py-8 border-y border-zinc-700 font-mono text-xs text-center uppercase tracking-widest text-zinc-300 leading-loose">
+          <div className="mt-20 py-8 border-y border-zinc-700 font-mono text-[0.8rem] text-center uppercase tracking-wider text-zinc-300 leading-loose">
             Design Version: 2026-01-15 <br className="md:hidden" /><span className="hidden md:inline"> • </span> Field-tested <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prepare with intent <br className="md:hidden" /><span className="hidden md:inline"> • </span> Practice under pressure <br className="md:hidden" /><span className="hidden md:inline"> • </span> Measure in the open <br className="md:hidden" /><span className="hidden md:inline"> • </span> Correct fast <br className="md:hidden" /><span className="hidden md:inline"> • </span> Finish strong <br className="md:hidden" /><span className="hidden md:inline"> • </span> Honor choice <br className="md:hidden" /><span className="hidden md:inline"> • </span> Support clinical judgment <br className="md:hidden" /><span className="hidden md:inline"> • </span> Prove progress in the customer's numbers
           </div>
         </div>
@@ -398,7 +398,7 @@ export default function Method() {
               },
             ].map((item, i) => (
               <div key={i} className="bg-background p-10 flex flex-col justify-center min-h-[220px]">
-                <p className="font-mono text-xs font-bold text-primary uppercase tracking-widest mb-6">{item.heading}</p>
+                <p className="font-mono text-[0.8rem] font-bold text-primary uppercase tracking-wider mb-6">{item.heading}</p>
                 <p className="text-foreground/90 text-lg leading-relaxed">{item.outcome}</p>
               </div>
             ))}
@@ -432,7 +432,7 @@ export default function Method() {
                   className={`flex flex-col md:flex-row md:items-center gap-6 p-6 border ${isEthicsRow ? 'border-primary bg-primary/5 mt-8' : 'border-border bg-background'}`}
                   data-testid={`card-traceability-${idx}`}
                 >
-                  <div className="flex-1 font-mono text-sm md:text-base font-bold text-foreground flex items-center gap-4">
+                  <div className="flex-1 font-mono text-[0.95rem] md:text-[1.05rem] font-bold text-foreground flex items-center gap-4">
                     <Flame className="w-5 h-5 text-primary flex-shrink-0" />
                     <span>{item.mamba}</span>
                   </div>
@@ -474,7 +474,7 @@ export default function Method() {
             <Link href="/services" data-testid="button-method-services" className="fi-btn-outline-light w-full sm:w-auto">
               View coaching services
             </Link>
-            <Link href="/manifesto" data-testid="button-method-manifesto" className="text-zinc-400 hover:text-white font-mono text-xs font-bold uppercase tracking-widest transition-colors mt-6 sm:mt-0 sm:ml-4 underline underline-offset-4 decoration-zinc-800 hover:decoration-zinc-400">
+            <Link href="/manifesto" data-testid="button-method-manifesto" className="text-zinc-400 hover:text-white font-mono text-[0.8rem] font-bold uppercase tracking-wider transition-colors mt-6 sm:mt-0 sm:ml-4 underline underline-offset-4 decoration-zinc-800 hover:decoration-zinc-400">
               Read the Spartan Ethos
             </Link>
           </div>

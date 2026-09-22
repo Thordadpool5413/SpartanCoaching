@@ -358,7 +358,7 @@ export default function About() {
                 },
               ].map((group, i) => (
                 <Card key={i} className="spacing-card border-2" data-testid={`card-spartan-rep-${i}`}>
-                  <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-4">{group.label}</h3>
+                  <h3 className="text-[0.95rem] font-bold text-primary uppercase tracking-wider mb-4">{group.label}</h3>
                   <ul className="space-y-2">
                     {group.items.map((item, j) => (
                       <li key={j} className="flex items-start gap-2 text-body text-muted-foreground">
@@ -406,14 +406,14 @@ export default function About() {
           <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
             <Card className="spacing-card border-2">
               <h3 className="text-h3 font-bold text-foreground mb-2">The Spartan Method</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              <p className="text-[0.95rem] text-muted-foreground leading-relaxed mb-4">
                 The four-part practice standard and patient-first ethics that guide the work.
               </p>
               <Link href="/method" className="font-semibold text-primary hover:underline">See the method →</Link>
             </Card>
             <Card className="spacing-card border-2">
               <h3 className="text-h3 font-bold text-foreground mb-2">Consulting services</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              <p className="text-[0.95rem] text-muted-foreground leading-relaxed mb-4">
                 Coaching, workshops, and leadership systems scoped to your hospice team.
               </p>
               <Link href="/services" className="font-semibold text-primary hover:underline">View services →</Link>
@@ -450,7 +450,7 @@ export default function About() {
                   <Icon className="w-5 h-5" />
                 </div>
                 <h3 className="text-h3 font-bold text-foreground mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+                <p className="text-[0.95rem] text-muted-foreground leading-relaxed">{text}</p>
               </Card>
             ))}
           </div>
@@ -477,7 +477,7 @@ export default function About() {
               </Link>
             </Button>
           </div>
-          <p className="mt-5 text-sm text-muted-foreground">
+          <p className="mt-5 text-[0.95rem] text-muted-foreground">
             <Link href="/manifesto" className="underline underline-offset-4 hover:text-primary" data-testid="button-about-manifesto">
               Read the Spartan Ethos
             </Link>

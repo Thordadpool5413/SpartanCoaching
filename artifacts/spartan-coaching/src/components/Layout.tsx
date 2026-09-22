@@ -37,7 +37,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.78rem] font-bold uppercase tracking-[0.13em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
+        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
         isActive
           ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
           : "text-[#272329]"
@@ -56,7 +56,7 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       onClick={onClose}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "px-4 py-4 rounded-none text-xs font-mono uppercase tracking-widest font-bold touch-manipulation min-h-[48px] flex items-center transition-all border-b border-border",
+        "px-4 py-4 rounded-none text-[0.8rem] font-mono uppercase tracking-wider font-bold touch-manipulation min-h-[48px] flex items-center transition-all border-b border-border",
         isActive
           ? "text-primary bg-primary/5 border-primary/30 shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
           : "text-foreground bg-transparent border-transparent active:bg-muted/50"
@@ -71,7 +71,7 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
 function MobileNavSection({ title }: { title: string }) {
   return (
     <div className="pt-3 pb-1">
-      <span className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+      <span className="px-4 text-[0.75rem] font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
     </div>
   );
 }
@@ -150,7 +150,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.78rem] font-bold uppercase tracking-[0.13em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
+          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
           isGroupActive || open
             ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
             : "text-[#272329]"
@@ -232,7 +232,7 @@ export function NavDropdown({ label, items, dataTestId }: {
               onClick={() => setOpen(false)}
             >
               <div className="font-display text-[0.96rem] font-extrabold uppercase tracking-[-0.01em] text-white">{item.label}</div>
-              <div className="mt-1.5 text-[0.82rem] leading-relaxed text-white/75 transition-colors group-hover:text-white/90">{item.description}</div>
+              <div className="mt-1.5 text-[0.9rem] leading-relaxed text-white/85 transition-colors group-hover:text-white">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -299,7 +299,7 @@ export function Header() {
                 <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-[#151316] min-[390px]:text-base sm:text-xl md:text-[1.4rem]">
                   SPARTAN <span className="text-[#b91920]">COACHING</span>
                 </span>
-                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.58rem] font-bold uppercase tracking-[0.18em] text-black/55 md:block">
+                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.7rem] font-bold uppercase tracking-[0.13em] text-black/65 md:block">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -310,7 +310,7 @@ export function Header() {
         <div className="hidden min-w-0 items-center justify-center xl:flex">
           <div className="flex items-center gap-4">
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
-            <p className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em] text-black/60">
+            <p className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-black/70">
               Field authority for hospice growth leaders
             </p>
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
@@ -356,7 +356,7 @@ export function Header() {
               size="sm"
               variant="ghost"
               asChild
-               className="inline-flex h-11 border border-black/35 bg-transparent px-3 font-mono text-[0.69rem] font-bold uppercase tracking-[0.12em] !text-[#151316] shadow-none transition-all hover:border-black hover:bg-[#151316] hover:!text-white sm:px-5"
+               className="inline-flex h-11 border border-black/35 bg-transparent px-3 font-mono text-[0.78rem] font-bold uppercase tracking-[0.1em] !text-[#151316] shadow-none transition-all hover:border-black hover:bg-[#151316] hover:!text-white sm:px-5"
               data-testid="button-login"
             >
               <Link href="/login">
@@ -510,7 +510,7 @@ export function Header() {
               <Input
                 placeholder="SEARCH PAGES AND TOOLS..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 font-mono text-xs uppercase tracking-wider rounded-none"
+                className="pl-9 font-mono text-[0.8rem] uppercase tracking-wider rounded-none"
                 autoFocus
                 data-testid="input-search"
                 aria-label="Search pages and tools"
@@ -531,7 +531,7 @@ export function Header() {
                     aria-label={`Navigate to ${item.label}`}
                   >
                     <div className="font-medium text-foreground">{item.label}</div>
-                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                    <div className="text-[0.95rem] text-muted-foreground leading-relaxed">{item.description}</div>
                   </button>
                 ))
               )}
@@ -592,29 +592,29 @@ export function Footer() {
             <div className="flex flex-col gap-4">
               <div>
                 <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
-                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
+                <p className="text-[0.8rem] text-muted-foreground mt-1 uppercase tracking-wider">
                   {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Consulting · Hospice Sales Pro"}
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-[0.95rem] text-muted-foreground leading-relaxed">
                 {canUseFieldKit
                   ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
                   : "Hospice growth consulting for leaders and teams, with Hospice Sales Pro available as the separate field-tools platform."}
               </p>
-              <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
+              <p className="text-[0.85rem] text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
                   : "Diagnose the constraint · Install the standard · Sustain the behavior"}
               </p>
               <div className="flex flex-col gap-2">
-                <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
+                <a href="mailto:nick@spartanhospicecoaching.com" className="text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
                   nick@spartanhospicecoaching.com
                 </a>
                 <a
                   href="https://www.linkedin.com/in/nicholas-lynch-coaching"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                  className="flex items-center gap-2 text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors group"
                   data-testid="link-linkedin-footer"
                   aria-label="Connect with Nick Lynch on LinkedIn"
                 >
@@ -626,7 +626,7 @@ export function Footer() {
 
             {/* Column 2 — Quick navigation */}
             <div className="flex flex-col gap-4">
-              <p className="text-xs font-bold text-foreground uppercase tracking-widest">
+              <p className="text-[0.8rem] font-bold text-foreground uppercase tracking-wider">
                 {canUseFieldKit ? "Portal" : "Quick Links"}
               </p>
               <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -634,7 +634,7 @@ export function Footer() {
                   <Link
                     key={href}
                     href={href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors py-0.5"
+                    className="text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors py-0.5"
                     data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "").slice(0, 40)}`}
                   >
                     {label}
@@ -646,7 +646,7 @@ export function Footer() {
             {/* Column 3 — Newsletter (public only) */}
             {!canUseFieldKit && (
               <div className="flex flex-col gap-4" data-testid="section-newsletter">
-                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Optional email updates</p>
+                <p className="text-[0.8rem] font-bold text-foreground uppercase tracking-wider">Optional email updates</p>
                 <NewsletterSignup />
               </div>
             )}
@@ -658,7 +658,7 @@ export function Footer() {
         <div className="border-t border-border/50 dark:border-red-900/10">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs text-muted-foreground order-last sm:order-first">
+              <p className="text-[0.85rem] text-muted-foreground order-last sm:order-first">
                 © 2026 Spartan Coaching. All rights reserved.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
@@ -673,7 +673,7 @@ export function Footer() {
                   <Link
                     key={href}
                     href={href}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                    className="text-[0.85rem] text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                     data-testid={testId}
                   >
                     {label}

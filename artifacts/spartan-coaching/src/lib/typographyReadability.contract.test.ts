@@ -49,4 +49,14 @@ describe("web typography readability contracts", () => {
     expect(globalCss).not.toMatch(/@media \(max-width: 640px\)\s*\{[\s\S]*?\.tools-search-dock[^}]*top:\s*64px/s);
     expect(shell).not.toContain("text-[9px]");
   });
+
+  it("does not enlarge compact workspace badges or data tables through shell-wide utility overrides", () => {
+    const css = read("../styles/workspace.css");
+    const badge = read("../components/ui/badge.tsx");
+    const profitability = read("../pages/BranchProfitability.tsx");
+
+    expect(css).not.toMatch(/\.workspace-premium\s+\.text-(?:xs|\\\[11px\\\]|\\\[10px\\\]|\\\[9px\\\])/);
+    expect(badge).toContain("text-xs");
+    expect(profitability).toContain('className="w-full text-xs min-w-[520px]" data-testid="table-runway"');
+  });
 });

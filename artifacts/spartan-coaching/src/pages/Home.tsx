@@ -342,7 +342,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-black/10 pt-8 text-xs font-bold uppercase tracking-widest text-black/60">
+              <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-black/10 pt-8 text-[0.85rem] font-bold uppercase tracking-wider text-black/60">
                 <span className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
                   Hospice specific
@@ -426,8 +426,8 @@ export default function Home() {
                 </h2>
               </div>
               <div className="border-l border-[#d61f26] pl-6">
-                <p className="text-white/70">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
-                <p className="mt-5 font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-white/45">
+                <p className="text-[1.05rem] leading-[1.7] text-white/85">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+                <p className="mt-5 font-mono text-[0.8rem] font-bold uppercase tracking-wider text-white/60">
                   Built for field execution · Coachable by leaders · Measured in behavior
                 </p>
               </div>
@@ -459,7 +459,7 @@ export default function Home() {
                     <article key={step.number} className="group border-l-white/10 transition-colors hover:bg-white/[0.035]">
                       <span className="home-photo-step-number" aria-hidden="true">{step.number}</span>
                       <div className="relative z-10">
-                        <p className="home-photo-phase-label font-mono text-[0.72rem] font-bold uppercase tracking-[0.16em] text-[#d61f26]">
+                        <p className="home-photo-phase-label font-mono text-[0.85rem] font-bold uppercase tracking-wider text-[#d61f26]">
                           Phase {step.number}
                         </p>
                         <h3 className="tracking-tight text-white">{step.title}</h3>

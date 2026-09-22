@@ -378,7 +378,7 @@ export default function FieldKitMembership() {
           className="text-left text-[0.85rem] text-[#11131d]/60 leading-[1.6] border-t border-[#11131d]/10 pt-8 mt-12 max-w-3xl mx-auto space-y-4"
           data-testid="membership-legal"
         >
-          <p className="font-bold text-[#11131d] uppercase tracking-widest text-xs">Billing terms (summary)</p>
+          <p className="font-bold text-[#11131d] uppercase tracking-wider text-[0.8rem]">Billing terms (summary)</p>
           <ul className="list-disc list-outside ml-4 space-y-2">
             <li>
               <strong className="text-[#11131d]">Individual:</strong> Standard is ${PRICING_FACTS.individualWeeklyUsd.toFixed(2)} USD per week. Elite is ${PRICING_FACTS.eliteWeeklyUsd.toFixed(2)} USD per week. Billing continues automatically until you cancel. Access continues through the paid period.

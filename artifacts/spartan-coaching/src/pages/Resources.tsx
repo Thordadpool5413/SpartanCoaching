@@ -149,7 +149,7 @@ function ProviderWorkflowFields({
             ))}
           </SelectContent>
         </Select>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-[0.9rem] leading-relaxed text-muted-foreground">
           Guidance is organization-authored. Do not include member details, patient information, or PHI.
         </p>
       </div>
@@ -560,7 +560,7 @@ export default function Resources() {
     <div className="resources-premium w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <div className="max-w-3xl mb-7">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+        <p className="text-[0.85rem] font-bold tracking-wider text-primary uppercase mb-3">
           {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
         <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl" data-testid="text-resources-title">
@@ -576,7 +576,7 @@ export default function Resources() {
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
-          <p className="text-sm text-muted-foreground mt-3">
+          <p className="text-[0.95rem] text-muted-foreground mt-3">
             This library is for downloadable work aids. Use{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
             {" "}when you need an interactive workspace.
@@ -587,7 +587,7 @@ export default function Resources() {
       <Card className="mb-8 flex flex-col gap-3 border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between" data-testid="resources-work-guide">
         <div>
           <p className="font-bold text-foreground">Keep professional context deidentified</p>
-          <p className="mt-1 text-sm text-muted-foreground">Do not enter patient identifiers, PHI, or clinical records. AI-adapted work can be saved to My Work.</p>
+          <p className="mt-1 text-[0.95rem] text-muted-foreground">Do not enter patient identifiers, PHI, or clinical records. AI-adapted work can be saved to My Work.</p>
         </div>
         <Button asChild variant="outline" className="shrink-0"><Link href="/my-work">Open My Work</Link></Button>
       </Card>
@@ -633,11 +633,11 @@ export default function Resources() {
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
+              <p className="text-[0.8rem] font-bold tracking-wider text-primary uppercase mb-1">
                 Provider organization
               </p>
               <h2 className="text-h2">Your private <span className="text-primary">library</span></h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+              <p className="text-[0.95rem] text-muted-foreground mt-1 max-w-2xl">
                 Organization-only scripts, coverage maps, escalation guides, and policies.
                 Clearly separate from{" "}
                 <span className="font-semibold text-foreground">
@@ -717,7 +717,7 @@ export default function Resources() {
           )}
 
           {providerLoading ? (
-            <p className="text-sm text-muted-foreground">Loading provider library…</p>
+            <p className="text-[0.95rem] text-muted-foreground">Loading provider library…</p>
           ) : providerError ? (
             <StateBlock
               variant="error"
@@ -727,7 +727,7 @@ export default function Resources() {
               className="py-8"
             />
           ) : providerItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[0.95rem] text-muted-foreground">
               No provider-owned resources yet
               {isOrgAdmin ? " — add one above." : "."}
             </p>
@@ -754,12 +754,12 @@ export default function Resources() {
                       {item.title}
                     </h3>
                     {item.description ? (
-                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                      <p className="text-[0.95rem] text-muted-foreground mb-3 leading-relaxed">
                         {item.description}
                       </p>
                     ) : null}
                     <details
-                      className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-xs leading-relaxed text-muted-foreground"
+                      className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-[0.85rem] leading-relaxed text-muted-foreground"
                       data-testid={`provider-resource-workflow-${item.id}`}
                     >
                       <summary className="cursor-pointer font-semibold text-foreground">How to use this resource</summary>
@@ -777,7 +777,7 @@ export default function Resources() {
                     </details>
                     {isOrgAdmin && editingProviderId === item.id ? (
                       <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                        <p className="mb-3 text-sm font-semibold text-foreground">
+                        <p className="mb-3 text-[0.95rem] font-semibold text-foreground">
                           Tailor field guidance
                         </p>
                         <ProviderWorkflowFields
@@ -873,7 +873,7 @@ export default function Resources() {
           <Badge variant="secondary">
             {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
           </Badge>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[0.95rem] text-muted-foreground">
             Shared product library (not organization-private)
           </p>
         </div>
@@ -940,7 +940,7 @@ export default function Resources() {
                       if (!life?.hasNewerVersion || !life.currentVersion) return null;
                       return (
                         <div
-                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[0.85rem] text-foreground"
                           data-testid={`resource-newer-${resource.id}`}
                         >
                           A newer version is available (v{life.currentVersion.versionLabel}
@@ -954,7 +954,7 @@ export default function Resources() {
                       UX_WORKSPACE_IMPROVEMENTS ? (
                         <ExpandableText className="mb-3" lines={3}>{resource.description}</ExpandableText>
                       ) : (
-                        <p className="resource-preview-clamp mb-3 text-sm text-muted-foreground">{resource.description}</p>
+                        <p className="resource-preview-clamp mb-3 text-[0.95rem] text-muted-foreground">{resource.description}</p>
                       )
                     )}
 
@@ -962,7 +962,7 @@ export default function Resources() {
                       const arch = resourceArchitecture(resource);
                       if (!arch) return null;
                       return (
-                        <div className="mb-3 space-y-2 text-xs leading-5 text-muted-foreground">
+                        <div className="mb-3 space-y-2 text-[0.85rem] leading-relaxed text-muted-foreground">
                           {arch.whenToUse ? (
                             <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
                               <span className="font-semibold text-foreground">When: </span>
@@ -977,13 +977,13 @@ export default function Resources() {
                           ) : null}
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {arch.experienceLevel ? (
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="secondary" className="text-[0.8rem]">
                                 {arch.experienceLevel}
                               </Badge>
                             ) : null}
                             {arch.clinicalSensitivity &&
                             arch.clinicalSensitivity !== "none" ? (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-[0.8rem]">
                                 {arch.clinicalSensitivity}
                               </Badge>
                             ) : null}
@@ -1044,7 +1044,7 @@ export default function Resources() {
                           {workflow.tool ? (
                             <Link
                               href={workflow.tool.path}
-                              className="mt-3 inline-flex min-h-9 items-center text-xs font-bold text-primary hover:underline"
+                              className="mt-3 inline-flex min-h-9 items-center text-[0.85rem] font-bold text-primary hover:underline"
                               data-testid={`resource-next-tool-${resource.id}`}
                             >
                               Next: {workflow.tool.title} · {relatedGuide?.phase}
@@ -1087,7 +1087,7 @@ export default function Resources() {
         {visibleResources.length === 0 ? (
           <Card className="p-8 text-center" data-testid="resources-empty-search">
             <h2 className="text-lg font-bold text-foreground">No resources match that search</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
+            <p className="mt-2 text-[0.95rem] text-muted-foreground">Try a broader phrase or choose a different resource type.</p>
             <Button type="button" variant="outline" className="mt-4" onClick={() => { setResourceSearch(""); setResourceCategory("all"); }}>
               Clear filters
             </Button>
@@ -1098,7 +1098,7 @@ export default function Resources() {
       <div className="mt-16">
         <h2 className="text-h2 mb-2 flex items-center gap-3 flex-wrap">
           Printable Fill-In Templates
-          <Badge variant="secondary" className="text-sm">5</Badge>
+          <Badge variant="secondary" className="text-[0.85rem]">5</Badge>
         </h2>
         <p className="text-muted-foreground mb-6">
           {canUseFieldKit
@@ -1122,7 +1122,7 @@ export default function Resources() {
             <Card key={item.href} className="flex flex-col border-2 hover-elevate spacing-card">
               <div className="flex-1">
                 <h3 className="text-h3 text-foreground leading-tight mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
+                <p className="text-[0.95rem] text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
               </div>
               <Link href={item.href}>
                 <Button className="w-full gap-2" data-testid={`button-open-${item.href.split("/").pop()}`}>
@@ -1199,7 +1199,7 @@ export default function Resources() {
               <Download className="w-4 h-4" />
               {leadMutation.isPending ? "Processing..." : "Download Now"}
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-[0.8rem] text-muted-foreground text-center">
               We respect your privacy. Unsubscribe anytime.
             </p>
           </form>

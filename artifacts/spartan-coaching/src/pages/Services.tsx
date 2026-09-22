@@ -148,7 +148,7 @@ export default function Services() {
                 <article key={title} className="flex flex-col min-h-[300px] border-b border-r border-[#11131d]/10 p-8 hover:bg-neutral-50 transition-colors">
                   <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.8} aria-hidden />
                   <h3 className="mt-10 font-display text-[1.25rem] font-black uppercase leading-[1.1] tracking-tight text-[#11131d]">{title}</h3>
-                  <p className="mt-4 text-[0.95rem] leading-[1.6] text-[#11131d]/70 flex-1">{body}</p>
+              <p className="mt-4 flex-1 text-[1rem] leading-[1.65] text-[#11131d]/80">{body}</p>
                 </article>
               ))}
             </div>
@@ -174,10 +174,10 @@ export default function Services() {
               return (
                 <article key={engagement.id} id={engagement.id} className="flex min-h-full flex-col border border-[#11131d]/10 bg-white p-8 sm:p-10 shadow-xl" data-testid={`card-consulting-${engagement.number}`}>
                   <div className="flex items-start justify-between gap-4">
-                    <span className="font-mono text-xs font-bold tracking-[.18em] text-[#d61f26]">{engagement.number}</span>
+                    <span className="font-mono text-[0.8rem] font-bold tracking-[.18em] text-[#d61f26]">{engagement.number}</span>
                     <Icon className="h-8 w-8 text-[#d61f26]" strokeWidth={1.5} aria-hidden />
                   </div>
-                  <p className="mt-12 font-mono text-[.68rem] font-bold uppercase tracking-[.16em] text-[#d61f26]">{engagement.eyebrow}</p>
+                    <p className="mt-12 font-mono text-[.76rem] font-bold uppercase tracking-[.13em] text-[#d61f26]">{engagement.eyebrow}</p>
                   <h3 className="mt-4 font-display text-[1.8rem] font-black uppercase leading-[1.05] tracking-tight text-[#11131d]">{engagement.title}</h3>
 
                   <dl className="mt-8 space-y-6 flex-1">
@@ -197,7 +197,7 @@ export default function Services() {
 
                   <ul className="mt-8 space-y-3 border-t border-[#11131d]/10 pt-8">
                     {engagement.includes.map((item) => (
-                      <li key={item} className="flex gap-3 text-[0.9rem] leading-[1.6] text-[#11131d]/70">
+                      <li key={item} className="flex gap-3 text-[0.95rem] leading-[1.65] text-[#11131d]/78">
                         <Check className="mt-[2px] h-4 w-4 shrink-0 text-[#d61f26]" aria-hidden />
                         <span>{item}</span>
                       </li>
@@ -226,10 +226,10 @@ export default function Services() {
               </h2>
             </div>
             <div className="border-l border-[#d61f26] pl-6 lg:mb-2">
-              <p className="text-[1.1rem] leading-[1.7] text-white/72">
+              <p className="text-[1.1rem] leading-[1.7] text-white/85">
                 Every engagement follows one disciplined operating sequence. It turns pressure into a clear diagnosis, a field-ready standard, and leadership behavior that lasts after the engagement ends.
               </p>
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.63rem] font-bold uppercase tracking-[0.14em] text-white/45">
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/70">
                 <span>Hospice-specific</span>
                 <span>Field-tested</span>
                 <span>Leader-coachable</span>
@@ -243,13 +243,13 @@ export default function Services() {
                 <span className="font-display text-[4.7rem] font-black leading-none tracking-[-0.08em] text-[#f23a41] transition-colors group-hover:text-white">{number}</span>
                 <div className="mt-10 h-px w-10 bg-[#d61f26]" aria-hidden="true" />
                 <h3 className="mt-6 font-display text-[1.55rem] font-black uppercase leading-tight text-white">{title}</h3>
-                <p className="mt-4 text-[0.98rem] leading-[1.7] text-white/62">{body}</p>
+                <p className="mt-4 text-[1rem] leading-[1.7] text-white/82">{body}</p>
               </li>
             ))}
           </ol>
 
           <div className="mt-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-            <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/72">
+            <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/85">
               The standard is visible, repeatable, and coachable — so progress does not depend on charisma, memory, or another one-time event.
             </p>
             <Link href="/method" className="home-photo-button home-photo-dark-button shrink-0">
@@ -264,7 +264,7 @@ export default function Services() {
             <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">
               We will tell you what we see. Even if the answer is <span className="text-[#d61f26]">not us.</span>
             </h2>
-            <p className="mt-8 max-w-3xl text-[1.2rem] leading-[1.6] text-white/70">
+            <p className="mt-8 max-w-3xl text-[1.2rem] leading-[1.6] text-white/85">
               Bring the pressure, the number, and the part that keeps breaking. You will leave with a clearer view of the problem and the next move.
             </p>
           </div>

@@ -16,25 +16,9 @@
   line-height: 1.55;
 }
 
-/*
- * Workspace readability floor.
- * Product surfaces are used for sustained field work, so secondary copy and
- * utility labels must remain readable rather than merely passing contrast math.
- */
+/* Product surfaces use stronger secondary contrast for sustained field work. */
 .workspace-premium .text-muted-foreground {
   color: hsl(var(--foreground) / 0.78);
-}
-
-.workspace-premium .text-xs,
-.workspace-premium .text-\[11px\] {
-  font-size: 0.8125rem;
-  line-height: 1.5;
-}
-
-.workspace-premium .text-\[10px\],
-.workspace-premium .text-\[9px\] {
-  font-size: 0.75rem;
-  line-height: 1.45;
 }
 
 .workspace-premium .shadcn-card,

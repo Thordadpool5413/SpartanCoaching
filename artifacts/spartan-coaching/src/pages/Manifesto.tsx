@@ -163,7 +163,7 @@ export default function Manifesto() {
           </p>
         </div>
         <div className="border border-border bg-card bg-muted/40 rounded-sm p-6">
-          <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-5"><AccentText>What discipline looks like on Tuesday at 2pm</AccentText></h3>
+          <h3 className="text-[0.95rem] font-bold text-primary uppercase tracking-wider mb-5"><AccentText>What discipline looks like on Tuesday at 2pm</AccentText></h3>
           <ul className="space-y-3">
             {[
               "You know exactly which three accounts you are visiting and why those three",
@@ -173,7 +173,7 @@ export default function Manifesto() {
               "At the end of the day you log what happened so you can coach from it next week",
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="font-display text-sm font-black text-primary flex-shrink-0 w-5 mt-0.5 leading-none">{i + 1}</span>
+                <span className="font-display text-[0.95rem] font-black text-primary flex-shrink-0 w-5 mt-0.5 leading-none">{i + 1}</span>
                 <span className="text-body text-muted-foreground">{item}</span>
               </li>
             ))}
@@ -228,7 +228,7 @@ export default function Manifesto() {
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
               <h2 className="font-display font-black text-foreground leading-[1.15] tracking-[-0.01em] mb-2" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>The Stakes</AccentText></h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">Why this work matters beyond a sales quota</p>
+              <p className="text-[0.8rem] text-muted-foreground uppercase tracking-[0.25em] font-semibold">Why this work matters beyond a sales quota</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed mb-12">
               <p>There is a gap in hospice. It is not small.</p>
@@ -254,7 +254,7 @@ export default function Manifesto() {
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
                     <h3 className="font-display font-black text-foreground text-lg mb-2"><AccentText>{heading}</AccentText></h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+                    <p className="text-[0.95rem] text-muted-foreground leading-relaxed">{body}</p>
                   </div>
                 </StaggerItem>
               ))}
@@ -277,7 +277,7 @@ export default function Manifesto() {
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
               <h2 className="font-display font-black text-foreground leading-[1.15] tracking-[-0.01em] mb-2" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>What a Spartan Rep Looks Like</AccentText></h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">Observable behaviors, not aspirational adjectives</p>
+              <p className="text-[0.8rem] text-muted-foreground uppercase tracking-[0.25em] font-semibold">Observable behaviors, not aspirational adjectives</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed mb-10">
               <p>A Spartan rep is not the most talkative person in the room. They are not necessarily the most charismatic. They are the most prepared.</p>
@@ -297,10 +297,10 @@ export default function Manifesto() {
                 { label: "With their own performance", items: ["Scorecard filled out honestly, even the bad weeks", "Patterns reviewed not just numbers reported", "Practice done before conversations, not after failures", "Coaching received as information, not judgment"] },
               ].map((group, i) => (
                 <div key={i} className="border border-border bg-card bg-muted/40 rounded-sm p-5">
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-4"><AccentText>{group.label}</AccentText></h3>
-                  <ul className="space-y-2">
+                  <h3 className="text-[0.85rem] font-bold text-primary uppercase tracking-wider mb-4"><AccentText>{group.label}</AccentText></h3>
+                  <ul className="space-y-3">
                     {group.items.map((item, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <li key={j} className="flex items-start gap-3 text-[0.95rem] text-muted-foreground">
                         <Eye className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </li>
@@ -319,7 +319,7 @@ export default function Manifesto() {
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
               <h2 className="font-display font-black text-foreground leading-[1.15] tracking-[-0.01em] mb-2" style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}><AccentText>Ethics Is Not a Constraint</AccentText></h2>
-              <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-semibold">It is the foundation</p>
+              <p className="text-[0.8rem] text-muted-foreground uppercase tracking-[0.25em] font-semibold">It is the foundation</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
               <p>Spartan does not treat compliance and ethics as a list of things you are not allowed to do. Ethics is the reason the work is worth doing at all.</p>
@@ -363,7 +363,7 @@ export default function Manifesto() {
         <img src="/spartan-logo-stamp.png" alt="" aria-hidden className="absolute inset-0 w-full h-full object-contain opacity-[0.03] select-none pointer-events-none" />
         <FadeIn>
           <div className="relative max-w-3xl mx-auto px-6 sm:px-8 text-center">
-            <p className="text-white/75 text-xs font-semibold tracking-[0.4em] uppercase mb-6">Ready to close the gap?</p>
+            <p className="text-white/75 text-[0.8rem] font-semibold tracking-[0.3em] uppercase mb-6">Ready to close the gap?</p>
             <h2
               className="font-display font-black text-white leading-[1.1] tracking-[-0.01em] mb-6"
               style={{ fontSize: "clamp(2rem, 5vw, 4rem)" }}
