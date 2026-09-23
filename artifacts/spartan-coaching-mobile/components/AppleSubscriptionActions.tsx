@@ -16,6 +16,7 @@ import {
   type AppleVerificationResult,
 } from "@/lib/api";
 import { getApplePurchaseSessionToken } from "@/lib/applePurchaseSession";
+import { isExpoGoRuntime } from "@/lib/isExpoGoRuntime";
 import { font } from "@/lib/typography";
 
 type IapRuntime = typeof import("react-native-iap");
@@ -48,7 +49,7 @@ export type AppleSubscriptionDisplayPrices = Partial<
 
 export function AppleSubscriptionActions(props: Props) {
   if (Platform.OS !== "ios") return null;
-  if (Constants.expoGoConfig != null) {
+  if (isExpoGoRuntime(Constants.executionEnvironment, Constants.appOwnership)) {
     return <ExpoGoAppleSubscriptionActions {...props} />;
   }
   return <NativeAppleSubscriptionActions {...props} />;

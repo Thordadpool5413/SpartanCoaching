@@ -17,6 +17,7 @@ function loadIapRuntime(): IapRuntime {
 }
 import { APPLE_SUBSCRIPTION_PRODUCT_IDS } from "@/lib/appleSubscriptions";
 import { claimAppleTransaction } from "@/lib/api";
+import { isExpoGoRuntime } from "@/lib/isExpoGoRuntime";
 
 const APP_ACCOUNT_TOKEN_KEY = "spartan_apple_purchase_session";
 
@@ -42,7 +43,7 @@ function isSpartanSubscription(purchase: Purchase) {
  * truth and the API prevents one original transaction from being claimed twice.
  */
 export async function claimCurrentApplePurchases(): Promise<boolean> {
-  if (Platform.OS !== "ios" || Constants.expoGoConfig != null) return false;
+  if (Platform.OS !== "ios" || isExpoGoRuntime(Constants.executionEnvironment, Constants.appOwnership)) return false;
   const { getAvailablePurchases } = loadIapRuntime();
   const purchases = await getAvailablePurchases({ onlyIncludeActiveItemsIOS: true });
   let claimed = false;

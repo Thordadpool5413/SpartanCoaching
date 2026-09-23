@@ -1,5 +1,6 @@
 import { ELITE_WEEKLY_PLAN, STANDARD_WEEKLY_PLAN } from "@workspace/field-kit-catalog";
 import { APPLE_SUBSCRIPTION_PRODUCT_IDS, missingAppleProducts, tierForAppleProduct } from "@/lib/appleSubscriptions";
+import { isExpoGoRuntime } from "@/lib/isExpoGoRuntime";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -64,7 +65,7 @@ describe("Apple subscription contract", () => {
     const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
     const session = fs.readFileSync(path.resolve(__dirname, "../lib/applePurchaseSession.ts"), "utf8");
 
-    expect(source).toContain("Constants.expoGoConfig");
+    expect(source).toContain("isExpoGoRuntime(Constants.executionEnvironment, Constants.appOwnership)");
     expect(source).toContain('require("react-native-iap")');
     expect(source).not.toContain('from "react-native-iap";');
     expect(source).toContain("Visual preview in Expo Go");
@@ -72,8 +73,15 @@ describe("Apple subscription contract", () => {
 
     expect(session).toContain('require("react-native-iap")');
     expect(session).not.toContain('from "react-native-iap";');
-    expect(session).toContain('if (Platform.OS !== "ios" || Constants.expoGoConfig != null) return false;');
-    expect(session.indexOf("Constants.expoGoConfig != null")).toBeLessThan(session.indexOf("loadIapRuntime();"));
+    expect(session).toContain('if (Platform.OS !== "ios" || isExpoGoRuntime(Constants.executionEnvironment, Constants.appOwnership)) return false;');
+    expect(session.indexOf("isExpoGoRuntime(Constants.executionEnvironment, Constants.appOwnership)")).toBeLessThan(session.indexOf("loadIapRuntime();"));
+  });
+
+  it("limits the Expo Go checkout block to Expo Go and permits TestFlight StoreKit", () => {
+    expect(isExpoGoRuntime("storeClient", "expo")).toBe(true);
+    expect(isExpoGoRuntime("storeClient", null)).toBe(false);
+    expect(isExpoGoRuntime("standalone", null)).toBe(false);
+    expect(isExpoGoRuntime("bare", null)).toBe(false);
   });
 
   it("allows Apple purchase before Spartan account creation", () => {
