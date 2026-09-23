@@ -85,11 +85,20 @@ export default function AccountScreen() {
 
   if (!isAuthenticated || !user) {
     return (
-      <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingTop: topPad + 20, paddingHorizontal: 20, paddingBottom: bottomPad + 24 }}>
+      <ScrollView
+        style={styles.screen}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={[
+          styles.guestContent,
+          { paddingTop: topPad + 20, paddingBottom: bottomPad + 24 },
+        ]}
+      >
         <SpartanHeader title="Account" showAccount={false} />
-        <Text style={styles.kicker}>ACCOUNT</Text>
-        <Text style={styles.pageTitle}>Explore first. Connect an account when it has something worth protecting.</Text>
-        <Text style={styles.pageSubtitle}>You can tour the system and purchase through Apple before creating a Spartan account. Signing in connects membership, saved work, commitments, and preferences across your devices.</Text>
+        <View style={styles.pageIntro}>
+          <Text style={styles.kicker}>ACCOUNT</Text>
+          <Text style={styles.pageTitle}>Explore first. Connect an account when it has something worth protecting.</Text>
+          <Text style={styles.pageSubtitle}>You can tour the system and purchase through Apple before creating a Spartan account. Signing in connects membership, saved work, commitments, and preferences across your devices.</Text>
+        </View>
 
         <Pressable onPress={() => router.push("/access" as any)} style={styles.heroAction} accessibilityRole="button">
           <View style={styles.heroIcon}><Feather name="grid" size={22} color={colors.primaryForeground} /></View>
@@ -97,8 +106,10 @@ export default function AccountScreen() {
            <Feather name="chevron-right" size={20} color={colors.primaryForeground} />
         </Pressable>
 
-        <SpartanButton title="Compare memberships and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 18 }} />
-        <SpartanButton title="Sign in" variant="outline" onPress={() => router.push("/login" as any)} style={{ marginTop: 10 }} />
+        <View style={styles.guestActions}>
+          <SpartanButton title="Compare memberships and subscribe" onPress={() => router.push("/membership" as any)} />
+          <SpartanButton title="Sign in" variant="outline" onPress={() => router.push("/login" as any)} />
+        </View>
         <Pressable onPress={() => router.push("/(tabs)/contact" as any)} style={styles.simpleLink}><Text style={styles.simpleLinkText}>Company access or human consulting</Text><Feather name="chevron-right" size={17} color={colors.readablePrimary} /></Pressable>
       </ScrollView>
     );
@@ -167,16 +178,21 @@ export default function AccountScreen() {
     <ScrollView
       style={styles.screen}
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={{ paddingTop: topPad + 16, paddingHorizontal: 22, paddingBottom: bottomPad + 40 }}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: topPad + 16, paddingBottom: bottomPad + 40 },
+      ]}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       testID="screen-account"
     >
       <SpartanHeader title="Account" showAccount={false} />
-      <Text style={styles.kicker}>MY SPARTAN</Text>
-      <View style={styles.identityRow}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>{initials}</Text></View>
-        <View style={{ flex: 1 }}><Text style={styles.memberName}>{user.member.name}</Text><Text style={styles.memberEmail}>{user.member.email}</Text></View>
+      <View style={styles.profileCard}>
+        <Text style={styles.kicker}>MY SPARTAN</Text>
+        <View style={styles.identityRow}>
+          <View style={styles.avatar}><Text style={styles.avatarText}>{initials}</Text></View>
+          <View style={{ flex: 1 }}><Text style={styles.memberName}>{user.member.name}</Text><Text style={styles.memberEmail}>{user.member.email}</Text></View>
+        </View>
       </View>
 
       <Pressable onPress={() => router.push("/access" as any)} style={styles.membershipCard} accessibilityRole="button" testID="account-membership-card">
@@ -221,9 +237,9 @@ export default function AccountScreen() {
           {APPEARANCES.map((item) => {
             const selected = preference === item.id;
             return (
-              <Pressable key={item.id} onPress={() => setPreference(item.id)} style={[styles.appearanceChoice, selected && styles.appearanceSelected]} accessibilityState={{ selected }}>
-                <Feather name={item.icon} size={18} color={selected ? (colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground) : colors.mutedForeground} />
-                <Text style={[styles.appearanceText, selected && { color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground }]}>{item.label}</Text>
+              <Pressable key={item.id} onPress={() => setPreference(item.id)} style={[styles.appearanceChoice, selected && styles.appearanceSelected]} accessibilityRole="radio" accessibilityState={{ checked: selected }}>
+                <Feather name={item.icon} size={19} color={selected ? (colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground) : colors.mutedForeground} />
+                <Text style={[styles.appearanceText, selected && styles.choiceTextSelected]}>{item.label}</Text>
               </Pressable>
             );
           })}
@@ -239,7 +255,7 @@ export default function AccountScreen() {
           <View style={styles.roleWrap}>
             {ROLES.map((role) => {
               const selected = jobRole === role.id;
-              return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && { color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground }]}>{role.label}</Text></Pressable>;
+              return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && styles.choiceTextSelected]}>{role.label}</Text></Pressable>;
             })}
           </View>
           <View style={styles.leadershipRow}>
@@ -247,7 +263,7 @@ export default function AccountScreen() {
               <Text style={styles.label}>I also lead a team</Text>
               <Text style={styles.leadershipBody}>Home adapts with useful leadership context without changing your primary role or main navigation.</Text>
             </View>
-            <Switch value={alsoLeadsTeam} onValueChange={setAlsoLeadsTeam} trackColor={{ false: colors.muted, true: colors.primaryMuted }} thumbColor={alsoLeadsTeam ? colors.primary : colors.card} />
+            <Switch value={alsoLeadsTeam} onValueChange={setAlsoLeadsTeam} trackColor={{ false: colors.muted, true: colors.primary }} thumbColor={alsoLeadsTeam ? colors.primaryForeground : colors.card} />
           </View>
           <Text style={styles.label}>Territory context</Text>
           <TextInput style={styles.input} value={territoryNote} onChangeText={setTerritoryNote} placeholder="Territory priorities, account mix, leadership context" placeholderTextColor={colors.mutedForeground} multiline />
@@ -310,51 +326,57 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
-     kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2, ...font("bold") },
-    pageTitle: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, marginTop: 8, ...font("heavy") },
-    pageSubtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 9, ...font("regular") },
-    heroAction: { minHeight: 96, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 22, backgroundColor: colors.heroBackground, borderRadius: 20, borderCurve: "continuous", padding: 16 },
+    content: { paddingHorizontal: 20, gap: 18 },
+    guestContent: { paddingHorizontal: 20, gap: 20 },
+    pageIntro: { gap: 9, paddingTop: 4 },
+    guestActions: { gap: 10 },
+    kicker: { color: colors.readablePrimary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+    pageTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, ...font("heavy") },
+    pageSubtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, ...font("regular") },
+    heroAction: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 13, backgroundColor: colors.heroBackground, borderRadius: 20, borderCurve: "continuous", padding: 17 },
     heroIcon: { width: 46, height: 46, borderRadius: 15, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     heroActionTitle: { color: colors.heroForeground, fontSize: 16, ...font("bold") },
     heroActionBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     simpleLink: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
     simpleLinkText: { color: colors.readablePrimary, fontSize: 13, ...font("bold") },
-    identityRow: { flexDirection: "row", alignItems: "center", gap: 14, marginTop: 18, marginBottom: 26 },
+    profileCard: { gap: 13, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
+    identityRow: { flexDirection: "row", alignItems: "center", gap: 14 },
     avatar: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     avatarText: { color: colors.primaryForeground, fontSize: 18, ...font("heavy") },
     memberName: { color: colors.foreground, fontSize: 22, ...font("heavy") },
-    memberEmail: { color: colors.mutedForeground, fontSize: 12, marginTop: 2, ...font("regular") },
-    membershipCard: { minHeight: 156, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.heroBackground, borderRadius: 24, borderCurve: "continuous", padding: 21, marginBottom: 24 },
+    memberEmail: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 2, ...font("regular") },
+    membershipCard: { minHeight: 156, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.heroBackground, borderRadius: 24, borderCurve: "continuous", padding: 21 },
     cardKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     membershipTitle: { color: colors.heroForeground, fontSize: 25, lineHeight: 30, marginTop: 5, ...font("heavy") },
-    membershipBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 17, marginTop: 5, ...font("regular") },
-    adminCard: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.readablePrimary, borderRadius: 18, borderCurve: "continuous", padding: 15, marginBottom: 18 },
+    membershipBody: { color: colors.heroMuted, fontSize: 12, lineHeight: 18, marginTop: 6, ...font("regular") },
+    adminCard: { flexDirection: "row", alignItems: "center", gap: 13, backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.readablePrimary, borderRadius: 20, borderCurve: "continuous", padding: 17 },
     adminIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     adminTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
-    adminBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
-    section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 28, marginTop: 14, marginBottom: 8, gap: 15 },
-     sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    adminBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 4, ...font("regular") },
+    section: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: 22, borderCurve: "continuous", padding: 18, gap: 16 },
+    sectionKicker: { color: colors.readablePrimary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
-    sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
-    appearanceRow: { flexDirection: "row", gap: 8 },
-    appearanceChoice: { flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 5, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 15, borderCurve: "continuous" },
-     appearanceSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primaryMuted },
-    appearanceText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
-    label: { color: colors.foreground, fontSize: 12, ...font("bold") },
-    roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-    roleChip: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card },
-     roleChipSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primaryMuted },
-    roleText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
+    sectionBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 20, ...font("regular") },
+    appearanceRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    appearanceChoice: { flexBasis: "47%", flexGrow: 1, minHeight: 64, alignItems: "center", justifyContent: "center", gap: 6, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.background, borderRadius: 16, borderCurve: "continuous" },
+    appearanceSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primary },
+    appearanceText: { color: colors.mutedForeground, fontSize: 12, ...font("semibold") },
+    choiceTextSelected: { color: colors.accent === "#FDB927" ? colors.accentForeground : colors.primaryForeground },
+    label: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+    roleChip: { minHeight: 42, justifyContent: "center", paddingHorizontal: 13, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 21, backgroundColor: colors.background },
+    roleChipSelected: { borderColor: colors.accent === "#FDB927" ? colors.accent : colors.primary, backgroundColor: colors.accent === "#FDB927" ? colors.accent : colors.primary },
+    roleText: { color: colors.mutedForeground, fontSize: 12, ...font("semibold") },
     leadershipRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 11 },
-    leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
-    input: { minHeight: 64, color: colors.foreground, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", padding: 12, fontSize: 13, lineHeight: 18, ...font("regular") },
-    profileMessage: { color: colors.readablePrimary, fontSize: 11, ...font("semibold") },
-    infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 13, paddingVertical: 13 },
+    leadershipBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 4, ...font("regular") },
+    input: { minHeight: 72, color: colors.foreground, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 15, borderCurve: "continuous", padding: 13, fontSize: 14, lineHeight: 20, ...font("regular") },
+    profileMessage: { color: colors.readablePrimary, fontSize: 12, ...font("semibold") },
+    infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 13, paddingVertical: 8 },
     infoIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
-    infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
-    infoBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
-    linkRow: { minHeight: 58, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border, gap: 10 },
-    linkLabel: { flex: 1, color: colors.foreground, fontSize: 13, ...font("semibold") },
+    infoTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
+    infoBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 4, ...font("regular") },
+    linkRow: { minHeight: 56, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border, gap: 10 },
+    linkLabel: { flex: 1, color: colors.foreground, fontSize: 14, ...font("semibold") },
     deleteButton: { minHeight: 48, alignItems: "center", justifyContent: "center" },
     deleteText: { color: colors.destructive, fontSize: 12, ...font("bold") },
   });

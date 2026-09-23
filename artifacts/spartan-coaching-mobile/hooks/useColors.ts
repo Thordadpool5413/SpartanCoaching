@@ -9,6 +9,11 @@ export function useColors() {
     radius: colors.radius,
     // Purple remains the Mamba surface/fill color; gold is the readable
     // foreground accent on dark and purple surfaces.
-    readablePrimary: preference === "mamba" ? colors.mamba.accent : palette.primary,
+    readablePrimary:
+      preference === "mamba"
+        ? colors.mamba.accent
+        : effectiveScheme === "dark"
+          ? colors.dark.tint
+          : palette.primary,
   };
 }

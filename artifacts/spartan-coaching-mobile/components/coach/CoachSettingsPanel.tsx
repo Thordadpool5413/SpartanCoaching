@@ -241,7 +241,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       alignItems: "center",
       justifyContent: "center",
     },
-    initialsText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+    initialsText: { color: colors.primaryForeground, fontSize: 15, ...font("bold") },
     profileTitle: { color: colors.foreground, fontSize: 16, ...font("bold") },
     profileBody: {
       color: colors.mutedForeground,

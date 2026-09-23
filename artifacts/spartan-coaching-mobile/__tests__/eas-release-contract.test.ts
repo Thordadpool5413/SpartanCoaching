@@ -30,6 +30,10 @@ describe("iOS release associated-domains contract", () => {
     path.resolve(__dirname, "../components/LaunchExperience.tsx"),
     "utf8",
   );
+  const launchFilm = fs.readFileSync(
+    path.resolve(__dirname, "../components/LaunchFilm.tsx"),
+    "utf8",
+  );
   const rootLayout = fs.readFileSync(
     path.resolve(__dirname, "../app/_layout.tsx"),
     "utf8",
@@ -97,11 +101,18 @@ describe("iOS release associated-domains contract", () => {
     expect(verifier).toContain('v.ok!==true || v.status!=="ready"');
   });
 
-  it("keeps native media players out of the unrecoverable iOS startup path", () => {
+  it("mounts the launch film only after a recoverable static frame", () => {
     expect(launchExperience).toContain("helmet-mark.png");
     expect(launchExperience).not.toContain('from "expo-video"');
     expect(launchExperience).not.toContain("useVideoPlayer");
     expect(launchExperience).not.toContain("spartan-launch-film.mp4");
+    expect(launchExperience).toContain('lazy(() => import("@/components/LaunchFilm"))');
+    expect(launchExperience).toContain("LaunchMediaBoundary");
+    expect(launchExperience).toContain("12_000");
+    expect(launchFilm).toContain('from "expo-video"');
+    expect(launchFilm).toContain("useVideoPlayer");
+    expect(launchFilm).toContain("spartan-launch-film.mp4");
+    expect(launchFilm).toContain('"playToEnd"');
   });
 
   it("keeps Android background workers out of the iOS startup path", () => {

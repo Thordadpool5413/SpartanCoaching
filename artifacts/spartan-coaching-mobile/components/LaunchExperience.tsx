@@ -1,11 +1,39 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, {
+  Component,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { font } from "@/lib/typography";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
 
 const launchMark = require("@/assets/images/helmet-mark.png");
+const LaunchFilm = lazy(() => import("@/components/LaunchFilm"));
+
+class LaunchMediaBoundary extends Component<
+  { children: React.ReactNode; fallback: React.ReactNode; onError: () => void },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch() {
+    this.props.onError();
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
 export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
   const { reduceMotion } = useAccessibilityPrefs();
@@ -13,6 +41,8 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(1)).current;
   const finishing = useRef(false);
+  const [showFilm, setShowFilm] = useState(false);
+  const [filmUnavailable, setFilmUnavailable] = useState(false);
 
   const finish = useCallback(() => {
     if (finishing.current) return;
@@ -25,38 +55,54 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
     }).start(onComplete);
   }, [onComplete, opacity, reduceMotion]);
 
-  // Native media initialization is deliberately excluded from application
-  // startup. A codec/player failure can terminate an iOS release before the
-  // React error boundary mounts, producing the splash-loop crash seen in
-  // TestFlight. The full brand film remains available after startup.
   useEffect(() => {
-    const timer = setTimeout(finish, reduceMotion ? 450 : 1_250);
-    return () => clearTimeout(timer);
+    if (reduceMotion) {
+      const reducedMotionTimer = setTimeout(finish, 450);
+      return () => clearTimeout(reducedMotionTimer);
+    }
+
+    // The first frame is asset-only and fully recoverable. Native video loads
+    // afterward, with a hard exit even if playback stalls or fails.
+    const mountTimer = setTimeout(() => setShowFilm(true), 120);
+    const safetyTimer = setTimeout(finish, 12_000);
+    return () => {
+      clearTimeout(mountTimer);
+      clearTimeout(safetyTimer);
+    };
   }, [finish, reduceMotion]);
+
+  const staticStage = (
+    <View
+      accessibilityLabel="Spartan Coaching introduction"
+      accessible
+      style={styles.brandStage}
+    >
+      <Image
+        accessibilityIgnoresInvertColors
+        resizeMode="contain"
+        source={launchMark}
+        style={styles.mark}
+      />
+      <Text style={[styles.brandTitle, { color: colors.heroForeground }]}>SPARTAN</Text>
+      <Text style={[styles.brandSubtitle, { color: colors.heroMuted }]}>HOSPICE SALES PRO</Text>
+    </View>
+  );
 
   return (
     <Animated.View
       accessibilityViewIsModal
       pointerEvents="auto"
-       style={[styles.root, { opacity, backgroundColor: colors.heroBackground }]}
+      style={[styles.root, { opacity, backgroundColor: colors.heroBackground }]}
       testID="launch-experience"
     >
-      <View
-        accessibilityLabel="Spartan Coaching introduction"
-        accessible
-        style={styles.brandStage}
-      >
-        <Image
-          accessibilityIgnoresInvertColors
-          resizeMode="contain"
-          source={launchMark}
-          style={styles.mark}
-        />
-        <Text style={[styles.brandTitle, { color: colors.heroForeground }]}>SPARTAN</Text>
-        <Text style={[styles.brandSubtitle, { color: colors.heroMuted }]}>
-          HOSPICE SALES PRO
-        </Text>
-      </View>
+      {staticStage}
+      {showFilm && !filmUnavailable ? (
+        <LaunchMediaBoundary fallback={null} onError={() => setFilmUnavailable(true)}>
+          <Suspense fallback={null}>
+            <LaunchFilm onComplete={finish} onError={() => setFilmUnavailable(true)} />
+          </Suspense>
+        </LaunchMediaBoundary>
+      ) : null}
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
         <Pressable
           accessibilityHint="Opens the app immediately"
@@ -65,11 +111,16 @@ export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
           hitSlop={12}
           onPress={finish}
           style={({ pressed }) => [
-             styles.skip,
-             { top: insets.top + 10, opacity: pressed ? 0.72 : 1, backgroundColor: colors.overlay, borderColor: colors.borderStrong },
+            styles.skip,
+            {
+              top: insets.top + 10,
+              opacity: pressed ? 0.72 : 1,
+              backgroundColor: colors.overlay,
+              borderColor: colors.borderStrong,
+            },
           ]}
         >
-           <Text style={[styles.skipText, { color: colors.heroForeground }]}>SKIP</Text>
+          <Text style={[styles.skipText, { color: colors.heroForeground }]}>SKIP</Text>
         </Pressable>
       </View>
     </Animated.View>
@@ -111,12 +162,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-     backgroundColor: "rgba(26, 26, 26, 0.88)",
+    backgroundColor: "rgba(26, 26, 26, 0.88)",
     borderWidth: 1,
-     borderColor: "rgba(212, 212, 212, 0.28)",
+    borderColor: "rgba(212, 212, 212, 0.28)",
   },
   skipText: {
-     color: "#D4D4D4",
+    color: "#D4D4D4",
     fontSize: 11,
     letterSpacing: 1.4,
     ...font("bold"),

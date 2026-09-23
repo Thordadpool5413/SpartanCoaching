@@ -44,6 +44,16 @@ describe("appearance preference persistence", () => {
     await AsyncStorage.clear();
   });
 
+  it("uses Light on a clean install", async () => {
+    const firstLaunch = renderAppearanceConsumer();
+
+    await waitFor(() => {
+      expect(firstLaunch.getByTestId("appearance-preference").props.children).toBe(
+        "light",
+      );
+    });
+  });
+
   it("stores Mamba and updates the consumer, then hydrates it after remount", async () => {
     const firstLaunch = renderAppearanceConsumer();
 
@@ -66,7 +76,7 @@ describe("appearance preference persistence", () => {
     });
   });
 
-  it("removes the stored preference when System is selected", async () => {
+  it("stores System and hydrates it after relaunch", async () => {
     await AsyncStorage.setItem(STORAGE_KEY, "mamba");
     const view = renderAppearanceConsumer();
 
@@ -83,6 +93,14 @@ describe("appearance preference persistence", () => {
         "system",
       );
     });
-    expect(await AsyncStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(await AsyncStorage.getItem(STORAGE_KEY)).toBe("system");
+
+    view.unmount();
+    const relaunched = renderAppearanceConsumer();
+    await waitFor(() => {
+      expect(relaunched.getByTestId("appearance-preference").props.children).toBe(
+        "system",
+      );
+    });
   });
 });

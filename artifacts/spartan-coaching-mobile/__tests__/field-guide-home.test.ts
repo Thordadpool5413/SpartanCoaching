@@ -51,20 +51,24 @@ describe("Field Guide experience contract", () => {
     expect(rootLayout).toContain('name="tour"');
   });
 
-  it("uses an accessible asset-only launch experience that cannot crash native startup", () => {
+  it("uses an accessible, recoverable launch film experience", () => {
     const stamp = read("components/brand/BrandStamp.tsx");
     const helmet = read("components/brand/HelmetMark.tsx");
     const launch = read("components/LaunchExperience.tsx");
+    const film = read("components/LaunchFilm.tsx");
 
     expect(stamp).toContain("brand-stamp.png");
     expect(helmet).toContain("helmet-mark.png");
     expect(launch).toContain("helmet-mark.png");
     expect(launch).toContain("<Image");
     expect(launch).toContain('accessibilityLabel="Skip introduction"');
-    expect(launch).toContain("1_250");
+    expect(launch).toContain("LaunchMediaBoundary");
+    expect(launch).toContain("12_000");
     expect(launch).not.toContain("spartan-launch-film.mp4");
     expect(launch).not.toContain("useVideoPlayer");
-    expect(launch).not.toContain("<VideoView");
+    expect(film).toContain("spartan-launch-film.mp4");
+    expect(film).toContain("useVideoPlayer");
+    expect(film).toContain("<VideoView");
   });
 
   it("locks the approved Figma Home target and its native action hierarchy", () => {
