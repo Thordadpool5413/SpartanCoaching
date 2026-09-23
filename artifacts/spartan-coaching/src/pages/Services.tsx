@@ -38,6 +38,9 @@ type ConsultingService = {
   duration: string;
   description: string;
   includes: string[];
+  label?: string;
+  bestFor?: string;
+  outcome?: string;
 };
 
 type ConsultingServiceGroup = {
@@ -164,28 +167,90 @@ const consultingServiceGroups: ConsultingServiceGroup[] = [
     ],
   },
   {
-    id: "technology-solutions",
-    eyebrow: "Technology services",
-    title: "Purpose-built technology",
-    description: "Custom systems designed around hospice sales workflows instead of forcing field teams into generic software.",
+    id: "growth-operations",
+    eyebrow: "Growth operations services",
+    title: "Referral, clinical, and sales alignment",
+    description: "Operational consulting that connects referral development, clinical readiness, admissions, leadership, and technology into one measurable growth process.",
     services: [
       {
-        title: "Custom CRM Development",
-        duration: "Custom scope",
-        description: "A hospice-specific CRM for referral relationships, physician outreach, facility history, follow-up, and census impact.",
-        includes: ["Workflow discovery and mapping", "Custom pipelines and dashboards", "Referral-source tracking and team training"],
+        title: "Referral-to-Admission Process Optimization",
+        duration: "6–12 weeks",
+        label: "New",
+        bestFor: "Hospices losing qualified referrals to slow response times, unclear handoffs, inconsistent follow-up, or avoidable intake friction.",
+        description: "A detailed redesign of the path from first referral contact through eligibility review, family communication, admission, and referral-source follow-up.",
+        outcome: "A faster, more accountable referral pathway with fewer preventable losses and clear ownership at every handoff.",
+        includes: ["End-to-end referral journey audit", "Response-time, handoff, and escalation standards", "Conversion dashboard and lost-referral review cadence"],
       },
       {
-        title: "iOS App Development",
-        duration: "Custom scope",
-        description: "Purpose-built iPhone and iPad tools for visit logging, account notes, commitments, and territory intelligence in the field.",
-        includes: ["Native iPhone and iPad experience", "Offline-capable field workflows", "Backend sync and deployment support"],
+        title: "Sales & Clinical Alignment Consulting",
+        duration: "8–16 weeks",
+        label: "New",
+        bestFor: "Organizations where sales promises, clinical capacity, eligibility decisions, or service expectations are creating friction and lost trust.",
+        description: "A facilitated operating model that gives sales, intake, clinical, and executive teams shared language, expectations, and decision rules.",
+        outcome: "Stronger internal trust, cleaner referral communication, and growth commitments the clinical operation can consistently deliver.",
+        includes: ["Cross-functional alignment assessment", "Shared service and eligibility communication standards", "Joint huddles, escalation paths, and accountability scorecard"],
       },
       {
-        title: "Custom Website Development",
-        duration: "Custom scope",
-        description: "A differentiated hospice website that serves referral sources and gives families a clear, usable path to care.",
-        includes: ["Custom brand and market discovery", "Mobile-first design and intake flows", "Local SEO and performance foundation"],
+        title: "CRM Implementation & Sales Process Design",
+        duration: "8–20 weeks",
+        label: "New",
+        bestFor: "Hospices adopting a CRM—or underusing one—without a defined sales process, reliable data standards, or manager coaching rhythm.",
+        description: "A hospice-specific CRM implementation that begins with the sales process, then configures the technology around how representatives and leaders actually work.",
+        outcome: "A usable CRM, a visible pipeline, and a management system that turns field activity into accountable next actions and growth insight.",
+        includes: ["Sales-process and data architecture design", "CRM configuration, migration planning, and workflow setup", "Team rollout, adoption coaching, and reporting standards"],
+      },
+    ],
+  },
+  {
+    id: "technology-solutions",
+    eyebrow: "Technology services",
+    title: "Connected digital growth platforms",
+    description: "Custom digital products designed around hospice growth, referral, intake, and field workflows—available individually or as one connected platform.",
+    services: [
+      {
+        title: "Hospice Website Design & Development",
+        duration: "12–20 weeks",
+        label: "New",
+        bestFor: "Hospices that need a credible, differentiated website serving families, referral partners, recruits, and local markets.",
+        description: "A strategy-led hospice website built to explain care clearly, establish trust, support local discovery, and move each audience toward the right next step.",
+        outcome: "A fast, accessible, conversion-focused web presence that reflects the organization and supports measurable growth.",
+        includes: ["Audience, brand, content, and conversion strategy", "Custom responsive design with referral and family pathways", "CMS, analytics, local SEO, accessibility, and launch support"],
+      },
+      {
+        title: "Custom Hospice iOS App Development",
+        duration: "16–28 weeks",
+        label: "New",
+        bestFor: "Hospice teams that need a secure, purpose-built iPhone or iPad workflow instead of a generic mobile form or browser-only system.",
+        description: "A custom iOS product for field sales, referral intake, leadership visibility, education, or another defined hospice workflow.",
+        outcome: "A deployable mobile experience that reduces field friction, improves data quality, and gives teams the right information at the point of work.",
+        includes: ["Product discovery, workflow mapping, and UX design", "Native iOS development with secure API integration", "Testing, App Store deployment, documentation, and launch support"],
+      },
+      {
+        title: "Custom Hospice Sales CRM",
+        duration: "16–28 weeks",
+        label: "New",
+        bestFor: "Hospices whose referral-development model cannot be managed well in an off-the-shelf CRM.",
+        description: "A custom CRM centered on referral relationships, account history, commitments, field activity, territory intelligence, and census impact.",
+        outcome: "One source of truth for field execution and leadership decisions, designed around the hospice's actual sales process.",
+        includes: ["Custom account, contact, territory, and pipeline model", "Field workflows, dashboards, permissions, and integrations", "Data migration, team training, launch, and adoption support"],
+      },
+      {
+        title: "CRM + Website Development",
+        duration: "20–32 weeks",
+        label: "New",
+        bestFor: "Hospices ready to connect public lead and referral experiences directly to the team responsible for follow-up.",
+        description: "A coordinated website and CRM build that joins external conversion paths with internal ownership, follow-up, reporting, and relationship history.",
+        outcome: "A connected growth system in which web inquiries and referrals enter a defined workflow and leaders can see what happens next.",
+        includes: ["Unified website, content, CRM, and data strategy", "Secure forms, routing, automation, and source attribution", "Role-based dashboards, analytics, training, and coordinated launch"],
+      },
+      {
+        title: "CRM + Website + iOS App Development",
+        duration: "28–44 weeks",
+        label: "New",
+        bestFor: "Multi-location or growth-stage hospices seeking one connected platform across public engagement, office operations, and field execution.",
+        description: "A complete digital growth platform combining a conversion-focused website, hospice-specific CRM, and custom iOS field experience.",
+        outcome: "One coordinated system from first digital touch through referral follow-up and field execution, with shared data and leadership visibility.",
+        includes: ["Platform architecture and phased product roadmap", "Custom website, CRM, iOS app, APIs, and role-based security", "Data migration, integrations, quality assurance, deployment, and adoption program"],
       },
     ],
   },
@@ -362,12 +427,31 @@ export default function Services() {
                   </AccordionTrigger>
                   <AccordionContent className="pb-8">
                     <p className="max-w-3xl text-[1rem] leading-[1.65] text-[#11131d]/72">{group.description}</p>
-                    <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                    <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                       {group.services.map((service) => (
                         <article key={service.title} className="flex h-full flex-col border border-[#11131d]/10 bg-[#f5f3ef] p-6" data-testid={`service-${service.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
-                          <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[.12em] text-[#d61f26]">{service.duration}</p>
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[.12em] text-[#d61f26]">{service.duration}</p>
+                            {service.label && (
+                              <span className="border border-[#d61f26] bg-[#d61f26] px-2.5 py-1 font-mono text-[0.62rem] font-black uppercase tracking-[.16em] text-white">
+                                {service.label}
+                              </span>
+                            )}
+                          </div>
                           <h3 className="mt-4 font-display text-[1.35rem] font-black uppercase leading-[1.08] text-[#11131d]">{service.title}</h3>
-                          <p className="mt-4 flex-1 text-[0.96rem] leading-[1.65] text-[#11131d]/75">{service.description}</p>
+                          {service.bestFor && (
+                            <div className="mt-5 border-l-2 border-[#d61f26] pl-4">
+                              <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[.13em] text-[#11131d]/50">Best for</p>
+                              <p className="mt-2 text-[0.9rem] leading-[1.55] text-[#11131d]/78">{service.bestFor}</p>
+                            </div>
+                          )}
+                          <p className="mt-5 text-[0.96rem] leading-[1.65] text-[#11131d]/75">{service.description}</p>
+                          {service.outcome && (
+                            <div className="mt-5 bg-white/80 p-4">
+                              <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[.13em] text-[#d61f26]">What changes</p>
+                              <p className="mt-2 text-[0.9rem] font-medium leading-[1.55] text-[#11131d]/82">{service.outcome}</p>
+                            </div>
+                          )}
                           <ul className="mt-6 space-y-2 border-t border-[#11131d]/10 pt-5">
                             {service.includes.map((item) => (
                               <li key={item} className="flex gap-2 text-[0.9rem] leading-[1.5] text-[#11131d]/78">

@@ -131,7 +131,8 @@ describe("Public Experience Design Standards", () => {
       expect(screen.getByText("Coaching for field performance")).not.toBeNull();
       expect(screen.getByText("Leadership and team development")).not.toBeNull();
       expect(screen.getByText("Multi-market growth systems")).not.toBeNull();
-      expect(screen.getByText("Purpose-built technology")).not.toBeNull();
+      expect(screen.getByText("Referral, clinical, and sales alignment")).not.toBeNull();
+      expect(screen.getByText("Connected digital growth platforms")).not.toBeNull();
       [
         "Virtual Coaching Sessions",
         "Field Coaching Ridealongs",
@@ -142,9 +143,14 @@ describe("Public Experience Design Standards", () => {
         "Market & Territory Analysis",
         "System Implementation & Training",
         "Executive Consulting",
-        "Custom CRM Development",
-        "iOS App Development",
-        "Custom Website Development",
+        "Hospice Website Design & Development",
+        "Custom Hospice iOS App Development",
+        "Custom Hospice Sales CRM",
+        "CRM + Website Development",
+        "CRM + Website + iOS App Development",
+        "Referral-to-Admission Process Optimization",
+        "Sales & Clinical Alignment Consulting",
+        "CRM Implementation & Sales Process Design",
       ].forEach((service) => {
         expect(screen.getByText(service)).not.toBeNull();
       });
