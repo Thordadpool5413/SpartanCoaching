@@ -160,12 +160,12 @@ export default function RequestAccess() {
             <div className="text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
               <h1 className="text-2xl font-display font-black text-foreground"><AccentText>Request received</AccentText></h1>
-              <p className="text-[1.05rem] text-muted-foreground leading-relaxed">
+              <p className="text-lg text-muted-foreground leading-relaxed">
                 Thank you. We review every membership request personally and respond within{" "}
                 <strong className="text-foreground">one business day</strong>.
               </p>
               {submittedEmail && (
-                <p className="text-[0.95rem] text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   Confirmation sent to{" "}
                   <strong className="text-foreground">{submittedEmail}</strong> (check spam if needed).
                 </p>
@@ -173,8 +173,8 @@ export default function RequestAccess() {
             </div>
 
             <div className="rounded-xl border border-border bg-muted/40 p-5 space-y-3 text-left">
-              <p className="text-[0.75rem] font-bold uppercase tracking-wider text-primary">What to expect</p>
-              <ul className="space-y-3 text-[0.95rem] text-muted-foreground leading-relaxed">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary">What to expect</p>
+              <ul className="space-y-3 text-base text-muted-foreground leading-relaxed">
                 <li className="flex gap-3">
                   <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <span>
@@ -220,7 +220,7 @@ export default function RequestAccess() {
       <SEO />
 
       <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
-        <p className="text-[0.85rem] font-bold tracking-wider text-primary uppercase">Hospice Sales Pro</p>
+        <p className="text-sm font-bold tracking-wider text-primary uppercase">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground"><AccentText>Request team or evaluation access</AccentText></h1>
         <p className="text-muted-foreground leading-relaxed">
           For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
@@ -241,12 +241,12 @@ export default function RequestAccess() {
             key={s.n}
             className="rounded-xl border-2 border-border bg-card shadow-sm p-5 flex gap-4"
           >
-            <span className="w-10 h-10 rounded-full bg-primary/15 text-primary font-black text-[1.1rem] flex items-center justify-center shrink-0">
+            <span className="w-10 h-10 rounded-full bg-primary/15 text-primary font-black text-lg flex items-center justify-center shrink-0">
               {s.n}
             </span>
             <div>
-              <p className="text-[1rem] font-bold text-foreground mb-1">{s.title}</p>
-              <p className="text-[0.95rem] text-muted-foreground leading-relaxed">{s.body}</p>
+              <p className="text-base font-bold text-foreground mb-1">{s.title}</p>
+              <p className="text-base text-muted-foreground leading-relaxed">{s.body}</p>
             </div>
           </div>
         ))}
@@ -262,7 +262,7 @@ export default function RequestAccess() {
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
-                  className={`flex-1 py-2.5 rounded-md text-[0.95rem] font-semibold transition-colors flex items-center justify-center gap-2 ${
+                  className={`flex-1 py-2.5 rounded-md text-base font-semibold transition-colors flex items-center justify-center gap-2 ${
                     type === t
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -284,7 +284,7 @@ export default function RequestAccess() {
 
             {/* Trial expectation callout */}
             <div
-              className="rounded-lg border border-primary/25 bg-primary/5 px-5 py-4 text-[0.95rem]"
+              className="rounded-lg border border-primary/25 bg-primary/5 px-5 py-4 text-base"
               data-testid="text-trial-expectation"
             >
               <p className="font-bold text-foreground mb-1">
@@ -308,7 +308,7 @@ export default function RequestAccess() {
 
             <div className="grid sm:grid-cols-2 gap-5">
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="name" className="text-[0.95rem]">Full name *</Label>
+                <Label htmlFor="name" className="text-base">Full name *</Label>
                 <Input
                   id="name"
                   required
@@ -318,7 +318,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="email" className="text-[0.95rem]">Work email *</Label>
+                <Label htmlFor="email" className="text-base">Work email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -329,7 +329,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-[0.95rem]">Organization {type === "company" ? "*" : "(optional)"}</Label>
+                <Label htmlFor="company" className="text-base">Organization {type === "company" ? "*" : "(optional)"}</Label>
                 <Input
                   id="company"
                   required={type === "company"}
@@ -339,7 +339,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-[0.95rem]">Job title</Label>
+                <Label htmlFor="title" className="text-base">Job title</Label>
                 <Input
                   id="title"
                   value={form.jobTitle}
@@ -348,7 +348,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[0.95rem]">Your role</Label>
+                <Label className="text-base">Your role</Label>
                 <Select value={form.role} onValueChange={(v) => set("role", v)}>
                   <SelectTrigger data-testid="select-role">
                     <SelectValue placeholder="Select role" />
@@ -363,7 +363,7 @@ export default function RequestAccess() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[0.95rem]">Primary goal</Label>
+                <Label className="text-base">Primary goal</Label>
                 <Select value={form.primaryGoal} onValueChange={(v) => set("primaryGoal", v)}>
                   <SelectTrigger data-testid="select-goal">
                     <SelectValue placeholder="What are you solving?" />
@@ -381,7 +381,7 @@ export default function RequestAccess() {
               {type === "company" && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-[0.95rem]">Team size</Label>
+                    <Label className="text-base">Team size</Label>
                     <Select value={form.teamSize} onValueChange={(v) => set("teamSize", v)}>
                       <SelectTrigger data-testid="select-team-size">
                         <SelectValue placeholder="Approx. team size" />
@@ -395,7 +395,7 @@ export default function RequestAccess() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="seats" className="text-[0.95rem]">Seats requested</Label>
+                    <Label htmlFor="seats" className="text-base">Seats requested</Label>
                     <Input
                       id="seats"
                       type="number"
@@ -409,7 +409,7 @@ export default function RequestAccess() {
                 </>
               )}
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="market" className="text-[0.95rem]">Market / states (optional)</Label>
+                <Label htmlFor="market" className="text-base">Market / states (optional)</Label>
                 <Input
                   id="market"
                   value={form.market}
@@ -419,7 +419,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="message" className="text-[0.95rem]">Anything else we should know?</Label>
+                <Label htmlFor="message" className="text-base">Anything else we should know?</Label>
                 <Textarea
                   id="message"
                   rows={4}
@@ -432,7 +432,7 @@ export default function RequestAccess() {
             </div>
 
             {type === "company" && (
-              <p className="text-[0.85rem] text-muted-foreground leading-relaxed border border-border rounded-md p-4 bg-muted/30">
+              <p className="text-sm text-muted-foreground leading-relaxed border border-border rounded-md p-4 bg-muted/30">
                 Company evaluations give leaders room to loop in the team.{" "}
                 <Link href="/compliance" className="text-primary font-semibold hover:underline">
                   BAA and compliance details
@@ -443,7 +443,7 @@ export default function RequestAccess() {
             )}
 
             <div className="space-y-4">
-              <label className="flex items-start gap-3 text-[0.95rem] cursor-pointer">
+              <label className="flex items-start gap-3 text-base cursor-pointer">
                 <Checkbox
                   checked={acceptTerms}
                   onCheckedChange={(v) => setAcceptTerms(v === true)}
@@ -462,7 +462,7 @@ export default function RequestAccess() {
                   .
                 </span>
               </label>
-              <label className="flex items-start gap-3 text-[0.95rem] cursor-pointer">
+              <label className="flex items-start gap-3 text-base cursor-pointer">
                 <Checkbox
                   checked={noPhi}
                   onCheckedChange={(v) => setNoPhi(v === true)}
@@ -488,7 +488,7 @@ export default function RequestAccess() {
               {pending ? "Submitting…" : "Submit access request"}
             </Button>
 
-            <p className="text-center text-[0.95rem] text-muted-foreground">
+            <p className="text-center text-base text-muted-foreground">
               Already approved?{" "}
               <Link href="/login" className="text-primary font-semibold hover:underline">
                 Sign in
@@ -506,14 +506,14 @@ export default function RequestAccess() {
           <Card className="border-2 bg-card shadow-sm p-5 space-y-3">
             <div className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-primary" />
-              <p className="text-[0.95rem] font-bold text-foreground">Quick answers</p>
+              <p className="text-base font-bold text-foreground">Quick answers</p>
             </div>
             <ul className="space-y-2">
               {FAQ_LINKS.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-[0.95rem] text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+                    className="text-base text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
                   >
                     {item.label}
                     <ArrowRight className="w-3 h-3 opacity-60" />
@@ -524,8 +524,8 @@ export default function RequestAccess() {
           </Card>
 
           <Card className="border-2 bg-card shadow-sm p-6 space-y-3">
-            <p className="text-[0.95rem] font-bold text-foreground">Prefer a conversation first?</p>
-            <p className="text-[0.85rem] text-muted-foreground leading-relaxed">
+            <p className="text-base font-bold text-foreground">Prefer a conversation first?</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Coaching, team systems, or enterprise scope often start with a strategy call — tools can
               follow.
             </p>
@@ -535,7 +535,7 @@ export default function RequestAccess() {
           </Card>
 
           <TrustStrip compact showLinks={false} className="!p-5" />
-          <p className="text-center text-[0.85rem] text-muted-foreground font-semibold flex items-center justify-center gap-3">
+          <p className="text-center text-sm text-muted-foreground font-semibold flex items-center justify-center gap-3">
             <Link href="/compliance" className="hover:text-primary">
               Compliance
             </Link>

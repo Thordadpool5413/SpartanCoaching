@@ -7,18 +7,18 @@ html[data-route-surface="public"] {
   --fi-red-hover: #b01a20;
   --fi-line: rgba(17, 19, 29, 0.12);
   --fi-line-light: rgba(255, 255, 255, 0.15);
-  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display);
 }
 
 html[data-route-surface="public"] .page-persuasion,
 html[data-route-surface="public"] .public-layout {
   color: var(--fi-ink);
   background: var(--fi-surface);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .fi-serif {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-serif);
   text-transform: none;
   letter-spacing: -0.025em;
   font-weight: 400;
@@ -42,7 +42,7 @@ html[data-route-surface="public"] ::selection {
   background: var(--fi-red);
   color: #ffffff;
   padding: 1.125rem 2rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -67,7 +67,7 @@ html[data-route-surface="public"] ::selection {
   background: transparent;
   color: inherit;
   padding: 1.125rem 2rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -92,7 +92,7 @@ html[data-route-surface="public"] ::selection {
   background: transparent;
   color: #ffffff;
   padding: 1.125rem 2rem;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -115,7 +115,7 @@ html[data-route-surface="public"] ::selection {
 .fi-fade-image:hover { transform: scale(1.03); }
 
 .fi-kicker {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -173,9 +173,9 @@ html[data-route-surface="public"] ::selection {
   --home-red: #d51f26;
   --home-ink: #11131d;
   --home-line: rgba(17, 19, 29, 0.18);
-  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display);
   color: var(--home-ink);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .home-photo-frame {
@@ -185,7 +185,7 @@ html[data-route-surface="public"] ::selection {
 
 .home-photo-kicker {
   color: var(--home-red);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.19em;
@@ -249,7 +249,7 @@ html[data-route-surface="public"] ::selection {
   gap: 0.75rem;
   padding: 0.9rem 1.65rem;
   border: 1px solid var(--home-ink);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -280,7 +280,7 @@ html[data-route-surface="public"] ::selection {
 }
 
 .home-photo-trust {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.11em;
@@ -504,7 +504,7 @@ html[data-route-surface="public"] ::selection {
   align-items: center;
   gap: 0.65rem;
   color: var(--home-red);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -535,7 +535,7 @@ html[data-route-surface="public"] ::selection {
 .home-photo-path-grid article > span,
 .home-photo-process-grid article > span {
   color: var(--home-red);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -595,7 +595,7 @@ html[data-route-surface="public"] ::selection {
 .home-photo-results-grid figcaption {
   margin-top: 2.2rem;
   color: var(--home-red);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -670,7 +670,7 @@ html[data-route-surface="public"] ::selection {
 .home-photo-closing-trust span {
   padding: 24px 28px;
   color: rgba(17, 19, 29, 0.58);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.1em;

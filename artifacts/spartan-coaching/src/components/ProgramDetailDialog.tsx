@@ -61,18 +61,18 @@ export function ProgramDetailDialog({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Target className="w-6 h-6 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">The <span className="text-spartan-red">Why</span></h3>
+              <h3 className="text-2xl font-bold text-foreground">The <span className="text-primary">Why</span></h3>
             </div>
             <Card className="bg-muted/50">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">The <span className="text-spartan-red">Problem</span></h4>
+                  <h4 className="font-bold text-foreground mb-2">The <span className="text-primary">Problem</span></h4>
                   <p className="text-muted-foreground leading-relaxed">
                     {program.why.problem}
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">The <span className="text-spartan-red">Impact</span></h4>
+                  <h4 className="font-bold text-foreground mb-2">The <span className="text-primary">Impact</span></h4>
                   <p className="text-muted-foreground leading-relaxed">
                     {program.why.impact}
                   </p>
@@ -85,7 +85,7 @@ export function ProgramDetailDialog({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Rocket className="w-6 h-6 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">The <span className="text-spartan-red">Delivery</span></h3>
+              <h3 className="text-2xl font-bold text-foreground">The <span className="text-primary">Delivery</span></h3>
             </div>
             <div className="space-y-4">
               <p className="text-muted-foreground leading-relaxed">
@@ -100,7 +100,7 @@ export function ProgramDetailDialog({
                       </div>
                       <div className="flex-1">
                         <h4 className="font-bold text-foreground mb-1"><AccentText>{phase.name}</AccentText></h4>
-                        <p className="text-sm text-muted-foreground">{phase.description}</p>
+                        <p className="text-base text-muted-foreground">{phase.description}</p>
                       </div>
                     </div>
                   </Card>
@@ -113,7 +113,7 @@ export function ProgramDetailDialog({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Award className="w-6 h-6 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">Expected <span className="text-spartan-red">Outcomes</span></h3>
+              <h3 className="text-2xl font-bold text-foreground">Expected <span className="text-primary">Outcomes</span></h3>
             </div>
             <ul className="space-y-3">
               {program.outcomes.map((outcome, idx) => (
@@ -129,7 +129,7 @@ export function ProgramDetailDialog({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Lightbulb className="w-6 h-6 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">Who It&apos;s <span className="text-spartan-red">For</span></h3>
+              <h3 className="text-2xl font-bold text-foreground">Who It&apos;s <span className="text-primary">For</span></h3>
             </div>
             <Card className="bg-primary/5">
               <p className="text-muted-foreground leading-relaxed">
@@ -140,12 +140,12 @@ export function ProgramDetailDialog({
 
           {/* All Deliverables */}
           <section>
-            <h3 className="text-xl font-bold text-foreground mb-4">All <span className="text-spartan-red">Deliverables</span></h3>
+            <h3 className="text-xl font-bold text-foreground mb-4">All <span className="text-primary">Deliverables</span></h3>
             <div className="grid sm:grid-cols-2 gap-3">
               {program.deliverables.map((deliverable, idx) => (
                 <div key={idx} className="flex items-start gap-2">
                   <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">{deliverable}</span>
+                  <span className="text-base text-muted-foreground">{deliverable}</span>
                 </div>
               ))}
             </div>

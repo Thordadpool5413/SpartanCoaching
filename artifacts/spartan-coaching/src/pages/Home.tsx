@@ -319,7 +319,7 @@ export default function Home() {
               </h1>
 
               <div className="mt-10 grid lg:grid-cols-[1fr_auto] gap-10 items-end">
-                <p className="max-w-2xl text-[1.1rem] leading-relaxed text-black/70">
+                <p className="max-w-2xl text-[1.1rem] leading-relaxed text-black/80">
                   Spartan Coaching helps hospice teams convert strategy into disciplined field execution — with
                   sharper conversations, stronger managers, and a growth system your people can actually run.
                 </p>
@@ -342,7 +342,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-black/10 pt-8 text-[0.85rem] font-bold uppercase tracking-wider text-black/60">
+              <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-black/10 pt-8 text-[0.85rem] font-bold uppercase tracking-wider text-black/75">
                 <span className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-[#d61f26]" aria-hidden="true" />
                   Hospice specific
@@ -426,8 +426,8 @@ export default function Home() {
                 </h2>
               </div>
               <div className="border-l border-[#d61f26] pl-6">
-                <p className="text-[1.05rem] leading-[1.7] text-white/85">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
-                <p className="mt-5 font-mono text-[0.8rem] font-bold uppercase tracking-wider text-white/60">
+                <p className="text-[1.05rem] leading-[1.7] text-white/90">We find the real constraint, build the operating standard around it, and coach until the new behavior holds without us in the room.</p>
+                <p className="mt-5 font-mono text-[0.8rem] font-bold uppercase tracking-wider text-white/75">
                   Built for field execution · Coachable by leaders · Measured in behavior
                 </p>
               </div>
@@ -463,7 +463,7 @@ export default function Home() {
                           Phase {step.number}
                         </p>
                         <h3 className="tracking-tight text-white">{step.title}</h3>
-                        <p className="text-white/65">{step.body}</p>
+                        <p className="text-white/90">{step.body}</p>
                       </div>
                       <Icon className="absolute right-8 top-8 z-10 h-8 w-8 text-[#d61f26]" strokeWidth={1.5} aria-hidden="true" />
                     </article>
@@ -535,11 +535,11 @@ export default function Home() {
               <h2 className="fi-serif mt-6 max-w-4xl text-[clamp(4rem,7vw,6.5rem)] leading-[.96] tracking-[-0.03em] text-white">
                 Built by someone who has carried the number.
               </h2>
-              <p className="mt-8 max-w-2xl text-[1.2rem] leading-relaxed text-white/80">
+              <p className="mt-8 max-w-2xl text-[1.2rem] leading-relaxed text-white/90">
                 Nick Lynch built Spartan Coaching around a simple belief: hospice sales support should
                 sound like the field, work in the field, and make leaders better at coaching the field.
               </p>
-              <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/60">
+              <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
                 The work combines frontline experience, executive perspective, and a practical operating
                 system for teams that are accountable for growth every week.
               </p>
@@ -577,7 +577,7 @@ export default function Home() {
                   ))}
                 <div className="home-photo-outcome bg-[#d61f26] text-white flex-col items-start gap-4">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[.2em] text-white/80">The outcome</p>
+                    <p className="text-[11px] font-black uppercase tracking-[.2em] text-white/90">The outcome</p>
                     <p className="mt-4 text-4xl font-display font-black uppercase tracking-tight">Repeatable execution.</p>
                   </div>
                   <p className="max-w-xl leading-relaxed text-white/90 text-lg">
@@ -622,7 +622,7 @@ export default function Home() {
                 <h2 className="mt-5 font-display text-[clamp(4.5rem,10vw,9rem)] font-black uppercase leading-[0.85] tracking-[-0.04em]">
                   Stop winging it.
                 </h2>
-                <p className="mt-10 max-w-2xl text-[1.25rem] leading-[1.6] text-white/70">
+                <p className="mt-10 max-w-2xl text-[1.25rem] leading-[1.6] text-white/90">
                   Build a hospice growth system your team can execute and your leaders can coach.
                 </p>
               </div>

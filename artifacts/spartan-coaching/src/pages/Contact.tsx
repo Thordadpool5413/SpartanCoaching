@@ -263,7 +263,7 @@ export default function Contact() {
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
               Tell Nick where growth is getting stuck. He will personally review the request and send scheduling options within one business day.
             </p>
-            <div className="flex items-center justify-center gap-2 mt-4 text-[0.8rem] text-muted-foreground" data-testid="section-contact-compliance">
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground" data-testid="section-contact-compliance">
               <Shield className="w-3.5 h-3.5 text-primary" />
               <span>HIPAA-aware practices. No PHI collected. <Link href="/compliance" className="text-primary font-semibold hover:underline">Compliance details</Link></span>
             </div>
@@ -281,8 +281,8 @@ export default function Contact() {
             ["No pressure", "A fit conversation, not a sales ambush"],
           ].map(([title, body]) => (
             <div key={title} className="bg-card px-4 py-4 sm:px-5">
-              <p className="font-mono text-[0.7rem] font-bold uppercase tracking-[.14em] text-primary">{title}</p>
-              <p className="mt-2 text-[0.85rem] leading-relaxed text-muted-foreground">{body}</p>
+              <p className="font-mono text-xs font-bold uppercase tracking-[.14em] text-primary">{title}</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </div>
           ))}
         </section>
@@ -309,7 +309,7 @@ export default function Contact() {
                     ? "Your consultation time is booked."
                     : "Calendly could not confirm the booking."}
                 </p>
-                <p className="mt-1 text-[0.95rem] text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   {bookingStatus === "booked"
                     ? "Your Access Desk request remains the source of truth. Nick will use it for any follow-up."
                     : "Your Access Desk request is still the reliable path. Nick will follow up directly to schedule."}
@@ -353,7 +353,7 @@ export default function Contact() {
                     </Button>
                   </div>
                 ) : (
-                  <p className="max-w-md text-[0.95rem] text-muted-foreground" data-testid="text-calendly-disabled">
+                  <p className="max-w-md text-base text-muted-foreground" data-testid="text-calendly-disabled">
                     Scheduling is being coordinated through Access Desk. No action is needed from you.
                   </p>
                 )}
@@ -374,7 +374,7 @@ export default function Contact() {
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-[0.75rem] font-semibold text-primary uppercase tracking-wider flex-shrink-0">Inquiring about:</span>
-                    <span className="text-[0.95rem] font-semibold text-foreground truncate">{serviceParam}</span>
+                    <span className="text-base font-semibold text-foreground truncate">{serviceParam}</span>
                   </div>
                   <button
                     type="button"
@@ -410,10 +410,10 @@ export default function Contact() {
                           {isComplete ? (
                             <CheckCircle className="w-4 h-4 text-white" />
                           ) : (
-                            <span className={cn("text-[0.8rem] font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
+                            <span className={cn("text-sm font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
                           )}
                         </div>
-                        <span className={cn("text-[0.7rem] font-bold uppercase tracking-wider text-center leading-tight max-w-[80px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
+                        <span className={cn("text-xs font-bold uppercase tracking-wider text-center leading-tight max-w-[80px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </div>
                       {i < STEP_LABELS.length - 1 && (
                         <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
@@ -433,7 +433,7 @@ export default function Contact() {
                     Step {step}: {STEP_LABELS[step - 1]}
                   </h2>
                   {submitError && (
-                    <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-[0.95rem] text-foreground" data-testid="contact-submit-error">
+                    <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-base text-foreground" data-testid="contact-submit-error">
                       <p className="font-semibold">Your request was not sent.</p>
                       <p className="mt-1 text-muted-foreground">{submitError}</p>
                       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -751,7 +751,7 @@ export default function Contact() {
               <Mail className="w-4 h-4" />
               <a
                 href="mailto:nick@spartanhospicecoaching.com"
-                className="text-[0.95rem] hover:text-foreground transition-colors"
+                className="text-base hover:text-foreground transition-colors"
                 data-testid="link-contact-email"
               >
                 nick@spartanhospicecoaching.com

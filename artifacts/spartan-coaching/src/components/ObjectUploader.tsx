@@ -6,6 +6,7 @@ import Dashboard from "@uppy/dashboard";
 import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import "@uppy/core/css/style.css";
 import "@uppy/dashboard/css/style.css";
 
@@ -93,7 +94,7 @@ export function ObjectUploader({
                 onClick={() => setShowModal(false)}
                 data-testid="button-close-uploader"
               >
-                ✕
+                <X className="h-4 w-4" />
               </Button>
             </div>
             <div ref={containerRef} />

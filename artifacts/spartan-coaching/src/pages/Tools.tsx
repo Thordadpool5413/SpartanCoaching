@@ -18,6 +18,7 @@ import {
   KeyRound,
   BrainCircuit,
   Crosshair,
+  Check,
   Sparkles,
   BookOpen,
   GraduationCap,
@@ -327,16 +328,16 @@ export default function Tools() {
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-[0.85rem] text-muted-foreground">
                     <li className="flex gap-1.5">
-                      <span className="text-highlight font-bold">✓</span> Live generation on field tools
+                      <Check className="h-4 w-4 mt-0.5 text-highlight flex-shrink-0" /> Live generation on field tools
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-highlight font-bold">✓</span> Command Center for today’s visits
+                      <Check className="h-4 w-4 mt-0.5 text-highlight flex-shrink-0" /> Command Center for today’s visits
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-highlight font-bold">✓</span> Saves synced to iPhone
+                      <Check className="h-4 w-4 mt-0.5 text-highlight flex-shrink-0" /> Saves synced to iPhone
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-highlight font-bold">✓</span> Cancel anytime · same seat
+                      <Check className="h-4 w-4 mt-0.5 text-highlight flex-shrink-0" /> Cancel anytime · same seat
                     </li>
                   </ul>
                 </div>

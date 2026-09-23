@@ -461,19 +461,19 @@ export default function Programs() {
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity" />
             <div className="relative flex-1">
               <h3 className="text-h3 font-bold text-foreground mb-3">{program.title}</h3>
-              <p className="text-muted-foreground mb-4 leading-relaxed text-[0.95rem]">{program.description}</p>
+              <p className="text-muted-foreground mb-4 leading-relaxed text-base">{program.description}</p>
               <div className="mb-4">
-                <p className="text-[0.95rem] font-bold text-foreground mb-2">Key Deliverables:</p>
+                <p className="text-base font-bold text-foreground mb-2">Key Deliverables:</p>
                 <ul className="space-y-2">
                   {program.deliverables.slice(0, 3).map((item, dIdx) => (
                     <li key={dIdx} className="flex items-start gap-2">
                       <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-[0.95rem] text-muted-foreground">{item}</span>
+                      <span className="text-base text-muted-foreground">{item}</span>
                     </li>
                   ))}
                 </ul>
                 {program.deliverables.length > 3 && (
-                  <p className="text-[0.85rem] text-muted-foreground mt-2 italic">
+                  <p className="text-sm text-muted-foreground mt-2 italic">
                     + {program.deliverables.length - 3} more deliverables
                   </p>
                 )}
@@ -509,19 +509,19 @@ export default function Programs() {
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity"></div>
               <div className="flex-1">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed text-[0.95rem]">{service.description}</p>
+                <p className="text-muted-foreground mb-4 leading-relaxed text-base">{service.description}</p>
                 <div className="mb-4">
-                  <p className="text-[0.95rem] font-bold text-foreground mb-2">Key Deliverables:</p>
+                  <p className="text-base font-bold text-foreground mb-2">Key Deliverables:</p>
                   <ul className="space-y-2">
                     {service.deliverables.slice(0, 3).map((item, dIdx) => (
                       <li key={dIdx} className="flex items-start gap-2">
                         <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-[0.95rem] text-muted-foreground">{item}</span>
+                        <span className="text-base text-muted-foreground">{item}</span>
                       </li>
                     ))}
                   </ul>
                   {service.deliverables.length > 3 && (
-                    <p className="text-[0.85rem] text-muted-foreground mt-2 italic">
+                    <p className="text-sm text-muted-foreground mt-2 italic">
                       + {service.deliverables.length - 3} more deliverables
                     </p>
                   )}

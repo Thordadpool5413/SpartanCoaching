@@ -411,7 +411,7 @@ export function AccessDesk() {
                   className={`font-bold text-sm ${beh.ok ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                   data-testid="billing-email-health-status"
                 >
-                  {beh.ok ? "Healthy" : "⚠ Threshold exceeded — check Resend"}
+                  {beh.ok ? "Healthy" : <span className="flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 shrink-0" /> Threshold exceeded — check Resend</span>}
                 </span>
                 <button
                   type="button"

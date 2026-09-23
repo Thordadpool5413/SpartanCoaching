@@ -2,7 +2,7 @@ import { AccentText } from "@/components/AccentText";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Check } from "lucide-react";
 
 interface AssessmentQuestion {
   id: number;
@@ -112,7 +112,7 @@ export default function AssessmentPrint() {
                     return (
                       <div key={oi} className={`flex items-start gap-2 text-sm ${isCorrect ? "font-semibold" : ""}`}>
                         <span className={`shrink-0 w-5 h-5 flex items-center justify-center rounded text-xs border ${isCorrect ? "bg-green-600 border-green-600 text-white print:bg-black print:border-black print:text-white" : "border-muted-foreground/40 text-muted-foreground"}`}>
-                          {isCorrect ? "✓" : letter}
+                          {isCorrect ? <Check className="w-3.5 h-3.5" /> : letter}
                         </span>
                         <span className={isCorrect ? "text-foreground" : "text-muted-foreground"}>{opt}</span>
                       </div>

@@ -81,7 +81,7 @@ export function NewsletterSignup() {
           {isLoading ? "Subscribing..." : "Subscribe"}
         </Button>
       </form>
-      <p className="text-[11px] text-muted-foreground leading-snug">
+      <p className="text-xs text-muted-foreground leading-snug">
         Optional marketing email only. See the{" "}
         <Link href="/trust" className="text-primary font-semibold hover:underline">
           Trust Center

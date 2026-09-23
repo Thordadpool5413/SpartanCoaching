@@ -306,7 +306,7 @@ export default function Services() {
             </h1>
           </div>
           <div className="border-l border-[#d61f26]/30 pl-8 lg:mb-2">
-            <p className="text-[1.1rem] leading-[1.65] text-[#11131d]/70">
+            <p className="text-[1.1rem] leading-[1.65] text-[#11131d]/85">
               This is not a menu of disconnected services. We find the constraint, build the right engagement, and stay close enough to make the new behavior stick.
             </p>
             <Link
@@ -326,7 +326,7 @@ export default function Services() {
               <h2 id="consulting-fit-title" className="mt-6 max-w-xl font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
                 Where is growth getting <span className="text-[#d61f26]">stuck?</span>
               </h2>
-              <p className="mt-8 max-w-lg text-[1.1rem] leading-[1.6] text-[#11131d]/70">
+              <p className="mt-8 max-w-lg text-[1.1rem] leading-[1.6] text-[#11131d]/85">
                 The right engagement is determined by the breakdown, not by forcing you into a prebuilt package.
               </p>
             </div>
@@ -335,7 +335,7 @@ export default function Services() {
                 <article key={title} className="flex flex-col min-h-[300px] border-b border-r border-[#11131d]/10 p-8 hover:bg-neutral-50 transition-colors">
                   <Icon className="h-7 w-7 text-[#d61f26]" strokeWidth={1.8} aria-hidden />
                   <h3 className="mt-10 font-display text-[1.25rem] font-black uppercase leading-[1.1] tracking-tight text-[#11131d]">{title}</h3>
-              <p className="mt-4 flex-1 text-[1rem] leading-[1.65] text-[#11131d]/80">{body}</p>
+              <p className="mt-4 flex-1 text-[1rem] leading-[1.65] text-[#11131d]/95">{body}</p>
                 </article>
               ))}
             </div>
@@ -350,7 +350,7 @@ export default function Services() {
                 The right level of support. <span className="text-[#d61f26]">No catalog maze.</span>
               </h2>
             </div>
-            <p className="max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/70 lg:mb-2">
+            <p className="max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/85 lg:mb-2">
               Scope and investment are confirmed only after we understand the problem, the people involved, and what success must look like.
             </p>
           </div>
@@ -369,22 +369,22 @@ export default function Services() {
 
                   <dl className="mt-8 space-y-6 flex-1">
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">Best fit</dt>
-                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.fit}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/65">Best fit</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/95">{engagement.fit}</dd>
                     </div>
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">How it works</dt>
-                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.format}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/65">How it works</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/95">{engagement.format}</dd>
                     </div>
                     <div>
-                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/50">What changes</dt>
-                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/80">{engagement.outcome}</dd>
+                      <dt className="font-mono text-[.66rem] font-bold uppercase tracking-[.14em] text-[#11131d]/65">What changes</dt>
+                      <dd className="mt-2 text-[0.95rem] leading-[1.6] text-[#11131d]/95">{engagement.outcome}</dd>
                     </div>
                   </dl>
 
                   <ul className="mt-8 space-y-3 border-t border-[#11131d]/10 pt-8">
                     {engagement.includes.map((item) => (
-                      <li key={item} className="flex gap-3 text-[0.95rem] leading-[1.65] text-[#11131d]/78">
+                      <li key={item} className="flex gap-3 text-[0.95rem] leading-[1.65] text-[#11131d]/90">
                         <Check className="mt-[2px] h-4 w-4 shrink-0 text-[#d61f26]" aria-hidden />
                         <span>{item}</span>
                       </li>
@@ -410,7 +410,7 @@ export default function Services() {
             <h2 id="complete-services-title" className="mt-6 font-display text-[clamp(3rem,6vw,5.5rem)] font-black uppercase leading-[0.9] tracking-[-0.05em] text-[#11131d]">
               Every service is still <span className="text-[#d61f26]">available.</span>
             </h2>
-            <p className="mt-8 max-w-3xl text-[1.1rem] leading-[1.7] text-[#11131d]/75">
+            <p className="mt-8 max-w-3xl text-[1.1rem] leading-[1.7] text-[#11131d]/90">
               The three engagement paths above help identify the right level of support. The complete individual, leadership, corporate, and technology service catalog is listed below.
             </p>
           </div>
@@ -426,7 +426,7 @@ export default function Services() {
                     </span>
                   </AccordionTrigger>
                   <AccordionContent className="pb-8">
-                    <p className="max-w-3xl text-[1rem] leading-[1.65] text-[#11131d]/72">{group.description}</p>
+                    <p className="max-w-3xl text-[1rem] leading-[1.65] text-[#11131d]/85">{group.description}</p>
                     <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                       {group.services.map((service) => (
                         <article key={service.title} className="flex h-full flex-col border border-[#11131d]/10 bg-[#f5f3ef] p-6" data-testid={`service-${service.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
@@ -441,11 +441,11 @@ export default function Services() {
                           <h3 className="mt-4 font-display text-[1.35rem] font-black uppercase leading-[1.08] text-[#11131d]">{service.title}</h3>
                           {service.bestFor && (
                             <div className="mt-5 border-l-2 border-[#d61f26] pl-4">
-                              <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[.13em] text-[#11131d]/50">Best for</p>
-                              <p className="mt-2 text-[0.9rem] leading-[1.55] text-[#11131d]/78">{service.bestFor}</p>
+                              <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[.13em] text-[#11131d]/65">Best for</p>
+                              <p className="mt-2 text-[0.9rem] leading-[1.55] text-[#11131d]/90">{service.bestFor}</p>
                             </div>
                           )}
-                          <p className="mt-5 text-[0.96rem] leading-[1.65] text-[#11131d]/75">{service.description}</p>
+                          <p className="mt-5 text-[0.96rem] leading-[1.65] text-[#11131d]/90">{service.description}</p>
                           {service.outcome && (
                             <div className="mt-5 bg-white/80 p-4">
                               <p className="font-mono text-[0.64rem] font-bold uppercase tracking-[.13em] text-[#d61f26]">What changes</p>
@@ -454,7 +454,7 @@ export default function Services() {
                           )}
                           <ul className="mt-6 space-y-2 border-t border-[#11131d]/10 pt-5">
                             {service.includes.map((item) => (
-                              <li key={item} className="flex gap-2 text-[0.9rem] leading-[1.5] text-[#11131d]/78">
+                              <li key={item} className="flex gap-2 text-[0.9rem] leading-[1.5] text-[#11131d]/90">
                                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#d61f26]" aria-hidden />
                                 <span>{item}</span>
                               </li>
@@ -479,7 +479,7 @@ export default function Services() {
           <div className="mt-12 flex flex-col gap-5 border-l-4 border-[#d61f26] bg-[#f5f3ef] p-7 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-display text-[1.45rem] font-black uppercase text-[#11131d]">Looking for the provider programs?</h3>
-              <p className="mt-2 text-[0.98rem] leading-relaxed text-[#11131d]/72">The full implementation-program catalog remains available on the Programs page.</p>
+              <p className="mt-2 text-[0.98rem] leading-relaxed text-[#11131d]/85">The full implementation-program catalog remains available on the Programs page.</p>
             </div>
             <Link href="/programs" className="home-photo-button home-photo-button-outline shrink-0">
               View all programs <ArrowRight className="h-4 w-4" aria-hidden />
@@ -496,10 +496,10 @@ export default function Services() {
               </h2>
             </div>
             <div className="border-l border-[#d61f26] pl-6 lg:mb-2">
-              <p className="text-[1.1rem] leading-[1.7] text-white/85">
+              <p className="text-[1.1rem] leading-[1.7] text-white/95">
                 Every engagement follows one disciplined operating sequence. It turns pressure into a clear diagnosis, a field-ready standard, and leadership behavior that lasts after the engagement ends.
               </p>
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/70">
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 font-mono text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/85">
                 <span>Hospice-specific</span>
                 <span>Field-tested</span>
                 <span>Leader-coachable</span>
@@ -519,7 +519,7 @@ export default function Services() {
           </ol>
 
           <div className="mt-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-            <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/85">
+            <p className="max-w-2xl text-[1rem] font-medium leading-relaxed text-white/95">
               The standard is visible, repeatable, and coachable — so progress does not depend on charisma, memory, or another one-time event.
             </p>
             <Link href="/method" className="home-photo-button home-photo-dark-button shrink-0">
@@ -534,7 +534,7 @@ export default function Services() {
             <h2 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,7vw,7rem)] font-black uppercase leading-[0.88] tracking-[-0.04em]">
               We will tell you what we see. Even if the answer is <span className="text-[#d61f26]">not us.</span>
             </h2>
-            <p className="mt-8 max-w-3xl text-[1.2rem] leading-[1.6] text-white/85">
+            <p className="mt-8 max-w-3xl text-[1.2rem] leading-[1.6] text-white/95">
               Bring the pressure, the number, and the part that keeps breaking. You will leave with a clearer view of the problem and the next move.
             </p>
           </div>
@@ -554,26 +554,26 @@ export default function Services() {
               <ClipboardCheck className="h-6 w-6 text-[#d61f26]" aria-hidden />
             </div>
             <h2 className="mt-8 font-display text-[2.5rem] font-black uppercase tracking-tight leading-[1.05] text-[#11131d]">Questions before the call?</h2>
-            <p className="mt-6 max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/70">
+            <p className="mt-6 max-w-md text-[1.05rem] leading-[1.65] text-[#11131d]/85">
               The call is a working conversation, not a sales ambush. These are the questions leaders usually ask first.
             </p>
           </div>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="length" className="border-b border-[#11131d]/10 py-2">
               <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">How long is an engagement?</AccordionTrigger>
-              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">Focused work can be completed in a single session or field day. Team and leadership engagements usually run from 30 days to several months, depending on the constraint and the reinforcement required.</AccordionContent>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">Focused work can be completed in a single session or field day. Team and leadership engagements usually run from 30 days to several months, depending on the constraint and the reinforcement required.</AccordionContent>
             </AccordionItem>
             <AccordionItem value="investment" className="border-b border-[#11131d]/10 py-2">
               <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">Why is pricing customized?</AccordionTrigger>
-              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">A field ride-along, a leadership operating system, and a multi-market growth partnership are materially different engagements. Scope, travel, team size, and deliverables are confirmed before any commitment.</AccordionContent>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">A field ride-along, a leadership operating system, and a multi-market growth partnership are materially different engagements. Scope, travel, team size, and deliverables are confirmed before any commitment.</AccordionContent>
             </AccordionItem>
             <AccordionItem value="fit" className="border-b border-[#11131d]/10 py-2">
               <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">What if consulting is not the right fit?</AccordionTrigger>
-              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">You will be told directly. If the problem is staffing capacity, clinical operations, or something another expert should own, the call will not be used to force a consulting proposal.</AccordionContent>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">You will be told directly. If the problem is staffing capacity, clinical operations, or something another expert should own, the call will not be used to force a consulting proposal.</AccordionContent>
             </AccordionItem>
             <AccordionItem value="compliance" className="border-b border-[#11131d]/10 py-2">
               <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">How is sensitive information handled?</AccordionTrigger>
-              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/70 pt-2 pb-6">Discovery does not require patient information. No PHI should be submitted through the website. A BAA can be discussed when an organizational engagement requires it.</AccordionContent>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">Discovery does not require patient information. No PHI should be submitted through the website. A BAA can be discussed when an organizational engagement requires it.</AccordionContent>
             </AccordionItem>
           </Accordion>
         </section>

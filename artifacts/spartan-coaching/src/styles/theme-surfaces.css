@@ -62,7 +62,8 @@ html[data-theme-preset="mamba"] .text-gradient-primary {
   color: transparent;
 }
 
-html[data-theme-preset="mamba"] .text-spartan-red {
+html[data-theme-preset="mamba"] .text-spartan-red,
+html[data-theme-preset="spartan"] .text-spartan-red {
   color: hsl(var(--primary));
 }
 

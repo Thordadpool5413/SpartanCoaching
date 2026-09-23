@@ -232,7 +232,7 @@ export function NavDropdown({ label, items, dataTestId }: {
               onClick={() => setOpen(false)}
             >
               <div className="font-display text-[0.96rem] font-extrabold uppercase tracking-[-0.01em] text-white">{item.label}</div>
-              <div className="mt-1.5 text-[0.9rem] leading-relaxed text-white/85 transition-colors group-hover:text-white">{item.description}</div>
+              <div className="mt-1.5 text-[0.9rem] leading-relaxed text-white/95 transition-colors group-hover:text-white">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -299,7 +299,7 @@ export function Header() {
                 <span aria-label="SPARTAN COACHING" className="block whitespace-nowrap font-display text-[0.9rem] font-black leading-none tracking-[-0.035em] text-[#151316] min-[390px]:text-base sm:text-xl md:text-[1.4rem]">
                   SPARTAN <span className="text-[#b91920]">COACHING</span>
                 </span>
-                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.7rem] font-bold uppercase tracking-[0.13em] text-black/65 md:block">
+                <span className="mt-1.5 hidden whitespace-nowrap font-mono text-[0.7rem] font-bold uppercase tracking-[0.13em] text-black/80 md:block">
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -310,7 +310,7 @@ export function Header() {
         <div className="hidden min-w-0 items-center justify-center xl:flex">
           <div className="flex items-center gap-4">
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
-            <p className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-black/70">
+            <p className="font-mono text-[0.78rem] font-bold uppercase tracking-[0.14em] text-black/85">
               Field authority for hospice growth leaders
             </p>
             <span className="h-px w-12 bg-[#d61f26]" aria-hidden="true" />
@@ -531,7 +531,7 @@ export function Header() {
                     aria-label={`Navigate to ${item.label}`}
                   >
                     <div className="font-medium text-foreground">{item.label}</div>
-                    <div className="text-[0.95rem] text-muted-foreground leading-relaxed">{item.description}</div>
+                    <div className="text-base text-muted-foreground leading-relaxed">{item.description}</div>
                   </button>
                 ))
               )}
@@ -602,25 +602,25 @@ export function Footer() {
                   {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Consulting · Hospice Sales Pro"}
                 </p>
               </div>
-              <p className="text-[0.95rem] text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 {canUseFieldKit
                   ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
                   : "Hospice growth consulting for leaders and teams, with Hospice Sales Pro available as the separate field-tools platform."}
               </p>
-              <p className="text-[0.85rem] text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
+              <p className="text-sm text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
                   : "Diagnose the constraint · Install the standard · Sustain the behavior"}
               </p>
               <div className="flex flex-col gap-2">
-                <a href="mailto:nick@spartanhospicecoaching.com" className="text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
+                <a href="mailto:nick@spartanhospicecoaching.com" className="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
                   nick@spartanhospicecoaching.com
                 </a>
                 <a
                   href="https://www.linkedin.com/in/nicholas-lynch-coaching"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors group"
+                  className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground transition-colors group"
                   data-testid="link-linkedin-footer"
                   aria-label="Connect with Nick Lynch on LinkedIn"
                 >
@@ -640,7 +640,7 @@ export function Footer() {
                   <Link
                     key={href}
                     href={href}
-                    className="text-[0.95rem] text-muted-foreground hover:text-foreground transition-colors py-0.5"
+                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-0.5"
                     data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "").slice(0, 40)}`}
                   >
                     {label}
@@ -684,7 +684,7 @@ export function Footer() {
         <div className="border-t border-border/50 dark:border-red-900/10">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-[0.85rem] text-muted-foreground order-last sm:order-first">
+              <p className="text-sm text-muted-foreground order-last sm:order-first">
                 © 2026 Spartan Coaching. All rights reserved.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
@@ -699,7 +699,7 @@ export function Footer() {
                   <Link
                     key={href}
                     href={href}
-                    className="text-[0.85rem] text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                     data-testid={testId}
                   >
                     {label}

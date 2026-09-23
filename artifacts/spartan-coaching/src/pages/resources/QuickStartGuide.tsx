@@ -2,7 +2,7 @@ import { AccentText } from "@/components/AccentText";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Check } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
@@ -57,7 +57,7 @@ export default function QuickStartGuide() {
             </ul>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
-            <p className="font-semibold">✓ Success Metric:</p>
+            <div className="flex items-center gap-2 font-semibold"><Check className="h-4 w-4 text-green-600" /> Success Metric:</div>
             <p>You can explain hospice eligibility and your agency's value in under 60 seconds.</p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function QuickStartGuide() {
             </ul>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
-            <p className="font-semibold">✓ Success Metric:</p>
+            <div className="flex items-center gap-2 font-semibold"><Check className="h-4 w-4 text-green-600" /> Success Metric:</div>
             <p>You have a complete territory map with 50+ identified referral sources.</p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function QuickStartGuide() {
             </ul>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
-            <p className="font-semibold">✓ Success Metric:</p>
+            <div className="flex items-center gap-2 font-semibold"><Check className="h-4 w-4 text-green-600" /> Success Metric:</div>
             <p>15+ face-to-face introductions. You know 10+ contacts by name.</p>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function QuickStartGuide() {
             </div>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
-            <p className="font-semibold">✓ Success Metric:</p>
+            <div className="flex items-center gap-2 font-semibold"><Check className="h-4 w-4 text-green-600" /> Success Metric:</div>
             <p>You've handled 3+ objections using empathy and reframing.</p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function QuickStartGuide() {
             </ul>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
-            <p className="font-semibold">✓ Success Metric:</p>
+            <div className="flex items-center gap-2 font-semibold"><Check className="h-4 w-4 text-green-600" /> Success Metric:</div>
             <p>1 to 2 referrals converted to admissions. Feedback loop established.</p>
           </div>
         </div>

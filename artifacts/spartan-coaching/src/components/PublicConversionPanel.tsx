@@ -65,20 +65,20 @@ export function PublicConversionPanel({
               </h2>
               <dl className="mt-6 grid gap-4 sm:grid-cols-3">
                 <div>
-                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">For</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{audience}</dd>
+                  <dt className="text-sm font-bold uppercase tracking-wider text-primary">For</dt>
+                  <dd className="mt-1 text-base leading-relaxed text-foreground">{audience}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">What this helps with</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{promise}</dd>
+                  <dt className="text-sm font-bold uppercase tracking-wider text-primary">What this helps with</dt>
+                  <dd className="mt-1 text-base leading-relaxed text-foreground">{promise}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-bold uppercase tracking-wider text-primary">Why trust it</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-foreground">{evidence}</dd>
+                  <dt className="text-sm font-bold uppercase tracking-wider text-primary">Why trust it</dt>
+                  <dd className="mt-1 text-base leading-relaxed text-foreground">{evidence}</dd>
                 </div>
               </dl>
               {nextStep ? (
-                <p className="mt-5 max-w-3xl border-l-2 border-primary pl-4 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-5 max-w-3xl border-l-2 border-primary pl-4 text-base leading-relaxed text-muted-foreground">
                   {nextStep}
                 </p>
               ) : null}
@@ -97,7 +97,7 @@ export function PublicConversionPanel({
                   </Link>
                 </Button>
               ) : null}
-              <p className="text-center text-xs leading-relaxed text-muted-foreground">
+              <p className="text-center text-sm leading-relaxed text-muted-foreground">
                 {PRICING_FACTS.consultingSeparate}
               </p>
             </div>
@@ -166,8 +166,8 @@ function OfferPath({
       className=" border border-border bg-background p-4 transition-colors hover:border-primary/40 hover:bg-primary/5"
     >
       <Icon className="h-4 w-4 text-primary" aria-hidden />
-      <p className="mt-2 text-sm font-bold text-foreground">{label}</p>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
+      <p className="mt-2 text-base font-bold text-foreground">{label}</p>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{detail}</p>
     </Link>
   );
 }
