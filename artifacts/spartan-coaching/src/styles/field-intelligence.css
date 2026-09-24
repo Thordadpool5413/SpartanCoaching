@@ -7,7 +7,7 @@ html[data-route-surface="public"] {
   --fi-red-hover: #b01a20;
   --fi-line: rgba(17, 19, 29, 0.12);
   --fi-line-light: rgba(255, 255, 255, 0.15);
-  --font-display: var(--font-display);
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 html[data-route-surface="public"] .page-persuasion,
@@ -173,7 +173,7 @@ html[data-route-surface="public"] ::selection {
   --home-red: #d51f26;
   --home-ink: #11131d;
   --home-line: rgba(17, 19, 29, 0.18);
-  --font-display: var(--font-display);
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   color: var(--home-ink);
   font-family: var(--font-sans);
 }
