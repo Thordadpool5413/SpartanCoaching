@@ -34,6 +34,7 @@
         "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       },
       "ios": {
+        "image": "latest",
         "buildConfiguration": "Release",
         "credentialsSource": "remote"
       }
