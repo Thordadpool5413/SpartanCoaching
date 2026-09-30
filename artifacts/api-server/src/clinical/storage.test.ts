@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("clinical upload boundaries", () => {
-  it.each(["application/pdf", "image/jpeg", "image/png", "text/plain"])(
+  it.each(["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png", "text/plain"])(
     "accepts the supported content type %s",
     (contentType) => {
       expect(() => validateClinicalUpload(contentType, 1)).not.toThrow();
@@ -34,7 +34,7 @@ describe("clinical upload boundaries", () => {
     "application/x-msdownload",
   ])("rejects the unsafe content type %s", (contentType) => {
     expect(() => validateClinicalUpload(contentType, 1024)).toThrow(
-      /Only PDF, JPEG, PNG, and plain-text/,
+      /Only PDF, DOCX, JPEG, PNG, and plain-text/,
     );
   });
 

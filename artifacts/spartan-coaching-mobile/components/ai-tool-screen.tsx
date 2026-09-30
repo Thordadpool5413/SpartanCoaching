@@ -401,6 +401,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       </View>
 
       {clinical ? <ClinicalVaultToolBanner /> : null}
+      {clinical ? (
+        <Pressable accessibilityRole="button" onPress={() => router.push("/ai-tools/patient-review" as Href)} style={styles.networkAction}>
+          <Text style={[styles.networkActionText, { color: VAULT.accent }]}>Review patient record files in the protected workspace</Text>
+          <Feather name="arrow-right" size={16} color={VAULT.accent} />
+        </Pressable>
+      ) : null}
 
        {workflow ? (
          <View style={styles.workflowCard} testID="ai-tool-workflow-guide">

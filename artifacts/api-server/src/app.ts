@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerCompanySeatTransitionRoutes } from "./routes/companySeatTransitionRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
+import { registerPatientReviewRoutes } from "./routes/patientReviewRoutes";
 import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
 import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoutes";
 import { registerProviderResourceRoutes } from "./routes/providerResourceRoutes";
@@ -164,6 +165,7 @@ app.use("/api/ai-tools/:toolId/ephemeral-runs", (request, response, next) => {
   void requireClinicalJurisdictionContext(request as AuthedRequest, response, next);
 });
 registerAiToolRoutes(app);
+registerPatientReviewRoutes(app);
 registerResourceWorkRoutes(app);
 registerResourceLifecycleRoutes(app);
 registerProviderResourceRoutes(app);

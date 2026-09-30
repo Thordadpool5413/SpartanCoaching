@@ -34,7 +34,7 @@ app.listen(port, (err) => {
     {
       operationMode: clinical.operationMode,
       ready: clinical.ready,
-      patientDataAccepted: false,
+      patientDataAccepted: clinical.operationMode === "phi" && clinical.ready,
     },
     "[clinical] Runtime readiness",
   );

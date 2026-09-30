@@ -796,6 +796,11 @@ export default function AiToolPage() {
           Refresh
         </Button>
       </div>
+      {tool.containsPhi && <Card className="mb-6 space-y-3 border-amber-500/40 p-5">
+        <h2 className="font-bold">Need to review patient records?</h2>
+        <p className="text-sm text-muted-foreground">Use the protected record workspace for PDF, DOCX, image and text uploads. This form remains for deidentified summaries only.</p>
+        <Button asChild><Link href="/tools/patient-review">Open patient record review</Link></Button>
+      </Card>}
       {experience.workflow && (
         <Card className="mb-6 border-border/80 bg-muted/25 p-4 sm:p-5" data-testid="ai-tool-workflow-guide">
           <div className="mb-3 flex flex-wrap items-center gap-2">

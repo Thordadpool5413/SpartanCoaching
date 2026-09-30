@@ -8,6 +8,7 @@ import {
 import { db } from "../db";
 import type { AuthedRequest } from "../auth/middleware";
 import type { ClinicalOperationMode } from "./runtimeReadiness";
+import { resolveClinicalOperationMode } from "./runtimeReadiness";
 
 export type ClinicalAccess = {
   canUse: boolean;
@@ -18,22 +19,22 @@ export type ClinicalAccess = {
 export type { ClinicalOperationMode };
 
 export function clinicalOperationMode(
-  _environment: NodeJS.ProcessEnv = process.env,
+  environment: NodeJS.ProcessEnv = process.env,
 ): ClinicalOperationMode {
-  return "deidentified";
+  return resolveClinicalOperationMode(environment);
 }
 
 export function isPhiClinicalMode(
-  _environment: NodeJS.ProcessEnv = process.env,
+  environment: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return false;
+  return clinicalOperationMode(environment) === "phi";
 }
 
 /**
  * Resolve clinical tool access for the current Membership member.
  *
- * Clinical tools are intentionally limited to deidentified education input.
- * No environment flag may turn PHI processing on for this product.
+ * Ordinary clinical tools remain deidentified. Patient review has its own
+ * route and needs explicit clinical permission plus a recent MFA challenge.
  */
 export async function resolveClinicalAccess(
   request: AuthedRequest,

@@ -6,7 +6,7 @@ import { FIELD_KIT_PHI, PRICING_FACTS } from "@/lib/complianceCopy";
 const DEFAULT_ITEMS = [
   {
     icon: Shield,
-    title: "No PHI in tools",
+    title: "Sales tools avoid PHI",
     body: `${FIELD_KIT_PHI.short}. Hospice Sales Pro tools support planning and messaging, not clinical records.`,
   },
   {
@@ -76,7 +76,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground mb-1">
-                  {item.title === "No PHI in tools" ? <>No PHI in <span className="text-spartan-red">tools</span></> :
+                  {item.title === "Sales tools avoid PHI" ? <>Sales tools avoid <span className="text-spartan-red">PHI</span></> :
                    item.title === "Two clear access paths" ? <>Two clear <span className="text-spartan-red">access paths</span></> :
                    item.title === "Clear Hospice Sales Pro path" ? <>Clear Hospice Sales Pro <span className="text-spartan-red">path</span></> :
                    <>Privacy & compliance <span className="text-spartan-red">first</span></>}

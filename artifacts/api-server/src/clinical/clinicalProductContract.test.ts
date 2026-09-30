@@ -8,17 +8,19 @@ const runtime = fs.readFileSync(
   path.resolve(import.meta.dirname, "../../../../lib/spartan-ai-tools/src/clinical-runtime.ts"),
   "utf8",
 );
+const patientRoutes = fs.readFileSync(path.resolve(import.meta.dirname, "../routes/patientReviewRoutes.ts"), "utf8");
 const native = fs.readFileSync(
   path.resolve(import.meta.dirname, "../../../spartan-coaching-mobile/components/ai-tool-screen.tsx"),
   "utf8",
 );
 
 describe("deidentified Elite clinical product contract", () => {
-  it("cannot enable patient PHI through environment configuration", () => {
-    expect(access).toContain('return "deidentified"');
-    expect(access).toContain("return false");
-    expect(runtime).toContain('return "deidentified"');
-    expect(runtime).toContain("return false");
+  it("keeps patient records behind a distinct, fully confirmed runtime", () => {
+    expect(access).toContain("resolveClinicalOperationMode(environment)");
+    expect(runtime).toContain('CLINICAL_PATIENT_REVIEW_ENABLED === "true"');
+    expect(patientRoutes).toContain("requireClinicalReview, coveredReviewer");
+    expect(patientRoutes).toContain("CLINICAL_MFA_REQUIRED");
+    expect(patientRoutes).toContain("purgeEphemeralClinicalSession");
   });
 
   it("rejects legacy patient data APIs and retains cleanup", () => {

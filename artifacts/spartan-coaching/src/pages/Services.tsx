@@ -573,7 +573,7 @@ export default function Services() {
             </AccordionItem>
             <AccordionItem value="compliance" className="border-b border-[#11131d]/10 py-2">
               <AccordionTrigger className="text-left font-bold text-[#11131d] text-lg hover:text-[#d61f26]">How is sensitive information handled?</AccordionTrigger>
-              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">Discovery does not require patient information. No PHI should be submitted through the website. A BAA can be discussed when an organizational engagement requires it.</AccordionContent>
+              <AccordionContent className="text-[1rem] leading-[1.65] text-[#11131d]/85 pt-2 pb-6">Discovery does not require patient information. Keep patient records out of the consulting inquiry and contact forms. Authorized clinical reviewers can use the separate protected patient-review workspace when it is enabled for their organization.</AccordionContent>
             </AccordionItem>
           </Accordion>
         </section>

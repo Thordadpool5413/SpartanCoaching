@@ -298,6 +298,22 @@ export async function uploadToSignedUrl(
   if (!res.ok) throw new ApiError("Secure upload failed", res.status, "UPLOAD_FAILED");
 }
 
+/** Authenticated patient upload. Never retries automatically: a retry could
+ * duplicate protected records, and the server owns the file lifecycle. */
+export async function uploadPatientReviewFile(
+  sessionId: string,
+  file: Blob,
+  contentType: string,
+): Promise<void> {
+  const headers = await authHeaders({ "Content-Type": contentType });
+  const response = await fetchApi(
+    `/api/clinical/patient-review/sessions/${sessionId}/documents`,
+    { method: "POST", headers, body: file },
+    { timeoutMs: AI_REQUEST_TIMEOUT_MS },
+  );
+  if (!response.ok) throw await readApiError(response);
+}
+
 export type MobileMember = {
   id: number;
   email: string;

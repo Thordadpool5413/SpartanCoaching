@@ -442,7 +442,7 @@ export default function About() {
               {
                 icon: ShieldCheck,
                 title: "Ethics baked in",
-                text: "No PHI in tools. No inducement training. Compliance-aware messaging that protects patients and the profession.",
+                text: "Sales coaching tools avoid patient identifiers. Authorized clinical review uses a separate protected workspace. No inducement training.",
               },
             ].map(({ icon: Icon, title, text }) => (
               <Card key={title} className="spacing-card border-2">

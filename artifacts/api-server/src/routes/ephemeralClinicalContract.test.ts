@@ -82,7 +82,7 @@ describe("ephemeral clinical source contracts", () => {
   it("retires patient data endpoints with an explicit rejection", () => {
     expect(routes).toContain("PATIENT_DATA_NOT_ACCEPTED");
     expect(routes).toContain("rejectPatientData");
-    expect(routes).toContain("Patient documents and patient PHI are not accepted");
+    expect(routes).toContain("Authorized patient records belong in the protected patient-review workspace");
   });
 
   it("sends PDF extracts as application/pdf data URLs without placeholder prefixes", () => {

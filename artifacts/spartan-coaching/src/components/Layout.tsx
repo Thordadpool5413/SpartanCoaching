@@ -609,7 +609,7 @@ export function Footer() {
               </p>
               <p className="text-sm text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
-                  ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
+                  ? "Patient records use a protected clinical workspace · Cancel anytime from Account · Ethics-first field work"
                   : "Diagnose the constraint · Install the standard · Sustain the behavior"}
               </p>
               <div className="flex flex-col gap-2">

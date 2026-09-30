@@ -12,6 +12,7 @@ const readyPhiEnvironment = {
   OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
   GOOGLE_CLOUD_BAA_CONFIRMED: "true",
   PHI_STORAGE_BAA_CONFIRMED: "true",
+  CLINICAL_SCANNER_BAA_CONFIRMED: "true",
   DATABASE_URL: "postgres://covered",
   OPENAI_API_KEY: "configured",
   AI_TOOL_ENCRYPTION_KEY: "configured",
@@ -25,6 +26,7 @@ const baasOnlyEnvironment = {
   OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
   GOOGLE_CLOUD_BAA_CONFIRMED: "true",
   PHI_STORAGE_BAA_CONFIRMED: "true",
+  CLINICAL_SCANNER_BAA_CONFIRMED: "true",
 } satisfies NodeJS.ProcessEnv;
 
 describe("clinical runtime readiness", () => {
@@ -87,5 +89,12 @@ describe("clinical runtime readiness", () => {
     });
     expect(readiness.operationMode).toBe("deidentified");
     expect(readiness.missingControls).toEqual([]);
+  });
+
+  it("requires covered storage, scanning, and an API key after explicit activation", () => {
+    const activated = { ...readyPhiEnvironment, CLINICAL_PATIENT_REVIEW_ENABLED: "true" };
+    expect(clinicalRuntimeReadiness(activated).ready).toBe(false);
+    expect(clinicalRuntimeReadiness(activated).missingControls).toContain("CLINICAL_FILE_SCANNER_TOKEN");
+    expect(clinicalRuntimeReadiness({ ...activated, CLINICAL_FILE_SCANNER_TOKEN: "configured" })).toMatchObject({ operationMode: "phi", ready: true });
   });
 });

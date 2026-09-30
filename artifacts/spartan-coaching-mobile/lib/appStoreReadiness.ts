@@ -161,7 +161,7 @@ export const APP_REVIEW_NOTES = [
   `Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Hospice Sales Pro Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Purchases and restores are verified by the Spartan Coaching API before access is granted.`,
   "App Store submission remains blocked until production server verification, App Store Connect declarations, and the Sandbox purchase matrix are complete.",
   "Demo: reviewers may browse Home, Coach, Tools, My Work, Library, and the guided tour before purchase. Use provided reviewer credentials for live gated tools or the native Membership screen to inspect StoreKit products.",
-  "No patient PHI. Elite clinical tools accept deidentified information only, provide suggested education, and require medical director, compliance, or both to approve output.",
+  "Ordinary Elite clinical tools use deidentified information. Authorized patient reviewers may use the separate protected record workspace when enabled. Clinical output requires medical director, compliance, or both to approve it.",
   `Support: ${APP_STORE_SUPPORT_URL} · Privacy: ${APP_STORE_PRIVACY_URL}`,
 ].join("\n");
 

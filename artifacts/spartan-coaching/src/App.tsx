@@ -107,6 +107,7 @@ const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
 const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 const AiToolsHub = lazy(() => import("@/pages/AiToolsHub"));
 const AiTool = lazy(() => import("@/pages/AiTool"));
+const PatientReview = lazy(() => import("@/pages/PatientReview"));
 const SavedAiOutputs = lazy(() => import("@/pages/SavedAiOutputs"));
 const MyWork = lazy(() => import("@/pages/MyWork"));
 
@@ -158,6 +159,7 @@ const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
 const GatedAiToolsHub = withFieldKit(AiToolsHub);
 const GatedAiTool = withFieldKit(AiTool);
+const GatedPatientReview = withFieldKit(PatientReview);
 const GatedSavedAiOutputs = withFieldKit(SavedAiOutputs);
 const GatedMyWork = withFieldKit(MyWork);
 const GatedPortalLearn = withFieldKit(PortalLearn);
@@ -274,6 +276,7 @@ function Router() {
           <Route path="/tools/intelligence" component={GatedSpartanIntelligence} />
           <Route path="/spartan-intelligence" component={GatedSpartanIntelligence} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
+          <Route path="/tools/patient-review" component={GatedPatientReview} />
           <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/my-work" component={GatedMyWork} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />

@@ -115,13 +115,13 @@ export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
     id: "storage",
     title: "Storage and retention",
     body:
-      "We store account, session, and product-usage data needed to run the service. Clinical vault workflows, when authorized, are designed for ephemeral runs where implemented. Provider-owned library files stay tenant-scoped to your organization.",
+    "We store account, session, and product-usage data needed to run the service. Authorized patient review uses temporary encrypted uploads, deletes them before returning a one-time draft, and does not add clinical content to member history. Cleanup after a failure may be delayed. Provider-owned library files stay tenant-scoped to your organization.",
   },
   {
     id: "professional-boundaries",
     title: "Professional boundaries",
     body:
-      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Elite policy education accepts deidentified information only and requires medical director, compliance, or both to approve every output.",
+      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Ordinary Elite policy education uses deidentified inputs; authorized patient review uses a separate protected workspace. Medical director, compliance, or both must review clinical output.",
   },
   {
     id: "provider-isolation",

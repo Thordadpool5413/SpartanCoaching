@@ -147,7 +147,7 @@ export default function AiToolsIndex() {
         Advanced library
       </Text>
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
-        Advanced field tools for Elite members. Clinical guidance accepts deidentified information only and always requires human approval.
+        Advanced field tools for Elite members. Ordinary clinical education uses deidentified information. Authorized patient review has a separate protected workspace and always requires human approval.
       </Text>
       <Pressable
         accessibilityRole="button"

@@ -39,7 +39,7 @@ export default function Register() {
     if (!acceptTerms || !noPhi) {
       toast({
         title: "Please confirm",
-        description: "Accept the terms and the no-PHI commitment to continue.",
+        description: "Accept the terms and confirm that patient records belong only in the protected clinical workspace.",
         variant: "destructive",
       });
       return;
@@ -205,7 +205,7 @@ export default function Register() {
                 data-testid="check-register-nophi"
               />
               <span>
-                I will not enter protected health information (PHI) into Hospice Sales Pro tools.
+                I will enter patient information only in the authorized patient-review workspace, never in coaching, account, or support tools.
               </span>
             </label>
           </div>

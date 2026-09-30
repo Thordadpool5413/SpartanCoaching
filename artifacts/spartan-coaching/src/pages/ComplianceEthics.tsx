@@ -15,10 +15,10 @@ const dataCollectedItems = [
 ];
 
 const noPhiItems = [
-  { icon: ShieldOff, text: "No patient names, medical record numbers, or diagnosis information" },
-  { icon: ShieldOff, text: "No protected health information (PHI) entered, stored, or processed" },
-  { icon: ShieldOff, text: "No clinical documentation or electronic medical records accessed through this platform" },
-  { icon: ShieldOff, text: "AI-powered tools are designed for workflow planning only, never for patient data" },
+  { icon: ShieldOff, text: "Consulting inquiries, sales coaching, account preferences, and support do not request patient records" },
+  { icon: ShieldOff, text: "Ordinary clinical education tools use deidentified information" },
+  { icon: ShieldOff, text: "Authorized patient review has a separate, protected upload workflow when covered services are enabled" },
+  { icon: ShieldOff, text: "Temporary review files are deleted before a one-time draft is returned; cleanup after an outage may be delayed" },
 ];
 
 const dataProtectionItems = [
@@ -55,7 +55,7 @@ export default function ComplianceEthics() {
               Compliance & <span className="text-primary">Data Practices</span>
             </h1>
             <p className="text-h3 text-muted-foreground leading-relaxed">
-              Spartan Coaching is committed to ethical hospice sales coaching that prioritizes patient access, clinical integrity, and full regulatory compliance. We do not store, process, or transmit Protected Health Information (PHI).
+              Spartan Coaching is committed to ethical hospice sales coaching that prioritizes patient access and clinical integrity. Authorized clinical reviewers may process patient records in the separate protected review workspace when its covered services are enabled.
             </p>
           </div>
         </FadeIn>
@@ -91,7 +91,7 @@ export default function ComplianceEthics() {
                 <div className="w-14 h-14 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
                   <ShieldOff className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-h2 text-foreground">What We Do Not Store (No PHI)</h2>
+                <h2 className="text-h2 text-foreground">Where Patient Records Belong</h2>
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {noPhiItems.map((item, index) => (
@@ -144,7 +144,7 @@ export default function ComplianceEthics() {
               <Card className="spacing-card border-2 bg-gradient-to-br from-primary/5 to-transparent" data-testid="card-baa-availability">
                 <div className="space-y-4">
                   <p className="text-body-lg text-foreground leading-relaxed">
-                    For corporate hospice providers and hospital-system clients, Spartan Coaching offers a HIPAA Business Associate Agreement (BAA) as part of our engagement process. While our platform does not store or process PHI, we understand that enterprise procurement requires formal documentation of data handling commitments.
+                    For corporate hospice providers and hospital-system clients, Spartan Coaching offers a HIPAA Business Associate Agreement (BAA) as part of our engagement process. Patient review is enabled only when the covered model, storage, database, and scanning services have been verified for this workflow.
                   </p>
                   <p className="text-body text-muted-foreground leading-relaxed">
                     Our BAA covers the scope of consulting engagements, data safeguards, breach notification procedures, and termination obligations in compliance with HIPAA, the HITECH Act, and related regulations.
@@ -240,8 +240,8 @@ export default function ComplianceEthics() {
           <PublicConversionPanel
             source="compliance"
             audience="Provider teams and procurement stakeholders reviewing data boundaries, ethics, or a potential BAA."
-            promise="Clarify whether the proposed use stays within the no-PHI coaching and field-work boundaries."
-            evidence="The page states product limits, no-PHI expectations, and legal routes without claiming unverified certifications."
+            promise="Clarify the right workflow for coaching, consulting, and authorized clinical review."
+            evidence="The page states product boundaries and data practices without claiming unverified certifications."
             primary={{ label: "Ask a compliance question", href: "/contact?service=HIPAA+BAA+Request", token: "compliance_contact" }}
             secondary={{ label: "Read the Trust Center", href: "/trust", token: "trust_center" }}
           />

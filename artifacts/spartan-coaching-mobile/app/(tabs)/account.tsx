@@ -289,7 +289,7 @@ export default function AccountScreen() {
         <InfoRow icon="lock" title="Raw Coach conversations" body="Private and hard deleted after 90 days. Organization admins never see prompts, drafts, recordings, transcripts, or unshared outputs." />
         <InfoRow icon="eye" title="Shared information" body="Only summaries and commitments you explicitly share can become visible to an organization administrator." />
         <InfoRow icon="database" title="Coach memory" body="Off by default. When enabled, it is visible, editable, and deletable by you." />
-        <InfoRow icon="shield" title="Patient information" body="PHI is prohibited. Clinical or legal risk should be rerouted to the responsible medical, compliance, legal, or leadership channel." />
+        <InfoRow icon="shield" title="Patient information" body="Authorized patient records can be reviewed in the protected patient-review workspace. Keep patient information out of account preferences, coaching, and support. A clinician and compliance lead must review clinical decisions." />
       </View>
 
       <View style={styles.section}>

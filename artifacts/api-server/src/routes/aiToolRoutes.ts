@@ -130,7 +130,7 @@ function rejectPatientData(_request: Request, response: Response): Response {
   return setNoStore(response).status(410).json({
     error: {
       code: "PATIENT_DATA_NOT_ACCEPTED",
-      message: "Spartan Coaching accepts deidentified information only. Patient documents and patient PHI are not accepted.",
+      message: "This older clinical endpoint accepts deidentified information only. Authorized patient records belong in the protected patient-review workspace.",
     },
   });
 }
@@ -614,15 +614,17 @@ export function registerAiToolRoutes(app: Express): void {
             canAdmin: false,
           }),
           operationMode: clinicalOperationMode(),
+          // Existing clinical tool endpoints remain deidentified in both modes.
+          // Patient data is accepted only by the separately protected review route.
           deidentifiedOnly: true,
-          patientDataAccepted: false,
-          patientDocumentsAccepted: false,
+          patientDataAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
+          patientDocumentsAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
           approvalRequired: true,
-          requiresMfa: false,
-          requiresCoverageSnapshot: false,
-          allowsDocumentUpload: false,
+          requiresMfa: clinicalOperationMode() === "phi",
+          requiresCoverageSnapshot: clinicalOperationMode() === "phi",
+          allowsDocumentUpload: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
           runtimeReady: clinicalReadiness.ready,
-          missingControls: [],
+          missingControls: clinicalReadiness.missingControls,
         },
       });
     } catch (error) {
@@ -759,14 +761,14 @@ export function registerAiToolRoutes(app: Express): void {
         requireClinicalRuntimeReady();
         await requireToolEnabled(context.organizationId, tool);
         const envelope = request.body as EphemeralToolRunEnvelope;
-        if (!isPhiClinicalMode() && envelope?.confirmedDeidentified !== true) {
+        if (envelope?.confirmedDeidentified !== true) {
           throw new SpartanAiToolError(
             "DEIDENTIFICATION_CONFIRMATION_REQUIRED",
             400,
             "Confirm that the input contains no patient names, dates of birth, record numbers, contact details, or other identifying information.",
           );
         }
-        if (!isPhiClinicalMode()) {
+        {
           const potentialIdentifiers = findPotentialIdentifiers(envelope?.input);
           if (potentialIdentifiers.length > 0) {
             throw new SpartanAiToolError(
@@ -780,13 +782,6 @@ export function registerAiToolRoutes(app: Express): void {
           context.organizationId,
           envelope?.coverageSnapshotId,
         );
-        if (isPhiClinicalMode() && !snapshot) {
-          throw new SpartanAiToolError(
-            "COVERAGE_SNAPSHOT_REQUIRED",
-            400,
-            "Clinical tools require a versioned CMS coverage snapshot.",
-          );
-        }
         const input = addCoverageEvidence(tool.id, envelope?.input, snapshot);
         const result = await runSpartanAiTool(tool.id, input, {
           requestId: id,

@@ -9,6 +9,7 @@ export const PHI_CONFIRMATION_GATES = [
   "OPENAI_MODIFIED_RETENTION_CONFIRMED",
   "GOOGLE_CLOUD_BAA_CONFIRMED",
   "PHI_STORAGE_BAA_CONFIRMED",
+  "CLINICAL_SCANNER_BAA_CONFIRMED",
 ] as const;
 
 export type ClinicalOperationMode = "deidentified" | "phi";
@@ -20,18 +21,19 @@ export function clinicalBaasConfirmed(
   return PHI_CONFIRMATION_GATES.every((name) => environment[name] === "true");
 }
 
-/**
- * Spartan Coaching never accepts patient PHI. The legacy union remains for
- * backward compatible types, but no environment variable can enable PHI mode.
- */
+/** Patient records use a separate, explicitly activated covered workflow. */
 export function resolveClinicalOperationMode(
-  _environment: NodeJS.ProcessEnv = process.env,
+  environment: NodeJS.ProcessEnv = process.env,
 ): ClinicalOperationMode {
-  return "deidentified";
+  return environment.CLINICAL_OPERATION_MODE === "phi" &&
+    clinicalBaasConfirmed(environment) &&
+    environment.CLINICAL_PATIENT_REVIEW_ENABLED === "true"
+    ? "phi"
+    : "deidentified";
 }
 
 export function isPhiClinicalOperationMode(
-  _environment: NodeJS.ProcessEnv = process.env,
+  environment: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return false;
+  return resolveClinicalOperationMode(environment) === "phi";
 }

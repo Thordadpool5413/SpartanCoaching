@@ -41,6 +41,11 @@ export const outputSchema = z
         })
         .strict(),
     ),
+    symptomEvidence: z.array(z.object({ finding: z.string(), sourceText: z.string() }).strict()),
+    medicationReconciliation: z.array(z.object({ documentedMedication: z.string(), sourceText: z.string(), clinicianQuestion: z.string() }).strict()),
+    laboratoryEvidence: z.array(z.object({ finding: z.string(), sourceText: z.string() }).strict()),
+    carePlanQuestions: z.array(z.object({ symptomOrNeed: z.string(), documentedEvidence: z.string(), questionForClinician: z.string() }).strict()),
+    codingReview: z.array(z.object({ documentedDiagnosis: z.string(), codeInRecord: z.string(), evidence: z.string(), verificationNeeded: z.string() }).strict()),
     criteriaAnalysis: z.array(
       z
         .object({

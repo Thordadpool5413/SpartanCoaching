@@ -11,6 +11,7 @@ const baas = {
   OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
   GOOGLE_CLOUD_BAA_CONFIRMED: "true",
   PHI_STORAGE_BAA_CONFIRMED: "true",
+  CLINICAL_SCANNER_BAA_CONFIRMED: "true",
 } satisfies NodeJS.ProcessEnv;
 
 describe("shared clinical-runtime mode helpers", () => {
@@ -43,5 +44,11 @@ describe("shared clinical-runtime mode helpers", () => {
       }),
     ).toBe("deidentified");
     expect(isPhiClinicalOperationMode({ CLINICAL_OPERATION_MODE: "phi" })).toBe(false);
+  });
+
+  it("enables the dedicated patient workflow only with every confirmation and activation", () => {
+    expect(resolveClinicalOperationMode({ ...baas, CLINICAL_OPERATION_MODE: "phi", CLINICAL_PATIENT_REVIEW_ENABLED: "true" })).toBe("phi");
+    expect(isPhiClinicalOperationMode({ ...baas, CLINICAL_OPERATION_MODE: "phi", CLINICAL_PATIENT_REVIEW_ENABLED: "true" })).toBe(true);
+    expect(resolveClinicalOperationMode({ ...baas, GOOGLE_CLOUD_BAA_CONFIRMED: "false", CLINICAL_OPERATION_MODE: "phi", CLINICAL_PATIENT_REVIEW_ENABLED: "true" })).toBe("deidentified");
   });
 });

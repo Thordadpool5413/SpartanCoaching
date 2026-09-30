@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 
 const allowedContentTypes = new Set([
   "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/jpeg",
   "image/png",
   "text/plain",
@@ -34,7 +35,7 @@ export function validateClinicalUpload(
   sizeBytes: number,
 ): void {
   if (!allowedContentTypes.has(contentType)) {
-    throw new Error("Only PDF, JPEG, PNG, and plain-text files are supported");
+    throw new Error("Only PDF, DOCX, JPEG, PNG, and plain-text files are supported");
   }
   if (
     !Number.isInteger(sizeBytes) ||
@@ -171,6 +172,21 @@ export async function downloadEphemeralClinicalObject(
   return buffer;
 }
 
+/** The patient-review route uploads through the authenticated API, not a
+ * reusable signed URL that could recreate an object after session deletion. */
+export async function saveEphemeralClinicalObject(
+  objectKey: string,
+  bytes: Buffer,
+  contentType: string,
+): Promise<void> {
+  validateClinicalUpload(contentType, bytes.length);
+  await storage.bucket(ephemeralBucketName()).file(objectKey).save(bytes, {
+    resumable: false,
+    contentType,
+    metadata: { cacheControl: "no-store" },
+  });
+}
+
 export async function scanClinicalObject(
   objectKey: string,
 ): Promise<"safe" | "rejected"> {
@@ -220,6 +236,10 @@ export async function assertEphemeralBucketConfiguration(): Promise<void> {
   const [metadata] = await storage.bucket(ephemeralBucketName()).getMetadata();
   if (metadata.versioning?.enabled === true) {
     throw new Error("Ephemeral clinical bucket must have versioning disabled");
+  }
+  const softDelete = (metadata as typeof metadata & { softDeletePolicy?: { retentionDurationSeconds?: string | number } }).softDeletePolicy;
+  if (Number(softDelete?.retentionDurationSeconds ?? 0) > 0) {
+    throw new Error("Ephemeral clinical bucket must have soft delete disabled");
   }
   if (
     metadata.retentionPolicy?.isLocked ||

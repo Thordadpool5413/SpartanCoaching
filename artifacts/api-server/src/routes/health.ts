@@ -54,8 +54,8 @@ router.get("/healthz/ai", (_req, res) => {
  * GET /healthz/clinical
  * GET /admin/clinical-runtime-health (alias for smoke scripts)
  *
- * Production verification for deidentified clinical guidance.
- * Patient data and patient documents are never accepted by this product.
+ * Production verification for ordinary deidentified clinical guidance and
+ * the separately gated patient-review workflow.
  */
 async function clinicalRuntimeHealthResponse() {
   const readiness = clinicalRuntimeReadiness();
@@ -74,13 +74,16 @@ async function clinicalRuntimeHealthResponse() {
     status: "ok" as const,
     operationMode: readiness.operationMode,
     ready: true,
-    patientDataAccepted: false,
-    patientDocumentsAccepted: false,
+    patientDataAccepted: readiness.operationMode === "phi" && readiness.ready,
+    patientDocumentsAccepted: readiness.operationMode === "phi" && readiness.ready,
+    patientReviewPath: "/api/clinical/patient-review/sessions",
     approvalRequired: true,
     missingControls: [] as string[],
     usingEducationalBaseline: false,
     optionalPresent,
-    hint: "Deidentified educational guidance only. Medical director, compliance, or both must approve every output.",
+    hint: readiness.operationMode === "phi" && readiness.ready
+      ? "Patient records are accepted only in the protected review workflow. Other clinical tools require deidentified inputs. A qualified reviewer must approve every output."
+      : "Ordinary clinical tools accept deidentified inputs only. A qualified reviewer must approve every output.",
   };
 }
 

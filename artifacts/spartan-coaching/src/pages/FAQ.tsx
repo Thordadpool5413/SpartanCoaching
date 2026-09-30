@@ -92,7 +92,7 @@ const faqCategories = [
       {
         id: "patient-data",
         q: "Is patient data safe? Do you store PHI?",
-        a: "No. Hospice Sales Pro tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
+        a: "Planning, coaching, contact, and support tools are not patient-record channels. Authorized clinical reviewers may upload records to the separate patient-review workspace when its covered services are enabled. That workflow uses temporary encrypted files, deletes them before returning a one-time draft, and does not save the draft to member history. Cleanup after an outage can be delayed. See Compliance & Data Practices and the Privacy Policy for details.",
       },
       {
         id: "guarantee-results",

@@ -1,4 +1,4 @@
-import { and, eq, lte } from "drizzle-orm";
+import { and, eq, lte, or } from "drizzle-orm";
 import {
   clinicalAuditEvents,
   clinicalEphemeralObjects,
@@ -7,8 +7,8 @@ import {
 import { db } from "../db";
 import { deleteEphemeralClinicalObject } from "./storage";
 
-// Sessions expire at 55 minutes so the dedicated five-minute sweep keeps the
-// application-level orphan ceiling at 60 minutes.
+// Expire sessions after 55 minutes. The sweep is best effort: outages can
+// delay deletion, so callers must not promise a hard 60-minute ceiling.
 export const EPHEMERAL_CLINICAL_TTL_MS = 55 * 60 * 1000;
 
 export type EphemeralPurgeReason =
@@ -18,30 +18,24 @@ export async function purgeEphemeralClinicalSession(
   organizationId: number,
   sessionId: string,
 ): Promise<number> {
-  const objects = await db
-    .select({
-      id: clinicalEphemeralObjects.id,
-      objectKey: clinicalEphemeralObjects.objectKey,
-    })
-    .from(clinicalEphemeralObjects)
-    .where(
-      and(
+  return db.transaction(async (tx) => {
+    // The same row lock is held for the full authenticated upload, so delete
+    // cannot finish while an in-flight upload recreates the object.
+    const [session] = await tx.select().from(clinicalEphemeralSessions).where(and(
+      eq(clinicalEphemeralSessions.id, sessionId),
+      eq(clinicalEphemeralSessions.organizationId, organizationId),
+    )).for("update");
+    if (!session) return 0;
+    await tx.update(clinicalEphemeralSessions).set({ status: "purging", updatedAt: new Date() }).where(eq(clinicalEphemeralSessions.id, sessionId));
+    const objects = await tx.select({ objectKey: clinicalEphemeralObjects.objectKey })
+      .from(clinicalEphemeralObjects).where(and(
         eq(clinicalEphemeralObjects.organizationId, organizationId),
         eq(clinicalEphemeralObjects.sessionId, sessionId),
-      ),
-    );
-  await Promise.all(
-    objects.map((object) => deleteEphemeralClinicalObject(object.objectKey)),
-  );
-  await db
-    .delete(clinicalEphemeralSessions)
-    .where(
-      and(
-        eq(clinicalEphemeralSessions.id, sessionId),
-        eq(clinicalEphemeralSessions.organizationId, organizationId),
-      ),
-    );
-  return objects.length;
+      ));
+    for (const object of objects) await deleteEphemeralClinicalObject(object.objectKey);
+    await tx.delete(clinicalEphemeralSessions).where(eq(clinicalEphemeralSessions.id, sessionId));
+    return objects.length;
+  });
 }
 
 export async function runEphemeralClinicalSweep() {
@@ -49,7 +43,7 @@ export async function runEphemeralClinicalSweep() {
   const expired = await db
     .select()
     .from(clinicalEphemeralSessions)
-    .where(lte(clinicalEphemeralSessions.expiresAt, now))
+    .where(or(lte(clinicalEphemeralSessions.expiresAt, now), eq(clinicalEphemeralSessions.status, "purging")))
     .limit(100);
   let purged = 0;
   let failed = 0;

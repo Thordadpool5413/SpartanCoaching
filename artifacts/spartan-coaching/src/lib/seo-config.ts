@@ -263,19 +263,19 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/privacy': {
     title: 'Privacy Policy | Spartan Coaching',
     description:
-      'How Spartan Coaching collects and protects information — contact forms, Hospice Sales Pro accounts, access requests. No PHI in tools.',
+      'How Spartan Coaching handles coaching data and authorized patient review in separate protected workflows.',
     keywords: 'privacy policy, data protection, Hospice Sales Pro privacy',
   },
   '/baa': {
     title: 'HIPAA Business Associate Agreement | Spartan Coaching',
     description:
-      'HIPAA Business Associate Agreement for corporate hospice engagements. Platform does not store PHI; BAA available for procurement.',
+      'HIPAA Business Associate Agreement for corporate hospice engagements and authorized patient review.',
     keywords: 'HIPAA BAA, business associate agreement, PHI',
   },
   '/trust': {
     title: 'Trust Center | Spartan Coaching',
     description:
-      'Review Spartan Coaching’s privacy, security, no-PHI stance, and responsible-use commitments.',
+      'Review Spartan Coaching’s privacy, security, clinical review, and responsible-use commitments.',
     keywords: 'Spartan Coaching trust center, privacy, security, no PHI',
   },
   '/legal': {
@@ -329,7 +329,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/compliance': {
     title: 'Compliance and Ethics | Spartan Coaching',
     description:
-      'Ethical boundaries, no-PHI stance, and compliance posture. What we coach — and what we will never train.',
+      'Ethical boundaries, clinical data handling, and compliance posture. What we coach — and what we will never train.',
     keywords: 'compliance, ethics, no PHI, HIPAA, ethical coaching',
   },
   '/quiz': {
