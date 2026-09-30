@@ -95,11 +95,11 @@ overrides:
   '@tailwindcss/oxide>@tailwindcss/oxide-win32-arm64-msvc': '-'
   '@types/react': 19.2.4
   '@types/react-dom': 19.2.3
-  brace-expansion@>=1.0.0 <2.0.0: 1.1.18
+  brace-expansion@>=1.0.0 <2.0.0: 1.1.21
   brace-expansion@>=2.0.0 <3.0.0: 2.1.4
   brace-expansion@>=3.0.0 <4.0.0: 3.0.3
-  brace-expansion@>=4.0.0 <5.0.0: 5.0.9
-  brace-expansion@>=5.0.0: 5.0.9
+  brace-expansion@>=4.0.0 <5.0.0: 5.0.12
+  brace-expansion@>=5.0.0: 5.0.12
   browserslist@<=4.28.6: 4.28.7
   esbuild: 0.27.3
   esbuild>@esbuild/aix-ppc64: '-'
@@ -126,7 +126,7 @@ overrides:
   esbuild>@esbuild/sunos-x64: '-'
   esbuild>@esbuild/win32-arm64: '-'
   esbuild>@esbuild/win32-ia32: '-'
-  fast-uri@>=3.0.0 <3.1.6: 3.1.6
+  fast-uri@>=3.0.0 <3.1.7: 3.1.7
   ip-address@<=10.3.0: 10.4.0
   js-yaml@>=3.0.0 <3.15.2: 3.15.2
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
@@ -168,7 +168,7 @@ overrides:
   rollup>@rollup/rollup-win32-ia32-msvc: '-'
   rollup>@rollup/rollup-win32-x64-gnu: '-'
   tar@>=7.0.0 <7.5.21: 7.5.21
-  undici@>=7.0.0 <7.29.0: 7.29.0
+  undici@>=7.0.0 <7.29.1: 7.30.0
   vite@>=5.0.0 <6.0.0: 7.3.6
   vite@>=6.0.0 <6.4.3: 6.4.3
   vite@>=7.0.0 <7.3.2: 7.3.6
