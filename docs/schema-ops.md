@@ -11,17 +11,16 @@ of all `sales_workflow_*` rows.
 
 See also: `docs/repository-truth-audit.md` (Phase 1).
 
+Checked against `708b0522af3534a0066134d646f21f2a3cb8747c` on 2026-10-01.
+See [the operational contract](operational-contract.md) for limitations.
+
 ## Current model
 
 - **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
 - **Web package:** `artifacts/spartan-coaching/src/shared/schema.ts` is a **compatibility re-export only** of `@workspace/db/schema` (dual-schema elimination). Do not add `pgTable` definitions under the web package; change `lib/db` + migrations instead. Contract: `schema.dualSourceOfTruth.test.ts`.
 - **Primary apply path (production + CI + Replit after pull):** `pnpm db:migrate`
 - **Local-only:** `pnpm db:push` / `push-force` go through `push-guard` (refuses production-looking URLs unless `ALLOW_PROD_PUSH=true`). Prefer writing numbered SQL instead of push.
-- **Versioned SQL (migrate runner):**  
-  - `lib/db/migrations/0001`–`0012` product tables  
-  - `lib/db/migrations/0014` org branches/teams + member assignment columns  
-  - `lib/db/migrations/0015` org billing/security contacts + retention note  
-  - external `0013_sales_workflow.sql` tracking id → `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` (Command Center + RLS)
+- **Versioned SQL:** sorted `lib/db/migrations/*.sql`, followed by the external workflow migration with stable ledger ID `0013_sales_workflow.sql`. External-last ordering is intentional; do not numerically reorder it. The reproducible [inventory](operational-evidence.json) records paths and SHA-256 hashes, including migration 0026.
 
 **Migrate-primary:** `pnpm db:migrate` applies all entries from `@workspace/db` `migrate-manifest` (`listMigrationEntries`) into `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES`. CI runs **migrate only** (no drizzle push).
 
@@ -30,12 +29,7 @@ Defines `MigrationPlan` fields (forward, data migration, validation, rollback/re
 
 ## Production rules
 
-1. After `git pull` of schema changes, run **migrate** before smoke tests:
-   ```bash
-   pnpm db:migrate
-   # production host:
-   ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
-   ```
+1. Apply reviewed versioned migrations only to an explicitly identified and authorized environment. Production application is an owner operation requiring actual backup/recovery evidence, compatibility review, and the migration plan. `REQUIRE_BACKUP_DRILL=true` currently runs a **count simulation**, not a database restore, and is insufficient evidence for approval.
 2. Never rely on git alone — Replit Publish does not apply schema; run migrate after pull.
 3. **Do not use drizzle push against production.** Schema changes ship as numbered SQL under `lib/db/migrations/` (or hospice-sales-runtime for Command Center).
 4. Prefer generating reviewed SQL for **destructive** or multi-env changes; document a `MigrationPlan` in the safety catalog.
@@ -69,19 +63,13 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Migration safety catalog + integrity checks + verification checklist (`@workspace/db/migration-safety`)
 - [x] Roleplay / assessments / analytics migrations (`0012_roleplay_assessments_analytics.sql`)
 - [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
-- [x] CI applies SQL migrations before `push-force` + backup restore drill
-- [x] Full migrate-only **SQL coverage** for all `lib/db` product tables (`MIGRATE_ONLY_LIB_DB_TABLES` contract)
+- [x] CI applies SQL migrations without push; its current count simulation does not prove restore
+- [x] Static table-name inventory exists (`MIGRATE_ONLY_LIB_DB_TABLES`); full catalog equivalence and upgrade proof remain unverified (P02)
 - [x] Deprecate `push` for production deploys (push-guard; CI migrate-only)
 - [x] Fold sales_workflow into the same migrate runner (`0013_sales_workflow.sql` tracking id)
 
-**Apply schema after pull:**
+**Synthetic local/CI apply:** `pnpm db:migrate`, using an isolated synthetic database. Do not infer environment identity from a URL substring. Production command authorization is separate from this documentation change.
 
-```bash
-pnpm db:migrate
-# production:
-ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
-# local experiments only (refuses prod URL):
-pnpm db:push
-```
+**Open evidence gates:** P02 must establish schema/upgrade equivalence, ledger checksums and locking. P03 must restore actual schema and data into an independent database and verify privileges, RLS and application behavior. Neither gate was run by P01.
 
 **Release blocker:** missing `pnpm db:migrate` after a schema PR (not push).

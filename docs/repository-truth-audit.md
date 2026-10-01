@@ -1,4 +1,6 @@
-# Repository truth audit
+# Repository truth audit — historical snapshot
+
+> **Superseded operational guidance:** This is the historical August audit, retained for traceability. Its push-primary, health-only OpenAPI, offline queue, and deployment assertions are not current instructions. Use [the operational contract](operational-contract.md) and [schema operations](schema-ops.md). Do not execute historical commands below.
 
 **Date:** 2026-08-07  
 **Scope:** Read-only audit of the SpartanCoaching monorepo as source of truth.  
@@ -204,11 +206,11 @@ Order of registration (truth):
 
 | Mechanism | Coverage |
 |-----------|----------|
-| `pnpm --filter @workspace/db run push` | **Primary** apply path for core tables |
+| `pnpm --filter @workspace/db run push` | Historical development path; prohibited for production |
 | `lib/db/migrations/0001_*.sql`, `0002_*.sql` | AI tools + ephemeral clinical |
 | `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` | Workflow + RLS policies (apply script exists) |
 
-**Documented gap (`docs/schema-ops.md`):** Core auth/billing/CMS not fully represented as ordered SQL migrations. Missing push after pull is a **release blocker**.
+**Documented gap (`docs/schema-ops.md`):** Core auth/billing/CMS not fully represented as ordered SQL migrations. Superseded: missing reviewed migrations is a release blocker.
 
 ### 6.3 ID namespace disagreement (critical)
 
@@ -340,7 +342,7 @@ Web pages under `/tools/*`; mobile native or WebView per catalog.
 | Surface | Config truth |
 |---------|--------------|
 | Web + API | Replit publish (`docs/replit-publish.md`) |
-| Schema | Manual `db push` after schema PRs |
+| Schema | Versioned migrations; see current schema operations |
 | iOS | EAS profiles in `eas.json`; secrets `EXPO_PUBLIC_API_URL` / domain |
 | Mobile static | `scripts/build.js` Metro export for Expo Go landing |
 
@@ -456,7 +458,7 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 
 ### Phase 0 — Ops truth (no product code)
 
-1. Confirm production `HEAD` == `origin/main` and `db push` applied.  
+1. Confirm production `HEAD` == `origin/main` and reviewed migrations applied.
 2. Run `ship-check` (+ auth smoke).  
 3. Close or track R10 (Gemini) and encryption key presence for workflow transcripts.
 
@@ -470,7 +472,7 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 3. ~~Decide OpenAPI strategy.~~  
    **Done:** Express + Zod is authoritative — `docs/api-contract.md`. OpenAPI remains health-only stub.  
 4. ~~Start numbering SQL migrations for auth/billing.~~  
-   **Done:** `lib/db/migrations/0003_client_auth_billing.sql` (IF NOT EXISTS baseline). Push remains primary apply.
+   **Done:** `lib/db/migrations/0003_client_auth_billing.sql` (IF NOT EXISTS baseline). Superseded: versioned migrations are now primary.
 
 ### Phase 2 — Parity of **facts**, not pixels
 

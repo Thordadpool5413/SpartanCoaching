@@ -1,0 +1,368 @@
+{
+  "baselineMainSha": "708b0522af3534a0066134d646f21f2a3cb8747c",
+  "scope": "Static lexical table-name inventory and source hashes; NOT PostgreSQL replay, full schema equivalence, restore, deployment or PHI certification.",
+  "ordering": "lib/db filenames lexicographically sorted; external workflow ledger ID 0013 last",
+  "migrations": [
+    {
+      "id": "0001_spartan_ai_tools.sql",
+      "path": "lib/db/migrations/0001_spartan_ai_tools.sql",
+      "sha256": "fc77b9f1f74cd079d0c46e3a3dbdf8748466c03975297ef9bff3f84e855f6692"
+    },
+    {
+      "id": "0002_ephemeral_clinical_tools.sql",
+      "path": "lib/db/migrations/0002_ephemeral_clinical_tools.sql",
+      "sha256": "332d3f69e172dfb7f6c965363f8b75d8f2ebb4d8e7beeda11c56e0f97cf4375a"
+    },
+    {
+      "id": "0003_client_auth_billing.sql",
+      "path": "lib/db/migrations/0003_client_auth_billing.sql",
+      "sha256": "10cd32240d1dc13242b4ce4e717ac4a66c758eb966a457d8ec34c8aa0f150af4"
+    },
+    {
+      "id": "0004_cms_content.sql",
+      "path": "lib/db/migrations/0004_cms_content.sql",
+      "sha256": "0841d31e700df9a5f81f51e7d7c0ceb1b75d3dbade061c7ffda4325b725db61d"
+    },
+    {
+      "id": "0005_resource_content_architecture.sql",
+      "path": "lib/db/migrations/0005_resource_content_architecture.sql",
+      "sha256": "b33a7061ed90b48863d8a304d0fd77f7301ee0ca92ee9712ea166fdae8ee1107"
+    },
+    {
+      "id": "0006_resource_work.sql",
+      "path": "lib/db/migrations/0006_resource_work.sql",
+      "sha256": "9023387eba24ca663f3230b65b989ddd78cc8860b583736542c4e79c7a947a65"
+    },
+    {
+      "id": "0007_resource_lifecycle.sql",
+      "path": "lib/db/migrations/0007_resource_lifecycle.sql",
+      "sha256": "1f7049b4cbf6d552141e5d31d4fa3b8576946e4e0519d3fbc72f2537bb4789a4"
+    },
+    {
+      "id": "0008_provider_resources.sql",
+      "path": "lib/db/migrations/0008_provider_resources.sql",
+      "sha256": "69296711bbc81e65510cd4233395d48c726be0152d3836237d196fbc1310bae2"
+    },
+    {
+      "id": "0009_member_personalization.sql",
+      "path": "lib/db/migrations/0009_member_personalization.sql",
+      "sha256": "9e3f0bfa028dacfa7506f91ef1477c5da56a34e0b01ae669b48c85c46b886218"
+    },
+    {
+      "id": "0010_member_notifications.sql",
+      "path": "lib/db/migrations/0010_member_notifications.sql",
+      "sha256": "8cc3d7e5686d186aa93485a0b6cbbba59ee926370d960e36481fc34269df92cd"
+    },
+    {
+      "id": "0011_org_admin_audit.sql",
+      "path": "lib/db/migrations/0011_org_admin_audit.sql",
+      "sha256": "3141729826e9d3dea02ab9537732b8c7f379045f57585360b2fdb95961036ecd"
+    },
+    {
+      "id": "0012_roleplay_assessments_analytics.sql",
+      "path": "lib/db/migrations/0012_roleplay_assessments_analytics.sql",
+      "sha256": "a8ce7e77274583ead5ed437b9caec53e1fb5ae0062ab185ff594d8e9df566c01"
+    },
+    {
+      "id": "0014_org_structure.sql",
+      "path": "lib/db/migrations/0014_org_structure.sql",
+      "sha256": "d5c038f10704e28c7259f22d2735929bdd5f5f3156a4daaef9c4a839130745bd"
+    },
+    {
+      "id": "0015_org_contacts_offboard.sql",
+      "path": "lib/db/migrations/0015_org_contacts_offboard.sql",
+      "sha256": "1eded77ee42ef3031f06fb21e4de4df53f8f2ff5c95611f203a3ced66d7cf02f"
+    },
+    {
+      "id": "0016_spartan_coach.sql",
+      "path": "lib/db/migrations/0016_spartan_coach.sql",
+      "sha256": "0d566732ae8cf6a1ae3d499e0a19afc66c6a5ff2e4df2bd38a8589b361b8ccdd"
+    },
+    {
+      "id": "0017_apple_subscriptions.sql",
+      "path": "lib/db/migrations/0017_apple_subscriptions.sql",
+      "sha256": "00b21b321900611cfe13bf9d959fa2a65a8b744adc5453f441250fd5d995f744"
+    },
+    {
+      "id": "0018_member_offboarding_lifecycle.sql",
+      "path": "lib/db/migrations/0018_member_offboarding_lifecycle.sql",
+      "sha256": "a2517d6825352601501d1c22e6a2ec03ce48bf0470268fc0f4e34202611f46f8"
+    },
+    {
+      "id": "0019_native_article_content.sql",
+      "path": "lib/db/migrations/0019_native_article_content.sql",
+      "sha256": "eeb6279f1ef914f8527082a96da713155b51e17f10ba6cb901ee08901bd17195"
+    },
+    {
+      "id": "0020_member_leadership_context.sql",
+      "path": "lib/db/migrations/0020_member_leadership_context.sql",
+      "sha256": "d1d409662b3aab84669c9c12b2da7b7ec27c8fe0bb97d6da9cf031d11a1c0407"
+    },
+    {
+      "id": "0021_stripe_webhook_analytics_retention.sql",
+      "path": "lib/db/migrations/0021_stripe_webhook_analytics_retention.sql",
+      "sha256": "1ec5f8cdccc83379e76091feba3be7380f7ee6f29d1d5d66a92a3d64e08f6415"
+    },
+    {
+      "id": "0022_stripe_webhook_notification_dedup.sql",
+      "path": "lib/db/migrations/0022_stripe_webhook_notification_dedup.sql",
+      "sha256": "5054d0eb6cdd48c2b59b2995bac81c25237c92b31f25fa47c6ef5006fbd1798c"
+    },
+    {
+      "id": "0023_member_continuity.sql",
+      "path": "lib/db/migrations/0023_member_continuity.sql",
+      "sha256": "cb9f01c53d6f9942652cd772c28229a388cf2163c45bac70ee5c78c052c47c08"
+    },
+    {
+      "id": "0023_member_sync_continuity.sql",
+      "path": "lib/db/migrations/0023_member_sync_continuity.sql",
+      "sha256": "91912138445bcfed7c7a83a9db781f1965a05cb9244a0d5fe3384b7e47eeead9"
+    },
+    {
+      "id": "0024_member_sync_mutation_tenant_scope.sql",
+      "path": "lib/db/migrations/0024_member_sync_mutation_tenant_scope.sql",
+      "sha256": "c82873b247824e1a091bdf01e6236333f86c837a85aa8d46fea74f83b68ef3ff"
+    },
+    {
+      "id": "0025_member_work_items.sql",
+      "path": "lib/db/migrations/0025_member_work_items.sql",
+      "sha256": "36c1aa9378eb5af947d849c728741a208f0f50aecb9a2239dd88d07eebd4b3d9"
+    },
+    {
+      "id": "0026_member_work_idempotency.sql",
+      "path": "lib/db/migrations/0026_member_work_idempotency.sql",
+      "sha256": "eab0380a24d730d15767890f2c5a6e819dac72623ccd2a4ef5a5b0797917c3cf"
+    },
+    {
+      "id": "0027_medicare_intelligence_runtime.sql",
+      "path": "lib/db/migrations/0027_medicare_intelligence_runtime.sql",
+      "sha256": "48b4263744256c70d53fd6b5b34df9e6a38871003d2623e51520795300ecc5b4"
+    },
+    {
+      "id": "0028_public_proof_approval.sql",
+      "path": "lib/db/migrations/0028_public_proof_approval.sql",
+      "sha256": "353ef1aa88d8b69a66224cd75daab14e59798dea6a958a02dc332ed472e8e4b9"
+    },
+    {
+      "id": "0029_public_proof_provenance.sql",
+      "path": "lib/db/migrations/0029_public_proof_provenance.sql",
+      "sha256": "3d2012064ca0f23fda3e3beaa3fa37d15b7e84b04014845ac4cb59e0b1d468ed"
+    },
+    {
+      "id": "0013_sales_workflow.sql",
+      "path": "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
+      "sha256": "fac92550707bab10235db833129d07a72e8ae879cbb230a4f8a7e1a932426321"
+    }
+  ],
+  "tables": {
+    "declared": [
+      "access_requests",
+      "agreement_requests",
+      "ai_tool_organization_flags",
+      "ai_tool_runs",
+      "ai_usage_daily",
+      "articles",
+      "assessment_clients",
+      "assessment_invites",
+      "assessment_questions",
+      "assessment_submissions",
+      "assessments",
+      "auth_events",
+      "auth_tokens",
+      "case_studies",
+      "client_members",
+      "client_organizations",
+      "client_sessions",
+      "clinical_audit_events",
+      "clinical_cases",
+      "clinical_documents",
+      "clinical_ephemeral_objects",
+      "clinical_ephemeral_sessions",
+      "clinical_mfa_challenges",
+      "clinical_permissions",
+      "clinical_reviews",
+      "coach_conversations",
+      "coach_memory_items",
+      "coach_messages",
+      "coach_preferences",
+      "coach_shared_summaries",
+      "conversations",
+      "coverage_snapshots",
+      "drill_completions",
+      "email_usage_daily",
+      "event_tracking",
+      "inquiries",
+      "member_continuity",
+      "member_notification_prefs",
+      "member_notifications",
+      "member_personalization",
+      "member_sync_records",
+      "member_work_items",
+      "messages",
+      "newsletter_subscribers",
+      "object_upload_tokens",
+      "org_admin_audit_events",
+      "org_branches",
+      "org_invites",
+      "org_teams",
+      "org_timeline_events",
+      "podcasts",
+      "provider_resources",
+      "resource_leads",
+      "resource_lifecycle_events",
+      "resource_work",
+      "resources",
+      "roleplay_messages",
+      "roleplay_sessions",
+      "sales_workflow_audit",
+      "sales_workflow_entities",
+      "sales_workflow_idempotency",
+      "sales_workflow_outbox",
+      "sessions",
+      "signed_agreements",
+      "site_settings",
+      "stripe_webhook_events",
+      "stripe_webhook_notifications",
+      "testimonials",
+      "usage_events",
+      "users",
+      "visitors"
+    ],
+    "created": [
+      "access_requests",
+      "agreement_requests",
+      "ai_tool_organization_flags",
+      "ai_tool_runs",
+      "ai_usage_daily",
+      "articles",
+      "assessment_clients",
+      "assessment_invites",
+      "assessment_questions",
+      "assessment_submissions",
+      "assessments",
+      "auth_events",
+      "auth_tokens",
+      "case_studies",
+      "client_members",
+      "client_organizations",
+      "client_sessions",
+      "clinical_audit_events",
+      "clinical_cases",
+      "clinical_documents",
+      "clinical_ephemeral_objects",
+      "clinical_ephemeral_sessions",
+      "clinical_mfa_challenges",
+      "clinical_permissions",
+      "clinical_reviews",
+      "coach_conversations",
+      "coach_memory_items",
+      "coach_messages",
+      "coach_preferences",
+      "coach_shared_summaries",
+      "conversations",
+      "coverage_snapshots",
+      "drill_completions",
+      "email_usage_daily",
+      "event_tracking",
+      "inquiries",
+      "medicare_cache_objects",
+      "medicare_workspace_records",
+      "member_continuity",
+      "member_notification_prefs",
+      "member_notifications",
+      "member_offboarding_lifecycle",
+      "member_personalization",
+      "member_sync_records",
+      "member_work_items",
+      "messages",
+      "newsletter_subscribers",
+      "object_upload_tokens",
+      "org_admin_audit_events",
+      "org_branches",
+      "org_invites",
+      "org_teams",
+      "org_timeline_events",
+      "podcasts",
+      "provider_resources",
+      "resource_leads",
+      "resource_lifecycle_events",
+      "resource_work",
+      "resources",
+      "roleplay_messages",
+      "roleplay_sessions",
+      "sales_workflow_audit",
+      "sales_workflow_entities",
+      "sales_workflow_idempotency",
+      "sales_workflow_outbox",
+      "sessions",
+      "signed_agreements",
+      "site_settings",
+      "stripe_webhook_events",
+      "stripe_webhook_notifications",
+      "testimonials",
+      "usage_events",
+      "users",
+      "visitors"
+    ],
+    "declarationsWithoutCreate": [],
+    "sqlOnly": [
+      "medicare_cache_objects",
+      "medicare_workspace_records",
+      "member_offboarding_lifecycle"
+    ]
+  },
+  "sources": [
+    {
+      "path": "lib/db/src/migrate-manifest.ts",
+      "sha256": "58f6b84d091ad1fea94d412b156b381ee9cbe0afe4e13af0bcce0fd376fafccf"
+    },
+    {
+      "path": "lib/db/scripts/migrate.ts",
+      "sha256": "d8aa0167a46bf6877fd9050b6e517302530804d9d4fd9162881a9b5882fa9918"
+    },
+    {
+      "path": "lib/db/scripts/backup-restore-drill.ts",
+      "sha256": "91dfd1a67b62c429cb9222f58e33970098d8ed79551d19f105b14b81dc8c06c3"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "9bb46f135a3794818aab3e438f9def380d7c1fbcec3088999a08d77d3846b8ac"
+    },
+    {
+      "path": "lib/api-spec/openapi.yaml",
+      "sha256": "8f5ed140fbcb66cea244038a4f5df40a6c7a72fd15ca3d428b4f94384fa63ebd"
+    },
+    {
+      "path": "artifacts/api-server/src/clinical/access.ts",
+      "sha256": "147f4720fb9af049a111094c7c11049984475ab9bea95a1af521309393c331f2"
+    },
+    {
+      "path": "artifacts/api-server/src/auth/opsJobs.ts",
+      "sha256": "d96b94d4e8cdd68a2e6fdcc945214fb926777cf61cd423b2ee153c2bcac6e740"
+    },
+    {
+      "path": "artifacts/api-server/src/clinical/ephemeral.ts",
+      "sha256": "18efa4e71067b0970885506bab72a9c4e4d80dcd4b2db9ca41a3c6738c94b49f"
+    },
+    {
+      "path": "artifacts/api-server/src/clinical/patientExtraction.ts",
+      "sha256": "8dcdd664e139dd978213469e8c272f8c45ab36f4542308b9a385ece826114bb4"
+    },
+    {
+      "path": "artifacts/spartan-coaching-mobile/app/ai-tools/patient-review.tsx",
+      "sha256": "b2a9e0b4a9ec2c7903e684ee9383c87abad6589f18bafc6de944ef03149e0360"
+    },
+    {
+      "path": "artifacts/spartan-coaching-mobile/lib/offlineQueue.ts",
+      "sha256": "760fcae24eafd38de97d6010d4c72ecca0639a07add9bcfc387c5fbc075ddffe"
+    },
+    {
+      "path": "artifacts/spartan-coaching-mobile/lib/generatedToolPrivacy.ts",
+      "sha256": "1aae920e0e2625c4fda1698c5f1b1c14d458adde3bf1a1b83b78f7a3adaf0e0a"
+    },
+    {
+      "path": "artifacts/spartan-coaching-mobile/lib/toolDraftCache.ts",
+      "sha256": "c679eef5b786764c4faa93953f09e73c197170efa4189874a4c91b3bd03de88b"
+    }
+  ]
+}

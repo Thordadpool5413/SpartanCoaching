@@ -1,57 +1,20 @@
-# Offline & device storage (iOS)
+# Offline and device storage contract
 
-## Architecture (HSP-11)
+Checked at `708b0522af3534a0066134d646f21f2a3cb8747c` (2026-10-01).
 
-**Matrix:** `lib/offlineArchitecture.ts` — every important workflow is
-`offline_capable` | `read_only_cached` | `queued_write` | `online_required`.
+AI generation requires a network connection. Generated classic-tool inputs and results are session-only. No clinical content may enter AsyncStorage, ordinary offline queues, analytics, push payloads, or crash reports.
 
-**Rule:** AI generation never works offline. Classic Field generates may be
-**queued** after a failed online attempt and replayed with a stable
-`Idempotency-Key`. Clinical, Command Center, billing, and advanced AI are
-**online required**.
+## Inspected implementation
 
-## Offline generate queue
+- `artifacts/spartan-coaching-mobile/lib/offlineQueue.ts`: compatibility API only. Enqueue returns null, list returns an empty array, and flush erases legacy storage without transmitting bodies. The remaining path allowlist is historical metadata; it does not enable persistence or replay.
+- `artifacts/spartan-coaching-mobile/lib/generatedToolPrivacy.ts`: erases legacy generated drafts/results, saved responses, and scoped/unscoped generate queues by enumerating keys.
+- `artifacts/spartan-coaching-mobile/lib/toolDraftCache.ts`: rejects generated Field IDs and sensitive clinical IDs. `CONTINUITY_TOOL_IDS` is empty. Other generic helpers still exist; this is not a blanket proof that all device storage is safe.
+- `artifacts/spartan-coaching-mobile/lib/memberSync.ts`: separate member continuity subsystem. Its existence does not authorize clinical storage.
 
-**Module:** `artifacts/spartan-coaching-mobile/lib/offlineQueue.ts`  
-**Storage:** AsyncStorage key `hsp_offline_generate_queue_v1`  
-**Purpose:** Retry classic Field tool generates after network/5xx failures.  
-**Auth:** On 401/403 flush, items are **kept** (sign in again, then retry).  
-**UI:** `OfflineQueueBanner` on Tools tab.
+## Known description mismatch
 
-### Allowed (may be stored on device)
+`offlineArchitecture.ts` still labels generated workflows as queued/cacheable and its classifier still returns `queued_write` for historical allowlisted paths. Those descriptions are superseded by the runtime evidence above. P01 changes only its explanatory comment; changing helper outputs requires a separately scoped runtime correction with caller/compatibility tests. Do not restore the retired queue to satisfy the old matrix.
 
-| Path | Tools |
-|------|--------|
-| `/api/objections` | Objection Handler |
-| `/api/playbooks` | Playbook Generator |
-| `/api/research` | Grounded Research |
-| `/api/email-templates` | Email Templates |
-| `/api/cold-call-script` | Cold Call Script |
-| `/api/weekly-plan-builder` | Weekly Plan Builder |
+Historical claims about automatic retries, persistent classic-tool drafts/results, and queue preservation on 401 are withdrawn. This is documentation of existing privacy behavior, not a new persistence policy.
 
-### Never queued (blocked)
-
-- All `/api/ai-tools/*` (advanced library, including clinical)
-- `/api/v1/sales-workflow/*` (Command Center; debrief notes stay in memory/session flow only)
-- `/api/transcribe*`, roleplay session posts
-- Clinical tool ids even if path were misconfigured
-
-Disallowed entries are purged on `listQueuedGenerates` / flush after upgrade.
-
-### Rules for new tools
-
-1. Default: **do not** enqueue.  
-2. Classic Field only after privacy review (no PHI by design).  
-3. Clinical / vault: never device-queue; keep ephemeral server-side.  
-4. Call `isOfflineQueueAllowed` before any new enqueue site.
-
-## Tool draft / last-result cache
-
-**Module:** `toolDraftCache.ts`  
-Uses the same blocked clinical tool id list. Drafts/results for vault tools are not written to AsyncStorage.
-
-## See also
-
-- `docs/tool-architecture.md`  
-- `docs/clinical-security-controls.md`  
-- Offline tests: `__tests__/offline-queue.test.ts`
+Device filesystem, backup exclusion, app-switcher privacy, interrupted upload cleanup and late-response protection require P13 verification on the installed app. No native-device assurance is claimed here.

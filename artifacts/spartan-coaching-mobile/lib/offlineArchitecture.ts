@@ -1,9 +1,11 @@
 /**
  * Offline / weak-network architecture for Hospice Sales Pro iOS.
  *
- * Classifies workflows so UI never pretends AI generation works offline.
- * Device storage is limited to cache, drafts, and allowlisted retry queues
- * (see offlineQueue.ts + toolDraftCache.ts).
+ * Historical capability metadata: generated input/result persistence and the
+ * generate queue have since been retired. queued_write/cache entries below do
+ * not describe current generate behavior. See docs/offline-device-storage.md,
+ * offlineQueue.ts and generatedToolPrivacy.ts. P01 preserves helper behavior;
+ * reconcile outputs under a separately scoped runtime correction.
  */
 
 export type OfflineCapability =
