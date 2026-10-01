@@ -1,4 +1,7 @@
-import { MIGRATION_LEDGER_PLAN, assertMigrationPlanComplete } from "./migration-safety";
+import {
+  MIGRATION_LEDGER_PLAN,
+  assertMigrationPlanComplete,
+} from "./migration-safety";
 import { describe, expect, it } from "vitest";
 import { libDbPackageRoot, listMigrationEntries } from "./migrate-manifest";
 import { prepareMigrations, verifyMigrationLedger } from "./migration-runner";

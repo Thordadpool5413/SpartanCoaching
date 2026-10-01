@@ -36,7 +36,7 @@ const queries: Record<string, string> = {
     JOIN pg_class c ON c.oid=d.refobjid JOIN pg_attribute a ON a.attrelid=c.oid AND a.attnum=d.refobjsubid
     WHERE n.nspname='public' AND s.relkind='S' AND d.deptype IN ('a','i')`,
   schemaGrants: `SELECT nspname AS key,pg_get_userbyid(nspowner) AS owner,nspacl::text FROM pg_namespace WHERE nspname='public'`,
-  defaultGrants: `SELECT pg_get_userbyid(d.defaclrole)||'.'||coalesce(n.nspname,'global')||'.'||d.defaclobjtype AS key,
+  defaultGrants: `SELECT pg_get_userbyid(d.defaclrole)||'.'||coalesce(n.nspname,'global')||'.'||d.defaclobjtype::text AS key,
     d.defaclacl::text FROM pg_default_acl d LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace`,
 };
 export type Catalog = Record<string, Record<string, string>>;

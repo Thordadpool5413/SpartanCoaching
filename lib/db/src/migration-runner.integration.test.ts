@@ -124,6 +124,30 @@ suite("synthetic PostgreSQL migration runner", () => {
     60000,
   );
   it(
+    "serializes two concurrent runners and allows the loser to retry",
+    async () =>
+      isolated(async (client, pool) => {
+        const other = await pool.connect();
+        try {
+          const results = await Promise.allSettled([
+            runMigrations(client, migrations),
+            runMigrations(other, migrations),
+          ]);
+          expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(
+            1,
+          );
+          const rejected = results.find(
+            (r) => r.status === "rejected",
+          ) as PromiseRejectedResult;
+          expect(rejected.reason.code).toBe("MIGRATION_LOCK_BUSY");
+          expect((await runMigrations(client, migrations)).skipped).toBe(30);
+        } finally {
+          other.release();
+        }
+      }),
+    60000,
+  );
+  it(
     "enforces workflow tenant RLS for a non-owner role",
     async () =>
       isolated(async (client) => {
