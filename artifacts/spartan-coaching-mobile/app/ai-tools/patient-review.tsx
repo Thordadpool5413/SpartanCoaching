@@ -16,7 +16,22 @@ const MIME: Record<string, string> = {
 };
 type Policy = { id: string; source: string; title: string; documentId: string; version: string; retiredAt: string | null; effectiveAt: string | null; educationalBaseline: boolean };
 type Picked = { uri: string; name: string; size: number; contentType: string };
-type Review = { output: Record<string, unknown>; watermark: string; coveragePolicy: { documentId: string; version: string } };
+type CareService = { id: string; name: string; family: string; summary: string };
+type CareOpportunity = {
+  serviceId: string; serviceName: string; family: string; status: "clinical_review_suggested";
+  reason: string[]; evidence: { path: string; text: string }[]; missingChecks: string[];
+  availability: "available" | "not_listed" | "verify"; reviewerRole: string; sourceUrl: string;
+  humanReviewRequired: true; eligibilityDetermined: false;
+};
+type ContinuumReview = {
+  registryVersion: string; screenedServiceCount: number; opportunities: CareOpportunity[];
+  limitations: string[]; humanReviewRequired: true;
+};
+type Review = {
+  output: Record<string, unknown>; watermark: string;
+  coveragePolicy: { documentId: string; version: string };
+  careOpportunities?: ContinuumReview | null;
+};
 
 export default function PatientReviewScreen() {
   const colors = useColors();
@@ -35,6 +50,11 @@ export default function PatientReviewScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<Review | null>(null);
+  const [careServices, setCareServices] = useState<CareService[]>([]);
+  const [careRegistryVersion, setCareRegistryVersion] = useState("");
+  const [county, setCounty] = useState("");
+  const [currentServiceId, setCurrentServiceId] = useState("");
+  const [showServicePicker, setShowServicePicker] = useState(false);
 
   function clearCopies() {
     for (const item of filesRef.current) {
@@ -57,9 +77,12 @@ export default function PatientReviewScreen() {
     void Promise.all([
       apiGet<{ clinical: { patientDocumentsAccepted: boolean } }>("/api/ai-tools"),
       apiGet<{ snapshots: Policy[] }>("/api/clinical/coverage/snapshots"),
-    ]).then(([capabilities, coverage]) => {
+      apiGet<{ enabled: boolean; registryVersion: string; services: CareService[] }>(`${BASE}/services`),
+    ]).then(([capabilities, coverage, careCatalog]) => {
       setAvailable(capabilities.clinical.patientDocumentsAccepted);
       setPolicies(coverage.snapshots.filter((item) => item.source === "CMS_MCD" && !item.retiredAt && !item.educationalBaseline && item.effectiveAt && new Date(item.effectiveAt) <= new Date()));
+      setCareServices(careCatalog.enabled ? careCatalog.services : []);
+      setCareRegistryVersion(careCatalog.enabled ? careCatalog.registryVersion : "");
     }).catch((caught) => setError(caught instanceof Error ? caught.message : "Policies could not load."));
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "background" && !pickerActive.current) void close().catch(() => setError("Deletion could not be verified. Secure cleanup will retry."));
@@ -98,7 +121,13 @@ export default function PatientReviewScreen() {
         await uploadPatientReviewFile(created.sessionId, new File(item.uri), item.contentType);
       }
       clearCopies();
-      const completed = await apiPost<{ result: Review }>(`${BASE}/${created.sessionId}/finalize`, { confirmedHumanReview: true }, { timeoutMs: 240_000 });
+      const completed = await apiPost<{ result: Review }>(`${BASE}/${created.sessionId}/finalize`, {
+        confirmedHumanReview: true,
+        careContext: {
+          ...(county.trim() ? { county: county.trim() } : {}),
+          ...(currentServiceId ? { currentServiceIds: [currentServiceId] } : {}),
+        },
+      }, { timeoutMs: 240_000 });
       sessionRef.current = "";
       setResult(completed.result);
     } catch (caught) {
@@ -130,6 +159,26 @@ export default function PatientReviewScreen() {
         <Text style={[styles.copy, { color: colors.mutedForeground }]}>Up to five PDF, DOCX, PNG, JPEG, or TXT files (25 MB each). Only temporary file copies are used on this device. Server uploads are deleted after review or when this screen closes.</Text>
         {button("Choose files", () => void pick(), busy)}
         {files.map((item, index) => <Text key={`${item.uri}-${index}`} style={{ color: colors.foreground }}>{index + 1}. {item.name}</Text>)}</View>
+      {careServices.length > 0 && <View style={[styles.card, { borderColor: colors.border }]}>
+        <Text style={[styles.heading, { color: colors.foreground }]}>4. Andwell continuum review</Text>
+        <Text style={[styles.copy, { color: colors.mutedForeground }]}>Optional context improves additional-service screening. It does not determine eligibility or create a referral.</Text>
+        <TextInput
+          accessibilityLabel="Patient county"
+          placeholder="County, for example Cumberland"
+          placeholderTextColor={colors.mutedForeground}
+          value={county}
+          onChangeText={setCounty}
+          style={[styles.input, { color: colors.foreground, borderColor: colors.border }]}
+        />
+        <Pressable accessibilityRole="button" onPress={() => setShowServicePicker((value) => !value)} style={[styles.option, { borderColor: colors.border }]}>
+          <Text style={{ color: colors.foreground }}>{currentServiceId ? careServices.find((service) => service.id === currentServiceId)?.name ?? "Current service selected" : "Select current Andwell service (optional)"}</Text>
+        </Pressable>
+        {showServicePicker && <View style={{ gap: 8 }}>
+          <Pressable accessibilityRole="radio" accessibilityState={{ checked: !currentServiceId }} onPress={() => { setCurrentServiceId(""); setShowServicePicker(false); }} style={[styles.option, { borderColor: !currentServiceId ? colors.primary : colors.border }]}><Text style={{ color: colors.foreground }}>Not selected / verify manually</Text></Pressable>
+          {careServices.map((service) => <Pressable key={service.id} accessibilityRole="radio" accessibilityState={{ checked: currentServiceId === service.id }} onPress={() => { setCurrentServiceId(service.id); setShowServicePicker(false); }} style={[styles.option, { borderColor: currentServiceId === service.id ? colors.primary : colors.border }]}><Text style={{ color: colors.foreground }}>{service.name}</Text></Pressable>)}
+        </View>}
+        <Text style={[styles.copy, { color: colors.mutedForeground, fontSize: 12 }]}>Registry: {careRegistryVersion}</Text>
+      </View>}
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: confirmed }} onPress={() => setConfirmed(!confirmed)} style={styles.confirm}><Feather name={confirmed ? "check-square" : "square"} size={22} color={colors.primary} /><Text style={[styles.copy, { color: colors.foreground, flex: 1 }]}>I am authorized to review these records and a qualified clinician will verify the draft.</Text></Pressable>
       {button(busy ? "Reviewing securely…" : "Review records", () => void run(), !verified || !policyId || !files.length || !confirmed || busy)}
       {button("Close and delete", () => void close().catch(() => setError("Deletion could not be verified; cleanup will retry.")), busy)}
@@ -139,6 +188,21 @@ export default function PatientReviewScreen() {
     {result && <View style={[styles.card, { borderColor: colors.border }]}><Text style={[styles.heading, { color: colors.foreground }]}>Draft evidence review</Text>
       <Text style={[styles.copy, { color: colors.foreground }]}>{result.watermark}</Text>
       {Object.entries(result.output).map(([key, value]) => <View key={key} style={styles.section}><Text style={[styles.heading, { color: colors.foreground }]}>{key.replace(/([a-z])([A-Z])/g, "$1 $2")}</Text><Text selectable={false} style={[styles.copy, { color: colors.foreground }]}>{typeof value === "string" ? value : JSON.stringify(value, null, 2)}</Text></View>)}
+      {result.careOpportunities && <View style={styles.section}>
+        <Text style={[styles.heading, { color: colors.foreground }]}>Potential additional Andwell services</Text>
+        <Text style={[styles.copy, { color: colors.mutedForeground }]}>Screening prompts for qualified review only. No eligibility, coverage, admission, level-of-care, or treatment decision has been made.</Text>
+        {result.careOpportunities.opportunities.length === 0
+          ? <Text style={[styles.copy, { color: colors.foreground }]}>No additional service signal was identified in the facts extracted for this review. That does not mean another need is absent.</Text>
+          : result.careOpportunities.opportunities.map((opportunity) => <View key={opportunity.serviceId} style={[styles.option, { borderColor: colors.border, gap: 6 }]}>
+              <Text style={[styles.heading, { color: colors.foreground, fontSize: 15 }]}>{opportunity.serviceName}</Text>
+              <Text style={[styles.copy, { color: colors.foreground }]}><Text style={font("bold")}>Why it surfaced: </Text>{opportunity.reason.join("; ")}</Text>
+              {opportunity.evidence.slice(0, 3).map((evidence, index) => <Text key={`${opportunity.serviceId}-e-${index}`} style={[styles.copy, { color: colors.mutedForeground }]}>• {evidence.text}</Text>)}
+              <Text style={[styles.copy, { color: colors.foreground }]}><Text style={font("bold")}>Still verify: </Text>{opportunity.missingChecks.join("; ")}</Text>
+              <Text style={[styles.copy, { color: colors.foreground }]}><Text style={font("bold")}>Route to: </Text>{opportunity.reviewerRole}</Text>
+              <Text style={[styles.copy, { color: colors.mutedForeground }]}>Availability: {opportunity.availability === "available" ? "county listed" : opportunity.availability === "not_listed" ? "county not listed - verify" : "verify"}</Text>
+            </View>)}
+        {result.careOpportunities.limitations.map((limitation, index) => <Text key={index} style={[styles.copy, { color: colors.mutedForeground, fontSize: 12 }]}>{limitation}</Text>)}
+      </View>}
       {button("Clear result", () => setResult(null))}</View>}
   </ScrollView>;
 }
