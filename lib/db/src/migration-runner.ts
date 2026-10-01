@@ -93,6 +93,18 @@ export async function runMigrations(
           "SELECT id, checksum FROM public.schema_migrations ORDER BY id",
         )
       ).rows;
+      if (ledger.length === 0) {
+        const existing = await client.query<{ found: boolean }>(`
+          SELECT EXISTS (
+            SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname='public' AND c.relkind IN ('r','p') AND c.relname <> 'schema_migrations'
+          ) AS found`);
+        if (existing.rows[0]?.found) {
+          throw new MigrationSafetyError(
+            "MIGRATION_UNTRACKED_SCHEMA_BASELINE_REQUIRED",
+          );
+        }
+      }
       verifyMigrationLedger(ledger, migrations);
       await client.query("COMMIT");
     } catch (error) {

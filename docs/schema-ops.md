@@ -80,7 +80,7 @@ The runner now requires explicit `MIGRATION_ENVIRONMENT=synthetic|production`, r
 
 A dedicated connection owns a bounded, nonblocking advisory lock. A competing runner fails with `MIGRATION_LOCK_BUSY` and must retry after the current runner completes. Original migration bytes are SHA-256 hashed. All historical ledger IDs/hashes are checked before any new SQL. The ledger checksum column is added transactionally through the version-controlled runner; original applied IDs and file ordering remain unchanged.
 
-**Legacy upgrade blocker:** rows without checksums fail with `MIGRATION_BASELINE_EVIDENCE_REQUIRED`. Do not backfill them with hashes of current files. Astra/owner must select an evidence-backed baseline process using trusted historical deployment artifacts and an in-cloud schema discrepancy report. No baseline override is provided by this packet.
+**Legacy upgrade blocker:** an existing public schema with an empty/missing ledger is rejected as untracked. Rows without checksums fail with `MIGRATION_BASELINE_EVIDENCE_REQUIRED`. Do not backfill them with hashes of current files. Astra/owner must select an evidence-backed baseline process using trusted historical deployment artifacts and an in-cloud schema discrepancy report. No baseline override is provided by this packet.
 
 Every file must have a complete existing MigrationPlan. Current files execute transactionally. Concurrent-index/nontransactional SQL is rejected pending an explicit resumable plan; it is never silently wrapped in a transaction. Per-file SQL and ledger insert commit together; prior successfully applied files remain recorded after a later failure. Errors emit codes rather than SQL/driver payloads.
 

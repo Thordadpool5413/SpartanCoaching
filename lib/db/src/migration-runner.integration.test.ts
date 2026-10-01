@@ -124,6 +124,34 @@ suite("synthetic PostgreSQL migration runner", () => {
     60000,
   );
   it(
+    "refuses an untracked existing schema without altering its data",
+    async () =>
+      isolated(async (client) => {
+        await client.query(
+          "CREATE TABLE synthetic_existing(id int PRIMARY KEY)",
+        );
+        await client.query("INSERT INTO synthetic_existing VALUES (1)");
+        await expect(runMigrations(client, migrations)).rejects.toThrow(
+          "MIGRATION_UNTRACKED_SCHEMA_BASELINE_REQUIRED",
+        );
+        expect(
+          (
+            await client.query(
+              "SELECT count(*)::int AS count FROM synthetic_existing",
+            )
+          ).rows[0].count,
+        ).toBe(1);
+        expect(
+          (
+            await client.query(
+              "SELECT to_regclass('public.schema_migrations') AS found",
+            )
+          ).rows[0].found,
+        ).toBeNull();
+      }),
+    60000,
+  );
+  it(
     "serializes two concurrent runners and allows the loser to retry",
     async () =>
       isolated(async (client, pool) => {

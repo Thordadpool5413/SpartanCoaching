@@ -54,8 +54,8 @@ Recommendation to Astra: retain the approved target and block PHI activation unt
 
 | Packet | State / next prerequisite |
 |---|---|
-| P01 | Documentation implemented; publish and CI verification pending |
-| P02 | Next packet; synthetic PostgreSQL replay and complete catalog comparison required. No psql, pg_dump, Docker or PostgreSQL binaries initially present. Production equivalence additionally needs owner-supplied sanitized in-cloud discrepancy evidence. |
+| P01 | Implemented in PR #175; CI run 36885703156 passed; not merged |
+| P02 | Safe work in draft PR #176; synthetic runner checks passed, catalog gate reports 180 named-object differences; legacy baseline and target-schema authority decisions remain blocked |
 | P03 | Depends on P02 synthetic replay; real independent restore plus covered sandbox PITR evidence |
 | P04 | Depends on P01/P02; no admin bypass, scoped grants, delegation and negative tests |
 | P05 | Depends on P02/P03; cloud access/budget/service coverage absent, explicit packet stop condition |
@@ -104,3 +104,21 @@ P01 PR #175 / commit `8299b67b3a2e7efc5bac2700ed923cfdf04fc7b2`: CI run 36885703
 P02 draft PR #176 / initial commit `e6014bbe0e71d34da2992d69ede2e039d0f4042f`: first PostgreSQL CI run 36887214285 passed 39 tests and failed 2 because the new default-grants catalog key concatenated PostgreSQL internal char without an explicit cast. Corrected `defaclobjtype::text`; this was an implementation bug, not schema drift. No report was produced by that failed attempt. Added actual concurrent-runner retry and content-leakage comparator tests. Latest local DB suite: 38 passed, 6 PostgreSQL tests skipped; database typecheck passed. PostgreSQL rerun required before claiming catalog results.
 
 Additive runner ledger plan is recorded as MIGRATION_LEDGER_PLAN in migration-safety.ts. No product schema migration or historical SQL changed; no production database was contacted. The evidence JSON hashes reflect this branch's inspected source, with the original starting main SHA retained as baseline context.
+
+### ARCHITECTURE BLOCKER — complete target-schema authority
+
+PostgreSQL 16 CI run 36887724945, commit `e2ee66d89983a292379bf9a3be1bde0f056172ef`: **43 tests passed, one catalog equivalence test failed**. Fresh replay, rerun, prefix upgrade, two concurrent runners/retry, tamper rejection, rollback, unknown-history refusal and non-owner workflow RLS all passed. The corrected query produced [180 named-object discrepancies](p02-catalog-discrepancies.json): 91 constraints, 51 indexes, 19 columns, 8 relations, 4 policies, 3 functions, 2 triggers, 1 sequence and 1 sequence ownership. These are not 180 independently confirmed defects: names and SQL-owned objects contribute.
+
+Evidence/affected components:
+
+- Drizzle omits the three SQL-owned lifecycle/Medicare tables, offboarding functions/triggers, and workflow RLS policies. Those controls must not be dropped to satisfy a schema comparison.
+- `member_personalization.payload` defaults differ: 0009 lacks the jurisdiction object present in `schema/memberPersonalization.ts`. No existing values were updated.
+- Constraint/index names, uniqueness representations and index definitions differ. Some differences may be semantically equivalent; the gate deliberately does not guess or silently exclude them.
+
+Why blocked: Drizzle alone cannot be the complete expected catalog without losing required SQL-owned security/lifecycle objects. Blindly making either side match would change policy or possibly remove controls. Unknown production history compounds the risk.
+
+Options for Astra: (1) approve a complete target made from Drizzle plus explicitly versioned SQL-owned extensions, with semantic reconciliation rules that retain RLS/lifecycle controls; (2) represent those objects in one reviewed schema-definition mechanism, still preserving existing migration IDs and historical SQL. Recommend option 1 followed by individually reviewed additive corrections and historical baseline attestation. No difference allowlist, push, destructive DDL, historical rewrite or architecture replacement was introduced.
+
+Additional safe hardening after review: existing public tables with a missing/empty ledger now fail as `MIGRATION_UNTRACKED_SCHEMA_BASELINE_REQUIRED` rather than being treated as a fresh database. A synthetic preservation/rollback test covers this. Local suite now has 38 passed, 7 PostgreSQL tests skipped; typecheck passed. Final CI must verify this additional guard.
+
+P01 browser gate: 51 passed, 1 skipped (existing suite); no actual iPhone/TestFlight verification. P03–P15 remain unimplemented because the packet dependency graph does not permit bypassing P02; P05/P10/P11/P12 additionally require the owner/clinical/vendor inputs listed above. No unrelated dependency-ready packet remains.
