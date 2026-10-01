@@ -429,6 +429,24 @@ LIMIT 100
 
 // ── Catalog of reviewed numbered migrations ──────────────────────────
 
+/** Runner-owned ledger expansion; not an applied product SQL ID. */
+export const MIGRATION_LEDGER_PLAN: MigrationPlan = {
+  id: "runner_ledger_checksum_v1",
+  title: "Expand migration ledger with verifiable checksums",
+  forwardPath: "lib/db/src/migration-runner.ts",
+  dataMigration: "No automatic historical backfill. Legacy ledgers fail closed pending an approved provenance baseline.",
+  validationQueries: [
+    "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='schema_migrations' AND column_name='checksum'",
+    "SELECT id FROM public.schema_migrations WHERE checksum IS NULL OR checksum !~ '^[a-f0-9]{64}$'",
+  ],
+  rollbackOrRecovery: "Failed preflight rolls back ledger expansion. Retain committed checksums; roll back application code without dropping ledger metadata. Never certify unknown history.",
+  backupExpectation: "logical_dump",
+  risk: "additive",
+  clientCompatibility: "none_additive",
+  tables: ["schema_migrations"],
+  dropsLegacyObjects: false,
+};
+
 export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
   {
     id: "0001_spartan_ai_tools",

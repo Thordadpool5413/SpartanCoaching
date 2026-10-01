@@ -71,3 +71,28 @@ Recommendation to Astra: retain the approved target and block PHI activation unt
 | P15 | Depends on applicable P01–P14 evidence; no production cutover authorization |
 
 Owner actions: provide cloud sandbox and budget authority, covered-service evidence, sanitized production discrepancy report, retention/customer wording, qualified clinical adjudicators and approved model/processor/knowledge licensing evidence. Keep actual agreements, secrets, patient documents and production dumps out of this repository and development conversation.
+
+## Active packet P02 — migration reproducibility (in progress)
+
+Main synchronized again before this packet: `708b0522af3534a0066134d646f21f2a3cb8747c`, clean. Branch `impl/p02-migration-evidence` is stacked on P01 commit `8299b67b3a2e7efc5bac2700ed923cfdf04fc7b2`; target its PR to `impl/p01-operational-truth` so packet diffs stay separate. P01 is draft PR #175; secret scan passed, main CI was still running when P02 began. Nothing merged.
+
+Objective/in-scope: synthetic replay/catalog equivalence, migration ledger checksums and locking, additive corrections only if demonstrated. Out-of-scope: production data, destructive reconciliation, clinical features or cutover. Dependencies: P01 and sanitized owner evidence for a production verdict. Inspected existing manifest, runner, safety catalog, SQL, Drizzle schemas/config and CI. Security: isolated synthetic databases, non-owner RLS test, safe errors and content-free discrepancies. Required tests: empty/prefix upgrade/rerun/concurrency/tamper/partial failure/non-owner isolation/full catalog comparison. Acceptance remains no unexplained differences plus safe upgrade proof. Stop if applied SQL must be rewritten, data deleted, unknown production state inferred or push used to hide differences. Owner alone supplies covered production evidence/approves migrations.
+
+Implemented safe work:
+
+- Existing runner now uses original-byte SHA-256 checksums, a dedicated-connection advisory lock, full-ledger preflight and atomic per-file SQL/ledger commits. Existing stable IDs/external-last order preserved; applied SQL untouched.
+- Explicit environment setting required; URL heuristic retained as an additional guard. Production needs its existing authorization flag. Raw driver/SQL errors replaced by codes.
+- Legacy unknown checksums fail closed; nontransactional SQL requires a separate reviewed execution plan. Count simulation cannot satisfy REQUIRE_BACKUP_DRILL.
+- Added disposable synthetic PostgreSQL integration harness: fresh replay, unchanged rerun, prefix upgrade, checksum mutation, transaction rollback, lock contention, legacy refusal, non-owner workflow tenant RLS, and independent Drizzle-source catalog comparison. No schema push.
+- Added separate CI equivalence job with content-free seven-day report; existing CI test/security gates remain enabled. Local PostgreSQL was absent; `apt-get update` failed with setgroups/setegid permission errors (exit 100). No escalation or permission bypass attempted.
+- Local `pnpm --filter @workspace/db test`: 35 passed; 5 PostgreSQL integration tests explicitly skipped because no test database was configured. `pnpm --filter @workspace/db run typecheck`: exit 0. Full repository checks delegated to existing CI; no production or clinical evaluation claim.
+
+### ARCHITECTURE BLOCKER — establishing historical migration provenance
+
+Evidence: previous `schema_migrations` has only id/applied_at; no hash or trusted applied SQL is recorded. Current repository bytes are insufficient proof of previously executed bytes. Affected components: migration runner, existing deployed ledgers, P02 upgrade acceptance, downstream P03–P15 prerequisites.
+
+Failure mode: auto-hashing historical rows silently certifies unknown SQL, defeating tamper detection and production equivalence. The new runner therefore refuses those upgrades without changing the legacy ledger.
+
+Viable options: (1) owner-approved baseline attestation tying historical deployment artifacts/commit hashes and verified in-cloud schema discrepancy evidence to ledger IDs; (2) owner-approved reconstruction from a trusted release/backup followed by reviewed reconciliation. Risks include misidentifying applied DDL, certifying drift, and incompatible old-client schema changes. Recommended Astra decision: define option 1's evidence format and signoff/verification process before implementing any baseline-adoption command. No baseline override, applied-SQL rewrite or destructive repair was added.
+
+Continue safe synthetic checks; do not mark P02 complete or begin dependent feature packets while equivalence and historical upgrade decisions remain unresolved. P12's earlier fixture option also remains blocked by missing agreed contracts and qualified independent adjudication.
