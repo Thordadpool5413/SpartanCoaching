@@ -1,3 +1,7 @@
+# Operational boundary (2026-10-01)
+
+Replit is synthetic development only for the clinical-cloud target. Production PHI activation and deployment are not authorized by this guide. Use [schema operations](docs/schema-ops.md) and [the operational contract](docs/operational-contract.md); never use schema push in production. Historical sales deployment details below do not establish a covered clinical environment.
+
 # Spartan Coaching
 
 Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools product). Two offers: human consulting, and Hospice Sales Pro for tools/resources.
@@ -11,13 +15,13 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
 - Dev error “could not connect to development server” on Replit usually means LAN mode — use tunnel (`dev` auto-selects it on Replit) or skip Metro and use TestFlight EAS builds
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after membership auth tables**
+- `pnpm db:migrate` — apply reviewed SQL to an isolated synthetic development database
 - Required env: `DATABASE_URL` — Postgres connection string
 - Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `NOTIFICATION_EMAIL`, `SITE_URL`
 - **Billing (Stripe):** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_INDIVIDUAL_WEEKLY` ($14.99/week price id)
   - Individual: Checkout + Customer Portal cancel · Corporate: Access Desk contract form (seats × weekly rate)
   - Webhook: `POST /api/billing/webhook` · Admin contract: `POST /api/admin/organizations/:id/billing/contract`
-  - After schema pull: `pnpm --filter @workspace/db run push`
+  - After schema pull: `pnpm db:migrate`
   - **Bootstrap script:** `node scripts/stripe-bootstrap.mjs` — idempotent, creates/reuses Product + Price + Portal + Webhook
     - Re-run safely after domain changes; output IDs in `scripts/stripe-bootstrap.out.json` (gitignored)
     - **Re-run after a new production deploy or domain change:**
@@ -32,7 +36,7 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
   - Optional seed email: `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) when bootstrap creates the first admin.
 - Admin UI: `/admin` or `/admin/access-desk` after signing in as platform admin.
 - Do **not** put admin secrets in `VITE_*` client env
-- After roleplay ownership columns: `pnpm --filter @workspace/db run push`
+- After roleplay ownership columns: `pnpm db:migrate`
 
 ## Stack
 
@@ -98,10 +102,10 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
 
 ## Gotchas
 
-- After pulling auth schema: run `pnpm --filter @workspace/db run push` on Replit before testing login
+- After pulling auth schema: run `pnpm db:migrate` on Replit before testing login
 - **Git push ≠ live site.** After `origin/main` updates, open Replit → pull `main` → **Publish / Redeploy**. See `docs/replit-publish.md`.
 - Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
-- Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
+- Mobile session token stored in SecureStore; send `Authorization: Bearer <token>`
 - Auth unit tests: `pnpm --filter @workspace/api-server run test`
 - Smoke checklist: `scripts/smoke-membership.md`
 - Live health smoke: `node scripts/smoke-health.mjs https://your-host`

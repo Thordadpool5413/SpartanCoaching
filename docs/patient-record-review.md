@@ -2,9 +2,16 @@
 
 The new `/api/clinical/patient-review/sessions` workflow is **off by default**. Existing clinical tools continue to accept deidentified information only. The dedicated web and iPhone screens link to this workflow from the clinical tools.
 
-Only users with explicit clinical review permission, an Elite entitlement, and a recently verified email MFA code can start it. They select a current, nonretired `CMS_MCD` coverage snapshot, then upload at most five PDF, DOCX, PNG, JPEG or TXT files (25 MB each). The server checks file signatures, scans each object, extracts text, compares documented facts to that snapshot, and returns a one-time draft. It does not make an autonomous diagnosis, eligibility, coding, medication, billing, or admission decision. The clinician must review the chart and the cited CMS policy. [CMS hospice guidance](https://www.cms.gov/medicare/payment/fee-for-service-providers/hospice) describes physician certification and the six-month prognosis; [CMS compliance guidance](https://www.cms.gov/training-education/medicare-learning-networkr-mln/compliance/medicare-provider-compliance-tips/hospice-services) describes supporting clinical findings and documentation.
+The intended access contract requires an explicit tenant-scoped clinical review grant, active membership, an Elite feature entitlement, and recent server-verified MFA. **Current implementation gap:** `clinical/access.ts` also accepts clinical admin and gives platform admins that flag; P04 must remove this bypass before activation. They select a current, nonretired `CMS_MCD` coverage snapshot, then upload at most five PDF, DOCX, PNG, JPEG or TXT files (25 MB each). The server checks file signatures, scans each object, extracts text, compares documented facts to that snapshot, and returns a one-time draft. It does not make an autonomous diagnosis, eligibility, coding, medication, billing, or admission decision. The clinician must review the chart and the cited CMS policy. [CMS hospice guidance](https://www.cms.gov/medicare/payment/fee-for-service-providers/hospice) describes physician certification and the six-month prognosis; [CMS compliance guidance](https://www.cms.gov/training-education/medicare-learning-networkr-mln/compliance/medicare-provider-compliance-tips/hospice-services) describes supporting clinical findings and documentation.
 
-## Activation
+## Activation prerequisites — not authorization
+
+Checked at `708b0522af3534a0066134d646f21f2a3cb8747c`. Current DOCX parsing checks main XML metadata but does not prove total archive expansion, isolated parsing or page/pixel budgets. P07 must enforce the approved controls; listed formats are current runtime acceptance, not a safety approval.
+
+The server cleanup timer lives in the API process (`opsJobs.ts`). Upload storage side effects can precede transaction commit, so orphan reconciliation requires P07/P08. The dedicated native route awaits deletion before clearing local state; offline-close, late response, privacy-cover and device unlock evidence remains P13 work.
+
+Temporary review must not create durable patient facts, reviews or FHIR resources. Any longitudinal lifecycle requires separate owner-approved retention and customer wording. Source records remain authoritative; a generated draft is not a verified clinical fact or an amendment to an EMR.
+
 
 Only a release operator who has verified the service agreements and data controls should configure **all** of:
 

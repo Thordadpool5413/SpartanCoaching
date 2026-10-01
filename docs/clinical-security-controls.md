@@ -1,6 +1,16 @@
 # Clinical Security Controls
 
-## Operating modes
+Checked against `708b0522af3534a0066134d646f21f2a3cb8747c` on 2026-10-01. This document separates intended controls from verified runtime behavior; see [the operational contract](operational-contract.md).
+
+## Release blockers and scope
+
+PHI activation is not authorized. Environment confirmation flags are assertions, not evidence of executed agreements or effective vendor settings. The Google production boundary is the approved target; current Replit configuration is not proof of that deployment.
+
+`artifacts/api-server/src/clinical/access.ts` currently derives `canAdmin` from platform_admin and permits review via `canReview || canAdmin`. This contradicts explicit clinical authorization. It is a P04 blocker, not acceptable support access. Clinical administration must not imply PHI viewing/reviewing.
+
+The dedicated patient-review screen and legacy clinical screens differ. Do not infer biometric or inactive privacy coverage on the dedicated route from another screen. P13 must verify each surface and actual native build.
+
+## Existing modes and intended controls (not release certification)
 
 - **De-identified (default when BAAs are not confirmed, or forced with
   `CLINICAL_OPERATION_MODE=deidentified`)**: All entitled members can
@@ -22,7 +32,7 @@
 
 - In PHI mode, explicit clinical authorization is tenant-scoped and independent of paid sales
   membership. Clinical API access requires recent email MFA; mobile clinical screens
-  also require device biometric or credential verification.
+  must also require device biometric or credential verification; dedicated-route enforcement remains a P13 gap.
 - Patient inputs, generated clinical results, extracted text, original filenames,
   reviewer notes, and input hashes are never inserted into retained run or case
   history. Clinical responses use `Cache-Control: no-store` and cannot be replayed.
@@ -36,8 +46,9 @@
 - The temporary bucket must have public access prevention and uniform bucket-level
   access enabled, with object versioning and retention policies disabled. An object
   lifecycle rule is an additional infrastructure backstop. Application sessions
-  expire after 55 minutes and an independent five-minute sweeper enforces the
-  60-minute application-level orphan ceiling.
+  expire after 55 minutes. Current sweeping is scheduled by API-process timers in
+  `opsJobs.ts`; it is not independent of API uptime. Outages and orphaned objects
+  can delay deletion. There is no absolute deletion-time guarantee (P07/P08).
 - Failure, cancellation, and successful finalization all invoke the same verified
   purge. Device camera and picker cache copies are removed after upload. The user's
   original source document is never deleted.
@@ -45,9 +56,9 @@
   revoke the Blob URL. Native sharing uses the in-memory result and creates no
   retained server export. All clinical results include a permanent educational
   decision-support watermark.
-- The iOS clinical screen is replaced with an opaque privacy view whenever the app
-  becomes inactive, preventing patient content from appearing in app-switcher
-  snapshots. Clinical values are held only in component memory.
+- Target requirement: every iOS clinical screen needs an opaque view on inactive
+  and local unlock on resume. Coverage of the dedicated patient-review route
+  remains unverified; do not advertise snapshot protection as complete.
 - CMS coverage snapshots remain retained because they contain public policy data.
   Audit events retain only organization/user/tool identifiers, timestamps,
   model/policy versions, outcome codes, object counts, and deletion confirmation.
