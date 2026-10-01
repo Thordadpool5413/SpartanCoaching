@@ -73,7 +73,7 @@ const rules: readonly ServiceRule[] = [
     serviceId: "caregivers",
     minimumSignals: 1,
     signals: [
-      { label: "activities-of-daily-living support", patterns: [/activities of daily living/i, /adl/i, /bathing/i, /dressing/i, /toileting/i, /meal preparation/i, /needs assistance/i] },
+      { label: "activities-of-daily-living support", patterns: [/activities of daily living/i, /\badl\b/i, /bathing/i, /dressing/i, /toileting/i, /meal preparation/i, /needs assistance/i] },
       { label: "caregiver strain or respite need", patterns: [/caregiver burden/i, /caregiver strain/i, /caregiver fatigue/i, /respite/i, /caregiver.*overwhelm/i] },
       { label: "supervision or companionship need", patterns: [/requires supervision/i, /cannot be left alone/i, /social isolation/i, /companionship/i] },
     ],
@@ -96,7 +96,7 @@ const rules: readonly ServiceRule[] = [
     serviceId: "palliative-medicine",
     minimumSignals: 2,
     signals: [
-      { label: "serious illness", patterns: [/chf/i, /heart failure/i, /copd/i, /cancer/i, /metastatic/i, /advanced.*disease/i, /serious illness/i, /life[- ]limiting/i] },
+      { label: "serious illness", patterns: [/\bchf\b/i, /heart failure/i, /\bcopd\b/i, /cancer/i, /metastatic/i, /advanced.*disease/i, /serious illness/i, /life[- ]limiting/i] },
       { label: "symptom burden", patterns: [/dyspnea/i, /shortness of breath/i, /pain/i, /nausea/i, /fatigue/i, /symptom burden/i] },
       { label: "high utilization or disease progression", patterns: [/recurrent hospital/i, /multiple hospital/i, /frequent emergency/i, /progressive decline/i, /disease progression/i] },
       { label: "goals-of-care or caregiver need", patterns: [/goals of care/i, /treatment decision/i, /caregiver burden/i, /quality of life/i] },
@@ -141,21 +141,21 @@ const rules: readonly ServiceRule[] = [
     serviceId: "bereavement-support",
     minimumSignals: 1,
     signals: [
-      { label: "grief/loss need", patterns: [/bereavement/i, /anticipatory grief/i, /grief/i, /recent death/i, /loss of .*family/i] },
+      { label: "grief/loss need", patterns: [/bereavement/i, /anticipatory grief/i, /\bgrief\b/i, /recent death/i, /loss of .*family/i] },
     ],
   },
   {
     serviceId: "behavioral-health-outpatient",
     minimumSignals: 1,
     signals: [
-      { label: "mental-health or co-occurring need", patterns: [/depression/i, /anxiety/i, /trauma/i, /ptsd/i, /substance use/i, /alcohol use disorder/i, /opioid use disorder/i, /behavioral health/i] },
+      { label: "mental-health or co-occurring need", patterns: [/depression/i, /anxiety/i, /trauma/i, /\bptsd\b/i, /substance use/i, /alcohol use disorder/i, /opioid use disorder/i, /behavioral health/i] },
     ],
   },
   {
     serviceId: "behavioral-health-home-adult",
     minimumSignals: 2,
     signals: [
-      { label: "adult behavioral-health need", patterns: [/adult.*behavioral health/i, /depression/i, /anxiety/i, /ptsd/i, /serious mental illness/i] },
+      { label: "adult behavioral-health need", patterns: [/adult.*behavioral health/i, /depression/i, /anxiety/i, /\bptsd\b/i, /serious mental illness/i] },
       { label: "care-coordination complexity", patterns: [/care coordination/i, /multiple chronic/i, /frequent emergency/i, /housing instability/i, /food insecurity/i, /transportation barrier/i] },
     ],
   },
@@ -164,7 +164,7 @@ const rules: readonly ServiceRule[] = [
     minimumSignals: 2,
     signals: [
       { label: "child/youth behavioral-health need", patterns: [/pediatric/i, /child/i, /adolescent/i, /youth/i] },
-      { label: "behavioral-health concern", patterns: [/behavioral health/i, /depression/i, /anxiety/i, /adhd/i, /trauma/i, /emotional dysregulation/i] },
+      { label: "behavioral-health concern", patterns: [/behavioral health/i, /depression/i, /anxiety/i, /\badhd\b/i, /trauma/i, /emotional dysregulation/i] },
       { label: "coordination need", patterns: [/school support/i, /care coordination/i, /family support/i, /community support/i] },
     ],
   },
@@ -187,9 +187,9 @@ const rules: readonly ServiceRule[] = [
     serviceId: "adult-hcbs",
     minimumSignals: 2,
     signals: [
-      { label: "adult status", patterns: [/adult/i, /age (1[89]|[2-9]\d)/i] },
-      { label: "intellectual disability/autism", patterns: [/intellectual disab/i, /developmental disab/i, /autism/i, /asd/i] },
-      { label: "functional/community support need", patterns: [/independent living/i, /community integration/i, /daily living support/i, /adl/i] },
+      { label: "adult status", patterns: [/\badult\b/i, /age (1[89]|[2-9]\d)/i] },
+      { label: "intellectual disability/autism", patterns: [/intellectual disab/i, /developmental disab/i, /autism/i, /\basd\b/i] },
+      { label: "functional/community support need", patterns: [/independent living/i, /community integration/i, /daily living support/i, /\badl\b/i] },
     ],
   },
   {
@@ -205,7 +205,7 @@ const rules: readonly ServiceRule[] = [
     minimumSignals: 2,
     signals: [
       { label: "child/youth status", patterns: [/pediatric/i, /child/i, /adolescent/i, /youth/i] },
-      { label: "behavioral-health diagnosis/need", patterns: [/behavioral health/i, /emotional dysregulation/i, /anxiety/i, /depression/i, /adhd/i, /trauma/i] },
+      { label: "behavioral-health diagnosis/need", patterns: [/behavioral health/i, /emotional dysregulation/i, /anxiety/i, /depression/i, /\badhd\b/i, /trauma/i] },
       { label: "functional skill need", patterns: [/functional impairment/i, /self[- ]regulation/i, /social skills/i, /daily living/i] },
     ],
   },
@@ -213,7 +213,7 @@ const rules: readonly ServiceRule[] = [
     serviceId: "adult-therapy",
     minimumSignals: 1,
     signals: [
-      { label: "adult therapy/rehabilitation need", patterns: [/physical therapy/i, /occupational therapy/i, /speech therapy/i, /pt/i, /ot/i, /slp/i, /dysphagia/i, /gait/i, /stroke/i, /parkinson/i, /traumatic brain injury/i, /tbi/i] },
+      { label: "adult therapy/rehabilitation need", patterns: [/physical therapy/i, /occupational therapy/i, /speech therapy/i, /\bpt\b/i, /\bot\b/i, /\bslp\b/i, /dysphagia/i, /gait/i, /stroke/i, /parkinson/i, /traumatic brain injury/i, /\btbi\b/i] },
     ],
   },
   {
@@ -236,7 +236,7 @@ const rules: readonly ServiceRule[] = [
     minimumSignals: 2,
     signals: [
       { label: "maternal/pediatric status", patterns: [/pregnan/i, /postpartum/i, /newborn/i, /infant/i, /pediatric/i, /child/i] },
-      { label: "complex maternal/child clinical need", patterns: [/high[- ]risk pregnancy/i, /feeding tube/i, /g[- ]?tube/i, /failure to thrive/i, /congenital heart/i, /genetic condition/i, /pediatric cancer/i, /picc/i, /port/i, /infusion/i, /medically fragile/i] },
+      { label: "complex maternal/child clinical need", patterns: [/high[- ]risk pregnancy/i, /feeding tube/i, /\bg[- ]?tube\b/i, /failure to thrive/i, /congenital heart/i, /genetic condition/i, /pediatric cancer/i, /\bpicc\b/i, /\bport\b/i, /infusion/i, /medically fragile/i] },
     ],
   },
 ] as const;
