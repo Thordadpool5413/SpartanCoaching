@@ -318,7 +318,7 @@
     },
     {
       "path": "lib/db/scripts/migrate.ts",
-      "sha256": "d8aa0167a46bf6877fd9050b6e517302530804d9d4fd9162881a9b5882fa9918"
+      "sha256": "5ddfdc5a0749cde91e7ccc8688c42ba0faf26f0a58c724f4a350082f5782bbe9"
     },
     {
       "path": "lib/db/scripts/backup-restore-drill.ts",
@@ -326,7 +326,7 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "9bb46f135a3794818aab3e438f9def380d7c1fbcec3088999a08d77d3846b8ac"
+      "sha256": "97a6bc94669da8bf91facb36d2ef4812ebc6c0f3afb8e2a415d0b7095ffadc4c"
     },
     {
       "path": "lib/api-spec/openapi.yaml",
