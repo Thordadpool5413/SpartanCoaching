@@ -14,7 +14,7 @@ import { isCurrentCmsPolicy } from "../clinical/patientPolicy";
 import { EPHEMERAL_CLINICAL_TTL_MS, purgeEphemeralClinicalSession } from "../clinical/ephemeral";
 import { findPotentialIdentifiers } from "../clinical/deidentification";
 import { buildAndwellContinuumReview } from "../clinical/andwellContinuumReview";
-import { ANDWELL_CARE_SERVICES, type AndwellServiceId } from "../clinical/andwellCareRegistry";
+import { ANDWELL_CARE_REGISTRY_VERSION, ANDWELL_CARE_SERVICES, type AndwellServiceId } from "../clinical/andwellCareRegistry";
 import { heavyAiLimit, standardAiLimit, globalDailyAiCap } from "../rateLimits";
 
 const SESSION_PATH = "/api/clinical/patient-review/sessions";
@@ -97,6 +97,25 @@ async function ownedSession(request: AuthedRequest, open = true) {
 
 export function registerPatientReviewRoutes(app: Express) {
   const access = [requireElite, requireClinicalUse, requireClinicalReview, coveredReviewer];
+
+  app.get(`${SESSION_PATH}/services`, requireElite, requireClinicalUse, (_request, response) => {
+    noStore(response);
+    response.json({
+      enabled: andwellContinuumReviewEnabled(),
+      registryVersion: ANDWELL_CARE_REGISTRY_VERSION,
+      services: andwellContinuumReviewEnabled()
+        ? ANDWELL_CARE_SERVICES.map((service) => ({
+            id: service.id,
+            name: service.name,
+            family: service.family,
+            summary: service.summary,
+            reviewerRole: service.reviewerRole,
+            eligibilityChecks: service.eligibilityChecks,
+            sourceUrl: service.sourceUrl,
+          }))
+        : [],
+    });
+  });
 
   app.post(SESSION_PATH, ...access, standardAiLimit, async (request, response) => {
     try {
