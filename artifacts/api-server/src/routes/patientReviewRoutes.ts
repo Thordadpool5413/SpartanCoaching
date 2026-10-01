@@ -13,12 +13,36 @@ import { assertClinicalFileSignature, extractPatientDocument } from "../clinical
 import { isCurrentCmsPolicy } from "../clinical/patientPolicy";
 import { EPHEMERAL_CLINICAL_TTL_MS, purgeEphemeralClinicalSession } from "../clinical/ephemeral";
 import { findPotentialIdentifiers } from "../clinical/deidentification";
+import { buildAndwellContinuumReview } from "../clinical/andwellContinuumReview";
+import { ANDWELL_CARE_SERVICES, type AndwellServiceId } from "../clinical/andwellCareRegistry";
 import { heavyAiLimit, standardAiLimit, globalDailyAiCap } from "../rateLimits";
 
 const SESSION_PATH = "/api/clinical/patient-review/sessions";
 const UUID = /^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i;
 const MAX_RECORD_BYTES = 160_000;
 const MAX_FILES = 5;
+const ANDWELL_SERVICE_IDS = new Set<string>(ANDWELL_CARE_SERVICES.map((service) => service.id));
+
+function andwellContinuumReviewEnabled(): boolean {
+  return process.env.ANDWELL_CONTINUUM_REVIEW_ENABLED === "true";
+}
+
+function andwellCareContext(body: unknown): { county?: string; currentServiceIds?: AndwellServiceId[] } {
+  if (!body || typeof body !== "object") return {};
+  const raw = (body as Record<string, unknown>).careContext;
+  if (!raw || typeof raw !== "object") return {};
+  const record = raw as Record<string, unknown>;
+  const county = typeof record.county === "string" ? record.county.trim().slice(0, 80) : "";
+  const currentServiceIds = Array.isArray(record.currentServiceIds)
+    ? record.currentServiceIds
+        .filter((value): value is string => typeof value === "string" && ANDWELL_SERVICE_IDS.has(value))
+        .slice(0, 8) as AndwellServiceId[]
+    : [];
+  return {
+    ...(county ? { county } : {}),
+    ...(currentServiceIds.length ? { currentServiceIds } : {}),
+  };
+}
 
 function noStore(response: Response) {
   response.setHeader("Cache-Control", "no-store, private, max-age=0");
@@ -178,13 +202,29 @@ export function registerPatientReviewRoutes(app: Express) {
         documentId: policy.documentId, version: policy.version, contentHash: policy.contentHash,
         sourceUrl: policy.sourceUrl, effectiveAt: policy.effectiveAt!.toISOString(), payload: policy.payload }] });
       if (findPotentialIdentifiers(result.output).length) throw new SpartanAiToolError("OUTPUT_CONTAINS_IDENTIFIERS", 502, "The result contained possible identifiers and was discarded.");
+      const careOpportunities = andwellContinuumReviewEnabled()
+        ? buildAndwellContinuumReview(result.output, andwellCareContext(request.body))
+        : null;
       // A cancel request can arrive while the model is running. Discard that result.
       const [current] = await db.select({ status: clinicalEphemeralSessions.status }).from(clinicalEphemeralSessions).where(eq(clinicalEphemeralSessions.id, session.id)).limit(1);
       if (current?.status !== "processing") throw new SpartanAiToolError("SESSION_CLOSED", 410, "The review was cancelled.");
       const objectCount = await purgeEphemeralClinicalSession(organizationId, session.id);
-      await audit(authed, "clinical.patient_review.completed", session.id, { objectCount, deletionVerified: true, coverageSnapshotId: policy.id, retainedClinicalContent: false }).catch(() => undefined);
-      response.json({ result: { output: result.output, coveragePolicy: { documentId: policy.documentId, version: policy.version,
-        sourceUrl: policy.sourceUrl, effectiveAt: policy.effectiveAt }, watermark: "Draft clinical evidence only. A hospice physician and compliance reviewer must verify the record, diagnoses, coverage, medications and plan of care. No autonomous eligibility, coding or prescribing decision.", retention: "one-time" } });
+      await audit(authed, "clinical.patient_review.completed", session.id, {
+        objectCount,
+        deletionVerified: true,
+        coverageSnapshotId: policy.id,
+        retainedClinicalContent: false,
+        careOpportunityCount: careOpportunities?.opportunities.length ?? 0,
+        careRegistryVersion: careOpportunities?.registryVersion ?? null,
+      }).catch(() => undefined);
+      response.json({ result: {
+        output: result.output,
+        careOpportunities,
+        coveragePolicy: { documentId: policy.documentId, version: policy.version,
+          sourceUrl: policy.sourceUrl, effectiveAt: policy.effectiveAt },
+        watermark: "Draft clinical evidence only. A hospice physician and compliance reviewer must verify the record, diagnoses, coverage, medications and plan of care. Potential additional services are screening prompts only, never eligibility, coverage, level-of-care, admission, or treatment decisions.",
+        retention: "one-time",
+      } });
     } catch (error) {
       if (sessionId) {
         try { await purgeEphemeralClinicalSession(owner(authed).organizationId, sessionId); }
