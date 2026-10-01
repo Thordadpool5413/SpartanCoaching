@@ -10,7 +10,22 @@ const MIME: Record<string, string> = {
   png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", txt: "text/plain",
 };
 type Policy = { id: string; source: string; title: string; documentId: string; version: string; retiredAt: string | null; effectiveAt: string | null; educationalBaseline: boolean };
-type Review = { output: Record<string, unknown>; watermark: string; coveragePolicy: { sourceUrl: string; documentId: string; version: string } };
+type CareService = { id: string; name: string; family: string; summary: string };
+type CareOpportunity = {
+  serviceId: string; serviceName: string; family: string; status: "clinical_review_suggested";
+  reason: string[]; evidence: { path: string; text: string }[]; missingChecks: string[];
+  availability: "available" | "not_listed" | "verify"; reviewerRole: string; sourceUrl: string;
+  humanReviewRequired: true; eligibilityDetermined: false;
+};
+type ContinuumReview = {
+  registryVersion: string; screenedServiceCount: number; opportunities: CareOpportunity[];
+  limitations: string[]; humanReviewRequired: true;
+};
+type Review = {
+  output: Record<string, unknown>; watermark: string;
+  coveragePolicy: { sourceUrl: string; documentId: string; version: string };
+  careOpportunities?: ContinuumReview | null;
+};
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { credentials: "include", cache: "no-store", ...init,
@@ -30,6 +45,10 @@ export default function PatientReview() {
   const [sessionId, setSessionId] = useState("");
   const activeId = useRef("");
   const [result, setResult] = useState<Review | null>(null);
+  const [careServices, setCareServices] = useState<CareService[]>([]);
+  const [careRegistryVersion, setCareRegistryVersion] = useState("");
+  const [county, setCounty] = useState("");
+  const [currentServiceId, setCurrentServiceId] = useState("");
   const [challenge, setChallenge] = useState<{ challengeId: string; challengeToken: string } | null>(null);
   const [code, setCode] = useState("");
   const [verified, setVerified] = useState(false);
@@ -38,10 +57,15 @@ export default function PatientReview() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    void Promise.all([json<{ clinical: { patientDocumentsAccepted: boolean } }>("/api/ai-tools"),
-      json<{ snapshots: Policy[] }>("/api/clinical/coverage/snapshots")]).then(([capability, coverage]) => {
+    void Promise.all([
+      json<{ clinical: { patientDocumentsAccepted: boolean } }>("/api/ai-tools"),
+      json<{ snapshots: Policy[] }>("/api/clinical/coverage/snapshots"),
+      json<{ enabled: boolean; registryVersion: string; services: CareService[] }>(`${BASE}/services`),
+    ]).then(([capability, coverage, careCatalog]) => {
       setAvailable(capability.clinical.patientDocumentsAccepted);
       setPolicies(coverage.snapshots.filter((item) => item.source === "CMS_MCD" && !item.retiredAt && !item.educationalBaseline && item.effectiveAt && new Date(item.effectiveAt) <= new Date()));
+      setCareServices(careCatalog.enabled ? careCatalog.services : []);
+      setCareRegistryVersion(careCatalog.enabled ? careCatalog.registryVersion : "");
     }).catch((caught) => setError(caught instanceof Error ? caught.message : "Clinical policies could not load."));
     const cleanup = () => {
       if (activeId.current) void fetch(`${BASE}/${activeId.current}`, { method: "DELETE", credentials: "include", keepalive: true, cache: "no-store" });
@@ -78,7 +102,14 @@ export default function PatientReview() {
         }
       }
       const completed = await json<{ result: Review }>(`${BASE}/${created.sessionId}/finalize`, {
-        method: "POST", body: JSON.stringify({ confirmedHumanReview: true }),
+        method: "POST",
+        body: JSON.stringify({
+          confirmedHumanReview: true,
+          careContext: {
+            ...(county.trim() ? { county: county.trim() } : {}),
+            ...(currentServiceId ? { currentServiceIds: [currentServiceId] } : {}),
+          },
+        }),
       });
       activeId.current = ""; setSessionId(""); setFiles([]);
       setResult(completed.result);
@@ -111,6 +142,22 @@ export default function PatientReview() {
         <label className="block text-sm">Record files<input className="mt-2 block w-full" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.txt" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []).slice(0, 5))} /></label>
         <p className="text-xs text-muted-foreground">Up to five files, 25 MB each. Filenames stay on this device. The server temporarily processes uploads, then verifies deletion before returning a result. Close this page to request early deletion.</p>
         {files.map((file, index) => <p className="text-sm" key={`${file.name}-${index}`}>{index + 1}. {file.name}</p>)}
+        {careServices.length > 0 && <div className="space-y-3 rounded border bg-muted/20 p-4">
+          <div>
+            <h3 className="font-semibold">Andwell continuum review</h3>
+            <p className="text-xs text-muted-foreground">Optional context improves service screening. This does not determine eligibility or create a referral.</p>
+          </div>
+          <label className="block text-sm">Current Andwell service
+            <select className="mt-2 w-full rounded border bg-background p-3" value={currentServiceId} onChange={(event) => setCurrentServiceId(event.target.value)}>
+              <option value="">Not selected / verify manually</option>
+              {careServices.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}
+            </select>
+          </label>
+          <label className="block text-sm">Patient county (optional)
+            <input className="mt-2 w-full rounded border bg-background p-3" value={county} onChange={(event) => setCounty(event.target.value)} placeholder="Example: Cumberland County" />
+          </label>
+          <p className="text-xs text-muted-foreground">Registry: {careRegistryVersion}</p>
+        </div>}
         <label className="flex gap-2 text-sm"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} />I am authorized to review these records and will have a qualified clinician verify the draft.</label>
         <div className="flex gap-3"><Button disabled={!verified || !policyId || !files.length || !confirmed || busy} onClick={() => void review()}>{busy ? "Reviewing securely…" : "Review records"}</Button>
           <Button variant="outline" disabled={busy} onClick={() => void close().catch(() => setError("Deletion could not be verified; cleanup will be retried."))}>Close and delete</Button></div>
@@ -119,6 +166,28 @@ export default function PatientReview() {
     {error && <p role="alert" className="rounded border border-destructive p-4 text-destructive">{error}</p>}
     {result && <Card className="space-y-5 p-6"><h2 className="text-xl font-bold">Draft evidence review</h2><p className="text-sm text-amber-700">{result.watermark}</p>
       {Object.entries(result.output).map(([heading, value]) => <section key={heading} className="border-t pt-3"><h3 className="font-semibold">{heading.replace(/([a-z])([A-Z])/g, "$1 $2")}</h3><pre className="mt-2 whitespace-pre-wrap break-words font-sans text-sm">{typeof value === "string" ? value : JSON.stringify(value, null, 2)}</pre></section>)}
+      {result.careOpportunities && <section className="space-y-4 border-t pt-4">
+        <div>
+          <h3 className="text-lg font-bold">Potential additional Andwell services</h3>
+          <p className="text-sm text-muted-foreground">Screening prompts for qualified review only. No eligibility, coverage, admission, level-of-care, or treatment decision has been made.</p>
+        </div>
+        {result.careOpportunities.opportunities.length === 0
+          ? <p className="rounded border p-3 text-sm">No additional service signal was identified in the facts extracted for this review. That does not mean another need is absent.</p>
+          : result.careOpportunities.opportunities.map((opportunity) => <div key={opportunity.serviceId} className="space-y-2 rounded border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h4 className="font-semibold">{opportunity.serviceName}</h4>
+                <span className="text-xs uppercase tracking-wide">{opportunity.availability === "available" ? "County listed" : opportunity.availability === "not_listed" ? "County not listed - verify" : "Availability verify"}</span>
+              </div>
+              <p className="text-sm"><strong>Why it surfaced:</strong> {opportunity.reason.join("; ")}</p>
+              {opportunity.evidence.length > 0 && <div className="text-sm"><strong>Supporting draft evidence:</strong>
+                <ul className="mt-1 list-disc space-y-1 pl-5">{opportunity.evidence.map((evidence, index) => <li key={`${opportunity.serviceId}-e-${index}`}>{evidence.text}</li>)}</ul>
+              </div>}
+              <p className="text-sm"><strong>Still needs verification:</strong> {opportunity.missingChecks.join("; ")}</p>
+              <p className="text-sm"><strong>Route to:</strong> {opportunity.reviewerRole}</p>
+              <a className="text-sm underline" href={opportunity.sourceUrl} target="_blank" rel="noopener noreferrer">Andwell program source</a>
+            </div>)}
+        {result.careOpportunities.limitations.map((limitation, index) => <p key={index} className="text-xs text-muted-foreground">{limitation}</p>)}
+      </section>}
       <a className="underline" href={result.coveragePolicy.sourceUrl} target="_blank" rel="noopener noreferrer">CMS source: {result.coveragePolicy.documentId} ({result.coveragePolicy.version})</a>
       <Button variant="outline" onClick={() => setResult(null)}>Clear result from this screen</Button></Card>}
   </main>;
