@@ -1,6 +1,6 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** PR #180 was merged into main `345ef9d`. User approved D1 complete schema authority. The active repair branch is `fix/complete-schema-contract`; local PostgreSQL equivalence is now zero differences, 54/54 tests pass. Dependency audit remains blocked by node-forge GHSA-86w9-cpqp-85rv; no patched release is listed. No new repair merge is authorized while required checks fail.
+**Current status (2026-10-02):** Main baseline `345ef9d`; approved D1 implemented in draft PR #181, runtime `f19e312`. CI verifies 54/54 database tests with zero differences, application tests/build/release checks, real synthetic recovery, secret scan and browser journeys (51 passed / 1 skipped). Only dependency audit remains failed (node-forge GHSA-86w9-cpqp-85rv). PR #181 is unmerged; production/provenance gates remain separate.
 
 ## Authority and starting point
 
@@ -258,3 +258,38 @@ fixture/application checks and cleanup passed (dump 94 ms, restore 180 ms,
 verified recovery 272 ms; synthetic measurements only). `pnpm audit --audit-level
 high` exit 1: 1 low, 15 moderate, 1 high, same node-forge advisory. Static evidence
 and `git diff --check` passed. Full application/browser CI remains required.
+
+Published runtime commit `f19e312e9eea66b518646da4fa8c4ff41f0b9f52`, draft PR
+#181, CI run 37051643909: migration equivalence PASSED, 54/54 tests and zero
+differences. Recovery PASSED: 31 migrations, 12 categories, all checks/cleanup;
+dump 149 ms, restore 618 ms, verified recovery 810 ms (synthetic only). Secret
+scan PASSED. Application job PASSED: `pnpm install --frozen-lockfile`, migrate,
+count simulation, `pnpm run typecheck`, `pnpm --filter @workspace/spartan-ai-tools
+test` (94), field-kit catalog (97 plus 5/3), `pnpm --filter @workspace/api-server
+test` (315), delivery targeted (18), `pnpm --filter @workspace/spartan-coaching
+test` (328), `pnpm --filter @workspace/spartan-coaching-mobile exec jest
+--runInBand` (298 across 60 suites), `pnpm run build`, performance checks and
+`pnpm run release-gate`. CI audit FAILED: 1 low / 20 moderate / 1 high; same
+node-forge advisory, no patched npm release. Browser result follows when complete.
+
+Updated schema-ops and operational-contract to reflect the approved complete
+catalog, preserving explicit production/provenance limits. D2 investigation found
+upstream forge PR #1152 open/unmerged/unreleased; no supported fixed version can
+be installed yet. A local patch would still require reviewed security/signing
+compatibility and honest audit policy; no exclusion or false version is authorized.
+
+Final runtime browser evidence: `pnpm run test:e2e` PASSED, 51 passed / 1 skipped
+(1.6 minutes), job 110988323211 in run 37051643909. All five non-audit jobs passed.
+The remaining failing dependency audit prevents the required aggregate from
+passing. PR #181 remains draft/unmerged; merge authority exists only after all
+required gates pass. No final merged main SHA is claimed. A documentation-only
+handoff commit has separate CI; runtime results above refer exactly to f19e312.
+
+Files changed: five canonical Drizzle schema declarations, migration integration
+test, SQL-owned contract and its README, this ExecPlan, D1/D2 decision record,
+schema-ops and operational-contract. No product migrations/lockfile/workflow
+changes. D1 architecture blocker resolved; D2 security dependency unresolved.
+Production provenance/equivalence, cloud PITR, real-device privacy and clinical
+deployment/evaluation approval remain unverified and outside this packet.
+Next action: reviewed security dependency remediation and passing audit, then
+rerun required gates and merge. Do not merge this PR while the audit is red.

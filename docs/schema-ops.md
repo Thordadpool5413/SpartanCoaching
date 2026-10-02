@@ -16,7 +16,7 @@ See [the operational contract](operational-contract.md) for limitations.
 
 ## Current model
 
-- **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
+- **Expected catalog (approved D1):** Drizzle schemas in `lib/db/src/schema/` plus the independently versioned SQL-owned declarations in `lib/db/schema-contract/sql-owned.sql`. See [contract and reconciliation](../lib/db/schema-contract/README.md). The SQL contract is test-only, never a production apply script.
 - **Web package:** `artifacts/spartan-coaching/src/shared/schema.ts` is a **compatibility re-export only** of `@workspace/db/schema` (dual-schema elimination). Do not add `pgTable` definitions under the web package; change `lib/db` + migrations instead. Contract: `schema.dualSourceOfTruth.test.ts`.
 - **Primary apply path (production + CI + Replit after pull):** `pnpm db:migrate`
 - **Local-only:** `pnpm db:push` / `push-force` go through `push-guard` (refuses production-looking URLs unless `ALLOW_PROD_PUSH=true`). Prefer writing numbered SQL instead of push.
@@ -64,13 +64,13 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Roleplay / assessments / analytics migrations (`0012_roleplay_assessments_analytics.sql`)
 - [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
 - [x] CI applies SQL migrations without push; separate synthetic restore verifies recovery fixtures, while count simulation remains non-evidence
-- [x] Static table-name inventory exists (`MIGRATE_ONLY_LIB_DB_TABLES`); full catalog equivalence and upgrade proof remain unverified (P02)
+- [x] Static table-name inventory exists (`MIGRATE_ONLY_LIB_DB_TABLES`); complete synthetic catalog equivalence, prefix upgrade, checksums and locking now pass (P02/D1); production provenance/equivalence remain unverified
 - [x] Deprecate `push` for production deploys (push-guard; CI migrate-only)
 - [x] Fold sales_workflow into the same migrate runner (`0013_sales_workflow.sql` tracking id)
 
 **Synthetic local/CI apply:** `MIGRATION_ENVIRONMENT=synthetic pnpm db:migrate`, using an isolated synthetic database. Do not infer environment identity from a URL substring. Production command authorization is separate from this documentation change.
 
-**Open evidence gates:** P02 must establish schema/upgrade equivalence, ledger checksums and locking. P03 must restore actual schema and data into an independent database and verify privileges, RLS and application behavior. Neither gate was run by P01.
+**Evidence:** P02/D1 synthetic schema equivalence, prefix upgrade, ledger checksums and locking pass. P03 independent synthetic restore verifies catalog/data/privileges/RLS/application behavior. These were implemented after P01. Production historical provenance/equivalence, cloud PITR and real clinical deletion authority remain open.
 
 **Release blocker:** missing `pnpm db:migrate` after a schema PR (not push).
 
@@ -86,7 +86,7 @@ Every file must have a complete existing MigrationPlan. Current files execute tr
 
 `REQUIRE_BACKUP_DRILL=true` now fails closed with `ACTUAL_RESTORE_EVIDENCE_REQUIRED`; the old count simulation can no longer satisfy that gate. Actual restore verification is P03. Do not remove a required recovery gate to make an operational command pass.
 
-Synthetic CI creates disposable, randomly named databases on its loopback PostgreSQL service. The catalog comparison checks columns/defaults, constraints, indexes, relation/RLS flags and grants, policies, functions, triggers, extensions, sequences/ownership, schema and default grants. The ledger is runner metadata and excluded from schema comparison. Drizzle export is applied only to a separate empty synthetic database; it never repairs the migration replay. Object names/categories may appear in the short-lived discrepancy report; raw definitions/defaults/comments and row contents do not.
+Synthetic CI creates disposable, randomly named databases on its loopback PostgreSQL service. The catalog comparison checks columns/defaults, constraints, indexes, relation/RLS flags and grants, policies, functions, triggers, extensions, sequences/ownership, schema and default grants. The ledger is runner metadata and excluded from schema comparison. Drizzle export followed by the independent SQL-owned contract is applied only to a separate empty synthetic database; it never repairs the migration replay. Object names/categories may appear in the short-lived discrepancy report; raw definitions/defaults/comments and row contents do not.
 
 Unexplained catalog differences are a failing gate, not an allowlist. A prefix-upgrade test is not exhaustive historical-production upgrade proof. Production equivalence and deployment remain blocked.
 

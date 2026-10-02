@@ -18,7 +18,7 @@ Acceptance: implement the complete target, run empty replay/prefix upgrade/rerun
 
 Evidence: the lockfile contains node-forge 1.4.0 through Expo CLI and Expo code-signing certificates. Registry `pnpm view node-forge version` returns 1.4.0. [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv) affects <=1.4.0 and lists no patched version as checked 2026-10-02. Both local audit and CI fail at the existing high-severity threshold.
 
-A standard version bump cannot currently resolve this. Prefer an upstream fixed release when available, with signing/Expo regression verification. If remediation must precede a release, require a reviewed source patch or compatible dependency replacement with vulnerability regression and signing tests. Do not falsify a version, remove needed signing code, add an audit ignore, lower severity, or skip dev dependencies merely to obtain green CI. A patched source still needs honest audit evidence; no exception is authorized here.
+Fresh verification on 2026-10-02: registry latest is still 1.4.0; [upstream PR #1152](https://github.com/digitalbazaar/forge/pull/1152) proposes a nested DigestAlgorithm validation patch but is open/unmerged/unreleased. A standard version bump cannot currently resolve this. Prefer an upstream fixed release when available, with signing/Expo regression verification. If remediation must precede a release, require a reviewed source patch or compatible dependency replacement with vulnerability regression and signing tests. Do not falsify a version, remove needed signing code, add an audit ignore, lower severity, or skip dev dependencies merely to obtain green CI. A patched source still needs honest audit evidence; no exception is authorized here.
 
 ## Merge condition
 
