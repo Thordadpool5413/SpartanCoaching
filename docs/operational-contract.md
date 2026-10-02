@@ -1,7 +1,7 @@
-# Operational contract — 2026-10-01
+# Operational contract — updated 2026-10-02
 
-Baseline: `main` at `708b0522af3534a0066134d646f21f2a3cb8747c`.
-P01 reconciles documentation only; it does not certify a deployment or change clinical behavior.
+Initial P01 baseline: `main` at `708b0522af3534a0066134d646f21f2a3cb8747c`.
+P01 reconciled documentation only. P02/P03 updates below are based on main `44ec75b61a42b5d992fd7e11ee1ec7c39e994bd8` and their feature branches; they do not certify production deployment.
 Architecture and packet source: [PR #174](https://github.com/Thordadpool5413/SpartanCoaching/pull/174), commit `3fb033fe5da32f673625bea4685587d437f37e05`. P01 does not merge that proposal or authorize production activation.
 
 ## Evidence and assertion changes
@@ -11,8 +11,8 @@ Paths below are repository-relative. Hashes and migration ordering are recorded 
 | Superseded assertion | Inspected truth / required interpretation | Evidence | Classification |
 |---|---|---|---|
 | Push is the production apply path | Versioned migrate is primary; production push is prohibited. URL heuristics alone do not establish environment identity. | `lib/db/scripts/migrate.ts`, `lib/db/src/migrate-manifest.ts`, `.github/workflows/ci.yml` | Current code + operating rule |
-| Migration coverage proves schema equivalence | Lexical CREATE names cover declared names. Columns, constraints, functions, triggers, grants, RLS, sequences and upgrade behavior remain unproved. 0026 exists. | Inventory; `lib/db/src/schema/`, `lib/db/migrations/` | Static observation, P02 verification pending |
-| Backup drill proves recovery | Script copies table names/counts to a temporary metadata table in the same database. It does not dump/restore actual schema or rows. A green count drill cannot satisfy recovery approval. | `lib/db/scripts/backup-restore-drill.ts` | Current code; P03 gap |
+| Migration coverage proves schema equivalence | Lexical CREATE names cover declared names and synthetic replay/upgrade checks pass. Full target-catalog comparison still reports 179 differences; historical upgrade provenance and production equivalence remain blocked. 0026 exists. | Inventory; `lib/db/src/schema/`, `lib/db/migrations/` | Synthetic evidence; P02 acceptance blocked |
+| Backup drill proves recovery | P03 performs actual isolated synthetic dump/restore and verifies catalog, content, sequences, tenant isolation and recovery fixtures. The renamed count-simulation is not recovery proof. Cloud PITR, production scale, keys/roles and clinical deletion authority remain unverified. | `lib/db/scripts/backup-restore-drill.ts`; `lib/db/scripts/count-simulation.ts`; [recovery evidence](execplans/p03-synthetic-recovery-evidence.json) | Synthetic CI passed; owner/cloud gates remain |
 | Sales/platform administration permits clinical review | Current code does allow this, but it violates the explicit-grant target. Clinical admin must not imply PHI read/review permission. | `artifacts/api-server/src/clinical/access.ts` | Architecture blocker, P04 |
 | Independent sweeper guarantees deletion within 60 minutes | Scheduling uses API-process timers. Outages and untracked storage objects can delay cleanup. No absolute deletion guarantee. | `artifacts/api-server/src/auth/opsJobs.ts`, `clinical/ephemeral.ts`, `routes/patientReviewRoutes.ts` under the API source | Current code; P07/P08 gap |
 | All clinical native screens have privacy cover/unlock | Dedicated patient-review path needs separate verification and correction; legacy-screen controls do not prove coverage. | `artifacts/spartan-coaching-mobile/app/ai-tools/patient-review.tsx` | P13 gap |

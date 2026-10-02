@@ -149,6 +149,11 @@
       "sha256": "3d2012064ca0f23fda3e3beaa3fa37d15b7e84b04014845ac4cb59e0b1d468ed"
     },
     {
+      "id": "0030_personalization_jurisdiction_default.sql",
+      "path": "lib/db/migrations/0030_personalization_jurisdiction_default.sql",
+      "sha256": "c900ac6b6d5db0584822c5881a64819d27da682587b1c124a591f65a10ea517e"
+    },
+    {
       "id": "0013_sales_workflow.sql",
       "path": "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
       "sha256": "fac92550707bab10235db833129d07a72e8ae879cbb230a4f8a7e1a932426321"
@@ -318,15 +323,19 @@
     },
     {
       "path": "lib/db/scripts/migrate.ts",
-      "sha256": "d8aa0167a46bf6877fd9050b6e517302530804d9d4fd9162881a9b5882fa9918"
+      "sha256": "5ddfdc5a0749cde91e7ccc8688c42ba0faf26f0a58c724f4a350082f5782bbe9"
     },
     {
       "path": "lib/db/scripts/backup-restore-drill.ts",
-      "sha256": "91dfd1a67b62c429cb9222f58e33970098d8ed79551d19f105b14b81dc8c06c3"
+      "sha256": "bc82e8ee2d1f70913bc7d1a5a0e06a735e167c076961068f36bde82ceab8f7c1"
+    },
+    {
+      "path": "lib/db/scripts/count-simulation.ts",
+      "sha256": "788beb43bf16cb00a496ed642380600a102860a5dc59299d6a05f51ea836505e"
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "9bb46f135a3794818aab3e438f9def380d7c1fbcec3088999a08d77d3846b8ac"
+      "sha256": "fb93c2d60cee798eff423f2a6e87df853115baed069fcd1da1d9918c3e38acc0"
     },
     {
       "path": "lib/api-spec/openapi.yaml",

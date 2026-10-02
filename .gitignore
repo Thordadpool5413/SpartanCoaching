@@ -72,3 +72,9 @@ scripts/stripe-bootstrap.out.json
 
 # Archived migration snapshots are intentionally kept outside Git.
 /.migration-backup/
+
+# Synthetic P02 catalog report is a short-lived CI artifact.
+lib/db/migration-equivalence-report.json
+
+# P03 measurements only; database archives stay in private temporary directories.
+lib/db/synthetic-recovery-report.json
