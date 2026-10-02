@@ -344,3 +344,40 @@ No DB migration/infrastructure/clinical AI change or clinical evaluation impact.
 Owner-only production actions and real-device/cloud/provenance evidence remain
 out of scope. Continue safe repair work; return any audit-policy decision to the
 architecture/security owner instead of silently suppressing it.
+
+
+### D2 CI handoff — tested runtime 598152b19259c537e5b889915299d9b2d8b5b504
+
+PR #182: https://github.com/Thordadpool5413/SpartanCoaching/pull/182
+Run: https://github.com/Thordadpool5413/SpartanCoaching/actions/runs/37056768796
+
+Frozen installation, workspace typecheck/build, performance budgets and automated
+release-gate suites passed. Package test commands in the workflow passed:
+`pnpm --filter @workspace/spartan-ai-tools test` 94;
+`pnpm --filter @workspace/api-server test` 315; web contracts 328;
+mobile Jest 298 tests/60 suites; `pnpm --filter @workspace/db test` 54.
+`node scripts/forge-security.test.mjs` passed 2/2 in CI. Full-history secret
+scan passed. Independent synthetic dump/restore passed: 31 migrations, 12
+catalog categories, zero differences, row/sequence/isolation/grant/key/tombstone
+fixture/application-transaction checks and cleanup verified. These are synthetic
+local-cluster results, not production/cloud recovery certification.
+
+Browser release-gate job passed: 51 tests passed, one skipped. The aggregate failed solely because the
+required dependency audit failed; all five other required jobs passed.
+
+`pnpm audit --audit-level high` failed: 1 low, 20 moderate, 1 high. Only
+the unchanged raw audit step failed in the dependency job; source regression
+and Expo signing checks passed. Required aggregate remains blocked. No merge
+performed and no final merged-main SHA claimed.
+
+Reviewed artifact SHA-256 values:
+
+- patch: `658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204`
+- patched `lib/rsa.js`: `20bf26a6d70d35427a4423bce722da2cf4a6ba05d15e2373490d8db7a61e4735`
+
+Owner decision is specifically whether to approve a bounded exact-artifact
+attestation policy for this patch, subject to the controls in `patches/README.md`,
+or require a published upstream fix. Existing merge authority does not waive
+the failing required security gate. Do not silently introduce an audit exclusion.
+No production owner operations were performed. No DB/infrastructure or clinical
+AI behavior changes; clinical evaluations are unaffected by this packet.
