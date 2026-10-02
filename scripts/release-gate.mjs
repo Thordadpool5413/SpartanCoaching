@@ -359,7 +359,7 @@ console.log("  • Prove entitled seat: PARITY_EMAIL + PARITY_PASSWORD");
 console.log("  • Org soft 404s until redeploy: set STRICT_ORG_GATES=1 after profile/audit/structure ship");
 console.log("  • TestFlight physical smoke: artifacts/spartan-coaching-mobile/store/testflight-smoke.md");
 console.log("  • ASC App Privacy + subscription storefront review (HSP-46 risk item)");
-console.log("  • Staging backup drill + OPS_LAST_RESTORE_DRILL_ISO (HSP-45)");
+console.log("  • Verified recovery report + owner-approved cloud PITR drill; timestamp alone is not evidence (P03)");
 
 console.log("\n── Production-ready claim ──");
 console.log("  productionReadyClaimAllowed: false");

@@ -29,7 +29,7 @@ Defines `MigrationPlan` fields (forward, data migration, validation, rollback/re
 
 ## Production rules
 
-1. Apply reviewed versioned migrations only to an explicitly identified and authorized environment. Production application is an owner operation requiring actual backup/recovery evidence, compatibility review, and the migration plan. `REQUIRE_BACKUP_DRILL=true` currently runs a **count simulation**, not a database restore, and is insufficient evidence for approval.
+1. Apply reviewed versioned migrations only to an explicitly identified and authorized environment. Production application is an owner operation requiring actual backup/recovery evidence, compatibility review, and the migration plan. `REQUIRE_BACKUP_DRILL=true` fails closed pending approved actual recovery evidence.
 2. Never rely on git alone — Replit Publish does not apply schema; run migrate after pull.
 3. **Do not use drizzle push against production.** Schema changes ship as numbered SQL under `lib/db/migrations/` (or hospice-sales-runtime for Command Center).
 4. Prefer generating reviewed SQL for **destructive** or multi-env changes; document a `MigrationPlan` in the safety catalog.
@@ -89,3 +89,6 @@ Every file must have a complete existing MigrationPlan. Current files execute tr
 Synthetic CI creates disposable, randomly named databases on its loopback PostgreSQL service. The catalog comparison checks columns/defaults, constraints, indexes, relation/RLS flags and grants, policies, functions, triggers, extensions, sequences/ownership, schema and default grants. The ledger is runner metadata and excluded from schema comparison. Drizzle export is applied only to a separate empty synthetic database; it never repairs the migration replay. Object names/categories may appear in the short-lived discrepancy report; raw definitions/defaults/comments and row contents do not.
 
 Unexplained catalog differences are a failing gate, not an allowlist. A prefix-upgrade test is not exhaustive historical-production upgrade proof. Production equivalence and deployment remain blocked.
+
+
+P03 separates `count-simulation` from the actual synthetic `backup-restore-drill`. See [synthetic recovery and Cloud SQL runbook](synthetic-recovery.md) for commands, proof limits and owner gates. A synthetic pass does not authorize production migration.

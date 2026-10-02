@@ -4,7 +4,7 @@
  * No secrets, no production hostnames, no PHI.
  */
 
-/** Recovery time / recovery point objectives appropriate to Hospice Sales Pro SaaS. */
+/** Proposed recovery objectives; owner acceptance and measured cloud evidence are outstanding. */
 export const RECOVERY_OBJECTIVES = {
   /** Target max data loss for primary Postgres (logical backup cadence + WAL if available). */
   databaseRpoMinutes: 60,
@@ -218,9 +218,9 @@ export function buildOpsReadinessSnapshot(): OpsReadinessSnapshot {
     responseSteps: INCIDENT_RESPONSE_STEPS,
     restoreDrill: {
       command: "pnpm --filter @workspace/db run backup-restore-drill",
-      requires: "DATABASE_URL to a non-production database (CI or staging). Never point at production for destructive drills.",
-      lastResultEnv: "OPS_LAST_RESTORE_DRILL_ISO (optional host-set after successful drill)",
-      note: "Drill writes only ephemeral schema restore_drill_* and drops it. Proves backup snapshot + restore path without assuming host snapshots work.",
+      requires: "RECOVERY_ENVIRONMENT=synthetic and RECOVERY_TEST_DATABASE_URL on loopback; pg_dump/pg_restore 16. Creates disposable databases only.",
+      lastResultEnv: "OPS_LAST_RESTORE_DRILL_ISO is informational only, never recovery proof.",
+      note: "Real synthetic dump/restore compares catalog, row hashes, sequence state, tenant RLS and application transactions. Key/tombstone fixtures are not cloud recovery evidence; see docs/synthetic-recovery.md.",
     },
   };
 }

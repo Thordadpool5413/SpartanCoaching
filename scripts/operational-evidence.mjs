@@ -16,7 +16,7 @@ const declared = names(schemaPaths, /^export\s+const\s+\w+\s*=\s*pgTable\(\s*["'
 const created = names(paths, /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:public\.)?["']?([a-zA-Z_][a-zA-Z0-9_]*)/gi);
 const evidencePaths = [
  'lib/db/src/migrate-manifest.ts', 'lib/db/scripts/migrate.ts',
- 'lib/db/scripts/backup-restore-drill.ts', '.github/workflows/ci.yml',
+ 'lib/db/scripts/backup-restore-drill.ts', 'lib/db/scripts/count-simulation.ts', '.github/workflows/ci.yml',
  'lib/api-spec/openapi.yaml', 'artifacts/api-server/src/clinical/access.ts',
  'artifacts/api-server/src/auth/opsJobs.ts', 'artifacts/api-server/src/clinical/ephemeral.ts',
  'artifacts/api-server/src/clinical/patientExtraction.ts',
