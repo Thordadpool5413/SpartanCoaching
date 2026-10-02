@@ -1,6 +1,6 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** Main baseline `345ef9d`; approved D1 implemented in draft PR #181, runtime `f19e312`. CI verifies 54/54 database tests with zero differences, application tests/build/release checks, real synthetic recovery, secret scan and browser journeys (51 passed / 1 skipped). Only dependency audit remains failed (node-forge GHSA-86w9-cpqp-85rv). PR #181 is unmerged; production/provenance gates remain separate.
+**Current status (2026-10-02):** D1 is merged on main `3720251`; its main CI passes every non-audit gate. Active user-authorized D2 repair adds a reproducible narrow RSA validation patch and regression/signing checks. Local checks pass, but the unchanged registry audit still flags published node-forge 1.4.0. No audit-policy exception or production operation is authorized.
 
 ## Authority and starting point
 
@@ -293,3 +293,54 @@ Production provenance/equivalence, cloud PITR, real-device privacy and clinical
 deployment/evaluation approval remain unverified and outside this packet.
 Next action: reviewed security dependency remediation and passing audit, then
 rerun required gates and merge. Do not merge this PR while the audit is red.
+
+
+## D2 source-level remediation — 2026-10-02
+
+User renewed instruction to review, audit, repair/remove/edit and apply all
+necessary fixes. Starting main `3720251b19a882e6efac927e81feb0baf4f84fcd`;
+status/remotes/fetch-prune/main/fast-forward pull/SHA/status completed, clean
+branch `fix/forge-signature-validation`. Existing repository instructions remain
+absent; active ExecPlan, D1/D2, canonical workflow/workspace/lockfile, installed
+Expo signing source and upstream patch were inspected. No replacement auth,
+clinical architecture or crypto library created.
+
+Bounded packet: mitigate demonstrated dependency signature-verification defect
+using pnpm's version-controlled patch mechanism, regression and Expo signing
+compatibility checks; preserve mandatory audit/secret/CI gates. No production
+activation, new crypto dependency/fork, fabricated version, ignored advisory,
+patient data, historical SQL or clinical behavior change. Acceptance for source
+mitigation: unpatched regression fails, patched regression/signing/upstream RSA
+pass, frozen install applies patch, full application CI passes. Acceptance for
+merge additionally requires all required gates; raw audit is still blocking.
+
+Patch checks nested DigestAlgorithm child count at the existing RSA validator.
+Both direct and Expo-transitive CLI/code-signing resolutions use the patch.
+New tests use generated in-memory synthetic keys; no signing secrets committed.
+CI runs regression before the unchanged audit and still executes audit on test
+failure. Patch provenance, limitations and lifecycle: `patches/README.md`.
+
+Exact local results: unpatched `node scripts/forge-security.test.mjs` exit 1,
+malformed DigestInfo accepted (one regression failed, Expo compatibility passed).
+Patched command exit 0: two tests passed, including five malformed encodings,
+valid RSA/PSS, OpenSSL and Expo certificate/CSR/manifest/tamper checks. Upstream
+v1.4.0 plus identical patch, `mocha tests/unit/rsa.js --reporter dot`: 100 passed,
+four upstream pending. `pnpm install --frozen-lockfile` with repository-pinned
+pnpm 10.26.1 passed. `pnpm audit --audit-level high` remains exit 1: one low,
+20 moderate, one high (same advisory). Package versions unchanged. `pnpm run typecheck` passed across the workspace. Static evidence and whitespace
+checks passed. Full CI remains required.
+
+SECURITY POLICY BLOCKER: published-version auditing does not attest patched
+source. Current rules prohibit audit exclusions/weakening, so the patch cannot
+make raw pnpm audit green. Options: install a fixed upstream release when
+available, or separately approve exact-artifact attestation with full installed
+resolution/hash coverage, regression/signing checks, transparent raw findings,
+all other vulnerabilities failing, expiry/owner. No such exception is implemented.
+Upstream PR #1152 remains unmerged/unreleased. Do not merge this branch while
+required audit fails. External dlx/EAS tooling and browser vendor dist remain
+outside patch verification, documented explicitly.
+
+No DB migration/infrastructure/clinical AI change or clinical evaluation impact.
+Owner-only production actions and real-device/cloud/provenance evidence remain
+out of scope. Continue safe repair work; return any audit-policy decision to the
+architecture/security owner instead of silently suppressing it.

@@ -227,7 +227,10 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify patched RSA validation and Expo signing
+        run: node scripts/forge-security.test.mjs
       - run: pnpm audit --audit-level high
+        if: ${{ !cancelled() }}
 
   # Preserve the existing required-check name and fail if ANY gate is not green.
   # Independent jobs collect all evidence even when the audit or schema gate fails.

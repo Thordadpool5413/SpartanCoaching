@@ -23,3 +23,13 @@ Fresh verification on 2026-10-02: registry latest is still 1.4.0; [upstream PR #
 ## Merge condition
 
 All six gates must succeed: application tests/build, dependency audit, secret scan, migration equivalence, synthetic recovery and browser journeys. The existing required check aggregates them and rejects failure/cancellation/skip. The current repair cannot be merged as fully verified while D1/D2 remain unresolved. Actual cloud/PITR, PHI activation, customer rollout and native store submissions are not authorized by this repair.
+
+
+D2 mitigation update (2026-10-02): user renewed all necessary repair authority.
+Branch `fix/forge-signature-validation` applies the narrow upstream-proposed
+nested-element check through pnpm patchedDependencies, with unpatched-fail /
+patched-pass regression, Expo signing compatibility, and upstream RSA 100-pass /
+four-pending evidence. See `patches/README.md`. Published version remains 1.4.0,
+and the unchanged raw audit still fails. This is source-level mitigation, not
+approval for an advisory ignore or a green merge. Exact-artifact audit attestation
+would be a separate security-policy decision; it has not been implemented.

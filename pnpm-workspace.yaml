@@ -172,3 +172,6 @@ overrides:
   vite@>=5.0.0 <6.0.0: 7.3.6
   vite@>=6.0.0 <6.4.3: 6.4.3
   vite@>=7.0.0 <7.3.2: 7.3.6
+
+patchedDependencies:
+  node-forge@1.4.0: patches/node-forge@1.4.0.patch
