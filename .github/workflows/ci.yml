@@ -227,7 +227,21 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level high
+      - name: Verify patched RSA validation and Expo signing
+        run: node scripts/forge-security.test.mjs
+      - name: Test dependency attestation rejection cases
+        run: node scripts/security/patched-audit.test.mjs
+      - name: Audit dependencies with approved exact-artifact attestation
+        if: ${{ !cancelled() }}
+        run: node scripts/security/patched-audit.mjs
+      - name: Preserve raw audit and attestation decision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-evidence
+          path: test-results/dependency-audit
+          if-no-files-found: error
+          retention-days: 30
 
   # Preserve the existing required-check name and fail if ANY gate is not green.
   # Independent jobs collect all evidence even when the audit or schema gate fails.

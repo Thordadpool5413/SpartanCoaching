@@ -335,7 +335,7 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "97c49b74230ac2d2e52b4104581cdefa6edb6972c091ddd754e58fc53c21d1cd"
+      "sha256": "3b6a07a046071cb7aa179dbc3a01f137364a7b7c4ea38b80f3bbff21e8800616"
     },
     {
       "path": "lib/api-spec/openapi.yaml",

@@ -90,6 +90,8 @@ overrides:
   '@tailwindcss/oxide>@tailwindcss/oxide-win32-arm64-msvc': '-'
   '@types/react': 19.2.4
   '@types/react-dom': 19.2.3
+  '@xmldom/xmldom@>=0.7.0 <0.9.0': 0.8.15
+  '@xmldom/xmldom@>=0.9.0 <1.0.0': 0.9.12
   brace-expansion@>=1.0.0 <2.0.0: 1.1.21
   brace-expansion@>=2.0.0 <3.0.0: 2.1.4
   brace-expansion@>=3.0.0 <4.0.0: 3.0.3
@@ -125,8 +127,6 @@ overrides:
   ip-address@<=10.3.0: 10.4.0
   js-yaml@>=3.0.0 <3.15.2: 3.15.2
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
-  '@xmldom/xmldom@>=0.7.0 <0.9.0': 0.8.15
-  '@xmldom/xmldom@>=0.9.0 <1.0.0': 0.9.12
   lightningcss>lightningcss-android-arm64: '-'
   lightningcss>lightningcss-darwin-arm64: '-'
   lightningcss>lightningcss-darwin-x64: '-'
@@ -169,6 +169,11 @@ overrides:
   vite@>=7.0.0 <7.3.2: 7.3.6
 
 packageExtensionsChecksum: sha256-KEl7Kxh9bhl4KStnm3SvMP3qqgfldUI8/dDzA+CfhdM=
+
+patchedDependencies:
+  node-forge@1.4.0:
+    hash: 658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204
+    path: patches/node-forge@1.4.0.patch
 
 importers:
 
@@ -9429,7 +9434,7 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.5
@@ -9506,7 +9511,7 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       multitars: 1.0.2
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.5
@@ -9542,7 +9547,7 @@ snapshots:
 
   '@expo/code-signing-certificates@0.0.6':
     dependencies:
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204)
 
   '@expo/config-plugins@57.0.9(typescript@6.0.3)':
     dependencies:
@@ -15336,7 +15341,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  node-forge@1.4.0: {}
+  node-forge@1.4.0(patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204): {}
 
   node-int64@0.4.0: {}
 
