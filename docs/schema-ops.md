@@ -63,7 +63,7 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Migration safety catalog + integrity checks + verification checklist (`@workspace/db/migration-safety`)
 - [x] Roleplay / assessments / analytics migrations (`0012_roleplay_assessments_analytics.sql`)
 - [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
-- [x] CI applies SQL migrations without push; its current count simulation does not prove restore
+- [x] CI applies SQL migrations without push; separate synthetic restore verifies recovery fixtures, while count simulation remains non-evidence
 - [x] Static table-name inventory exists (`MIGRATE_ONLY_LIB_DB_TABLES`); full catalog equivalence and upgrade proof remain unverified (P02)
 - [x] Deprecate `push` for production deploys (push-guard; CI migrate-only)
 - [x] Fold sales_workflow into the same migrate runner (`0013_sales_workflow.sql` tracking id)
