@@ -32,8 +32,8 @@ jobs:
       - name: Run gitleaks
         run: gitleaks detect --source . --verbose --redact --exit-code 1
 
-  verify:
-    name: Typecheck, test, and build
+  app-checks:
+    name: Application typecheck, test, and build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -71,7 +71,6 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level high
       # Schema: migrate-primary (numbered SQL + sales_workflow). No drizzle push in CI.
       - name: Apply SQL migrations (migrate-primary)
         run: pnpm --filter @workspace/db run migrate
@@ -104,7 +103,7 @@ jobs:
 
   browser-release-gate:
     name: Browser release gate
-    needs: verify
+    needs: app-checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -215,3 +214,43 @@ jobs:
           path: lib/db/synthetic-recovery-report.json
           if-no-files-found: error
           retention-days: 7
+
+  dependency-audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level high
+
+  # Preserve the existing required-check name and fail if ANY gate is not green.
+  # Independent jobs collect all evidence even when the audit or schema gate fails.
+  verify:
+    name: Typecheck, test, and build
+    if: always()
+    needs:
+      - app-checks
+      - dependency-audit
+      - secret-scan
+      - migration-equivalence
+      - synthetic-recovery
+      - browser-release-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every verification gate to pass
+        env:
+          GATE_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          node <<'NODE'
+          const results = JSON.parse(process.env.GATE_RESULTS);
+          const failed = Object.entries(results).filter(([, job]) => job.result !== 'success');
+          for (const [name, job] of failed) console.error(`${name}: ${job.result}`);
+          if (failed.length) process.exit(1);
+          console.log('All required verification gates passed.');
+          NODE
