@@ -19,7 +19,7 @@ export const sessions = pgTable(
 // This table is mandatory for Replit Auth - from blueprint:javascript_log_in_with_replit
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique("users_email_key"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -141,7 +141,7 @@ export type SelectInquiry = typeof inquiries.$inferSelect;
 // Drizzle table definition for newsletter subscribers
 export const newsletterSubscribers = pgTable("newsletter_subscribers", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
+  email: text("email").notNull().unique("newsletter_subscribers_email_key"),
   subscribedAt: bigint("subscribed_at", { mode: "number" }).notNull(),
   isActive: boolean("is_active").notNull().default(true),
 });
@@ -224,7 +224,7 @@ export const agreementRequests = pgTable("agreement_requests", {
   recipientEmail: text("recipient_email").notNull(),
   recipientName: varchar("recipient_name").notNull(),
   documentTypes: text("document_types").array().notNull(),
-  token: varchar("token").notNull().unique(),
+  token: varchar("token").notNull().unique("agreement_requests_token_key"),
   status: varchar("status").notNull().default("pending"),
   sentAt: timestamp("sent_at").defaultNow(),
   completedAt: timestamp("completed_at"),
@@ -667,7 +667,7 @@ export type SelectAssessmentQuestion = typeof assessmentQuestions.$inferSelect;
 // Assessment Clients (branded assessment URLs)
 export const assessmentClients = pgTable("assessment_clients", {
   id: serial("id").primaryKey(),
-  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  slug: varchar("slug", { length: 100 }).notNull().unique("assessment_clients_slug_key"),
   companyName: varchar("company_name").notNull(),
   logoUrl: text("logo_url"),
   accentColor: varchar("accent_color", { length: 20 }),
@@ -712,7 +712,7 @@ export type SelectAssessmentSubmission = typeof assessmentSubmissions.$inferSele
 export const assessmentInvites = pgTable("assessment_invites", {
   id: serial("id").primaryKey(),
   assessmentId: integer("assessment_id").notNull(),
-  token: varchar("token").notNull().unique(),
+  token: varchar("token").notNull().unique("assessment_invites_token_key"),
   candidateEmail: text("candidate_email").notNull(),
   candidateName: varchar("candidate_name").notNull(),
   sentAt: timestamp("sent_at").defaultNow(),

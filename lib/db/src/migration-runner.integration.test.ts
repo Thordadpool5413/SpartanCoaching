@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import pg from "pg";
 import { describe, expect, it } from "vitest";
 import { libDbPackageRoot, listMigrationEntries } from "./migrate-manifest";
@@ -43,6 +43,29 @@ async function isolated<T>(
     await admin.end();
   }
 }
+function exportExpectedSql(): string {
+  const exported = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "drizzle-kit",
+      "export",
+      "--dialect",
+      "postgresql",
+      "--schema",
+      "./src/schema/index.ts",
+    ],
+    { cwd: libDbPackageRoot(), encoding: "utf8", maxBuffer: 8 * 1024 * 1024 },
+  );
+  if (exported.status !== 0 || !exported.stdout.startsWith("CREATE TABLE"))
+    throw new Error("SCHEMA_EXPORT_FAILED");
+  return (
+    exported.stdout +
+    "\n" +
+    readFileSync(`${libDbPackageRoot()}/schema-contract/sql-owned.sql`, "utf8")
+  );
+}
+
 // Only generated, isolated databases are modified/dropped. Never public data.
 suite("synthetic PostgreSQL migration runner", () => {
   it("replays empty, preserves unchanged catalog on rerun, and supports prefix upgrade", async () => {
@@ -266,29 +289,15 @@ suite("synthetic PostgreSQL migration runner", () => {
       }),
     60000,
   );
-  it("compares full catalog to independent Drizzle export; unresolved differences block equivalence", async () => {
-    const exported = spawnSync(
-      "pnpm",
-      [
-        "exec",
-        "drizzle-kit",
-        "export",
-        "--dialect",
-        "postgresql",
-        "--schema",
-        "./src/schema/index.ts",
-      ],
-      { cwd: libDbPackageRoot(), encoding: "utf8", maxBuffer: 8 * 1024 * 1024 },
-    );
-    if (exported.status !== 0 || !exported.stdout.startsWith("CREATE TABLE"))
-      throw new Error("SCHEMA_EXPORT_FAILED");
+  it("compares full catalog to independent Drizzle plus SQL contract; unresolved differences block equivalence", async () => {
+    const expectedSql = exportExpectedSql();
     const replay = await isolated(async (client) => {
       await runMigrations(client, migrations);
       return readCatalog(client);
     });
     const source = await isolated(async (client) => {
       await client.query("CREATE EXTENSION IF NOT EXISTS pgcrypto");
-      await client.query(exported.stdout);
+      await client.query(expectedSql);
       return readCatalog(client);
     });
     const differences = diffCatalog(replay, source);
@@ -306,5 +315,81 @@ suite("synthetic PostgreSQL migration runner", () => {
       differences.length,
       "CATALOG_EQUIVALENCE_BLOCKED: inspect content-free discrepancy report",
     ).toBe(0);
+  }, 60000);
+  it("detects drift in independently constructed security, lifecycle and relational contracts", async () => {
+    const expectedSql = exportExpectedSql();
+    await isolated(async (client) => {
+      await client.query("CREATE EXTENSION IF NOT EXISTS pgcrypto");
+      await client.query(expectedSql);
+      const expected = await readCatalog(client);
+      const mutations = [
+        [
+          "columns",
+          "ALTER TABLE client_members ALTER COLUMN status SET DEFAULT 'synthetic_changed'",
+        ],
+        [
+          "constraints",
+          "ALTER TABLE coach_messages DROP CONSTRAINT coach_messages_member_id_fkey",
+        ],
+        [
+          "constraints",
+          "ALTER TABLE coach_conversations DROP CONSTRAINT coach_conversations_status_check",
+        ],
+        ["indexes", "DROP INDEX sales_workflow_entities_data"],
+        [
+          "indexes",
+          "DROP INDEX sales_workflow_outbox_pending; CREATE INDEX sales_workflow_outbox_pending ON sales_workflow_outbox(available_at)",
+        ],
+        [
+          "policies",
+          "ALTER POLICY sales_workflow_entity_tenant ON sales_workflow_entities USING (true) WITH CHECK (true)",
+        ],
+        [
+          "relations",
+          "ALTER TABLE sales_workflow_entities DISABLE ROW LEVEL SECURITY",
+        ],
+        [
+          "relations",
+          "ALTER TABLE sales_workflow_entities NO FORCE ROW LEVEL SECURITY",
+        ],
+        ["relations", "GRANT SELECT ON clinical_documents TO PUBLIC"],
+        [
+          "functions",
+          "CREATE OR REPLACE FUNCTION spartan_member_offboarding_retention_tick() RETURNS trigger LANGUAGE plpgsql AS 'BEGIN RETURN NEW; END;'",
+        ],
+        [
+          "triggers",
+          "ALTER TABLE client_members DISABLE TRIGGER trg_member_offboarding_guard",
+        ],
+        [
+          "sequences",
+          "ALTER SEQUENCE member_offboarding_lifecycle_id_seq INCREMENT BY 2",
+        ],
+        [
+          "sequenceOwnership",
+          "ALTER SEQUENCE member_offboarding_lifecycle_id_seq OWNED BY NONE",
+        ],
+        ["schemaGrants", "GRANT CREATE ON SCHEMA public TO PUBLIC"],
+        [
+          "defaultGrants",
+          "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO PUBLIC",
+        ],
+      ];
+      for (const [category, mutation] of mutations) {
+        await client.query("BEGIN");
+        try {
+          await client.query(mutation!);
+          expect(
+            diffCatalog(expected, await readCatalog(client)).some(
+              (d) => d.category === category,
+            ),
+            category,
+          ).toBe(true);
+        } finally {
+          await client.query("ROLLBACK");
+        }
+      }
+      expect(diffCatalog(expected, await readCatalog(client))).toEqual([]);
+    });
   }, 60000);
 });
