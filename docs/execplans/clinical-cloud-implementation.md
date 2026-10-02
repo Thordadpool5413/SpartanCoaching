@@ -1,6 +1,6 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** P01 is merged into main. P02 is being reconciled onto current main in `impl/p02-reconcile-evidence`; P02 acceptance remains blocked. The dated continuation below supersedes earlier PR/dependency status statements.
+**Current status (2026-10-02):** P01 is merged. P02 continuation is draft PR #178 (179 catalog discrepancies and provenance decisions remain). P03 synthetic recovery passed in PR #179; cloud PITR and clinical deletion authority remain blocked. Latest evidence/handoff below supersedes historical status statements.
 
 ## Authority and starting point
 
@@ -56,9 +56,9 @@ Recommendation to Astra: retain the approved target and block PHI activation unt
 
 | Packet | State / next prerequisite |
 |---|---|
-| P01 | Implemented in PR #175; CI run 36885703156 passed; not merged |
-| P02 | Safe work in draft PR #176; synthetic runner checks passed, catalog gate reports 180 named-object differences; legacy baseline and target-schema authority decisions remain blocked |
-| P03 | Depends on P02 synthetic replay; real independent restore plus covered sandbox PITR evidence |
+| P01 | Merged into main through PR #175; original CI passed |
+| P02 | Draft PR #178 targets main; correction passed, 179 catalog differences remain; legacy baseline and target authority blocked |
+| P03 | Draft PR #179: independent synthetic restore passed; cloud PITR, clinical tombstone authority and production key/role recovery remain unverified |
 | P04 | Depends on P01/P02; no admin bypass, scoped grants, delegation and negative tests |
 | P05 | Depends on P02/P03; cloud access/budget/service coverage absent, explicit packet stop condition |
 | P06 | Depends on P02/P04; durable lifecycle stays disabled pending owner terms |
@@ -151,3 +151,36 @@ Latest previous P02 CI run 36890215178 at `f96d4d236b6053d2e1e2483e0efd9a5462e32
 Dependency correction: the earlier statement that all P03 work requires complete P02 acceptance was too broad. The approved packet explicitly requires **P02 synthetic schema replay**, which passed in PostgreSQL 16 CI. Therefore P03 independent synthetic dump/restore work can proceed in its own branch/PR after this P02 continuation is published. Cloud PITR still requires an authorized sandbox. P04/P05 and other packets retain their listed dependencies. This is application of the approved dependency graph, not a replacement architecture.
 
 Architecture-dependent P02 work remains stopped: Astra must approve complete catalog authority and historical provenance adoption; owner must supply sanitized in-cloud discrepancy evidence for production equivalence. No security object was dropped or ignored and the strict catalog gate remains enabled. No PHI, production operation, cloud infrastructure, clinical AI behavior or evaluation changes.
+
+
+## Active packet P03 — 2026-10-02 synthetic recovery
+
+P02 continuation published as draft PR #178, commit `e40fbcab1a73193a936482c6315e6317f1ba6ef8`. CI run 36944465367: **45 PostgreSQL/unit checks passed, 1 failed**, solely 179 remaining catalog discrepancies. The new default correction/preservation/plan-validation/rerun test passed. Secret scan passed. Application verification stopped at audit: 1 low, 20 moderate, 1 high (`node-forge`, GHSA-86w9-cpqp-85rv, no patched version reported). Browser job skipped. Dependency lockfile was not changed; this newly reported upstream issue is not caused by P02. No gate weakened; remaining application verification is outstanding.
+
+Main synchronized again at `44ec75b61a42b5d992fd7e11ee1ec7c39e994bd8`; clean, no new instruction files. P03 branch `impl/p03-synthetic-recovery` is stacked on PR #178 to reuse the verified synthetic migration runner/catalog comparator. P02 remains architecture-blocked; P03 dependency is specifically synthetic replay, which passed.
+
+Packet: objective actual recovery proof; scope rename count simulation, independent synthetic pg_dump/restore, Cloud SQL runbook and consistency tests. Out of scope production data/restore/live destinations/automated destructive recovery. Dependencies successful P02 replay, authorized sandbox for measured PITR. Inspected count script, ops catalog, release gate, CI, migration/catalog code, API phiEncryption and clinical ephemeral/retention/offboarding lifecycle; read ADRs and recovery/security design. No replacement encryption/database/clinical deletion system was created.
+
+Implementation: existing backup-restore-drill command now creates disposable source and target databases, uses real private pg_dump/pg_restore, verifies 12 catalog categories/all row content/sequence positions, deliberate corruption/lost table, post-restore non-owner tenant isolation, missing/wrong/recovered key via canonical API encryption, synthetic tombstone reconciliation and preference write/default/unique-constraint behavior. Old script renamed count-simulation and explicitly labeled insufficient recovery evidence. New independent CI job uploads only a content-free short-lived report, never archives/keys/row hashes. Runbook records owner-only cloud PITR and cross-store/role/key/tombstone acceptance gates. No product schema changes in P03.
+
+Required tests are exercised by the synthetic recovery command; configuration-negative unit tests refuse absent synthetic setting, remote host and libpq routing query. Local PostgreSQL is absent. Initial subprocess tests hit the environment's tsx CLI IPC socket restriction; switched to Node's supported --import tsx loading mode (no IPC listener) for these commands. No permission escalation. Exact final local results and CI report to be appended after verification. Clinical model/prompt/schema/retrieval/evaluation impact: none.
+
+ARCHITECTURE BLOCKER: canonical clinical deletion-tombstone recovery authority is absent. See docs/synthetic-recovery.md for evidence, affected P07/P08 components, risks, options and Astra recommendation. The manifest used here is a synthetic drill fixture only; it cannot certify production deletion recovery. Cloud sandbox/cost authority is absent, so no measured cloud PITR or production restore may proceed. Recovery numbers are local synthetic measurements, not accepted business RPO/RTO. Count timestamps cannot satisfy REQUIRE_BACKUP_DRILL.
+
+P03 local verification before publication: `pnpm --filter @workspace/db test` passed 41 tests with 8 PostgreSQL migration tests skipped; DB typecheck and explicit recovery-script TypeScript check passed; static evidence check passed (31 migrations, 71 declared/74 SQL table names, 14 evidence paths); `git diff --check` passed. No local restore was claimed. CI recovery job is required.
+
+
+P03 verification findings: runs 36945299489, 36945529209 and 36945769431 performed actual dump/restore but stopped on eleven CHECK constraint fingerprints; cleanup passed. Literal-scrubbed diagnostics established PostgreSQL rewrites unbounded varchar-array-to-text coercion into equivalent per-element coercions. Added narrow normalization for exactly the text-enum CHECK grammar, preserving literal values/column and all validation/deferrability metadata. Bounded casts, other operators, NULL, collation and compound expressions remain unnormalized and compared strictly. No object allowlist or security exclusion. Diagnostic expression output was removed after diagnosis. Local regression suite now 45 passed / 8 PostgreSQL tests skipped; DB and recovery-script typechecks passed. Full root `pnpm run typecheck` also passed. Snapshot age now uses dump start (conservative consistency point), not dump completion. CI rerun is required for normalized catalog and the remaining restore checks.
+
+
+## Verified P03 handoff — runtime commit 64def4bb530f5833cb0508420551fb9a91615fc6
+
+CI run **36946098543**, recovery job **110648464629**, passed. Versioned content-free result: [p03-synthetic-recovery-evidence.json](p03-synthetic-recovery-evidence.json). PostgreSQL 16 restored 31 migrations into an independent database; **zero restore catalog differences** across all 12 categories. All public row content and sequence states, deliberate corruption/lost table, non-owner no-tenant/cross-tenant controls, canonical missing/wrong/recovered keys, post-backup deletion fixture, application transaction/default/unique constraint and cleanup checks passed. Synthetic dump 235 ms, restore 550 ms, incident-through-verification 796 ms, conservative snapshot age 237 ms; one deliberately committed post-backup row lost. These are small-fixture measurements, not production RPO/RTO acceptance.
+
+Other CI: secret scan passed. DB suite **52 passed, 1 failed**, solely P02's unchanged 179 target-catalog discrepancies. Application job remains blocked by audit-high node-forge advisory; downstream application suites/build/release-gate and browser journey job did not execute on this head. Full local root typecheck passed independently. Latest local DB suite **45 passed, 8 skipped** (no local PostgreSQL); DB and explicit script typechecks, static inventory, link and whitespace checks passed. The new normalizer is exercised in PostgreSQL; diagnostic expression output was removed. Existing gates and dependency lockfile were not weakened/changed.
+
+Changes in this continuation: P02 default migration, runner/catalog evidence brought forward to main-targeting PR #178; P03 actual restore script, renamed count simulation, narrow lossless CHECK normalization and tests, independent CI job, ops/release wording, recovery runbook and evidence. P03 creates/drops only its own randomly named synthetic databases/role and private temporary archives; no product schema migration, cloud resource or production operation. No clinical AI behavior/evaluation impact; no real PHI used.
+
+Published commits: P02 `e40fbcab1a73193a936482c6315e6317f1ba6ef8`; P03 `6058a5b04415850a1729287535c765569f308cd0`, diagnostic commits `212973830605b9f4b8baf96c7484bd58ab6f6ff1` / `ea1aee2c1c18746f90ebdc69da57b855cbf1ce29`, final runtime `64def4bb530f5833cb0508420551fb9a91615fc6`. PR #178 targets main; PR #179 targets the P02 branch to keep packets separate. Neither was merged by this implementation session. Starting main for both continuations: `44ec75b61a42b5d992fd7e11ee1ec7c39e994bd8`.
+
+Remaining decisions/actions: Astra approves complete target-schema authority and trusted legacy ledger adoption (P02), and the canonical durable clinical deletion recovery contract (P07/P08). Owner supplies sanitized production discrepancy evidence, authorized cloud sandbox/budget and recovery target acceptance. Upstream dependency advisory requires reviewed remediation; do not bypass audit. P04/P05 retain P02 completion dependency; P05 additionally needs sandbox authority. No other approved packet is independently ready under the remaining dependency graph. P03 safe synthetic portion is verified; full P02/P03 acceptance and P04–P15 remain incomplete. Production PITR/cross-store consistency, actual role/key/tombstone recovery, real-device privacy, vendor retention and clinical adjudication remain unverified. Follow-up must not infer permission to merge, deploy or enable PHI.

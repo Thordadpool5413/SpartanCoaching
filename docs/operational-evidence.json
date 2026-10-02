@@ -327,11 +327,15 @@
     },
     {
       "path": "lib/db/scripts/backup-restore-drill.ts",
-      "sha256": "91dfd1a67b62c429cb9222f58e33970098d8ed79551d19f105b14b81dc8c06c3"
+      "sha256": "bc82e8ee2d1f70913bc7d1a5a0e06a735e167c076961068f36bde82ceab8f7c1"
+    },
+    {
+      "path": "lib/db/scripts/count-simulation.ts",
+      "sha256": "788beb43bf16cb00a496ed642380600a102860a5dc59299d6a05f51ea836505e"
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "97a6bc94669da8bf91facb36d2ef4812ebc6c0f3afb8e2a415d0b7095ffadc4c"
+      "sha256": "fb93c2d60cee798eff423f2a6e87df853115baed069fcd1da1d9918c3e38acc0"
     },
     {
       "path": "lib/api-spec/openapi.yaml",

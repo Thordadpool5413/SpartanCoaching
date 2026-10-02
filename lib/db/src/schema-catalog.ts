@@ -1,4 +1,5 @@
 /** Synthetic-only catalog comparison. Raw definitions/defaults never leave this module. */
+import { normalizeCheckDefinition } from "./normalize-check-definition";
 import { createHash } from "node:crypto";
 import type { PoolClient } from "pg";
 const queries: Record<string, string> = {
@@ -48,6 +49,8 @@ export async function readCatalog(client: PoolClient): Promise<Catalog> {
     for (const row of rows) {
       const key = String(row.key);
       if (Object.hasOwn(objects, key)) throw new Error("CATALOG_DUPLICATE_KEY");
+      if (category === "constraints" && row.contype === "c")
+        row.definition = normalizeCheckDefinition(row.definition);
       const ordered = Object.fromEntries(
         Object.entries(row).sort(([a], [b]) => a.localeCompare(b)),
       );
