@@ -192,7 +192,6 @@ async function main() {
     command("pg_dump", ["--format=custom", "--file", dump], source.name);
     chmodSync(dump, 0o600);
     const dumpMs = performance.now() - dumpStart;
-    const backupCompleted = performance.now();
     // Independent post-backup deletion evidence; synthetic drill fixture, not a production tombstone service.
     const tombstones = [{ id: deletedRecord, tenant: tenantA }];
     writeFileSync(
@@ -232,10 +231,12 @@ async function main() {
       target.name,
     );
     const restoreMs = performance.now() - restoreStart;
-    check(
-      diffCatalog(catalog, await readCatalog(target.client)).length === 0,
-      "RESTORED_CATALOG_DIFFERS",
+    const catalogDifferences = diffCatalog(
+      catalog,
+      await readCatalog(target.client),
     );
+    report = { ...report, catalogDifferences };
+    check(catalogDifferences.length === 0, "RESTORED_CATALOG_DIFFERS");
     check(
       hash(data) === hash(await contents(target.client)),
       "RESTORED_ROWS_OR_SEQUENCES_DIFFER",
@@ -381,7 +382,7 @@ async function main() {
       dumpMs: Math.ceil(dumpMs),
       restoreMs: Math.ceil(restoreMs),
       verifiedRecoveryMs: Math.ceil(performance.now() - incident),
-      snapshotAgeAtIncidentMs: Math.ceil(incident - backupCompleted),
+      snapshotAgeAtIncidentMs: Math.ceil(incident - dumpStart),
       syntheticCommittedRowsLost: 1,
       checks: [
         "catalog",
