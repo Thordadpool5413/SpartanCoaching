@@ -185,6 +185,21 @@ async function main() {
     await source.client.query(
       "INSERT INTO member_personalization(organization_id,member_id) VALUES (1,1)",
     );
+    async function constraintShape(client: pg.PoolClient) {
+      const rows =
+        await client.query(`SELECT c.conname, c.convalidated, c.condeferrable, c.condeferred,
+        pg_get_constraintdef(c.oid, true) AS definition FROM pg_constraint c
+        WHERE c.conname='ai_tool_runs_status_check'`);
+      return rows.rows.map((row) => ({
+        ...row,
+        definition: undefined,
+        literalFreeShape: row.definition.replace(
+          /'(?:''|[^'])*'/g,
+          "'<literal>'",
+        ),
+      }));
+    }
+    const sourceConstraintShape = await constraintShape(source.client);
     const catalog = await readCatalog(source.client),
       data = await contents(source.client);
     stage = "dump";
@@ -235,7 +250,12 @@ async function main() {
       catalog,
       await readCatalog(target.client),
     );
-    report = { ...report, catalogDifferences };
+    report = {
+      ...report,
+      catalogDifferences,
+      sourceConstraintShape,
+      restoredConstraintShape: await constraintShape(target.client),
+    };
     check(catalogDifferences.length === 0, "RESTORED_CATALOG_DIFFERS");
     check(
       hash(data) === hash(await contents(target.client)),
