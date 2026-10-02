@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const memberWorkItems = pgTable("member_work_items", {
@@ -25,5 +26,5 @@ export const memberWorkItems = pgTable("member_work_items", {
     table.organizationId,
     table.memberId,
     table.idempotencyKey,
-  ),
+  ).where(sql`${table.idempotencyKey} IS NOT NULL`),
 }));

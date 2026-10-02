@@ -40,7 +40,7 @@ export const clientOrganizations = pgTable("client_organizations", {
   stripePriceId: varchar("stripe_price_id", { length: 255 }),
   /** StoreKit entitlement source. Signed Apple transactions are verified by the API. */
   billingProvider: varchar("billing_provider", { length: 32 }),
-  appleOriginalTransactionId: varchar("apple_original_transaction_id", { length: 255 }).unique(),
+  appleOriginalTransactionId: varchar("apple_original_transaction_id", { length: 255 }),
   appleLastTransactionId: varchar("apple_last_transaction_id", { length: 255 }),
   appleLastSignedAt: timestamp("apple_last_signed_at", { withTimezone: true }),
   appleProductId: varchar("apple_product_id", { length: 255 }),
@@ -61,7 +61,9 @@ export const clientOrganizations = pgTable("client_organizations", {
   /** Optional retention note for offboarding (not a legal hold system) */
   dataRetentionNote: text("data_retention_note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("uq_client_org_apple_original_transaction").on(table.appleOriginalTransactionId).where(sql`${table.appleOriginalTransactionId} IS NOT NULL`),
+]);
 
 export type ClientOrganization = typeof clientOrganizations.$inferSelect;
 export type InsertClientOrganization = typeof clientOrganizations.$inferInsert;
@@ -99,7 +101,7 @@ export const orgAdminAuditEvents = pgTable(
     meta: jsonb("meta"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [index("idx_org_admin_audit_org").on(table.organizationId)],
+  (table) => [index("idx_org_admin_audit_org").on(table.organizationId, table.createdAt.desc().nullsFirst())],
 );
 
 export type OrgAdminAuditEvent = typeof orgAdminAuditEvents.$inferSelect;
@@ -144,7 +146,7 @@ export const clientMembers = pgTable(
   "client_members",
   {
     id: serial("id").primaryKey(),
-    email: varchar("email", { length: 320 }).notNull().unique(),
+    email: varchar("email", { length: 320 }).notNull().unique("client_members_email_key"),
     passwordHash: text("password_hash"),
     name: varchar("name", { length: 255 }).notNull(),
     title: varchar("title", { length: 255 }),
@@ -166,12 +168,14 @@ export const clientMembers = pgTable(
     teamId: integer("team_id"),
     managerMemberId: integer("manager_member_id"),
     /** Stable UUID passed to StoreKit and required on verified Apple transactions. */
-    appleAccountToken: uuid("apple_account_token").defaultRandom().notNull().unique(),
+    appleAccountToken: uuid("apple_account_token").defaultRandom().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     index("IDX_client_members_org").on(table.organizationId),
-    index("IDX_client_members_apple_account").on(table.appleAccountToken),
+    uniqueIndex("uq_client_members_apple_account").on(table.appleAccountToken),
+    index("idx_client_members_branch").on(table.organizationId, table.branchId),
+    index("idx_client_members_team").on(table.organizationId, table.teamId),
   ],
 );
 
@@ -184,7 +188,7 @@ export const clientSessions = pgTable(
   {
     id: serial("id").primaryKey(),
     memberId: integer("member_id").notNull(),
-    tokenHash: varchar("token_hash", { length: 128 }).notNull().unique(),
+    tokenHash: varchar("token_hash", { length: 128 }).notNull().unique("client_sessions_token_hash_key"),
     expiresAt: timestamp("expires_at").notNull(),
     userAgent: text("user_agent"),
     mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
@@ -241,7 +245,7 @@ export const authTokens = pgTable(
   {
     id: serial("id").primaryKey(),
     memberId: integer("member_id").notNull(),
-    tokenHash: varchar("token_hash", { length: 128 }).notNull().unique(),
+    tokenHash: varchar("token_hash", { length: 128 }).notNull().unique("auth_tokens_token_hash_key"),
     purpose: varchar("purpose", { length: 32 }).notNull(), // set_password | reset_password | invite
     expiresAt: timestamp("expires_at").notNull(),
     usedAt: timestamp("used_at"),
@@ -257,7 +261,7 @@ export const orgInvites = pgTable("org_invites", {
   organizationId: integer("organization_id").notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   role: varchar("role", { length: 32 }).notNull().default("member"),
-  tokenHash: varchar("token_hash", { length: 128 }).notNull().unique(),
+  tokenHash: varchar("token_hash", { length: 128 }).notNull().unique("org_invites_token_hash_key"),
   status: varchar("status", { length: 32 }).notNull().default("pending"), // pending | accepted | revoked
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

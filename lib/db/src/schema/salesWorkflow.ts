@@ -7,7 +7,7 @@ import {
   primaryKey,
   text,
   timestamp,
-  uniqueIndex,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -25,13 +25,14 @@ export const salesWorkflowEntities = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (table) => [
-    uniqueIndex("sales_workflow_entities_tenant_kind_id").on(
+    unique("sales_workflow_entities_organization_id_kind_id_key").on(
       table.organizationId,
       table.kind,
       table.id,
     ),
-    index("sales_workflow_entities_tenant_kind").on(table.organizationId, table.kind),
-    check("sales_workflow_entities_positive_version", sql`${table.version} > 0`),
+    index("sales_workflow_entities_tenant_kind").on(table.organizationId, table.kind).where(sql`${table.deletedAt} IS NULL`),
+    index("sales_workflow_entities_data").using("gin", table.data),
+    check("sales_workflow_entities_version_check", sql`${table.version} > 0`),
   ],
 );
 
@@ -50,7 +51,7 @@ export const salesWorkflowOutbox = pgTable(
     lastErrorCode: text("last_error_code"),
     deadLetteredAt: timestamp("dead_lettered_at", { withTimezone: true }),
   },
-  (table) => [index("sales_workflow_outbox_pending").on(table.availableAt)],
+  (table) => [index("sales_workflow_outbox_pending").on(table.availableAt).where(sql`${table.publishedAt} IS NULL`)],
 );
 
 export const salesWorkflowAudit = pgTable(
@@ -65,7 +66,7 @@ export const salesWorkflowAudit = pgTable(
     occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
   },
   (table) => [
-    index("sales_workflow_audit_tenant_time").on(table.organizationId, table.occurredAt),
+    index("sales_workflow_audit_tenant_time").on(table.organizationId, table.occurredAt.desc().nullsFirst()),
   ],
 );
 
@@ -82,10 +83,10 @@ export const salesWorkflowIdempotency = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    primaryKey({ columns: [table.organizationId, table.keyHash] }),
+    primaryKey({ name: "sales_workflow_idempotency_pkey", columns: [table.organizationId, table.keyHash] }),
     index("sales_workflow_idempotency_expiry").on(table.expiresAt),
     check(
-      "sales_workflow_idempotency_state",
+      "sales_workflow_idempotency_state_check",
       sql`${table.state} in ('processing', 'completed', 'failed')`,
     ),
   ],

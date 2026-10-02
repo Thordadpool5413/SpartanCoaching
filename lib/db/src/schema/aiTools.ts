@@ -8,7 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -29,7 +29,7 @@ export const clinicalPermissions = pgTable(
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
   },
   (table) => [
-    uniqueIndex("clinical_permissions_tenant_member").on(
+    unique("clinical_permissions_tenant_member").on(
       table.organizationId,
       table.memberId,
     ),
@@ -49,7 +49,7 @@ export const aiToolOrganizationFlags = pgTable(
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex("ai_tool_org_flag_tenant_tool").on(
+    unique("ai_tool_org_flag_tenant_tool").on(
       table.organizationId,
       table.toolId,
     ),
@@ -73,7 +73,7 @@ export const clinicalMfaChallenges = pgTable(
   },
   (table) => [
     index("clinical_mfa_member_expiry").on(table.memberId, table.expiresAt),
-    check("clinical_mfa_attempts", sql`${table.attempts} between 0 and 5`),
+    check("clinical_mfa_challenges_attempts_check", sql`${table.attempts} between 0 and 5`),
   ],
 );
 
@@ -111,7 +111,7 @@ export const aiToolRuns = pgTable(
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
   (table) => [
-    uniqueIndex("ai_tool_runs_idempotency").on(
+    unique("ai_tool_runs_idempotency").on(
       table.organizationId,
       table.memberId,
       table.toolId,
@@ -127,11 +127,11 @@ export const aiToolRuns = pgTable(
       table.clinicalCaseId,
     ),
     check(
-      "ai_tool_runs_status",
+      "ai_tool_runs_status_check",
       sql`${table.status} in ('processing', 'completed', 'failed', 'deleted')`,
     ),
     check(
-      "ai_tool_runs_review_status",
+      "ai_tool_runs_review_status_check",
       sql`${table.reviewStatus} in ('not_required', 'pending', 'approved', 'changes_requested')`,
     ),
   ],
@@ -165,11 +165,11 @@ export const clinicalCases = pgTable(
       table.status,
     ),
     check(
-      "clinical_cases_retention_range",
+      "clinical_cases_retention_days_check",
       sql`${table.retentionDays} between 1 and 365`,
     ),
     check(
-      "clinical_cases_status",
+      "clinical_cases_status_check",
       sql`${table.status} in ('open', 'review', 'closed', 'deleting', 'deleted')`,
     ),
   ],
@@ -199,7 +199,7 @@ export const clinicalEphemeralSessions = pgTable(
       table.expiresAt,
     ),
     check(
-      "clinical_ephemeral_sessions_status",
+      "clinical_ephemeral_sessions_status_check",
       sql`${table.status} in ('open', 'processing', 'purging')`,
     ),
   ],
@@ -213,7 +213,7 @@ export const clinicalEphemeralObjects = pgTable(
       .notNull()
       .references(() => clinicalEphemeralSessions.id, { onDelete: "cascade" }),
     organizationId: integer("organization_id").notNull(),
-    objectKey: varchar("object_key", { length: 255 }).notNull().unique(),
+    objectKey: varchar("object_key", { length: 255 }).notNull().unique("clinical_ephemeral_objects_object_key_key"),
     contentType: varchar("content_type", { length: 128 }).notNull(),
     sizeBytes: integer("size_bytes").notNull(),
     scanStatus: varchar("scan_status", { length: 32 })
@@ -230,11 +230,11 @@ export const clinicalEphemeralObjects = pgTable(
       table.sessionId,
     ),
     check(
-      "clinical_ephemeral_objects_scan_status",
+      "clinical_ephemeral_objects_scan_status_check",
       sql`${table.scanStatus} in ('pending', 'scanning', 'safe')`,
     ),
     check(
-      "clinical_ephemeral_objects_size",
+      "clinical_ephemeral_objects_size_bytes_check",
       sql`${table.sizeBytes} > 0 and ${table.sizeBytes} <= 26214400`,
     ),
   ],
@@ -247,7 +247,7 @@ export const clinicalDocuments = pgTable(
     caseId: uuid("case_id").notNull(),
     organizationId: integer("organization_id").notNull(),
     uploadedByMemberId: integer("uploaded_by_member_id").notNull(),
-    objectKey: varchar("object_key", { length: 255 }).notNull().unique(),
+    objectKey: varchar("object_key", { length: 255 }).notNull().unique("clinical_documents_object_key_key"),
     encryptedMetadata: text("encrypted_metadata").notNull(),
     contentType: varchar("content_type", { length: 128 }).notNull(),
     sizeBytes: integer("size_bytes").notNull(),
@@ -263,11 +263,11 @@ export const clinicalDocuments = pgTable(
   (table) => [
     index("clinical_documents_case").on(table.organizationId, table.caseId),
     check(
-      "clinical_documents_scan_status",
+      "clinical_documents_scan_status_check",
       sql`${table.scanStatus} in ('pending', 'scanning', 'safe', 'rejected', 'deleted')`,
     ),
     check(
-      "clinical_documents_size",
+      "clinical_documents_size_bytes_check",
       sql`${table.sizeBytes} > 0 and ${table.sizeBytes} <= 26214400`,
     ),
   ],
@@ -289,7 +289,7 @@ export const clinicalReviews = pgTable(
   (table) => [
     index("clinical_reviews_run").on(table.organizationId, table.runId),
     check(
-      "clinical_reviews_decision",
+      "clinical_reviews_decision_check",
       sql`${table.decision} in ('approved', 'changes_requested')`,
     ),
   ],
@@ -315,7 +315,7 @@ export const coverageSnapshots = pgTable(
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex("coverage_snapshots_document_version").on(
+    unique("coverage_snapshots_document_version").on(
       table.source,
       table.documentType,
       table.documentId,

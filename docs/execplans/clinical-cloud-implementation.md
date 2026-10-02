@@ -1,6 +1,6 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** P01/P02/P03 changes are merged into main `48858c7`. P02 acceptance remains blocked by 179 catalog discrepancies; P03 synthetic recovery is verified but cloud/deletion-authority gates remain. User-requested CI repair is draft PR #180. Its runtime application/browser/recovery/secret checks passed; audit and schema gates still fail, so no repair merge has been performed.
+**Current status (2026-10-02):** PR #180 was merged into main `345ef9d`. User approved D1 complete schema authority. The active repair branch is `fix/complete-schema-contract`; local PostgreSQL equivalence is now zero differences, 54/54 tests pass. Dependency audit remains blocked by node-forge GHSA-86w9-cpqp-85rv; no patched release is listed. No new repair merge is authorized while required checks fail.
 
 ## Authority and starting point
 
@@ -207,3 +207,54 @@ Repair runtime `68075cbd72dc089ae6b5d3fa7b6c86830436b470`, draft PR #180, CI run
 Final verified repair runtime result: CI run 36963672982 completed. Browser journeys **51 passed / 1 skipped**; application, recovery and secret jobs passed. The required aggregate failed exactly on `dependency-audit` and `migration-equivalence`, confirming failure isolation without bypass. No implementation-caused application/browser failure was found. Required merge checks are not green, so PR #180 is intentionally unmerged despite user-granted merge authority. Documentation handoff commits have their own CI and must not be confused with this verified runtime result.
 
 Changed files in PR #180: `.github/workflows/ci.yml`, `docs/operational-evidence.json`, this ExecPlan and `docs/execplans/ci-remediation-decisions.md`. No database, runtime application, infrastructure, PHI, clinical AI/evaluation or dependency changes. Commit `68075cbd72dc089ae6b5d3fa7b6c86830436b470` contains the workflow fix. Follow-up: obtain Astra's D1 target-catalog decision and a reviewed D2 dependency remedy from the concrete decision document, resolve the two gates, then merge the verified repair without another merge-permission request. Production authority remains separate.
+
+
+## Approved D1 implementation — 2026-10-02
+
+Starting main SHA: `345ef9d422ee9fa7689ffdfa993b0457967b7a4f`. Fresh checkout,
+status/remote/fetch-prune/main/fast-forward pull/SHA/status completed; clean
+feature branch `fix/complete-schema-contract`. No AGENTS.md or .agent/PLANS.md
+found in repository or checked ancestors. Read active plan, D1/D2, P02/P03,
+ADRs, security/recovery design, canonical migration runner and existing schema.
+User explicitly approved the requested D1 architecture decision; previous D1
+blocker is resolved. Production history adoption is not part of that approval.
+
+Packet: finish synthetic P02 equivalence using approved Drizzle plus independent
+SQL-owned expected contract. In scope declaration reconciliation, complete
+catalog regression tests, verification and PR. Out of scope production schema
+changes, historical migration edits, audit waivers, crypto replacement, clinical
+features, cloud activation and PHI. Acceptance: zero unexplained differences,
+replay/upgrade/rerun/locking/checksum/rollback/isolation/restore checks pass.
+Stop if reconciliation requires destructive SQL or unknown production facts.
+Owner-only operations remain production metadata collection/migration and rollout.
+
+Implemented explicit names, UNIQUE constraint representation, actual index
+columns/order/null order/predicates in five Drizzle files; added independent
+SQL extension for existing lifecycle/cache/constraints/indexes/RLS. SQL extension
+is a test-only target, never a migration. All 179 remaining discrepancies are
+resolved without changing historical migrations or the strict 12-category
+comparator. Complete reconciliation by category/source is documented in
+`lib/db/schema-contract/README.md`. Added 15 intentional drift cases exercising
+security/relational/lifecycle definitions against that independent target.
+
+Local checks: frozen install exit 0 (available pnpm 11.25.0; CI pins 10.26.1;
+lockfile unchanged). Installed PostgreSQL 16 locally for disposable synthetic
+verification. `RUN_MIGRATION_INTEGRATION=true MIGRATION_ENVIRONMENT=synthetic
+MIGRATION_TEST_DATABASE_URL=<synthetic-loopback> pnpm --filter @workspace/db test`:
+54 passed, 0 failed, 0 skipped, zero catalog differences. Full root typecheck,
+actual recovery and audit results follow after completion. Registry latest
+node-forge remains 1.4.0; upstream reviewed advisory still lists no patched
+version. D2 remains blocked; no ignore/threshold/version deception introduced.
+
+No product DB migration, infrastructure definition, clinical model/prompt/schema/
+retrieval change or clinical evaluation impact. No real PHI, production access,
+secret or owner-only operation. CI/PR and exact final verification to be recorded.
+
+Local final verification before PR: `pnpm run typecheck` exit 0 across the
+workspace. `RECOVERY_ENVIRONMENT=synthetic RECOVERY_TEST_DATABASE_URL=<synthetic-loopback>
+pnpm --filter @workspace/db run backup-restore-drill` exit 0: 31 migrations,
+12 catalog categories, zero differences; all row/sequence/isolation/key/tombstone
+fixture/application checks and cleanup passed (dump 94 ms, restore 180 ms,
+verified recovery 272 ms; synthetic measurements only). `pnpm audit --audit-level
+high` exit 1: 1 low, 15 moderate, 1 high, same node-forge advisory. Static evidence
+and `git diff --check` passed. Full application/browser CI remains required.
