@@ -381,3 +381,34 @@ or require a published upstream fix. Existing merge authority does not waive
 the failing required security gate. Do not silently introduce an audit exclusion.
 No production owner operations were performed. No DB/infrastructure or clinical
 AI behavior changes; clinical evaluations are unaffected by this packet.
+
+### Approved D2 attestation implementation — 2026-10-02
+
+Owner approved the specific exact-artifact policy at 20:20:55 UTC. Starting main
+remains `3720251b19a882e6efac927e81feb0baf4f84fcd`; status/remotes/fetch/main/pull/
+SHA/status repeated before resuming clean `fix/forge-signature-validation`.
+Packet: implement only that reviewed audit policy and required verification;
+no additional clinical implementation or production action. Previous policy
+blocker is superseded by this explicit approval, not silently waived.
+
+Changes: `scripts/security/patched-audit.mjs`, its negative-test suite,
+`patches/forge-attestation.json`, CI dependency job, patch documentation and this
+handoff. Static workflow evidence refreshed. Existing patch, dependency versions,
+workspace ignores and security regression tests are unchanged. Gate captures raw
+registry JSON/exit, attests entire installed forge package plus patch/lock/workspace
+hashes and all Expo paths, reruns signing tests, rejects new direct consumers,
+unknown findings, malformed reports, process errors, expired policy or changed
+artifacts. Only exact GHSA-86w9-cpqp-85rv is source-mitigated; all other high/critical
+findings block. Owner Nicholas Lynch; expiry 2026-11-01T00:00:00Z. Fixed-version
+advisory evidence requires policy retirement/review. Evidence artifacts retained
+30 days. Browser vendor bundles and external EAS/dlx remain unverified.
+
+Local `node scripts/security/patched-audit.test.mjs`: 19 passed, 0 failed,
+including altered hashes/copies, expiry, missing attestation, new high findings,
+severity escalation, new paths/versions, fixed release, invalid/muted reports and
+process exit failures. Fresh registry gate plus mandatory signing tests passed:
+2/2 signing tests; raw findings retained (1 low, 20 moderate, 1 high), exact high
+source mitigation accepted. `node scripts/operational-evidence.mjs --check` and
+`git diff --check` passed. Full PR CI still required before merge; prior runtime
+CI evidence above does not attest this new gate. No DB, infrastructure or clinical
+AI behavior change; no new clinical evaluation requirement or PHI exposure.

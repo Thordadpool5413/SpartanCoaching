@@ -33,3 +33,14 @@ four-pending evidence. See `patches/README.md`. Published version remains 1.4.0,
 and the unchanged raw audit still fails. This is source-level mitigation, not
 approval for an advisory ignore or a green merge. Exact-artifact audit attestation
 would be a separate security-policy decision; it has not been implemented.
+
+## D2 exact-artifact policy approved — 2026-10-02 20:20:55 UTC
+
+User explicitly approved the proposed bounded policy after the PR #182 report.
+This supersedes the earlier pending-policy blocker. Implement the exact-artifact
+verification described in `patches/README.md`, with pinned hashes and complete
+locked Expo resolution coverage, raw findings preserved, mandatory regression
+checks, all other high/critical findings blocking, owner and expiry. Approval
+covers this source patch only, not production, external EAS or browser bundles.
+The mandatory dependency job and aggregate remain required. Merge is authorized
+only after all required checks pass. No architecture/product expansion.

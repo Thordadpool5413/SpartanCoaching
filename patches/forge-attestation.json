@@ -1,0 +1,19 @@
+{
+  "advisory": "GHSA-86w9-cpqp-85rv",
+  "owner": "Nicholas Lynch / SpartanCoaching repository owner",
+  "approvedAt": "2026-10-02T20:20:55Z",
+  "expiresAt": "2026-11-01T00:00:00Z",
+  "files": {
+    "pnpm-lock.yaml": "b41136d70d048d0fde42f1ce85cbec087c35d9913174673a79c36fe8326478dc",
+    "pnpm-workspace.yaml": "ded018d84a837e259901d4ac13f65b7840cc5ae73260bf12fd7eb2fcdf790d06",
+    "patches/node-forge@1.4.0.patch": "658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204"
+  },
+  "storeEntry": "node-forge@1.4.0_patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204",
+  "packageTreeSha256": "b6025640b7c1159d25d97624337458fd99323d091d30e189ecfd074c0a34d617",
+  "auditPaths": [
+    "artifacts__spartan-coaching-mobile>@expo/cli>node-forge",
+    "artifacts__spartan-coaching-mobile>expo>@expo/cli>node-forge",
+    "artifacts__spartan-coaching-mobile>@expo/cli>@expo/code-signing-certificates>node-forge",
+    "artifacts__spartan-coaching-mobile>expo>@expo/cli>@expo/code-signing-certificates>node-forge"
+  ]
+}
