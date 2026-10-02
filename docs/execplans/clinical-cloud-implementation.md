@@ -1,6 +1,6 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** P01 is merged. P02 continuation is draft PR #178 (179 catalog discrepancies and provenance decisions remain). P03 synthetic recovery passed in PR #179; cloud PITR and clinical deletion authority remain blocked. Latest evidence/handoff below supersedes historical status statements.
+**Current status (2026-10-02):** P01/P02/P03 changes are merged into main `48858c7`. P02 acceptance remains blocked by 179 catalog discrepancies; P03 synthetic recovery is verified but cloud/deletion-authority gates remain. User-requested CI repair is draft PR #180. Its runtime application/browser/recovery/secret checks passed; audit and schema gates still fail, so no repair merge has been performed.
 
 ## Authority and starting point
 
@@ -57,8 +57,8 @@ Recommendation to Astra: retain the approved target and block PHI activation unt
 | Packet | State / next prerequisite |
 |---|---|
 | P01 | Merged into main through PR #175; original CI passed |
-| P02 | Draft PR #178 targets main; correction passed, 179 catalog differences remain; legacy baseline and target authority blocked |
-| P03 | Draft PR #179: independent synthetic restore passed; cloud PITR, clinical tombstone authority and production key/role recovery remain unverified |
+| P02 | PR #178 merged; correction passed, 179 catalog differences remain; legacy baseline and target authority blocked |
+| P03 | PR #179 merged through #178; independent synthetic restore passed; cloud PITR, clinical tombstones and production key/role recovery remain unverified |
 | P04 | Depends on P01/P02; no admin bypass, scoped grants, delegation and negative tests |
 | P05 | Depends on P02/P03; cloud access/budget/service coverage absent, explicit packet stop condition |
 | P06 | Depends on P02/P04; durable lifecycle stays disabled pending owner terms |
@@ -197,3 +197,13 @@ Observed workflow bug: dependency audit is the first verification step, so its f
 Blockers are still real: canonical target-schema authority (179 discrepancies) and the node-forge signature-verification advisory GHSA-86w9-cpqp-85rv. Advisory source inspected: affected <=1.4.0, no patched release listed. Repository currently resolves node-forge 1.4.0 through Expo CLI/code-signing dependencies. Removing Expo or replacing its cryptography to evade audit would be an unreviewed compatibility change; an exclusion would weaken the required gate. Investigate actual remediation before claiming a pass. Production historical ledger evidence and clinical deletion authority remain separate architecture/owner decisions.
 
 Local frozen installation passed using available pnpm 11.25.0 (CI retains pinned 10.26.1); lockfile unchanged. Final command results and PR/CI state will be appended. Clinical evaluations, product schemas and cloud infrastructure are unchanged by this workflow repair.
+
+Concrete unresolved decisions are recorded in [ci-remediation-decisions.md](ci-remediation-decisions.md). Registry latest node-forge was confirmed as 1.4.0; local audit failed with 1 low / 15 moderate / 1 high, while CI audit reports 1 low / 20 moderate / 1 high. Both flag the same blocking advisory. The aggregate gate was executed locally across 19 cases: all-success passed; each of six dependencies in failure/cancelled/skipped state correctly failed. Workflow YAML, static evidence and whitespace checks passed.
+
+
+Repair runtime `68075cbd72dc089ae6b5d3fa7b6c86830436b470`, draft PR #180, CI run 36963672982: application job PASSED, including migration, count simulation (explicitly not recovery proof), root typecheck, AI tools 94, API 315, web 328, native 298 across 60 suites, build, performance budgets and release-gate suites. Secret scan and actual synthetic recovery also passed. DB suite: 52 passed / 1 failed solely on the existing 179 catalog discrepancies. Audit remains failed on node-forge; browser evidence is recorded below when complete. The previous main CI run 36963266352 failed at audit and schema comparison while recovery/secret scan passed; the prior main run 36902612661 was successful. Current verified failures are specifically audit and target-catalog comparison.
+
+
+Final verified repair runtime result: CI run 36963672982 completed. Browser journeys **51 passed / 1 skipped**; application, recovery and secret jobs passed. The required aggregate failed exactly on `dependency-audit` and `migration-equivalence`, confirming failure isolation without bypass. No implementation-caused application/browser failure was found. Required merge checks are not green, so PR #180 is intentionally unmerged despite user-granted merge authority. Documentation handoff commits have their own CI and must not be confused with this verified runtime result.
+
+Changed files in PR #180: `.github/workflows/ci.yml`, `docs/operational-evidence.json`, this ExecPlan and `docs/execplans/ci-remediation-decisions.md`. No database, runtime application, infrastructure, PHI, clinical AI/evaluation or dependency changes. Commit `68075cbd72dc089ae6b5d3fa7b6c86830436b470` contains the workflow fix. Follow-up: obtain Astra's D1 target-catalog decision and a reviewed D2 dependency remedy from the concrete decision document, resolve the two gates, then merge the verified repair without another merge-permission request. Production authority remains separate.
