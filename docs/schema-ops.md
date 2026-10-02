@@ -68,8 +68,24 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Deprecate `push` for production deploys (push-guard; CI migrate-only)
 - [x] Fold sales_workflow into the same migrate runner (`0013_sales_workflow.sql` tracking id)
 
-**Synthetic local/CI apply:** `pnpm db:migrate`, using an isolated synthetic database. Do not infer environment identity from a URL substring. Production command authorization is separate from this documentation change.
+**Synthetic local/CI apply:** `MIGRATION_ENVIRONMENT=synthetic pnpm db:migrate`, using an isolated synthetic database. Do not infer environment identity from a URL substring. Production command authorization is separate from this documentation change.
 
 **Open evidence gates:** P02 must establish schema/upgrade equivalence, ledger checksums and locking. P03 must restore actual schema and data into an independent database and verify privileges, RLS and application behavior. Neither gate was run by P01.
 
 **Release blocker:** missing `pnpm db:migrate` after a schema PR (not push).
+
+## P02 runner changes (draft, not production-ready)
+
+The runner now requires explicit `MIGRATION_ENVIRONMENT=synthetic|production`, retains the production heuristic as an additional guard, and requires `ALLOW_PROD_MIGRATE=true` for the production setting. A setting is an operator assertion, not independent proof of environment identity or production permission.
+
+A dedicated connection owns a bounded, nonblocking advisory lock. A competing runner fails with `MIGRATION_LOCK_BUSY` and must retry after the current runner completes. Original migration bytes are SHA-256 hashed. All historical ledger IDs/hashes are checked before any new SQL. The ledger checksum column is added transactionally through the version-controlled runner; original applied IDs and file ordering remain unchanged.
+
+**Legacy upgrade blocker:** an existing public schema with an empty/missing ledger is rejected as untracked. Rows without checksums fail with `MIGRATION_BASELINE_EVIDENCE_REQUIRED`. Do not backfill them with hashes of current files. Astra/owner must select an evidence-backed baseline process using trusted historical deployment artifacts and an in-cloud schema discrepancy report. No baseline override is provided by this packet.
+
+Every file must have a complete existing MigrationPlan. Current files execute transactionally. Concurrent-index/nontransactional SQL is rejected pending an explicit resumable plan; it is never silently wrapped in a transaction. Per-file SQL and ledger insert commit together; prior successfully applied files remain recorded after a later failure. Errors emit codes rather than SQL/driver payloads.
+
+`REQUIRE_BACKUP_DRILL=true` now fails closed with `ACTUAL_RESTORE_EVIDENCE_REQUIRED`; the old count simulation can no longer satisfy that gate. Actual restore verification is P03. Do not remove a required recovery gate to make an operational command pass.
+
+Synthetic CI creates disposable, randomly named databases on its loopback PostgreSQL service. The catalog comparison checks columns/defaults, constraints, indexes, relation/RLS flags and grants, policies, functions, triggers, extensions, sequences/ownership, schema and default grants. The ledger is runner metadata and excluded from schema comparison. Drizzle export is applied only to a separate empty synthetic database; it never repairs the migration replay. Object names/categories may appear in the short-lived discrepancy report; raw definitions/defaults/comments and row contents do not.
+
+Unexplained catalog differences are a failing gate, not an allowlist. A prefix-upgrade test is not exhaustive historical-production upgrade proof. Production equivalence and deployment remain blocked.

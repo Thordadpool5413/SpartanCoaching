@@ -1,6 +1,6 @@
 # Operational boundary (2026-10-01)
 
-Replit is synthetic development only for the clinical-cloud target. Production PHI activation and deployment are not authorized by this guide. Use [schema operations](docs/schema-ops.md) and [the operational contract](docs/operational-contract.md); never use schema push in production. Historical sales deployment details below do not establish a covered clinical environment.
+Replit is synthetic development only for the clinical-cloud target. Set `MIGRATION_ENVIRONMENT=synthetic` explicitly before development migration commands. Production PHI activation and deployment are not authorized by this guide. Use [schema operations](docs/schema-ops.md) and [the operational contract](docs/operational-contract.md); never use schema push in production. Historical sales deployment details below do not establish a covered clinical environment.
 
 # Spartan Coaching
 

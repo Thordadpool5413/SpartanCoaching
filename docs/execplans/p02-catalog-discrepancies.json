@@ -1,0 +1,909 @@
+{
+  "syntheticOnly": true,
+  "productionVerified": false,
+  "differences": [
+    {
+      "category": "columns",
+      "key": "medicare_cache_objects.content",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_cache_objects.content_type",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_cache_objects.path",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_cache_objects.updated_at",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_workspace_records.bucket",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_workspace_records.created_at",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_workspace_records.id",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_workspace_records.record",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "medicare_workspace_records.updated_at",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.commitment_preserve_until",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.id",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.member_id",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.offboarded_at",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.recovered_to_personal_at",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.retention_hold",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.retention_hold_reason",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.shared_summary_retain_until",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_offboarding_lifecycle.source_organization_id",
+      "kind": "replay_only"
+    },
+    {
+      "category": "columns",
+      "key": "member_personalization.payload",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "constraints",
+      "key": "agreement_requests.agreement_requests_token_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "agreement_requests.agreement_requests_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_organization_flags.ai_tool_org_flag_tenant_tool",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_coverage_snapshot_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_idempotency",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_review_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_review_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "ai_tool_runs.ai_tool_runs_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "assessment_clients.assessment_clients_slug_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "assessment_clients.assessment_clients_slug_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "assessment_invites.assessment_invites_token_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "assessment_invites.assessment_invites_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "auth_tokens.auth_tokens_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "auth_tokens.auth_tokens_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_members.client_members_apple_account_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_members.client_members_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_members.client_members_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_organizations.client_organizations_apple_original_transaction_id_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_sessions.client_sessions_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "client_sessions.client_sessions_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_cases.clinical_cases_retention_days_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_cases.clinical_cases_retention_range",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_cases.clinical_cases_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_cases.clinical_cases_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_case_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_object_key_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_object_key_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_scan_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_scan_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_size",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_documents.clinical_documents_size_bytes_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_object_key_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_object_key_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_scan_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_scan_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_session_id_clinical_ephemeral_sessio",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_session_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_size",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_size_bytes_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_sessions.clinical_ephemeral_sessions_coverage_snapshot_id_coverage_snaps",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_sessions.clinical_ephemeral_sessions_coverage_snapshot_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_sessions.clinical_ephemeral_sessions_status",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_ephemeral_sessions.clinical_ephemeral_sessions_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_mfa_challenges.clinical_mfa_attempts",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_mfa_challenges.clinical_mfa_challenges_attempts_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_permissions.clinical_permissions_tenant_member",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_reviews.clinical_reviews_decision",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_reviews.clinical_reviews_decision_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "clinical_reviews.clinical_reviews_run_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_conversations.coach_conversations_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_conversations.coach_conversations_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_conversations.coach_conversations_status_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_memory_items.coach_memory_items_category_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_memory_items.coach_memory_items_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_memory_items.coach_memory_items_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_messages.coach_messages_conversation_id_coach_conversations_id_fk",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_messages.coach_messages_conversation_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_messages.coach_messages_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_messages.coach_messages_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_messages.coach_messages_role_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_preferences.coach_preferences_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_preferences.coach_preferences_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_preferences.coach_preferences_response_style_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_commitments_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_conversation_id_coach_conversations_id_f",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_conversation_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_owner_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coach_shared_summaries.coach_shared_summaries_shared_with_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "coverage_snapshots.coverage_snapshots_document_version",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "medicare_cache_objects.medicare_cache_objects_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "medicare_workspace_records.medicare_workspace_records_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "member_offboarding_lifecycle.member_offboarding_lifecycle_member_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "member_offboarding_lifecycle.member_offboarding_lifecycle_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "member_offboarding_lifecycle.member_offboarding_lifecycle_source_organization_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "messages.messages_conversation_id_conversations_id_fk",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "messages.messages_conversation_id_fkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "newsletter_subscribers.newsletter_subscribers_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "newsletter_subscribers.newsletter_subscribers_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "org_invites.org_invites_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "org_invites.org_invites_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_entities.sales_workflow_entities_organization_id_kind_id_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_entities.sales_workflow_entities_positive_version",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_entities.sales_workflow_entities_version_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_organization_id_key_hash_pk",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_state",
+      "kind": "source_only"
+    },
+    {
+      "category": "constraints",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_state_check",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "users.users_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "constraints",
+      "key": "users.users_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "functions",
+      "key": "spartan_member_offboarding_guard()",
+      "kind": "replay_only"
+    },
+    {
+      "category": "functions",
+      "key": "spartan_member_offboarding_retention_tick()",
+      "kind": "replay_only"
+    },
+    {
+      "category": "functions",
+      "key": "spartan_run_member_offboarding_retention()",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "agreement_requests.agreement_requests_token_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "agreement_requests.agreement_requests_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "assessment_clients.assessment_clients_slug_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "assessment_clients.assessment_clients_slug_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "assessment_invites.assessment_invites_token_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "assessment_invites.assessment_invites_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "auth_tokens.auth_tokens_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "auth_tokens.auth_tokens_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "case_studies.case_studies_public_approval_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.IDX_client_members_apple_account",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.client_members_apple_account_token_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.client_members_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.client_members_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.idx_client_members_branch",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.idx_client_members_team",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_members.uq_client_members_apple_account",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_organizations.client_organizations_apple_original_transaction_id_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_organizations.uq_client_org_apple_original_transaction",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_sessions.client_sessions_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "client_sessions.client_sessions_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "clinical_documents.clinical_documents_object_key_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "clinical_documents.clinical_documents_object_key_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_object_key_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "clinical_ephemeral_objects.clinical_ephemeral_objects_object_key_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "event_tracking.event_tracking_member_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "event_tracking.event_tracking_type_name_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "medicare_cache_objects.medicare_cache_objects_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "medicare_cache_objects.medicare_cache_objects_updated_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "medicare_workspace_records.medicare_workspace_records_bucket_updated_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "medicare_workspace_records.medicare_workspace_records_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "member_offboarding_lifecycle.idx_member_offboarding_commitment_expiry",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "member_offboarding_lifecycle.idx_member_offboarding_member_time",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "member_offboarding_lifecycle.idx_member_offboarding_summary_expiry",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "member_offboarding_lifecycle.member_offboarding_lifecycle_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "member_work_items.member_work_idempotency_uidx",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "indexes",
+      "key": "newsletter_subscribers.newsletter_subscribers_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "newsletter_subscribers.newsletter_subscribers_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "org_admin_audit_events.idx_org_admin_audit_org",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "indexes",
+      "key": "org_invites.org_invites_token_hash_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "org_invites.org_invites_token_hash_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_audit.sales_workflow_audit_tenant_time",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_entities.sales_workflow_entities_data",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_entities.sales_workflow_entities_organization_id_kind_id_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_entities.sales_workflow_entities_tenant_kind",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_entities.sales_workflow_entities_tenant_kind_id",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_organization_id_key_hash_pk",
+      "kind": "source_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_pkey",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "sales_workflow_outbox.sales_workflow_outbox_pending",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "indexes",
+      "key": "testimonials.testimonials_public_approval_idx",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "users.users_email_key",
+      "kind": "replay_only"
+    },
+    {
+      "category": "indexes",
+      "key": "users.users_email_unique",
+      "kind": "source_only"
+    },
+    {
+      "category": "policies",
+      "key": "sales_workflow_audit.sales_workflow_audit_tenant",
+      "kind": "replay_only"
+    },
+    {
+      "category": "policies",
+      "key": "sales_workflow_entities.sales_workflow_entity_tenant",
+      "kind": "replay_only"
+    },
+    {
+      "category": "policies",
+      "key": "sales_workflow_idempotency.sales_workflow_idempotency_tenant",
+      "kind": "replay_only"
+    },
+    {
+      "category": "policies",
+      "key": "sales_workflow_outbox.sales_workflow_outbox_tenant",
+      "kind": "replay_only"
+    },
+    {
+      "category": "relations",
+      "key": "medicare_cache_objects",
+      "kind": "replay_only"
+    },
+    {
+      "category": "relations",
+      "key": "medicare_workspace_records",
+      "kind": "replay_only"
+    },
+    {
+      "category": "relations",
+      "key": "member_offboarding_lifecycle",
+      "kind": "replay_only"
+    },
+    {
+      "category": "relations",
+      "key": "member_offboarding_lifecycle_id_seq",
+      "kind": "replay_only"
+    },
+    {
+      "category": "relations",
+      "key": "sales_workflow_audit",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "relations",
+      "key": "sales_workflow_entities",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "relations",
+      "key": "sales_workflow_idempotency",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "relations",
+      "key": "sales_workflow_outbox",
+      "kind": "definition_differs"
+    },
+    {
+      "category": "sequenceOwnership",
+      "key": "member_offboarding_lifecycle_id_seq",
+      "kind": "replay_only"
+    },
+    {
+      "category": "sequences",
+      "key": "member_offboarding_lifecycle_id_seq",
+      "kind": "replay_only"
+    },
+    {
+      "category": "triggers",
+      "key": "auth_events.trg_member_offboarding_retention_tick",
+      "kind": "replay_only"
+    },
+    {
+      "category": "triggers",
+      "key": "client_members.trg_member_offboarding_guard",
+      "kind": "replay_only"
+    }
+  ],
+  "commit": "e2ee66d89983a292379bf9a3be1bde0f056172ef",
+  "ciRun": 36887724945,
+  "note": "Named-object catalog discrepancies, not 180 independent defects. Includes SQL-owned security/lifecycle objects and naming differences. No automatic exclusions or destructive reconciliation approved."
+}
