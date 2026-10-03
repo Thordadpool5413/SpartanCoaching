@@ -10,11 +10,15 @@ function normalizeOrigin(value: string): string | null {
   }
 }
 
-export function configuredOrigins(env: NodeJS.ProcessEnv = process.env): Set<string> {
+export function configuredOrigins(
+  env: NodeJS.ProcessEnv = process.env,
+): Set<string> {
   const values = [
     env.SITE_URL,
     env.APP_URL,
-    env.REPLIT_DEPLOYMENT_URL ? `https://${env.REPLIT_DEPLOYMENT_URL}` : undefined,
+    env.REPLIT_DEPLOYMENT_URL
+      ? `https://${env.REPLIT_DEPLOYMENT_URL}`
+      : undefined,
     env.REPLIT_DEV_DOMAIN ? `https://${env.REPLIT_DEV_DOMAIN}` : undefined,
   ];
   const origins = new Set<string>();
@@ -32,7 +36,10 @@ export function configuredOrigins(env: NodeJS.ProcessEnv = process.env): Set<str
   return origins;
 }
 
-export function isAllowedOrigin(origin: string | undefined, env = process.env): boolean {
+export function isAllowedOrigin(
+  origin: string | undefined,
+  env = process.env,
+): boolean {
   if (!origin) return true;
   const normalized = normalizeOrigin(origin);
   if (!normalized) return false;
@@ -40,7 +47,10 @@ export function isAllowedOrigin(origin: string | undefined, env = process.env): 
   if (env.NODE_ENV !== "production") {
     try {
       const url = new URL(normalized);
-      return url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+      return (
+        url.protocol === "http:" &&
+        (url.hostname === "localhost" || url.hostname === "127.0.0.1")
+      );
     } catch {
       return false;
     }
@@ -58,14 +68,18 @@ export function requireTrustedMutationOrigin(
   res: Response,
   next: NextFunction,
 ) {
-  if (SAFE_METHODS.has(req.method.toUpperCase()) || !req.path.startsWith("/api")) {
+  if (
+    SAFE_METHODS.has(req.method.toUpperCase()) ||
+    !req.path.startsWith("/api")
+  ) {
     return next();
   }
 
   // This reserved control namespace follows cookie-first authentication. A Bearer
   // header cannot remove the origin requirement when that cookie wins selection.
   const cookie = req.cookies?.[SESSION_COOKIE_NAME];
-  const isKnowledgeControl = req.path === "/api/knowledge-control" ||
+  const isKnowledgeControl =
+    req.path === "/api/knowledge-control" ||
     req.path.startsWith("/api/knowledge-control/");
   if (isKnowledgeControl && typeof cookie === "string" && cookie.length > 0) {
     const origin = req.headers.origin;
@@ -102,7 +116,11 @@ export function requireTrustedMutationOrigin(
   return next();
 }
 
-export function applySecurityHeaders(_req: Request, res: Response, next: NextFunction) {
+export function applySecurityHeaders(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; media-src 'self' blob:; worker-src 'self' blob:; manifest-src 'self'",
@@ -111,6 +129,9 @@ export function applySecurityHeaders(_req: Request, res: Response, next: NextFun
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
   next();
 }

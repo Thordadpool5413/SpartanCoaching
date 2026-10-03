@@ -33,10 +33,10 @@ alternative role, digest, publication, overlap or transaction semantics.
 - [x] Recheck current main/CI and current source evidence for all nine findings.
 - [x] Resolve architecture and author the bounded packet in version control.
 - [x] Preserve history and replace temporary first-run AGENTS orchestration text.
-- [ ] Implement foundation v2 contracts and pure transitions.
-- [ ] Reproduce/invert every specified regression; retain valid behavior.
-- [ ] Implement and test narrow knowledge-control origin protection.
-- [ ] Run local verification; record exact commands/results and limitations.
+- [x] Implement foundation v2 contracts and pure transitions.
+- [x] Reproduce/invert specified regressions; retain valid behavior in v2.
+- [x] Implement and test narrow knowledge-control origin protection.
+- [x] Run local verification; record exact commands/results and limitations.
 - [ ] Verify exact final implementation PR head and current-main integration.
 - [ ] Merge authorized implementation and verify exact resulting main push CI.
 - [ ] Obtain a fresh independent Astra review; do not automatically start K1B.
@@ -153,3 +153,148 @@ All namespace/lookalike/query/safe/unsafe method, cookie A + Bearer B principal 
 invalid bearer denial scenarios pass. Existing session-security contract is now
 registered in mandatory app-checks API test command, solely permitted package change.
 Foundation v2 helpers are being reconstructed; not complete/merge-ready.
+
+## Reconstructed implementation and final local acceptance
+
+No normative architecture changes were made. No live v1 consumers appeared on
+refreshed main. V1 fixtures/signatures are intentionally replaced because v2 rejects
+silent upgrade. Existing meaningful cases remain: claim eligibility, human review,
+education exclusion, missing versus no-known-issue, temporal/historical selection,
+rights, conflicts, injection-as-data, revocation, provenance and immutability.
+Role-derived authority, v1 inventory-wide hash, bare LKG boolean and supersededBy
+assertions are replaced with the approved credential/assignment contracts.
+
+Synthetic RECORD_STAGE commands use a separate trusted PIPELINE server context
+and metadata-only typed PIPELINE event variant; no human can claim a stage and no
+model can act. It records evidenceRef and synthetic-pipeline identity rather than
+misattributing pipeline evidence to a human. Human/expiry variants are strictly
+separate. This is a disconnected synthetic reducer, not an ingester or auth adapter.
+
+Shared rights revisions retain a single consistent operational overlay; registration
+reuses the existing overlay rather than clearing revocation. Scoped referenced
+publication must not contain inconsistent rights terms/overlays. Revoked artifacts
+remain terminal even when their assignment is replaced. Historical assignment
+creation fields remain intact; replacements/splits are appended with acyclic lineage.
+Only the published approval pin affects read authority: renewal is adopted explicitly.
+
+### Final normative compliance matrix
+
+All runtime evidence below is in `foundation.test.ts` unless identified otherwise.
+Pure semantics are locally verified; durable K1B semantics remain contracts only.
+
+| Normative section | Implementation | Concrete evidence/status |
+|---|---|---|
+| OBJECTIVE | Disconnected foundation v2 and reserved guard | Runtime changes and regressions implemented; publication gates pending |
+| IN SCOPE | Foundation helpers, origin guard, synthetic tests | Changed-file classification below matches packet |
+| OUT OF SCOPE | No DB/HTTP/ingestion/clinical adapter | Static disconnection and scope diff checks pass |
+| FILES TO INSPECT | Repeated consumer/source audit on unchanged baseline | AGENTS/PLANS/packet/architecture/ADRs/auth/mobile/DB/CI/security inspected; no live consumer |
+| FILES EXPECTED TO CHANGE | Seven foundation modules plus tests/security/ExecPlan | Only permitted package test-registration exception; no normative docs changed |
+| CLAIM/AUTHORITY CHANGES | contracts.authorityMatrix/sourceSchema | 17 mappings preserved; inference provenance separated; patient domains rejected |
+| PERMISSION CONTRACT | actorInScope/requireCapability/grantEligible/validateGrantDelegation | Admin/model/role strings denied; membership, scope, grant validity and delegation negatives pass |
+| QUALIFICATION CONTRACT | qualificationEligible/requireQualification/hasCurrentApproval | Exact class/domain/jurisdiction, current member, pinned credentials, verification and synthetic-only mode pass |
+| SEPARATION-OF-DUTIES CONTRACT | transitionKnowledge/hasCurrentApproval/evaluateApplicability | Registrar/submitter cannot review; reviewer cannot activate; imported same-person assignment denied; independent path and unilateral revoke pass |
+| ARTIFACT IDENTITY | versionIdentity/REGISTER/validateState | Same edition/new artifact revision works; exact duplicate returns identity without writes; changed immutable identity conflicts |
+| CANONICAL REVIEW MANIFEST | buildReviewManifest/reviewManifestSchema | Every artifact/applicability/source/rights bound field independently mutated; unchanged approval rejects |
+| DIGEST ALGORITHM | canonical.assertJson/canonicalBytes/canonicalDigest | Unit and independent full literal vectors; ordinal sets, UTC instants, sequences and invalid values pass |
+| TENANT-SAFE MANIFEST/BUNDLE RULES | resolver.project/createKnowledgeRegistry | Complete foreign source/version/license/health/grant/qualification/draft/audit/malformed metadata equality; no public inventory fingerprint; independent global/tenant projection |
+| CANDIDATE VS PUBLISHED AUTHORITY | assignmentSchema/project/transitionKnowledge | All eight unpublished states and unadopted malformed approvals leave complete output/hash unchanged |
+| TEMPORAL SEMANTICS | day/stamp/intervalSubset/authority helpers | Real dates, UTC normalization, inclusive start/exclusive end/null end; expiry/current validity pass |
+| SUPERSESSION / ROLLBACK | publication helpers and aggregate reducer | Missing/foreign/unrelated/self target, cycles/invalid lineage and overlap reject; split/rollback/history and revoked/expired/unapproved/unhealthy/rights-invalid target cases pass |
+| LICENSE CONTRACT | rightsSchema/rightsOverlaySchema/licenseAllows | Six independent purposes, future/expired/revoked/unverified/noncommercial rights, every activation enabled use; termination content-removal intent only |
+| HEALTH CONTRACT | healthSchema/healthState/RECORD_HEALTH/APPROVE_LKG | NOT_CHECKED, chronology/future timestamps, explicit digest LKG, hard expiry/rights/revocation dominance, fresh activation; no fabricated terminal health |
+| REQUEST-SECURITY CORRECTION | requireTrustedMutationOrigin + real middleware harness | 35 security tests: exact/slash/descendant/query/lookalike paths, safe/unsafe methods, origin matrix, A-cookie/B-token selection and invalid bearer 401 |
+| FUTURE K1B TRANSACTION CONTRACT | futureTransactionOrder/futureProtocol | Auth/security/lock/re-read/CAS/audit/outbox/receipt/commit order; no separately committed placeholder/network/persistence |
+| IDEMPOTENCY CONTRACT | receiptKey/requestFingerprint/receiptSchema/futureProtocol | Strict versioned canonical command fingerprint rejects server IDs/time; raw key absent; bounded receipt; authorization-before-replay and no old state recheck specified |
+| CONCURRENCY CONTRACT | scope/version expected revisions + futureLockOrder | Parent and every touched version CAS negatives; exact-row/non-owner/scope-first lock order contract; no actual PostgreSQL locking claim |
+| AUDIT CONTRACT | eventSchema/transitionKnowledge/evaluateExpiryIntents | Typed operation/reason/actor variants; all publication/eligibility invalidations; stable expiry identity, shared-rights deduplication, no free content/error leakage |
+| OUTBOX CONTRACT | outboxSchema/retryDelaySeconds/futureProtocol | Strict metadata-only/lease pair/retry cap tests; at-least-once, event dedup/CAS/re-read intent; no dispatcher |
+| TESTS | 207 foundation + 35 security regressions | Required synthetic scenarios and pure input/snapshot ownership pass |
+| LOCAL VERIFICATION | Commands/results below | Fresh reconstruction results only; local environmental omissions explicit |
+| CI REQUIREMENTS | Existing seven mandatory gates unchanged | Starting exact-main run green; implementation PR run pending |
+| ACCEPTANCE CRITERIA | Matrix, scope review, regression/CI inventory | Pure local acceptance complete; not merge-ready before current PR gates |
+| STOP CONDITIONS | This live ExecPlan | No architecture blocker established; stop before K1B/K2; retain failing-gate recovery loop |
+| OWNER-ONLY ACTIONS | No production operations | Real qualification/rights/bootstrap/source/PHI/deployment/rollout remains separately owner-authorized |
+| EXPLICIT NON-GOALS | Static import/route test and changed-file review | No knowledge persistence, external sources, patient/FHIR/OpenAI/UI/mobile integration or clinical certification |
+
+### Serializer vectors
+
+Unit literal: `{"a":null,"b":["A","B"],"v":"k1a-c14n-v1"}`; SHA-256
+`dbe3dbbca0c536d939464856a8bd5c57a25e0f642b4d770526bcced325476ce8`.
+Full manifest: 1789 UTF-8 bytes; SHA-256
+`aff00a044e86e71706c65f0fe0ae4589f97a6e2e55cf1c7edcb3c77c79b3b856`.
+Full literal was independently authored from the normative field list using Python
+stdlib json/hashlib, without importing/running the TS serializer; literal bytes and
+digest are pinned in the test. It is a synthetic fixture, never clinical evidence.
+
+### Test-to-mandatory-CI execution map
+
+| File | Fresh targeted count | Mandatory workflow path |
+|---|---:|---|
+| knowledge/foundation/foundation.test.ts | 207 | app-checks -> pnpm --filter @workspace/api-server test (already explicit) |
+| security/requestSecurity.test.ts | 35 | Same explicit API suite |
+| auth/middleware.test.ts | 11 | Same explicit API suite, retained unchanged |
+| auth/sessionSecurityContract.test.ts | 6 | Same API suite, newly registered existing file |
+
+No new unregistered test file was created. All helpers are exercised through the
+existing mandatory foundation test entry. JSON reporter verified 259/259, four
+files, zero failures. Full API verbose output confirms session-security execution.
+
+### Fresh local commands/results
+
+All pnpm commands use corepack pnpm 10.26.1 or its /tmp/k1a-bin/pnpm shim; Node24.19.0.
+All commands below exit zero except stated environmental failures.
+
+| Command | Result |
+|---|---|
+| pnpm install --frozen-lockfile | Passed, 6m05s, unchanged lockfile |
+| pnpm --filter @workspace/api-server exec vitest run foundation/security/middleware/sessionSecurityContract files | Four files, 259/259 passed; JSON reporter confirms per-file inventory above |
+| pnpm run typecheck | Passed after final source changes |
+| pnpm --filter @workspace/spartan-ai-tools test | 8 files, 94/94, 616ms |
+| pnpm --filter @workspace/field-kit-catalog test | 10 files, 97/97, 777ms |
+| pnpm --filter @workspace/api-server test | 50 files, 557/557, 5.45s; live NPI unchanged and passed |
+| pnpm --filter @workspace/api-server exec vitest run src/delivery/featureFlags.test.ts src/routes/health.test.ts src/routes/orgAdmin.test.ts | 3 files, 18/18, 2.72s |
+| pnpm --filter @workspace/spartan-coaching test | 63 files, 328/328, 19.25s |
+| pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand | 60 suites, 298/298, 29.936s; existing open-handle warning, exit0 |
+| pnpm --filter @workspace/db test | 45 passed, 9 integration tests skipped without synthetic PostgreSQL; 7 passed files/1 skipped, 1.55s |
+| pnpm --filter @workspace/db exec vitest run src/ops-readiness.test.ts | 6/6, 505ms |
+| CI=1 PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid OPENAI_API_KEY=ci-placeholder-no-network-calls pnpm run build | Passed; latest API-server build rerun after final changes also passed |
+| node scripts/performance-budget.mjs | All budgets within limits |
+| node scripts/release-gate.mjs | Automated suites passed; live/device/external production checks unverified |
+| pnpm exec playwright install chromium webkit | Browser binaries installed successfully |
+| pnpm exec playwright install --with-deps chromium webkit | APT setgroups/seteuid restrictions; exit100; browser-only installation supported actual Chromium test projects |
+| CI=1 pnpm run test:e2e | Exit0; 50 passed, one passed on retry (desktop navigation keyboard case), one skipped under existing configuration, 1.4m |
+| node scripts/forge-security.test.mjs | 2/2 passed, 751ms |
+| node scripts/security/dependency-regression.test.mjs | 8/8 passed, 34ms |
+| node scripts/security/patched-audit.test.mjs | 39/39 passed, 358ms |
+| node scripts/security/patched-audit.mjs | pass-with-verified-source-mitigation; raw 1 low/20 moderate/3 high/0 critical, unchanged approved exact-artifact policy and 2026-11-01 expiry |
+| pnpm --filter @workspace/db run migrate (DATABASE_URL unset) | TSX IPC listen EPERM before DB use; unavailable locally, no production database used |
+| pnpm --filter @workspace/db run count-simulation (DATABASE_URL unset) | DATABASE_URL required, exit2; no isolated synthetic PostgreSQL/client available |
+| git diff --check | Passed |
+
+P02/P03 and migration application/count require current implementation CI services.
+No clinical model/prompt/schema changed; AI-tool contracts passed. No independent
+clinical evaluation certification is claimed; no established clinical suite to run
+for this disconnected metadata-only foundation.
+
+### Changed-file classification and publication checkpoint
+
+EXPECTED K1A: foundation contracts.ts, resolver.ts, lifecycle.ts, foundation.test.ts;
+new canonical.ts, authority.ts, publication.ts and future.ts (pure types/intents).
+Request-security implementation/test only. DOCUMENTATION: this ExecPlan only.
+TEST REGISTRATION: API-server package.json existing session test addition only.
+UNEXPECTED: none. No migrations/schema/API generation/lockfile/security-policy/
+OpenAI/FHIR/client/infrastructure changes. Full diff reviewed, formatting limited
+to these TS files; no debug code/temporary scripts/actual clinical content committed.
+
+The first reconstructed safety checkpoint was published through the GitHub connector
+because git push has no local HTTP credential. Reviewed tree
+`33f4cf455c626f0d7df2a9756e74e73354f4b9f2` matched local and remote exactly.
+Remote checkpoint commit `092db92c31276c9416899766f42466e5175643e1` has starting-main
+parent. Local branch ref was aligned to this identical tree without changing index
+or working files. No human work was discarded. Implementation PR publication,
+current-head/base CI and merge/main evidence will be recorded below and in the PR.
+
+Exact pinned local Gitleaks 8.24.3 full-history command
+`gitleaks detect --source . --verbose --redact --exit-code 1` passed: 1508 commits,
+54.70 MB scanned, 6.63s, no leaks. Binary extraction required --no-same-owner in this
+container; scanner/version/flags were not changed. No security exception was added.

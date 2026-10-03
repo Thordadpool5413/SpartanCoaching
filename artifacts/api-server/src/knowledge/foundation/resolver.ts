@@ -1,261 +1,522 @@
-import { createHash } from "node:crypto";
-import { z } from "zod";
 import {
+  actorSchema,
+  approvalSchema,
+  assignmentSchema,
   authorityMatrix,
+  configurationSchema,
   contextSchema,
-  registrySchema,
-  requiredReviewer,
+  grantSchema,
+  memberSchema,
+  qualificationSchema,
+  scopeSchema,
   sourceSchema,
+  stamp,
   versionSchema,
-  type ApplicabilityState,
+  type Actor,
+  type Assignment,
   type KnowledgeContext,
   type KnowledgeSource,
   type KnowledgeVersion,
+  type Partition,
+  type ApplicabilityState,
 } from "./contracts";
-
-// Public error codes only: never return validator dumps containing caller content.
-export function parseContract<T>(schema: z.ZodType<T>, input: unknown): T {
-  const result = schema.safeParse(input);
-  if (!result.success) throw new Error("KNOWLEDGE_CONTRACT_INVALID");
-  return result.data;
+import {
+  actorInScope,
+  grantEligible,
+  hasCurrentApproval,
+  healthState,
+  licenseAllows,
+  reviewManifestDigest,
+} from "./authority";
+import {
+  applicabilityIntersects,
+  assignmentsConflict,
+  validateAssignment,
+  validateLineage,
+} from "./publication";
+import {
+  canonicalDigest,
+  fail,
+  metadataSnapshot,
+  ordinal,
+  parseContract,
+  sortedSet,
+} from "./canonical";
+export { parseContract, hasCurrentApproval, licenseAllows };
+export const blockingPrecedence = [
+  "SOURCE_REVOKED",
+  "LICENSE_NOT_PERMITTED",
+  "SOURCE_EXPIRED",
+  "NOT_APPROVED",
+  "SOURCE_UNAVAILABLE",
+  "CONFLICT_REQUIRES_REVIEW",
+  "INSUFFICIENT_CONTEXT",
+  "NOT_ACTIVE",
+] as const;
+function data(value: unknown, key: string): unknown {
+  if (!value || typeof value !== "object") return undefined;
+  const descriptor = Object.getOwnPropertyDescriptor(value, key);
+  return descriptor && "value" in descriptor ? descriptor.value : undefined;
 }
-export function hasCurrentApproval(
-  s: KnowledgeSource,
-  v: KnowledgeVersion,
+function array(value: unknown): unknown[] {
+  if (!Array.isArray(value)) fail();
+  return value;
+}
+function reference(
+  values: unknown[],
+  predicate: (v: unknown) => boolean,
+): unknown {
+  const matches = values.filter(predicate);
+  if (matches.length !== 1) fail("KNOWLEDGE_REFERENCE_INVALID");
+  return matches[0];
+}
+function project(
+  raw: unknown,
+  actor: Actor,
+  context: KnowledgeContext,
   now: string,
-) {
-  return v.approvals.some(
-    (a) =>
-      a.reviewerRole === requiredReviewer(s.domain) &&
-      a.versionId === v.id &&
-      a.normalizedHash === v.normalizedHash &&
-      a.reviewedAt <= now &&
-      a.reviewDueAt > now,
-  );
-}
-export function licenseAllows(
-  v: KnowledgeVersion,
-  now: string,
-  purpose: KnowledgeContext["purpose"],
-) {
-  return (
-    v.license.status === "APPROVED" &&
-    Boolean(v.license.approvedBy) &&
-    v.license.commercialUse &&
-    v.license.permittedUses.includes(purpose) &&
-    (!v.license.expiresAt || v.license.expiresAt > now)
-  );
-}
-function visible(s: KnowledgeSource, c: KnowledgeContext) {
-  return (
-    s.scope.kind === "PUBLIC" || s.scope.organizationId === c.organizationId
-  );
-}
-type Decision = {
-  state: ApplicabilityState;
-  reasons: string[];
-  warnings: string[];
-};
-function decision(state: ApplicabilityState, ...reasons: string[]): Decision {
-  return { state, reasons, warnings: [] };
-}
-export function evaluateApplicability(
-  sourceInput: unknown,
-  versionInput: unknown,
-  contextInput: unknown,
-): Decision {
-  const s = parseContract(sourceSchema, sourceInput);
-  const v = parseContract(versionSchema, versionInput);
-  const c = parseContract(contextSchema, contextInput);
-  if (s.id !== v.sourceId)
-    return decision("NOT_APPLICABLE", "SOURCE_ID_MISMATCH");
-  if (!visible(s, c)) return decision("SCOPE_DENIED", "TENANT_SCOPE");
-  if (
-    s.educationalOnly ||
-    !s.claimTypes.includes(c.claimType) ||
-    !authorityMatrix[c.claimType].includes(s.domain)
-  )
-    return decision("NOT_APPLICABLE", "CLAIM_DOMAIN_OR_EDUCATIONAL_SOURCE");
-  if (!c.serviceDate || !c.jurisdiction || c.payer === "UNKNOWN")
-    return decision(
-      "INSUFFICIENT_CONTEXT",
-      "SERVICE_DATE_JURISDICTION_PAYER_REQUIRED",
-    );
-  if (
-    !v.scope.payers.includes(c.payer) ||
-    !v.scope.jurisdictions.includes(c.jurisdiction)
-  )
-    return decision("NOT_APPLICABLE", "PAYER_OR_JURISDICTION_MISMATCH");
-  if (
-    c.serviceDate < v.effectiveFrom ||
-    (v.effectiveTo && c.serviceDate >= v.effectiveTo)
-  )
-    return decision("NOT_APPLICABLE", "OUTSIDE_EFFECTIVE_WINDOW");
-  const dimensions = [
-    ["macs", "mac"],
-    ["providerTypes", "providerType"],
-    ["settings", "setting"],
-    ["benefitPeriods", "benefitPeriod"],
-    ["codeEditions", "codeEdition"],
-    ["products", "product"],
-    ["populations", "population"],
-  ] as const;
-  const missing: string[] = [];
-  for (const [scopeKey, contextKey] of dimensions) {
-    const allowed = v.scope[scopeKey];
-    if (allowed === null) continue; // Explicitly reviewed dimension-independent source.
-    const value = c[contextKey];
-    if (!value) missing.push(contextKey);
-    else if (!allowed.includes(value))
-      return decision("NOT_APPLICABLE", `MISMATCH_${contextKey}`);
-  }
-  if (missing.length)
-    return decision(
-      "INSUFFICIENT_CONTEXT",
-      ...missing.map((k) => `MISSING_${k}`),
-    );
-  if (v.state === "REVOKED" || v.revokedAt || v.health.state === "REVOKED")
-    return decision("SOURCE_REVOKED", "REVOKED");
-  if (s.domain === "MAC_COVERAGE" && v.scope.macs === null)
-    return decision("INSUFFICIENT_CONTEXT", "MAC_SCOPE_NOT_CONFIGURED");
-  if (!licenseAllows(v, c.now, c.purpose))
-    return decision("LICENSE_NOT_PERMITTED", "LICENSE_PERMISSION_OR_EXPIRY");
-  if (!hasCurrentApproval(s, v, c.now))
-    return decision("NOT_APPROVED", "APPROVAL_MISSING_MISMATCHED_OR_EXPIRED");
-  // Superseded versions can still govern a historical service date. Revocation cannot.
-  if (
-    !["ACTIVE", "SUPERSEDED"].includes(v.state) ||
-    !v.activatedAt ||
-    v.activatedAt > c.now
-  )
-    return decision("NOT_ACTIVE", "NOT_ACTIVATED");
-  if (
-    v.publishedAt > c.now ||
-    v.retrievedAt > c.now ||
-    v.health.checkedAt > c.now
-  )
-    return decision("SOURCE_UNAVAILABLE", "FUTURE_PROVENANCE");
-  if (v.health.hardExpiresAt <= c.now || v.health.state === "STALE_BLOCKED")
-    return decision("SOURCE_EXPIRED", "HEALTH_HARD_LIMIT");
-  const stale = v.health.warningAt <= c.now || v.health.state !== "CURRENT";
-  if (stale && !v.health.lastKnownGoodAllowed)
-    return decision("SOURCE_UNAVAILABLE", "LAST_KNOWN_GOOD_NOT_ALLOWED");
-  return {
-    state: "APPLICABLE",
-    reasons: ["CLAIM_DOMAIN_SCOPE_VERSION_AND_RIGHTS_MATCH"],
-    warnings: stale ? ["STALE_ALLOWED_WITH_WARNING"] : [],
-  };
-}
-
-function freeze(value: unknown): void {
-  if (value && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-}
-export function createKnowledgeRegistry(input: unknown) {
-  const registry = parseContract(registrySchema, input);
-  // Registry is metadata for public/protocol knowledge, never a patient repository.
-  if (
-    registry.sources.some((s) =>
-      [
-        "PATIENT_EVIDENCE",
-        "DETERMINISTIC_DERIVATION",
-        "HUMAN_CLINICAL_REVIEW",
-      ].includes(s.domain),
+): Partition[] {
+  const projected: Partition[] = [];
+  const seenScopes = new Set<string>();
+  for (const rawPartition of array(data(raw, "partitions"))) {
+    const rawScope = data(rawPartition, "scope");
+    const rawScopeId = data(rawScope, "id");
+    if (
+      rawScopeId !== "global" &&
+      rawScopeId !== `tenant:${actor.organizationId}`
     )
-  )
-    throw new Error("PATIENT_AUTHORITY_REQUIRES_PATIENT_CONTEXT_SERVICE");
-  const bundleHash = createHash("sha256")
-    .update(JSON.stringify(registry))
-    .digest("hex");
-  freeze(registry);
-  return Object.freeze({
-    bundleId: registry.bundleId,
-    bundleHash,
-    resolve(contextInput: unknown) {
-      const c = parseContract(contextSchema, contextInput);
-      const base = {
-        contractVersion: registry.contractVersion,
-        bundleId: registry.bundleId,
-        bundleHash,
-        humanReviewRequired: true as const,
-      };
-      const empty = (state: string) => ({
-        ...base,
-        state,
-        selected: [],
-        decisions: [],
-      });
-      if (!c.serviceDate || !c.jurisdiction || c.payer === "UNKNOWN")
-        return empty("INSUFFICIENT_CONTEXT");
-      if (!registry.supportedPayers.includes(c.payer))
-        return empty("PAYER_KNOWLEDGE_NOT_CONFIGURED");
-      if (!registry.supportedJurisdictions.includes(c.jurisdiction))
-        return empty("JURISDICTION_NOT_SUPPORTED");
-      const sources = registry.sources.filter(
-        (s) =>
-          visible(s, c) &&
-          s.claimTypes.includes(c.claimType) &&
-          authorityMatrix[c.claimType].includes(s.domain),
-      );
-      // Never expose another tenant's IDs or rejection details.
-      const decisions = registry.versions.flatMap((v) => {
-        const s = sources.find((s) => s.id === v.sourceId);
-        return s
-          ? [
-              {
-                sourceId: s.id,
-                versionId: v.id,
-                ...evaluateApplicability(s, v, c),
-              },
-            ]
-          : [];
-      });
-      const eligible = registry.versions.filter((v) =>
-        decisions.some((d) => d.versionId === v.id && d.state === "APPLICABLE"),
-      );
-      const ambiguous = eligible.some((v) =>
-        eligible.some(
-          (other) =>
-            other.id !== v.id &&
-            (v.conflictsWith.includes(other.id) ||
-              (v.sourceId === other.sourceId &&
-                v.documentId === other.documentId)),
+      continue;
+    const scope = parseContract(scopeSchema, rawScope);
+    if (!actorInScope(actor, scope)) continue;
+    const rawGrants = array(data(rawPartition, "grants"));
+    const reads = rawGrants
+      .filter(
+        (g) =>
+          data(g, "subjectMemberId") === actor.memberId &&
+          data(g, "scopeId") === scope.id &&
+          Array.isArray(data(g, "capabilities")) &&
+          (data(g, "capabilities") as unknown[]).includes("knowledge.read"),
+      )
+      .map((g) => parseContract(grantSchema, g))
+      .filter((g) =>
+        g.domains.some((d) =>
+          grantEligible(g, scope, d, "knowledge.read", now),
         ),
       );
-      if (ambiguous)
-        return {
-          ...base,
-          state: "CONFLICT_REQUIRES_REVIEW",
-          selected: [],
-          decisions,
-        };
-      // Relevant indeterminate/blocked versions cannot be silently replaced by a
-      // convenient source. Definitely inapplicable sources do not block a match.
-      const blocked = decisions.find(
-        (d) => !["APPLICABLE", "NOT_APPLICABLE"].includes(d.state),
+    if (!reads.length) continue;
+    if (new Set(reads.map((g) => g.id)).size !== reads.length)
+      fail("KNOWLEDGE_REFERENCE_INVALID");
+    if (seenScopes.has(scope.id)) fail("KNOWLEDGE_REFERENCE_INVALID");
+    seenScopes.add(scope.id);
+    const allowed = new Set(
+      reads
+        .flatMap((g) => g.domains)
+        .filter((d) => authorityMatrix[context.claimType].includes(d)),
+    );
+    if (!allowed.size) continue;
+    const rawSources = array(data(rawPartition, "sources")),
+      rawVersions = array(data(rawPartition, "versions")),
+      rawAssignments = array(data(rawPartition, "assignments"));
+    const assignments: Assignment[] = [];
+    const sources: KnowledgeSource[] = [];
+    const versions: KnowledgeVersion[] = [];
+    const current = rawAssignments.filter(
+      (a) =>
+        data(a, "retiredAt") === null &&
+        rawSources.some(
+          (s) =>
+            data(s, "id") === data(a, "sourceId") &&
+            allowed.has(data(s, "domain") as never),
+        ),
+    );
+    for (const rawAssignment of current) {
+      const a = parseContract(assignmentSchema, rawAssignment);
+      const rawVersion = reference(
+        rawVersions,
+        (v) => data(v, "id") === a.versionId,
       );
-      if (blocked)
-        return { ...base, state: blocked.state, selected: [], decisions };
+      const pins = current
+        .filter((x) => data(x, "versionId") === a.versionId)
+        .map((x) => data(x, "approvalId"));
+      // Candidate attestations which no publication adopted are not read authority.
+      const descriptors = Object.getOwnPropertyDescriptors(
+        rawVersion as object,
+      );
+      descriptors.approvals = {
+        value: array(data(rawVersion, "approvals")).filter((x) =>
+          pins.includes(data(x, "id")),
+        ),
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      };
+      const v = parseContract(
+        versionSchema,
+        Object.defineProperties({}, descriptors),
+      );
+      const s = parseContract(
+        sourceSchema,
+        reference(
+          rawSources,
+          (s) =>
+            data(s, "id") === v.sourceId &&
+            data(s, "metadataRevision") === v.sourceMetadataRevision,
+        ),
+      );
+      if (
+        s.scope.id !== scope.id ||
+        v.scopeId !== scope.id ||
+        !allowed.has(s.domain)
+      )
+        fail("KNOWLEDGE_REFERENCE_INVALID");
+      validateAssignment({ scope } as Partition, a, v);
+      if (
+        !sources.some(
+          (x) => x.id === s.id && x.metadataRevision === s.metadataRevision,
+        )
+      )
+        sources.push(s);
+      if (!versions.some((x) => x.id === v.id)) versions.push(v);
+      assignments.push(a);
+    }
+    // Only referenced predecessors are needed to validate lineage, never unrelated audit history.
+    for (let i = 0; i < assignments.length; i++) {
+      const a = assignments[i];
+      if (
+        a.predecessorAssignmentId &&
+        !assignments.some((x) => x.id === a.predecessorAssignmentId)
+      )
+        assignments.push(
+          parseContract(
+            assignmentSchema,
+            reference(
+              rawAssignments,
+              (x) => data(x, "id") === a.predecessorAssignmentId,
+            ),
+          ),
+        );
+      if (assignments.length > 4000) fail();
+    }
+    if (sources.length > 500 || versions.length > 2000) fail();
+    const rightsRecords = new Map<string, string>();
+    for (const v of versions) {
+      const key = `${v.rights.id}/${v.rights.revision}`;
+      const digest = canonicalDigest({
+        terms: v.rights,
+        overlay: v.rightsOverlay,
+      });
+      if (rightsRecords.has(key) && rightsRecords.get(key) !== digest)
+        fail("KNOWLEDGE_REFERENCE_INVALID");
+      rightsRecords.set(key, digest);
+    }
+    const grantIds = new Set<string>();
+    const qualificationIds = new Set<string>();
+    const memberIds = new Set<number>();
+    for (const v of versions) {
+      for (const a of v.approvals) {
+        grantIds.add(a.reviewGrantId);
+        qualificationIds.add(a.qualificationId);
+        memberIds.add(a.reviewerMemberId);
+      }
+      const r = v.rights;
+      if (r.verificationGrantId) grantIds.add(r.verificationGrantId);
+      if (r.verificationQualificationId)
+        qualificationIds.add(r.verificationQualificationId);
+      if (r.verifiedByMemberId) memberIds.add(r.verifiedByMemberId);
+      const l = v.health.lkg;
+      if (l) {
+        grantIds.add(l.reviewGrantId);
+        qualificationIds.add(l.qualificationId);
+        memberIds.add(l.reviewerMemberId);
+      }
+    }
+    const grants = [...grantIds].map((id) =>
+      parseContract(
+        grantSchema,
+        reference(rawGrants, (g) => data(g, "id") === id),
+      ),
+    );
+    const qualifications = [...qualificationIds].map((id) =>
+      parseContract(
+        qualificationSchema,
+        reference(
+          array(data(rawPartition, "qualifications")),
+          (q) => data(q, "id") === id,
+        ),
+      ),
+    );
+    const members = [...memberIds].map((id) =>
+      parseContract(
+        memberSchema,
+        reference(
+          array(data(rawPartition, "members")),
+          (m) => data(m, "memberId") === id,
+        ),
+      ),
+    );
+    if (
+      grants.some((g) => g.scopeId !== scope.id) ||
+      qualifications.some((q) => q.scopeId !== scope.id)
+    )
+      fail("KNOWLEDGE_REFERENCE_INVALID");
+    const p = {
+      scope,
+      revision: 0,
+      sources,
+      versions,
+      assignments,
+      grants,
+      qualifications,
+      members,
+      configuration: parseContract(
+        configurationSchema,
+        data(rawPartition, "configuration"),
+      ),
+    };
+    validateLineage(p);
+    projected.push(p);
+  }
+  return projected.sort((a, b) => ordinal(a.scope.id, b.scope.id));
+}
+const contextDimensions = [
+  ["macs", "mac"],
+  ["providerTypes", "providerType"],
+  ["settings", "setting"],
+  ["benefitPeriods", "benefitPeriod"],
+  ["codeEditions", "codeEdition"],
+  ["products", "product"],
+  ["populations", "population"],
+] as const;
+function applicability(
+  a: Assignment,
+  c: KnowledgeContext,
+): "MATCH" | "MISMATCH" | "MISSING" {
+  if (
+    (c.serviceDate &&
+      (c.serviceDate < a.serviceFrom ||
+        (a.serviceTo && c.serviceDate >= a.serviceTo))) ||
+    (c.payer && !a.applicability.payers.includes(c.payer as never)) ||
+    (c.jurisdiction && !a.applicability.jurisdictions.includes(c.jurisdiction))
+  )
+    return "MISMATCH";
+  let missing = false;
+  for (const [dimension, key] of contextDimensions)
+    if (a.applicability[dimension] !== null) {
+      if (!c[key]) missing = true;
+      else if (!a.applicability[dimension]!.includes(c[key]!))
+        return "MISMATCH";
+    }
+  return missing ? "MISSING" : "MATCH";
+}
+export function evaluateApplicability(
+  p: Partition,
+  s: KnowledgeSource,
+  v: KnowledgeVersion,
+  a: Assignment,
+  c: KnowledgeContext,
+  actor: Actor,
+  now: string,
+): ApplicabilityState {
+  const match = applicability(a, c);
+  if (
+    match === "MISMATCH" ||
+    s.educationalOnly ||
+    !s.claimTypes.includes(c.claimType)
+  )
+    return "NOT_APPLICABLE";
+  if (v.state === "REVOKED" || v.revokedAt) return "SOURCE_REVOKED";
+  if (
+    !a.enabledUses.includes(c.purpose) ||
+    !licenseAllows(p, s, v, now, c.purpose, actor.synthetic)
+  )
+    return "LICENSE_NOT_PERMITTED";
+  const health = healthState(p, s, v, now, actor.synthetic);
+  if (health === "SOURCE_EXPIRED") return health;
+  const approval = v.approvals.find((x) => x.id === a.approvalId);
+  if (
+    v.publishedAt > v.retrievedAt ||
+    v.retrievedAt > now ||
+    a.createdAt > now ||
+    !approval ||
+    a.createdByMemberId === approval.reviewerMemberId ||
+    a.reviewManifestDigest !== reviewManifestDigest(s, v) ||
+    !hasCurrentApproval(p, s, v, approval, now, actor.synthetic)
+  )
+    return "NOT_APPROVED";
+  if (health !== "APPLICABLE") return health;
+  if (match === "MISSING") return "INSUFFICIENT_CONTEXT";
+  return ["ACTIVE", "SUPERSEDED"].includes(v.state)
+    ? "APPLICABLE"
+    : "NOT_ACTIVE";
+}
+export function createKnowledgeRegistry(input: unknown) {
+  if (
+    data(input, "contractVersion") !== "knowledge-foundation-v2" ||
+    !Array.isArray(data(input, "partitions")) ||
+    !input ||
+    Object.keys(input).some(
+      (k) => !["contractVersion", "partitions"].includes(k),
+    )
+  )
+    fail();
+  const inventory = metadataSnapshot(input);
+  return Object.freeze({
+    resolve(contextInput: unknown, actorInput: unknown, nowInput: unknown) {
+      const actor = parseContract(actorSchema, actorInput),
+        context = parseContract(contextSchema, contextInput),
+        now = parseContract(stamp, nowInput);
+      const partitions = project(inventory, actor, context, now);
+      const entries = partitions
+        .flatMap((p) =>
+          p.assignments
+            .filter((a) => !a.retiredAt)
+            .map((a) => {
+              const v = p.versions.find((v) => v.id === a.versionId)!;
+              const s = p.sources.find(
+                (s) =>
+                  s.id === v.sourceId &&
+                  s.metadataRevision === v.sourceMetadataRevision,
+              )!;
+              const state = evaluateApplicability(
+                p,
+                s,
+                v,
+                a,
+                context,
+                actor,
+                now,
+              );
+              return {
+                scope: p.scope,
+                sourceId: s.id,
+                documentId: a.documentId,
+                assignmentId: a.id,
+                assignmentRevision: a.revision,
+                serviceFrom: a.serviceFrom,
+                serviceTo: a.serviceTo,
+                applicability: a.applicability,
+                enabledUses: a.enabledUses,
+                versionId: v.id,
+                reviewManifestDigest: a.reviewManifestDigest,
+                state,
+                reasonCodes: [state],
+                warningCodes:
+                  state === "APPLICABLE" &&
+                  !(v.health.state === "CURRENT" && v.health.warningAt! > now)
+                    ? ["STALE_ALLOWED_WITH_WARNING"]
+                    : [],
+              };
+            }),
+        )
+        .sort((a, b) =>
+          ordinal(
+            `${a.scope.id}/${a.sourceId}/${a.documentId}/${a.assignmentId}`,
+            `${b.scope.id}/${b.sourceId}/${b.documentId}/${b.assignmentId}`,
+          ),
+        );
+      const relevant = entries.map(
+        (e) => !["NOT_APPLICABLE"].includes(e.state),
+      );
+      for (let i = 0; i < entries.length; i++)
+        for (let j = i + 1; j < entries.length; j++)
+          if (
+            relevant[i] &&
+            relevant[j] &&
+            entries[i].scope.id === entries[j].scope.id
+          ) {
+            const p = partitions.find(
+              (p) => p.scope.id === entries[i].scope.id,
+            )!;
+            const a = p.assignments.find(
+                (a) => a.id === entries[i].assignmentId,
+              )!,
+              b = p.assignments.find((a) => a.id === entries[j].assignmentId)!;
+            const v = p.versions.find((v) => v.id === a.versionId)!,
+              w = p.versions.find((v) => v.id === b.versionId)!;
+            if (
+              assignmentsConflict(a, b) ||
+              v.conflictsWith.includes(w.id) ||
+              w.conflictsWith.includes(v.id)
+            ) {
+              for (const index of [i, j])
+                if (
+                  ["APPLICABLE", "INSUFFICIENT_CONTEXT"].includes(
+                    entries[index].state,
+                  )
+                ) {
+                  entries[index].state = "CONFLICT_REQUIRES_REVIEW";
+                  entries[index].reasonCodes = ["CONFLICT_REQUIRES_REVIEW"];
+                  entries[index].warningCodes = [];
+                }
+            }
+          }
+      const configuration = partitions.map((p) => ({
+        scopeId: p.scope.id,
+        ...p.configuration,
+      }));
+      let state: string;
+      if (
+        !actor.sessionVerified ||
+        !actor.membershipActive ||
+        !actor.organizationActive ||
+        !partitions.length
+      )
+        state = "SCOPE_DENIED";
+      else if (
+        !context.serviceDate ||
+        !context.jurisdiction ||
+        !context.payer ||
+        context.payer === "UNKNOWN"
+      )
+        state = "INSUFFICIENT_CONTEXT";
+      else if (
+        !configuration.some((c) =>
+          c.supportedPayers.includes(context.payer as never),
+        )
+      )
+        state = "PAYER_KNOWLEDGE_NOT_CONFIGURED";
+      else if (
+        !configuration.some((c) =>
+          c.supportedJurisdictions.includes(context.jurisdiction!),
+        )
+      )
+        state = "JURISDICTION_NOT_SUPPORTED";
+      else
+        state =
+          blockingPrecedence.find((s) => entries.some((e) => e.state === s)) ??
+          (entries.some((e) => e.state === "APPLICABLE")
+            ? "APPLICABLE"
+            : entries.length
+              ? "NOT_APPLICABLE"
+              : "SOURCE_UNAVAILABLE");
+      const normalizedContext = Object.fromEntries(
+        Object.keys(contextSchema.shape).map((key) => [
+          key,
+          (context as Record<string, unknown>)[key] ?? null,
+        ]),
+      );
+      const manifest = {
+        schemaVersion: "knowledge-runtime-manifest-v2",
+        canonicalizationVersion: "k1a-c14n-v1",
+        authorizedScopeIds: partitions.map((p) => p.scope.id),
+        context: normalizedContext,
+        configuration,
+        publishedEntries: entries,
+      };
+      const bundleHash = canonicalDigest(manifest);
       return {
-        ...base,
-        state: eligible.length
-          ? "APPLICABLE"
-          : decisions.length
-            ? "NOT_APPLICABLE"
-            : "SOURCE_UNAVAILABLE",
-        decisions,
-        selected: eligible.map((v) => ({
-          sourceId: v.sourceId,
-          versionId: v.id,
-          documentId: v.documentId,
-          edition: v.edition,
-          rawHash: v.rawHash,
-          normalizedHash: v.normalizedHash,
-          effectiveFrom: v.effectiveFrom,
-          effectiveTo: v.effectiveTo,
-        })),
+        state,
+        bundleHash,
+        bundleId: `kb2:${bundleHash}`,
+        humanReviewRequired: true,
+        configuration,
+        decisions: entries,
+        selected:
+          state === "APPLICABLE"
+            ? entries.filter((e) => e.state === "APPLICABLE")
+            : [],
+        warnings: sortedSet(entries.flatMap((e) => e.warningCodes)),
+        manifest,
       };
     },
   });
