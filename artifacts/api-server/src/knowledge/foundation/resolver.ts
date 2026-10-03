@@ -240,7 +240,11 @@ export function createKnowledgeRegistry(input: unknown) {
         return { ...base, state: blocked.state, selected: [], decisions };
       return {
         ...base,
-        state: eligible.length ? "APPLICABLE" : "SOURCE_UNAVAILABLE",
+        state: eligible.length
+          ? "APPLICABLE"
+          : decisions.length
+            ? "NOT_APPLICABLE"
+            : "SOURCE_UNAVAILABLE",
         decisions,
         selected: eligible.map((v) => ({
           sourceId: v.sourceId,

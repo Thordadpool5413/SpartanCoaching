@@ -324,6 +324,17 @@ describe("K1 applicability and trust boundary", () => {
       );
     },
   );
+  it("distinguishes known inapplicable authority from absent sources", () => {
+    const f = fixture();
+    f.version.effectiveFrom = "2026-10-04";
+    expect(createKnowledgeRegistry(f.registry).resolve(f.context).state).toBe(
+      "NOT_APPLICABLE",
+    );
+    f.registry.versions = [];
+    expect(createKnowledgeRegistry(f.registry).resolve(f.context).state).toBe(
+      "SOURCE_UNAVAILABLE",
+    );
+  });
   it("does not select latest and supports historical superseded authority", () => {
     const f = fixture();
     f.version.state = "SUPERSEDED";

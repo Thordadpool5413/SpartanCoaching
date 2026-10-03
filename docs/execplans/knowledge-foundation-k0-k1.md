@@ -111,3 +111,9 @@ negative tenant/RLS/permission tests, concurrent activation and durable audit/
 invalidation verification. Requires its own bounded approval. K2–K23 not started.
 Current merge blocker: two additional high dependency findings; exact results
 and subsequent PR CI state must remain explicit in the final report.
+
+Final review corrected resolver aggregation: known but inapplicable versions now
+return NOT_APPLICABLE, separately from absent SOURCE_UNAVAILABLE. Added a targeted
+regression; foundation suite now 62 tests. Prior CI runtime ee2a470 passed API
+376 including its live NPI check, confirming the local DNS issue was environmental;
+that run is superseded by the aggregation fix. New runtime CI must be checked.
