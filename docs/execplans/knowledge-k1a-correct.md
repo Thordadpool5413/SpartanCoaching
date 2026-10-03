@@ -5,7 +5,9 @@
 The owner supplied the K1A architecture/packet-authoring instruction on 2026-10-03.
 Architecture decisions and the sole implementation packet are in
 `../architecture/knowledge-2026-10-03/03-k1a-correct.md`.
-This handoff records packet authoring, not completion of the runtime corrections.
+The authoring evidence below is historical. Runtime implementation, local verification
+and publication are recorded in the reconstruction sections at the end; terminal
+merge/main CI evidence is maintained in the linked PR publication ledger.
 K0/K1 history remains in `knowledge-foundation-k0-k1.md`.
 
 Starting main: `c1812b3ceca80a1a03cf9cf91a460c6fa355c9ee`.
@@ -114,28 +116,28 @@ Every item is pending reconstruction and verification until concrete evidence be
 
 | Packet section | Implementation target | Required regression evidence | Status |
 |---|---|---|---|
-| Claims/authority | contracts authorityMatrix | all 17 mappings, forbidden patient provenance | Pending |
-| Permission | authority.ts | exact scope/capability, membership, grant validity/delegation | Pending |
-| Qualification | authority.ts | class, jurisdictions, validity, verified synthetic context | Pending |
-| Duties | lifecycle/authority | reviewer differs registrar/submitter; independent activator | Pending |
-| Artifact identity | contracts/lifecycle | immutable tuple conflicts and duplicates | Pending |
-| Review manifest | contracts/authority | independently mutate every bound field | Pending |
-| Canonical digest | canonical.ts | unit/full literal vectors, invalid JSON, set normalization | Pending |
-| Tenant-safe manifest | resolver | complete foreign mutation equality, malformed foreign opacity | Pending |
-| Publication | publication/lifecycle | drafts/unadopted approvals cannot alter runtime | Pending |
-| Temporal semantics | contracts/authority | inclusive starts, exclusive ends, strict real dates | Pending |
-| Supersession | publication/lifecycle | split/history, missing/foreign/unrelated/self/cycles | Pending |
-| Rollback | lifecycle | previously published target, eligibility, terminal revoke | Pending |
-| License | authority | six independent purposes/current verification/revocation | Pending |
-| Health | authority/lifecycle | NOT_CHECKED, chronology, fresh activation, constrained LKG | Pending |
-| Resolver | resolver | fixed precedence/permutations/missing context/conflicts | Pending |
-| Request security | requestSecurity.ts/test | real Express/auth chain, paths/methods/principals | Pending |
-| Future transaction | future.ts | atomic order, no persistent claim/network | Pending |
-| Idempotency | future.ts | versioned fingerprint, authorization before replay | Pending |
-| Concurrency | future.ts/lifecycle | scope/version CAS, parent revision, lock ordering | Pending |
-| Audit | contracts/lifecycle | strict variants/reasons, invalidations/expiry dedup | Pending |
-| Outbox | future.ts | strict metadata-only delivery, lease/retry/CAS intent | Pending |
-| Disconnection | foundation.test.ts | static imports/routes/client boundary | Pending |
+| Claims/authority | contracts authorityMatrix | all 17 mappings, forbidden patient provenance | Superseded by final matrix |
+| Permission | authority.ts | exact scope/capability, membership, grant validity/delegation | Superseded by final matrix |
+| Qualification | authority.ts | class, jurisdictions, validity, verified synthetic context | Superseded by final matrix |
+| Duties | lifecycle/authority | reviewer differs registrar/submitter; independent activator | Superseded by final matrix |
+| Artifact identity | contracts/lifecycle | immutable tuple conflicts and duplicates | Superseded by final matrix |
+| Review manifest | contracts/authority | independently mutate every bound field | Superseded by final matrix |
+| Canonical digest | canonical.ts | unit/full literal vectors, invalid JSON, set normalization | Superseded by final matrix |
+| Tenant-safe manifest | resolver | complete foreign mutation equality, malformed foreign opacity | Superseded by final matrix |
+| Publication | publication/lifecycle | drafts/unadopted approvals cannot alter runtime | Superseded by final matrix |
+| Temporal semantics | contracts/authority | inclusive starts, exclusive ends, strict real dates | Superseded by final matrix |
+| Supersession | publication/lifecycle | split/history, missing/foreign/unrelated/self/cycles | Superseded by final matrix |
+| Rollback | lifecycle | previously published target, eligibility, terminal revoke | Superseded by final matrix |
+| License | authority | six independent purposes/current verification/revocation | Superseded by final matrix |
+| Health | authority/lifecycle | NOT_CHECKED, chronology, fresh activation, constrained LKG | Superseded by final matrix |
+| Resolver | resolver | fixed precedence/permutations/missing context/conflicts | Superseded by final matrix |
+| Request security | requestSecurity.ts/test | real Express/auth chain, paths/methods/principals | Superseded by final matrix |
+| Future transaction | future.ts | atomic order, no persistent claim/network | Superseded by final matrix |
+| Idempotency | future.ts | versioned fingerprint, authorization before replay | Superseded by final matrix |
+| Concurrency | future.ts/lifecycle | scope/version CAS, parent revision, lock ordering | Superseded by final matrix |
+| Audit | contracts/lifecycle | strict variants/reasons, invalidations/expiry dedup | Superseded by final matrix |
+| Outbox | future.ts | strict metadata-only delivery, lease/retry/CAS intent | Superseded by final matrix |
+| Disconnection | foundation.test.ts | static imports/routes/client boundary | Superseded by final matrix |
 
 No K1B/K2, database persistence, source integration, PHI or production operation.
 
@@ -298,3 +300,37 @@ Exact pinned local Gitleaks 8.24.3 full-history command
 `gitleaks detect --source . --verbose --redact --exit-code 1` passed: 1508 commits,
 54.70 MB scanned, 6.63s, no leaks. Binary extraction required --no-same-owner in this
 container; scanner/version/flags were not changed. No security exception was added.
+
+## Implementation publication ledger
+
+PR: https://github.com/Thordadpool5413/SpartanCoaching/pull/186
+Branch: `fix/k1a-foundation-contracts`; base `main`.
+Safety checkpoint: `092db92c31276c9416899766f42466e5175643e1`.
+Runtime implementation commit: `a324b825da120d32f14c3060009f5fdec72bb9f2`.
+Base at publication: `04dac293251b20955fadefe51582670ec3f98149`.
+Reviewed/published runtime tree: `861f3e00699947668cd262f4cf2acc8e07185e3b`.
+The remote commit/tree was read back and matches the reviewed local tree. Local
+ref alignment preserved all files/index; git push lacks a local credential, so
+connector publication is used with exact tree checks and fast-forward updates only.
+
+Initial PR workflow: https://github.com/Thordadpool5413/SpartanCoaching/actions/runs/37158526377
+It was in progress when this record was written. This evidence-recording commit
+changes the PR head, so that initial run is historical, not final merge evidence.
+Require a fresh full run for the updated current head/base.
+
+The linked PR body is the publication ledger for final current PR_HEAD_SHA,
+PR_BASE_SHA, CI_RUN_ID, synthetic CI_TESTED_SHA/parents, seven individual gate
+results, K1A_MERGE_SHA and exact post-merge push CI/run/SHA. These values are only
+known after this version-controlled record is committed and its gates execute.
+Read that linked ledger together with this plan to continue without the conversation;
+never infer success from a pending checkbox or substitute the initial run.
+Immediately before merge refresh origin/main and integrate/retest if it advanced.
+No required gate was removed or weakened. No production operation is authorized.
+
+Local acceptance is complete; terminal PR/main verification is pending at this
+record's timestamp. No unresolved architecture blocker. Remaining environmental
+items: real synthetic PostgreSQL migration/equivalence/recovery proof comes from
+current CI; live/device/external release checks are not verified by this packet.
+Owner-only production/reviewer/rights actions were not performed.
+After verified merge stop; next action is fresh independent Astra adversarial review
+of K1A, with no automatic K1B/K2 authorization.
