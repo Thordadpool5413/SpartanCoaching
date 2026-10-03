@@ -174,4 +174,6 @@ overrides:
   vite@>=7.0.0 <7.3.2: 7.3.6
 
 patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+  http-cache-semantics@4.2.0: patches/http-cache-semantics@4.2.0.patch
   node-forge@1.4.0: patches/node-forge@1.4.0.patch
