@@ -91,3 +91,65 @@ normal authorized merge occurs, and the exact resulting main push run is fully
 green. Record implementation starting SHA, files, tests, commit/PR, CI run IDs,
 merged SHA, unverified items and follow-up. Clinical evaluation is not certified;
 the foundation must remain disconnected from live reasoning and patient data.
+
+## Runtime reconstruction checkpoint — 2026-10-03
+
+The execution environment was replaced after disconnecting. Previous uncommitted
+runtime changes and local logs are unavailable. Historical local results reported
+in conversation are not evidence for this reconstruction. No implementation had
+been published or merged. Restored clean main and repeated status/remotes/fetch/
+main/ff-only pull/SHA/status; starting SHA remains
+`04dac293251b20955fadefe51582670ec3f98149`. Current exact-main push run
+`37143710026` is successful. Branch `fix/k1a-foundation-contracts`.
+Node 24.19.0; installed global pnpm 11.25.0 is not used. Use pinned corepack pnpm
+10.26.1; frozen installation in progress. No lockfile/dependency changes authorized.
+
+Consumer inventory repeated over entire repository: foundation imports and v1
+contract references occur only in foundation implementation/tests, package test
+registration and historical architecture/ExecPlans. No live product consumer found.
+
+### Working normative compliance matrix
+
+Every item is pending reconstruction and verification until concrete evidence below.
+
+| Packet section | Implementation target | Required regression evidence | Status |
+|---|---|---|---|
+| Claims/authority | contracts authorityMatrix | all 17 mappings, forbidden patient provenance | Pending |
+| Permission | authority.ts | exact scope/capability, membership, grant validity/delegation | Pending |
+| Qualification | authority.ts | class, jurisdictions, validity, verified synthetic context | Pending |
+| Duties | lifecycle/authority | reviewer differs registrar/submitter; independent activator | Pending |
+| Artifact identity | contracts/lifecycle | immutable tuple conflicts and duplicates | Pending |
+| Review manifest | contracts/authority | independently mutate every bound field | Pending |
+| Canonical digest | canonical.ts | unit/full literal vectors, invalid JSON, set normalization | Pending |
+| Tenant-safe manifest | resolver | complete foreign mutation equality, malformed foreign opacity | Pending |
+| Publication | publication/lifecycle | drafts/unadopted approvals cannot alter runtime | Pending |
+| Temporal semantics | contracts/authority | inclusive starts, exclusive ends, strict real dates | Pending |
+| Supersession | publication/lifecycle | split/history, missing/foreign/unrelated/self/cycles | Pending |
+| Rollback | lifecycle | previously published target, eligibility, terminal revoke | Pending |
+| License | authority | six independent purposes/current verification/revocation | Pending |
+| Health | authority/lifecycle | NOT_CHECKED, chronology, fresh activation, constrained LKG | Pending |
+| Resolver | resolver | fixed precedence/permutations/missing context/conflicts | Pending |
+| Request security | requestSecurity.ts/test | real Express/auth chain, paths/methods/principals | Pending |
+| Future transaction | future.ts | atomic order, no persistent claim/network | Pending |
+| Idempotency | future.ts | versioned fingerprint, authorization before replay | Pending |
+| Concurrency | future.ts/lifecycle | scope/version CAS, parent revision, lock ordering | Pending |
+| Audit | contracts/lifecycle | strict variants/reasons, invalidations/expiry dedup | Pending |
+| Outbox | future.ts | strict metadata-only delivery, lease/retry/CAS intent | Pending |
+| Disconnection | foundation.test.ts | static imports/routes/client boundary | Pending |
+
+No K1B/K2, database persistence, source integration, PHI or production operation.
+
+Frozen install completed successfully (6m05s), pnpm 10.26.1; lockfile unchanged.
+Reconstruction pre-fix/safety command:
+`corepack pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts`: four files, 122 tests passed, 1.11s.
+Includes eight deterministic v1 probes reproducing raw hash/parser/retrievedAt/edition
+nonbinding, foreign inventory fingerprint change, draft poisoning, missing target
+supersession and missing ACTIVATE invalidation. V1 probe assertions are temporary
+and will be inverted into v2 safety scenarios; no deliberately red commit published.
+
+Reconstructed origin guard is implemented with real Express request.path, cookieParser,
+requireTrustedMutationOrigin/loadSession/requireAuth and mocked persistence only.
+All namespace/lookalike/query/safe/unsafe method, cookie A + Bearer B principal and
+invalid bearer denial scenarios pass. Existing session-security contract is now
+registered in mandatory app-checks API test command, solely permitted package change.
+Foundation v2 helpers are being reconstructed; not complete/merge-ready.

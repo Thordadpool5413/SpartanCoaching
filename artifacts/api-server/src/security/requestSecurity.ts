@@ -62,6 +62,22 @@ export function requireTrustedMutationOrigin(
     return next();
   }
 
+  // This reserved control namespace follows cookie-first authentication. A Bearer
+  // header cannot remove the origin requirement when that cookie wins selection.
+  const cookie = req.cookies?.[SESSION_COOKIE_NAME];
+  const isKnowledgeControl = req.path === "/api/knowledge-control" ||
+    req.path.startsWith("/api/knowledge-control/");
+  if (isKnowledgeControl && typeof cookie === "string" && cookie.length > 0) {
+    const origin = req.headers.origin;
+    if (!origin || !isAllowedOrigin(origin)) {
+      return res.status(403).json({
+        error: "Request origin is not allowed",
+        code: "CSRF_ORIGIN_REJECTED",
+      });
+    }
+    return next();
+  }
+
   // React Native keeps Set-Cookie values in its native cookie jar. After a
   // password reset that stale cookie can accompany the next login, but the
   // request is still a credential-authenticated native login rather than an
