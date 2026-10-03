@@ -1,6 +1,13 @@
 # Clinical cloud implementation ExecPlan
 
-**Current status (2026-10-02):** D1 is merged on main `3720251`; its main CI passes every non-audit gate. Active user-authorized D2 repair adds a reproducible narrow RSA validation patch and regression/signing checks. Local checks pass, but the unchanged registry audit still flags published node-forge 1.4.0. No audit-policy exception or production operation is authorized.
+**Current status (2026-10-03):** D1 and D2 are merged; PR #182 main
+`3ac00d6a6edcdae63bb599f4c7d3fdf0f936b3de` passed all seven checks in run
+37061698222. The owner-approved exact-artifact policy remains bounded and expires
+2026-11-01. Active work is the uploaded knowledge mandate's K0/safe K1 packet:
+[knowledge foundation ExecPlan](knowledge-foundation-k0-k1.md). Historical D2
+failures below remain evidence of earlier commits, not current authorization.
+Fresh K1 audit now reports two additional high dependency findings; the existing
+gate blocks them. No production activation is authorized.
 
 ## Authority and starting point
 
