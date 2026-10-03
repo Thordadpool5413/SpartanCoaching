@@ -92,3 +92,18 @@ compatibility tests and the proposed bounded approval are recorded in
 These patches are not covered by the existing forge-only approval. Its active
 policy is deliberately unchanged and rejects the revised lock/workspace. Do not
 merge while required checks fail or silently refresh approval metadata.
+
+## Approved extension — 2026-10-03 10:15:49 UTC
+
+The owner explicitly approved extending the policy to the two reviewed patches
+in PR184. This supersedes the pending statements above. The complete reviewed
+lock/workspace and both additional patch/tree hashes are now pinned in the existing
+attestation. Owner and November1 expiry are unchanged. No advisory ignores added.
+
+The gate verifies every installed incoming braces/cache dependency edge against the
+reviewed parent copies and target realpath, rejects extra copies and new direct app
+consumers, and runs both security regression suites itself. It accepts exactly the
+three named GHSA/CVE/version/path identities only after artifact verification.
+Other high/critical findings, missing/duplicate approved findings, fixed upstream
+versions, expiry and malformed audit evidence remain blocking. Raw reports remain
+visible and retained; a source-mitigated decision is not a clean registry audit.

@@ -111,3 +111,33 @@ workspace typecheck, all web/API builds and Metro mobile export.
 `git diff --check`:passed. All changed files reviewed; no generated build output staged.
 Broader API/web/DB/browser/recovery/release suites are delegated to the existing CI
 workflow on the published repair commit, not claimed locally.
+
+## Approved policy implementation — October 3
+
+Owner explicitly approved the concrete PR184 policy proposal at2026-10-03T10:15:49Z.
+This supersedes the pending owner decision above; no repeat approval needed.
+Recreated the reset scratch checkout, synchronized main (still3ac00d6), and continued
+on the existing clean PR184 branch. No human work was overwritten.
+
+Prior runtime1ea1863 CI37092806502 passed all five non-audit jobs: AI94/API315/web328/
+mobile298/DB54, browser51passed1skipped, build/typecheck/performance/release suites,
+full-history secrets and synthetic recovery. The sole audit-policy block is addressed
+by this approved extension. Patches/lock/workspace remain byte-identical to reviewed
+PR184 artifacts; forge source and its tree are unchanged.
+
+Extended existing policy rather than creating a second audit system. Added complete
+additional artifact/patch hashes, exact GHSA/CVE/version/path identities, all installed
+incoming edge realpath checks, duplicate-copy/altered-artifact rejection, and mandatory
+dependency regression invocation inside the gate. All original failure checks retained.
+Owner/expiry unchanged; no ignore entry, threshold change or production activation.
+
+Local frozen install passed. Policy tests39/39; security regression8/8; forge/signing2/2.
+`PATH=/tmp/spartan-pnpm/node_modules/.bin:$PATH node scripts/security/patched-audit.mjs`
+exited0: pass-with-verified-source-mitigation; raw1low/20moderate/3high/0critical retained.
+The tests cover missing/duplicate advisories, changed identities/paths/versions, upstream
+fix availability, policy expiry, real diverted symlinks, duplicate installed copies and
+modified package content. Broad CI will run on the published commit; exact final run,
+merge and main SHA will be recorded in PR184. Then synchronize/verify PR183 separately.
+No DB/infrastructure/clinical-eval changes. No architecture blockers or new owner tasks
+before verified merge. Owner must replace/remove or explicitly review policy before
+November1; external EAS, live ngrok, production and devices remain outside verification.
