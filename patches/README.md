@@ -79,3 +79,31 @@ When the advisory reports a fixed version, the gate requires review/removal.
 Prefer upgrading promptly to a reviewed upstream fix. Do not automatically renew
 or update hashes to accommodate an install change: review the actual change,
 rerun exploit/signing tests, and obtain owner approval for renewed scope.
+
+## October 3 additional source repairs — approval pending
+
+`braces@3.0.3.patch` and `http-cache-semantics@4.2.0.patch` mitigate
+GHSA-vfj7-8cjw-p6xm / CVE-2026-93687 and GHSA-ch52-4w7c-c8xp / CVE-2026-93748.
+Versions remain unchanged. Provenance, exact hashes, negative controls, upstream
+compatibility tests and the proposed bounded approval are recorded in
+`docs/execplans/dependency-audit-oct03.md`. Run
+`node scripts/security/dependency-regression.test.mjs` after frozen installation.
+
+These patches are not covered by the existing forge-only approval. Its active
+policy is deliberately unchanged and rejects the revised lock/workspace. Do not
+merge while required checks fail or silently refresh approval metadata.
+
+## Approved extension — 2026-10-03 10:15:49 UTC
+
+The owner explicitly approved extending the policy to the two reviewed patches
+in PR184. This supersedes the pending statements above. The complete reviewed
+lock/workspace and both additional patch/tree hashes are now pinned in the existing
+attestation. Owner and November1 expiry are unchanged. No advisory ignores added.
+
+The gate verifies every installed incoming braces/cache dependency edge against the
+reviewed parent copies and target realpath, rejects extra copies and new direct app
+consumers, and runs both security regression suites itself. It accepts exactly the
+three named GHSA/CVE/version/path identities only after artifact verification.
+Other high/critical findings, missing/duplicate approved findings, fixed upstream
+versions, expiry and malformed audit evidence remain blocking. Raw reports remain
+visible and retained; a source-mitigated decision is not a clean registry audit.
