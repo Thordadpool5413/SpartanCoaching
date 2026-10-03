@@ -120,15 +120,35 @@ function project(
     const assignments: Assignment[] = [];
     const sources: KnowledgeSource[] = [];
     const versions: KnowledgeVersion[] = [];
-    const current = rawAssignments.filter(
-      (a) =>
-        data(a, "retiredAt") === null &&
-        rawSources.some(
+    const current = rawAssignments.filter((a) => {
+      if (data(a, "retiredAt") !== null) return false;
+      const linkedVersions = rawVersions.filter(
+        (v) => data(v, "id") === data(a, "versionId"),
+      );
+      if (
+        !linkedVersions.length ||
+        linkedVersions.every(
+          (v) => !Number.isSafeInteger(data(v, "sourceMetadataRevision")),
+        )
+      ) {
+        // A visible broken reference must fail closed when parsed below.
+        return rawSources.some(
           (s) =>
             data(s, "id") === data(a, "sourceId") &&
             allowed.has(data(s, "domain") as never),
+        );
+      }
+      // Authorization uses the artifact's pinned metadata revision. A candidate
+      // revision of the same stable source ID cannot confer visibility.
+      return linkedVersions.some((v) =>
+        rawSources.some(
+          (s) =>
+            data(s, "id") === data(v, "sourceId") &&
+            data(s, "metadataRevision") === data(v, "sourceMetadataRevision") &&
+            allowed.has(data(s, "domain") as never),
         ),
-    );
+      );
+    });
     for (const rawAssignment of current) {
       const a = parseContract(assignmentSchema, rawAssignment);
       const rawVersion = reference(

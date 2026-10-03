@@ -210,7 +210,7 @@ Pure semantics are locally verified; durable K1B semantics remain contracts only
 | CONCURRENCY CONTRACT | scope/version expected revisions + futureLockOrder | Parent and every touched version CAS negatives; exact-row/non-owner/scope-first lock order contract; no actual PostgreSQL locking claim |
 | AUDIT CONTRACT | eventSchema/transitionKnowledge/evaluateExpiryIntents | Typed operation/reason/actor variants; all publication/eligibility invalidations; stable expiry identity, shared-rights deduplication, no free content/error leakage |
 | OUTBOX CONTRACT | outboxSchema/retryDelaySeconds/futureProtocol | Strict metadata-only/lease pair/retry cap tests; at-least-once, event dedup/CAS/re-read intent; no dispatcher |
-| TESTS | 207 foundation + 35 security regressions | Required synthetic scenarios and pure input/snapshot ownership pass |
+| TESTS | 208 foundation + 35 security regressions | Required synthetic scenarios and pure input/snapshot ownership pass |
 | LOCAL VERIFICATION | Commands/results below | Fresh reconstruction results only; local environmental omissions explicit |
 | CI REQUIREMENTS | Existing seven mandatory gates unchanged | Starting exact-main run green; implementation PR run pending |
 | ACCEPTANCE CRITERIA | Matrix, scope review, regression/CI inventory | Pure local acceptance complete; not merge-ready before current PR gates |
@@ -232,13 +232,13 @@ digest are pinned in the test. It is a synthetic fixture, never clinical evidenc
 
 | File | Fresh targeted count | Mandatory workflow path |
 |---|---:|---|
-| knowledge/foundation/foundation.test.ts | 207 | app-checks -> pnpm --filter @workspace/api-server test (already explicit) |
+| knowledge/foundation/foundation.test.ts | 208 | app-checks -> pnpm --filter @workspace/api-server test (already explicit) |
 | security/requestSecurity.test.ts | 35 | Same explicit API suite |
 | auth/middleware.test.ts | 11 | Same explicit API suite, retained unchanged |
 | auth/sessionSecurityContract.test.ts | 6 | Same API suite, newly registered existing file |
 
 No new unregistered test file was created. All helpers are exercised through the
-existing mandatory foundation test entry. JSON reporter verified 259/259, four
+existing mandatory foundation test entry. JSON reporter verified 260/260, four
 files, zero failures. Full API verbose output confirms session-security execution.
 
 ### Fresh local commands/results
@@ -249,11 +249,11 @@ All commands below exit zero except stated environmental failures.
 | Command | Result |
 |---|---|
 | pnpm install --frozen-lockfile | Passed, 6m05s, unchanged lockfile |
-| pnpm --filter @workspace/api-server exec vitest run foundation/security/middleware/sessionSecurityContract files | Four files, 259/259 passed; JSON reporter confirms per-file inventory above |
+| pnpm --filter @workspace/api-server exec vitest run foundation/security/middleware/sessionSecurityContract files | Four files, 260/260 passed; JSON reporter confirms per-file inventory above |
 | pnpm run typecheck | Passed after final source changes |
 | pnpm --filter @workspace/spartan-ai-tools test | 8 files, 94/94, 616ms |
 | pnpm --filter @workspace/field-kit-catalog test | 10 files, 97/97, 777ms |
-| pnpm --filter @workspace/api-server test | 50 files, 557/557, 5.45s; live NPI unchanged and passed |
+| pnpm --filter @workspace/api-server test | 50 files, 558/558 (final revision repair; duration recorded in PR ledger); live NPI unchanged and passed |
 | pnpm --filter @workspace/api-server exec vitest run src/delivery/featureFlags.test.ts src/routes/health.test.ts src/routes/orgAdmin.test.ts | 3 files, 18/18, 2.72s |
 | pnpm --filter @workspace/spartan-coaching test | 63 files, 328/328, 19.25s |
 | pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand | 60 suites, 298/298, 29.936s; existing open-handle warning, exit0 |
@@ -334,3 +334,18 @@ current CI; live/device/external release checks are not verified by this packet.
 Owner-only production/reviewer/rights actions were not performed.
 After verified merge stop; next action is fresh independent Astra adversarial review
 of K1A, with no automatic K1B/K2 authorization.
+
+Final pre-merge adversarial review found an additional source revision isolation
+edge: domain visibility was classified by stable source ID before matching the
+artifact's pinned metadataRevision. A new unpublished revision could therefore
+poison an older inaccessible publication. Targeted pre-fix reproduction
+`vitest run foundation.test.ts -t 'unpublished source metadata revision'` failed
+locally with KNOWLEDGE_REFERENCE_INVALID (not pushed as a red assertion).
+Visibility now matches exact version/source metadata revision before payload
+validation. The permanent test proves complete result equality. No architecture
+change or scope expansion; current PR CI must be refreshed for this repair.
+Repair validation: JSON inventory 260/260 targeted (foundation 208, security 35,
+middleware 11, session 6); full API 558/558 across 50 files, 6.89s. Final typecheck
+and API build passed. Prior unchanged web/mobile/browser/security checks remain
+valid. This is an implementation defect correction; prior PR runs are stale after
+this commit and cannot authorize merge.

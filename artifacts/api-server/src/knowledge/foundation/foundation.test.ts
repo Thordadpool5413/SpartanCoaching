@@ -1896,3 +1896,24 @@ it("future receipt/outbox rejection does not accept free content or unbounded re
   };
   expect(outboxSchema.safeParse(o).success).toBe(false);
 });
+
+it("an unpublished source metadata revision cannot change published domain authorization", () => {
+  const p = fixture();
+  p.grants.find((g) => g.subjectMemberId === 3)!.domains = ["CMS_MANUAL"];
+  const before = resolve(p);
+  expect(before.state).toBe("SOURCE_UNAVAILABLE");
+  p.sources.push({
+    ...p.sources[0],
+    metadataRevision: 2,
+    domain: "CMS_MANUAL",
+  });
+  const v = structuredClone(p.versions[0]);
+  v.id = "synthetic-new-metadata-candidate";
+  v.sourceMetadataRevision = 2;
+  v.artifactRevision = 2;
+  v.state = "DETECTED";
+  v.approvals = [];
+  v.activatedAt = null;
+  p.versions.push(v);
+  expect(resolve(p)).toEqual(before);
+});
