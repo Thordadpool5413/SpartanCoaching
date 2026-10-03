@@ -360,7 +360,7 @@ Lifecycle table (no generic status PATCH):
 | REVOKE | Any nonrevoked operational version -> REVOKED, terminal | `.revoke`; immediate publication denial |
 
 Operational commands are also typed: RECORD_HEALTH (`.health`, chronological
-observation); APPROVE_LKG (`.review` plus qualification, binds manifest/until);
+observation); APPROVE_LKG (`.health` + `.review` plus qualification, binds manifest/until);
 REVOKE_RIGHTS (`.license`), REVOKE_GRANT and REVOKE_QUALIFICATION (`.grants`, exact
 scope/domain/delegated authority, no self-grant/verification). Each requires target
 and expected revisions, leaves immutable records intact and changes only its
@@ -472,6 +472,8 @@ expiry or STALE_BLOCKED return SOURCE_EXPIRED; NOT_CHECKED/unavailable without L
 return SOURCE_UNAVAILABLE. REVOKED returns SOURCE_REVOKED. No manufactured checkedAt.
 Activation/rollback/supersession require fresh CURRENT before warningAt, never LKG.
 
+Health REVOKED is derived only from terminal artifact revocation; RECORD_HEALTH
+cannot set or clear it. Other health observations cannot clear an artifact revocation.
 Health writes require `.health`; granting LKG additionally requires `.review` and
 the matching qualification. They are pure operational updates/intents in K1A, no
 network monitoring or scheduler. Artifact revocation, rights revocation/expiry and
@@ -581,7 +583,10 @@ discriminated event variants; no free JSON payload and no source/patient text.
 Reason enum: REGISTERED, VALIDATION_RECORDED, SUBMITTED, REVIEW_APPROVED,
 REVIEW_REJECTED, PUBLISHED, SUPERSEDED, ROLLBACK_APPROVED, SECURITY_REVOCATION,
 RIGHTS_REVOKED, RIGHTS_EXPIRED, HEALTH_BLOCKED, HEALTH_EXPIRED, GRANT_REVOKED,
-QUALIFICATION_REVOKED, APPROVAL_EXPIRED. No arbitrary strings matching a regex.
+QUALIFICATION_REVOKED, GRANT_EXPIRED, QUALIFICATION_EXPIRED, APPROVAL_EXPIRED. No arbitrary strings matching a regex.
+Human-command events require actorKind=HUMAN and actorMemberId. Expiry intents use
+actorKind=SYSTEM, systemActorId=expiry-evaluator and actorMemberId=null; this variant
+is produced only by trusted expiry evaluation, never accepted as a human command.
 The server supplies identity/time/IDs. Error returns are bounded codes, not validator
 dumps/request objects/raw SQL or SDK exceptions. K1B app cannot update/delete audit
 or cascade-delete history. K1A emits intent only and performs no log delivery.
