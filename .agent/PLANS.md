@@ -1,6 +1,9 @@
 # Execution plans
 
-Active knowledge packet: `docs/execplans/knowledge-foundation-k0-k1.md`.
+Active knowledge packet: `docs/execplans/knowledge-k1a-correct.md`.
+Approved correction decisions and implementation packet:
+`docs/architecture/knowledge-2026-10-03/03-k1a-correct.md`.
+K0/K1 history: `docs/execplans/knowledge-foundation-k0-k1.md`.
 Clinical-cloud history/dependencies: `docs/execplans/clinical-cloud-implementation.md`.
 
 Each plan records objective, in/out scope, dependencies, inspected code, required

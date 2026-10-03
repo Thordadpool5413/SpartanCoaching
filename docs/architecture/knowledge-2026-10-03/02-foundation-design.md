@@ -1,5 +1,12 @@
 # K1 foundation design and implementation boundary
 
+Historical v1 implementation description. The adversarial review identified gaps
+in approval binding, scope fingerprints, publication and authority contracts.
+`03-k1a-correct.md` supersedes the affected design decisions for K1A implementation.
+Its v2 corrections are not implemented merely by publishing that decision document.
+Do not proceed directly from this historical design to persistence: K1A must be
+implemented, merged, green, and independently reviewed before K1B is issued.
+
 Decision K1-001, derived from the owner-supplied mandate: extend the canonical
 Express server's `knowledge/` namespace with pure, typed foundation services.
 Preserve existing runtime, auth, organization IDs, coverage snapshots, OpenAI

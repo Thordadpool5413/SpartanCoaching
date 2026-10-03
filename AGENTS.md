@@ -30,6 +30,7 @@ Update the ExecPlan with findings, changes, tests, blockers and owner actions. R
 architecture blockers with evidence/options to the owner; continue unrelated safe work.
 
 Knowledge program mandate: `docs/architecture/knowledge-2026-10-03/00-mandate.md`.
-Current first-run boundary: K0 plus safe K1 contracts only; no K2–K23 integrations.
+The active packet and its stop boundary are recorded in `.agent/PLANS.md`.
+Completion of one knowledge packet never authorizes the next packet automatically.
 The approved temporary forge policy is in `patches/README.md`; never silently change
 its hashes, scope or expiration to accommodate unrelated work.
