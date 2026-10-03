@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, realpathSync, lstatSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync, lstatSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,13 +22,38 @@ export function treeHash(dir) {
   walk(dir);
   return createHash('sha256').update(JSON.stringify(entries)).digest('hex');
 }
+export function coveredAdvisories(policy) {
+  assert.deepEqual(policy.additionalArtifacts?.map(p => [p.module_name, p.advisory]), [
+    ['braces', 'GHSA-vfj7-8cjw-p6xm'],
+    ['http-cache-semantics', 'GHSA-ch52-4w7c-c8xp'],
+  ], 'APPROVED_SCOPE_CHANGED');
+  return [{ module_name: 'node-forge', version: '1.4.0', advisory: policy.advisory,
+    cves: ['CVE-2026-85393'], auditPaths: policy.auditPaths }, ...policy.additionalArtifacts];
+}
+export function attestAdditional(artifact, store) {
+  const copies = readdirSync(store).filter(p => p.startsWith(`${artifact.module_name}@`));
+  assert.deepEqual(copies, [artifact.storeEntry], 'UNREVIEWED_PACKAGE_COPY');
+  const packageRoot = resolve(store, artifact.storeEntry, 'node_modules', artifact.module_name);
+  assert.equal(treeHash(packageRoot), artifact.packageTreeSha256, 'INSTALLED_PACKAGE_CHANGED');
+  const incoming = [];
+  for (const entry of readdirSync(store)) {
+    if (entry === artifact.storeEntry || entry === 'node_modules') continue;
+    const link = resolve(store, entry, 'node_modules', artifact.module_name);
+    if (!existsSync(link)) continue;
+    assert.equal(realpathSync(link), realpathSync(packageRoot), 'UNATTESTED_RESOLUTION');
+    incoming.push(entry);
+  }
+  assert.deepEqual(incoming.sort(), [...artifact.incomingStoreEntries].sort(), 'UNREVIEWED_INCOMING_EDGES');
+}
 export function attest(policy, now = new Date()) {
   assert.ok(now >= new Date(policy.approvedAt) && now < new Date(policy.expiresAt), 'POLICY_EXPIRED_OR_NOT_ACTIVE');
   assert.ok(policy.owner && policy.advisory === 'GHSA-86w9-cpqp-85rv', 'POLICY_IDENTITY');
   for (const [file, expected] of Object.entries(policy.files)) assert.equal(hash(resolve(root, file)), expected, `ARTIFACT_CHANGED: ${file}`);
   // Pin the complete lock and workspace configuration. Any resolution/configuration
   // change needs renewed review, even when it looks unrelated to this exception.
+  coveredAdvisories(policy);
   const store = resolve(root, 'node_modules/.pnpm');
+  for (const artifact of policy.additionalArtifacts) attestAdditional(artifact, store);
   const copies = readdirSync(store).filter(p => p.startsWith('node-forge@'));
   assert.deepEqual(copies, [policy.storeEntry], 'UNREVIEWED_FORGE_COPY');
   const packageRoot = resolve(store, copies[0], 'node_modules/node-forge');
@@ -51,7 +76,7 @@ export function attest(policy, now = new Date()) {
         const path = resolve(dir, entry.name);
         assert.ok(!entry.isSymbolicLink(), 'UNREVIEWED_SOURCE_SYMLINK');
         if (entry.isDirectory()) scan(path);
-        else if (/\.(?:[cm]?[jt]sx?|json|html)$/.test(entry.name)) assert.ok(!/node-forge|forge\.min\.js/.test(readFileSync(path, 'utf8')), 'NEW_DIRECT_FORGE_CONSUMER');
+        else if (/\.(?:[cm]?[jt]sx?|json|html)$/.test(entry.name)) assert.ok(!/node-forge|forge\.min\.js|["\'](?:braces|http-cache-semantics)(?:["\']|\/)/.test(readFileSync(path, 'utf8')), 'NEW_DIRECT_PATCHED_PACKAGE_CONSUMER');
       }
     }
     scan(resolve(root, parent));
@@ -64,29 +89,32 @@ export function evaluateAudit(report, status, policy, attested) {
   assert.ok(report && !report.error && report.advisories && !Array.isArray(report.advisories), 'AUDIT_FORMAT');
   assert.ok(Array.isArray(report.muted) && report.muted.length === 0, 'MUTED_FINDINGS');
   const counts = { info: 0, low: 0, moderate: 0, high: 0, critical: 0 };
-  let accepted = 0;
+  const covered = coveredAdvisories(policy);
+  const accepted = new Set();
   for (const advisory of Object.values(report.advisories)) {
     assert.ok(Object.hasOwn(counts, advisory.severity), 'UNKNOWN_SEVERITY');
     assert.ok(Array.isArray(advisory.findings) && advisory.findings.length > 0, 'FINDINGS_MISSING');
     counts[advisory.severity] += advisory.findings.length;
     if (!['high', 'critical'].includes(advisory.severity)) continue;
-    assert.equal(advisory.github_advisory_id, policy.advisory, 'UNMITIGATED_ADVISORY');
-    assert.equal(advisory.module_name, 'node-forge', 'ADVISORY_PACKAGE');
+    const approved = covered.find(p => p.advisory === advisory.github_advisory_id);
+    assert.ok(approved, 'UNMITIGATED_ADVISORY');
+    assert.ok(!accepted.has(approved.advisory), 'DUPLICATE_ADVISORY');
+    assert.equal(advisory.module_name, approved.module_name, 'ADVISORY_PACKAGE');
     assert.equal(advisory.severity, 'high', 'ADVISORY_SEVERITY_CHANGED');
-    assert.deepEqual(advisory.cves, ['CVE-2026-85393'], 'ADVISORY_IDENTITY_CHANGED');
+    assert.deepEqual(advisory.cves, approved.cves, 'ADVISORY_IDENTITY_CHANGED');
     assert.equal(advisory.patched_versions, '<0.0.0', 'UPSTREAM_FIX_AVAILABLE_REVIEW_REQUIRED');
     assert.ok(Array.isArray(advisory.findings) && advisory.findings.length > 0, 'FINDINGS_MISSING');
     for (const finding of advisory.findings) {
-      assert.equal(finding.version, '1.4.0', 'UNREVIEWED_VERSION');
+      assert.equal(finding.version, approved.version, 'UNREVIEWED_VERSION');
       assert.ok(Array.isArray(finding.paths) && finding.paths.length > 0, 'PATHS_MISSING');
-      for (const path of finding.paths) assert.ok(policy.auditPaths.includes(path), 'UNREVIEWED_AUDIT_PATH');
+      for (const path of finding.paths) assert.ok(approved.auditPaths.includes(path), 'UNREVIEWED_AUDIT_PATH');
     }
-    accepted++;
+    accepted.add(approved.advisory);
   }
   assert.deepEqual(report.metadata?.vulnerabilities, counts, 'AUDIT_COUNTS_INCONSISTENT');
   assert.equal(status, Object.values(counts).some(n => n > 0) ? 1 : 0, 'AUDIT_EXIT_INCONSISTENT');
-  assert.equal(accepted, 1, 'ADVISORY_CHANGED_REVIEW_POLICY');
-  return { decision: 'pass-with-verified-source-mitigation', advisory: policy.advisory, rawVulnerabilities: counts, expiresAt: policy.expiresAt };
+  assert.deepEqual([...accepted].sort(), covered.map(p => p.advisory).sort(), 'ADVISORY_CHANGED_REVIEW_POLICY');
+  return { decision: 'pass-with-verified-source-mitigation', advisories: [...accepted].sort(), rawVulnerabilities: counts, expiresAt: policy.expiresAt };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -103,6 +131,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const attested = attest(policy);
     const regression = spawnSync(process.execPath, ['scripts/forge-security.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000 });
     assert.equal(regression.status, 0, 'SIGNING_REGRESSION_FAILED');
+    const dependencyRegression = spawnSync(process.execPath, ['scripts/security/dependency-regression.test.mjs'], { cwd: root, stdio: 'inherit', timeout: 120000, env: { ...process.env, REGRESSION_BRACES_DIR: '', REGRESSION_CACHE_DIR: '' } });
+    assert.equal(dependencyRegression.status, 0, 'DEPENDENCY_REGRESSION_FAILED');
     const decision = evaluateAudit(JSON.parse(audit.stdout), audit.status, policy, attested);
     writeFileSync(resolve(dir, 'decision.json'), JSON.stringify(decision, null, 2) + '\n');
     console.log(JSON.stringify(decision));

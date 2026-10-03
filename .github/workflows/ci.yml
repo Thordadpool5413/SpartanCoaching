@@ -229,6 +229,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Verify patched RSA validation and Expo signing
         run: node scripts/forge-security.test.mjs
+      - name: Verify dependency recursion and cache isolation repairs
+        run: node scripts/security/dependency-regression.test.mjs
       - name: Test dependency attestation rejection cases
         run: node scripts/security/patched-audit.test.mjs
       - name: Audit dependencies with approved exact-artifact attestation

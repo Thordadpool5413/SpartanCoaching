@@ -1,12 +1,14 @@
 {
   "advisory": "GHSA-86w9-cpqp-85rv",
   "owner": "Nicholas Lynch / SpartanCoaching repository owner",
-  "approvedAt": "2026-10-02T20:20:55Z",
+  "approvedAt": "2026-10-03T10:15:49Z",
   "expiresAt": "2026-11-01T00:00:00Z",
   "files": {
-    "pnpm-lock.yaml": "b41136d70d048d0fde42f1ce85cbec087c35d9913174673a79c36fe8326478dc",
-    "pnpm-workspace.yaml": "ded018d84a837e259901d4ac13f65b7840cc5ae73260bf12fd7eb2fcdf790d06",
-    "patches/node-forge@1.4.0.patch": "658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204"
+    "pnpm-lock.yaml": "9932a06b4620b87458dbee0d3cf63cbd285cf8d123cc6eefbed46dfc52ea6405",
+    "pnpm-workspace.yaml": "8e75ac09d3c6250b813bd5002217c2abf5f7e8790ef91c552d9763946a64a89c",
+    "patches/node-forge@1.4.0.patch": "658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204",
+    "patches/braces@3.0.3.patch": "37f95f7d660c05bfd44d4b429ca49ceeede99dcff68389f81ee9b995a8ea24d2",
+    "patches/http-cache-semantics@4.2.0.patch": "ea91cbabfa1f7991c05483aa9e5b35e17439e0ef02db41d09d6bb7a0e941f7f7"
   },
   "storeEntry": "node-forge@1.4.0_patch_hash=658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204",
   "packageTreeSha256": "b6025640b7c1159d25d97624337458fd99323d091d30e189ecfd074c0a34d617",
@@ -15,5 +17,40 @@
     "artifacts__spartan-coaching-mobile>expo>@expo/cli>node-forge",
     "artifacts__spartan-coaching-mobile>@expo/cli>@expo/code-signing-certificates>node-forge",
     "artifacts__spartan-coaching-mobile>expo>@expo/cli>@expo/code-signing-certificates>node-forge"
+  ],
+  "additionalArtifacts": [
+    {
+      "module_name": "braces",
+      "version": "3.0.3",
+      "advisory": "GHSA-vfj7-8cjw-p6xm",
+      "cves": [
+        "CVE-2026-93687"
+      ],
+      "storeEntry": "braces@3.0.3_patch_hash=37f95f7d660c05bfd44d4b429ca49ceeede99dcff68389f81ee9b995a8ea24d2",
+      "packageTreeSha256": "3b72c3267233849975ea9b7936d8ca27fde74548a17d1f555d59e14e1d7ce8dc",
+      "incomingStoreEntries": [
+        "chokidar@3.6.0",
+        "micromatch@4.0.8"
+      ],
+      "auditPaths": [
+        "artifacts__mockup-sandbox>fast-glob>micromatch>braces"
+      ]
+    },
+    {
+      "module_name": "http-cache-semantics",
+      "version": "4.2.0",
+      "advisory": "GHSA-ch52-4w7c-c8xp",
+      "cves": [
+        "CVE-2026-93748"
+      ],
+      "storeEntry": "http-cache-semantics@4.2.0_patch_hash=ea91cbabfa1f7991c05483aa9e5b35e17439e0ef02db41d09d6bb7a0e941f7f7",
+      "packageTreeSha256": "313b9465cbe90259a4db5bdf781c3f817fa2fa847597b11168010327c7de8a3f",
+      "incomingStoreEntries": [
+        "cacheable-request@7.0.4"
+      ],
+      "auditPaths": [
+        "artifacts__spartan-coaching-mobile>@expo/ngrok>got>cacheable-request>http-cache-semantics"
+      ]
+    }
   ]
 }

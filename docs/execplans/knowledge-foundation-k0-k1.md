@@ -109,11 +109,23 @@ Next bounded packet: K1 persistence and authenticated control plane, with
 version-controlled migrations, existing coverage FK reuse, source immutability,
 negative tenant/RLS/permission tests, concurrent activation and durable audit/
 invalidation verification. Requires its own bounded approval. K2–K23 not started.
-Current merge blocker: two additional high dependency findings; exact results
-and subsequent PR CI state must remain explicit in the final report.
+Historical merge blocker: two additional high dependency findings, resolved by
+PR184 as recorded below. Exact final PR CI state must remain explicit.
 
 Final review corrected resolver aggregation: known but inapplicable versions now
 return NOT_APPLICABLE, separately from absent SOURCE_UNAVAILABLE. Added a targeted
 regression; foundation suite now 62 tests. Prior CI runtime ee2a470 passed API
 376 including its live NPI check, confirming the local DNS issue was environmental;
 that run is superseded by the aggregation fix. New runtime CI must be checked.
+
+## Synchronization after approved security repair
+
+On2026-10-03 merged verified maina5e746088b377fd1bc0dc6d8094974f69803b5eb
+into this feature branch without conflicts or K1 runtime changes. PR184 source
+patches and the explicitly approved artifact policy passed all seven CI jobs in
+run37116214069. Existing K1 runtime875db235 previously passed all non-audit jobs
+(API377 including62 foundation tests; AI94/web328/mobile298/DB54/browser51+1skip).
+No new knowledge scope, clinical integration, DB change or production operation.
+The synchronized PR183 head must pass its own complete CI before authorized merge.
+Final exact head/run/merge results are retained in PR183; architecture/owner-only
+production dependencies above remain unchanged.
