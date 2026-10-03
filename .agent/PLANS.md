@@ -1,0 +1,12 @@
+# Execution plans
+
+Active knowledge packet: `docs/execplans/knowledge-foundation-k0-k1.md`.
+Clinical-cloud history/dependencies: `docs/execplans/clinical-cloud-implementation.md`.
+
+Each plan records objective, in/out scope, dependencies, inspected code, required
+implementation/security/tests, acceptance, stop conditions and owner-only work.
+Record starting main SHA, progress, evidence, exact commands/results, blockers,
+commits/PR/CI, and the next bounded packet. Historical failed runs remain historical;
+identify the verified commit/run instead of treating an old failure as current state.
+Do not expose patient data or credentials in plans. A green CI run is not clinical
+validation or production activation authority. Work on one packet at a time.

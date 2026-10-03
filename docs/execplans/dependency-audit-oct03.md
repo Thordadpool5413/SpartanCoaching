@@ -141,3 +141,12 @@ merge and main SHA will be recorded in PR184. Then synchronize/verify PR183 sepa
 No DB/infrastructure/clinical-eval changes. No architecture blockers or new owner tasks
 before verified merge. Owner must replace/remove or explicitly review policy before
 November1; external EAS, live ngrok, production and devices remain outside verification.
+
+## Verified repair merge
+
+PR184 https://github.com/Thordadpool5413/SpartanCoaching/pull/184 merged after
+CI37116214069 passed all seven jobs on7efdb079d99e5c0c04f94efea9376ff5b9eafdce.
+Merge/main SHA:a5e746088b377fd1bc0dc6d8094974f69803b5eb.
+Policy39, new regression8, signing2 passed; application, browser, full-history
+secrets, migration equivalence and synthetic recovery all passed. Previous failing
+run37092806502 is superseded. Approved policy is active; no bypass or repeat approval.
