@@ -639,3 +639,43 @@ No architecture blocker or owner-only action is required. Do not claim completio
 until the follow-up is merged and all seven post-merge jobs pass. No K1B, K2,
 persistence, migrations, production knowledge API, PHI, FHIR/clinical AI integration
 or production activation has started. Stop after this repair is green on main.
+
+### PR #188 review closure within the same seven findings
+
+The first follow-up commit `1d5f2e5c7297dfab8e37d4e22152e870b0e396a7`
+passed all seven jobs in run `37243977661`. Before merging, automatic review
+reported three residual cases within the original seven-finding scope. They are
+fixed in the same PR #188; the earlier green run is not final-head verification.
+
+| Review refinement | Original finding | Correction and regression evidence |
+|---|---|---|
+| 4179796452 | 4178885930 | Per-publication `SCOPE_DENIED` is impossible after authorized projection and is rejected by the entry contract; top-level empty-inventory denial remains valid. Two single/mixed entry cases reproduce acceptance with recomputed hashes. Existing precedence is unchanged. |
+| 4179796454 | 4178885940 | A replacement cannot identify itself as predecessor. Direct event references must match the new assignment's predecessor, source/document/scope and creation event/time, and the actual predecessor's retirement event/time. Twenty-one cases cover self/unrelated/source/document/unretired/creation/retirement mismatches across SUPERSEDE, ROLLBACK and REFRESH_APPROVAL. |
+| 4179796458 | 4178885932 | Shared semantic validation closes approval, rights and LKG grant/qualification/member references and their subject identity. Twenty-three missing/wrong-subject/removed-member cases plus one valid revoked/inactive historical-authority control. Historical provenance does not require current credential eligibility. |
+
+Focused command:
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'review closure'`.
+Before these source edits: **46 fail / 1 passing control**. After: **47/47 pass**.
+Total new regressions in this follow-up: **114** (67 original + 47 review closure).
+All run through the unchanged mandatory API command and Application CI job;
+no new test registration or CI policy change was needed.
+
+Final local reruns after review closure:
+
+- The same targeted foundation/security/auth command: **616/616**, no skips
+  (foundation 509, guard 90, middleware 11, session 6).
+- `pnpm --filter @workspace/api-server test`: **914/914**, 50 files, 54.96s;
+  generated-contract, normalization and OpenAPI pretests also pass.
+- `pnpm run typecheck`: **PASS**, root and all workspace targets.
+- `CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build`:
+  **PASS**, full workspace and native static bundles; no deployment.
+- Formatting of all six TypeScript files, `git diff --check`, and performance
+  budgets: **PASS**.
+
+Only contracts, shared state validation, regressions and this ExecPlan changed
+since the first follow-up commit. The broader AI/web/mobile/browser/security
+results and local infrastructure limitations above remain recorded; fresh
+current-head CI must rerun every mandatory job before merge. The PR body records
+the final build result, final head, all seven original discussion resolutions
+and these three refinements, exact current-head CI and post-merge main evidence.
+There is no architecture change, new packet, owner-only action or blocker.

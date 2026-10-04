@@ -77,8 +77,49 @@ export function validateState(p: Partition, now?: string): void {
     p.qualifications.some((q) => q.scopeId !== p.scope.id)
   )
     fail("KNOWLEDGE_REFERENCE_INVALID");
+  const members = new Set(p.members.map((m) => m.memberId));
+  const grants = new Map(p.grants.map((g) => [g.id, g]));
+  const qualifications = new Map(p.qualifications.map((q) => [q.id, q]));
+  // Attestations retain historical authority. Validate identity/provenance,
+  // without requiring those credentials or memberships to remain active.
+  const authorityReferences = (
+    memberId: number | null,
+    grantIds: readonly (string | null)[],
+    qualificationId: string | null,
+  ) => {
+    if (memberId !== null && !members.has(memberId))
+      fail("KNOWLEDGE_REFERENCE_INVALID");
+    for (const grantId of grantIds) {
+      if (grantId === null) continue;
+      const grant = grants.get(grantId);
+      if (!grant || grant.subjectMemberId !== memberId)
+        fail("KNOWLEDGE_REFERENCE_INVALID");
+    }
+    if (qualificationId !== null) {
+      const qualification = qualifications.get(qualificationId);
+      if (!qualification || qualification.subjectMemberId !== memberId)
+        fail("KNOWLEDGE_REFERENCE_INVALID");
+    }
+  };
   const rightsRecords = new Map<string, string>();
   for (const version of p.versions) {
+    for (const approval of version.approvals)
+      authorityReferences(
+        approval.reviewerMemberId,
+        [approval.reviewGrantId],
+        approval.qualificationId,
+      );
+    authorityReferences(
+      version.rights.verifiedByMemberId,
+      [version.rights.verificationGrantId],
+      version.rights.verificationQualificationId,
+    );
+    if (version.health.lkg)
+      authorityReferences(
+        version.health.lkg.reviewerMemberId,
+        [version.health.lkg.healthGrantId, version.health.lkg.reviewGrantId],
+        version.health.lkg.qualificationId,
+      );
     const key = `${version.rights.id}/${version.rights.revision}`;
     const digest = canonicalDigest({
       terms: version.rights,

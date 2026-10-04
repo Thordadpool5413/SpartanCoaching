@@ -1110,7 +1110,9 @@ export const eventSchema = z
         if (
           e.operation === "ACTIVATE"
             ? e.previousAssignmentId !== null || e.previousApprovalId !== null
-            : e.previousAssignmentId === null || e.previousApprovalId === null
+            : e.previousAssignmentId === null ||
+              e.previousApprovalId === null ||
+              e.previousAssignmentId === e.assignmentId
         )
           invalid();
       }
@@ -1322,6 +1324,33 @@ export const transitionResultSchema = z
         invalid();
     }
 
+    if (e.aggregateKind === "PUBLICATION") {
+      const created = p.assignments.find((a) => a.id === e.assignmentId);
+      const previous = p.assignments.find(
+        (a) => a.id === e.previousAssignmentId,
+      );
+      if (
+        !created ||
+        created.scopeId !== p.scope.id ||
+        created.sourceId !== e.sourceId ||
+        created.documentId !== v?.documentId ||
+        created.predecessorAssignmentId !== e.previousAssignmentId ||
+        created.eventId !== e.id ||
+        created.createdAt !== e.occurredAt ||
+        created.retiredAt !== null
+      )
+        invalid();
+      if (
+        e.operation !== "ACTIVATE" &&
+        (!previous ||
+          previous.scopeId !== p.scope.id ||
+          previous.sourceId !== created?.sourceId ||
+          previous.documentId !== created?.documentId ||
+          previous.retiredAt !== e.occurredAt ||
+          previous.retirementEventId !== e.id)
+      )
+        invalid();
+    }
     if (
       e.assignmentId !== null &&
       !p.assignments.some(
@@ -1372,7 +1401,9 @@ export const runtimeEntrySchema = z
     reasonCodes: set(z.enum(applicabilityStates), true),
     warningCodes: set(z.literal("STALE_ALLOWED_WITH_WARNING"), true),
   })
-  .strict();
+  .strict()
+  // Scope authorization happens before projection; denial is top-level only.
+  .refine((entry) => entry.state !== "SCOPE_DENIED");
 const normalizedContextSchema = z
   .object({
     claimType: z.enum(claimTypes),

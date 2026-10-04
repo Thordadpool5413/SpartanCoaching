@@ -4350,6 +4350,150 @@ describe("PR187 seven-finding follow-up", () => {
       });
   });
 
+  describe("review closure within 4178885930, 4178885940 and 4178885932", () => {
+    for (const mixed of [false, true])
+      it(
+        "4178885930 rejects an impossible scope-denied publication, mixed=" +
+          mixed,
+        () => {
+          const r = mixed ? combined() : resolve();
+          r.decisions[0].state = "SCOPE_DENIED";
+          r.decisions[0].reasonCodes = ["SCOPE_DENIED"];
+          r.manifest.publishedEntries = structuredClone(r.decisions);
+          r.state = mixed ? "APPLICABLE" : "NOT_APPLICABLE";
+          r.selected = r.decisions.filter((e) => e.state === "APPLICABLE");
+          expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+          const denied = resolve(fixture(), context, {
+            ...actor(),
+            sessionVerified: false,
+          });
+          expect(denied.state).toBe("SCOPE_DENIED");
+          expect(denied.decisions).toEqual([]);
+          expect(resolverResultSchema.safeParse(denied).success).toBe(true);
+        },
+      );
+
+    for (const operation of ["SUPERSEDE", "ROLLBACK", "REFRESH_APPROVAL"])
+      for (const corruption of [
+        "self",
+        "unrelated",
+        "source",
+        "document",
+        "not-retired",
+        "retirement-event",
+        "creation-event",
+      ])
+        it(
+          "4178885940 binds " + operation + " lineage against " + corruption,
+          () => {
+            const r = publicationResult(operation);
+            const e = r.eventIntents[0];
+            const created = r.state.assignments.find(
+              (a) => a.id === e.assignmentId,
+            )!;
+            const previous = r.state.assignments.find(
+              (a) => a.id === e.previousAssignmentId,
+            )!;
+            if (corruption === "self") {
+              e.previousAssignmentId = e.assignmentId;
+              e.previousApprovalId = e.approvalId;
+            } else if (corruption === "unrelated") {
+              r.state.assignments.push({
+                ...previous,
+                id: "unrelated-publication",
+              });
+              e.previousAssignmentId = "unrelated-publication";
+            } else if (corruption === "source")
+              previous.sourceId = "another-source";
+            else if (corruption === "document")
+              previous.documentId = "another-document";
+            else if (corruption === "not-retired") {
+              previous.retiredAt = null;
+              previous.retirementEventId = null;
+            } else if (corruption === "retirement-event")
+              previous.retirementEventId = "another-event";
+            else created.eventId = "another-event";
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+
+    const duplicateWithLkg = () => {
+      const { p } = attestationFixture("lkg");
+      const cmd = { ...registration(p), expectedVersionRevisions: {} };
+      const added = transition(p, cmd, actor(1)).state;
+      return transition(added, cmd, actor(1));
+    };
+    for (const kind of ["approval", "rights", "lkg"] as const)
+      for (const field of kind === "approval"
+        ? ["reviewGrantId", "qualificationId", "reviewerMemberId"]
+        : kind === "rights"
+          ? [
+              "verificationGrantId",
+              "verificationQualificationId",
+              "verifiedByMemberId",
+            ]
+          : [
+              "healthGrantId",
+              "reviewGrantId",
+              "qualificationId",
+              "reviewerMemberId",
+            ])
+        for (const missing of [true, false])
+          it(
+            "4178885932 closes " + kind + "." + field + ", missing=" + missing,
+            () => {
+              const r = duplicateWithLkg();
+              const value = field.endsWith("MemberId")
+                ? missing
+                  ? 999
+                  : 1
+                : field.toLowerCase().includes("qualification")
+                  ? missing
+                    ? "missing-qualification"
+                    : "qualification-1"
+                  : missing
+                    ? "missing-grant"
+                    : "grant-1";
+              if (kind === "rights") {
+                // Preserve the shared-terms invariant so this tests authority references.
+                for (const v of r.state.versions)
+                  mutate(v.rights, [field], value);
+              } else {
+                const v = r.state.versions[0];
+                mutate(
+                  kind === "approval" ? v.approvals[0] : v.health.lkg!,
+                  [field],
+                  value,
+                );
+              }
+              expect(partitionSchema.safeParse(r.state).success).toBe(true);
+              expect(transitionResultSchema.safeParse(r).success).toBe(false);
+            },
+          );
+    for (const memberId of [2, 3, 4])
+      it("4178885932 requires attesting canonical member " + memberId, () => {
+        const r = duplicateWithLkg();
+        r.state.members = r.state.members.filter(
+          (m) => m.memberId !== memberId,
+        );
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    it("4178885932 retains well-referenced revoked/inactive historical authority", () => {
+      const r = duplicateWithLkg();
+      r.state.members.find((m) => m.memberId === 2)!.membershipActive = false;
+      for (const credential of [
+        r.state.grants.find((g) => g.id === "grant-2")!,
+        r.state.qualifications.find((q) => q.id === "qualification-2")!,
+      ]) {
+        credential.revokedAt = now;
+        credential.revision++;
+      }
+      expect(transitionResultSchema.safeParse(r).success).toBe(true);
+    });
+  });
+
   describe("4178885949 exact touched-version CAS", () => {
     for (const operation of [
       "REVOKE",
