@@ -483,3 +483,17 @@ or has been performed. Clinical runtime remains disconnected. No K1B, K2,
 persistence, PHI, clinical/FHIR integration or production activation started.
 After authorized merge and green main, stop. The next permitted step is a fresh
 independent Astra adversarial review in a different conversation before K1B.
+
+### K1A-REPAIR publication checkpoint
+
+Repair PR: https://github.com/Thordadpool5413/SpartanCoaching/pull/187
+Implementation commit: `c917a54659b7a3651d2b08fdb02bcd95055ce0b1`.
+Verified implementation tree: `9110169d623751ffb9dbb72dc9c37090538fbe34`.
+Local git push lacked credentials; the connected GitHub app published the exact
+reviewed tree. Each uploaded blob matched its local Git SHA; the full remote tree
+and starting parent were verified before local branch alignment. No file/index
+changes or human work were discarded, and no protected/main ref was pushed.
+This follow-up is documentation only and records the durable handoff link. The PR
+body is the terminal ledger for its final head, required CI, all eight thread
+resolutions, authorized merge and post-merge main verification. Require a current
+full run after this checkpoint; do not substitute the initial PR run.
