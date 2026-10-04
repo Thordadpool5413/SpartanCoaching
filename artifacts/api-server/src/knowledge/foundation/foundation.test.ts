@@ -3,6 +3,12 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   applicabilitySchema,
+  rightsRevisionIdentity,
+  transitionResultSchema,
+  expiryIntentsSchema,
+  resolverResultSchema,
+  authorizationWitnessesSchema,
+  domains,
   authorityMatrix,
   claimTypes,
   capabilities,
@@ -36,6 +42,11 @@ import {
   licenseAllows,
   reviewManifestDigest,
   validateGrantDelegation,
+  validateGrantAncestry,
+  normalizeWitnesses,
+  healthState,
+  grantEligible,
+  requireCapability,
 } from "./authority";
 import { createKnowledgeRegistry, blockingPrecedence } from "./resolver";
 import {
@@ -49,6 +60,10 @@ import {
   validateLineage,
 } from "./publication";
 import {
+  remainingCommandBudget,
+  commandFailureDisposition,
+  validateMutationScopes,
+  futureWriterParticipation,
   futureLockOrder,
   futureProtocol,
   futureTransactionOrder,
@@ -98,6 +113,8 @@ function fixture(): Partition {
       scopeId: scope.id,
       domains: [source.domain],
       capabilities: [...capabilities],
+      createdAt: start,
+      issuance: { kind: "SYNTHETIC_SEED", reference: "synthetic-seed" },
       effectiveFrom: start,
       expiresAt: end,
       grantedByMemberId: 98,
@@ -191,6 +208,7 @@ function fixture(): Partition {
     rightsOverlay: {
       rightsId: "synthetic-rights",
       rightsRevision: 1,
+      rightsRevisionId: rightsRevisionIdentity(scope.id, "synthetic-rights", 1),
       revision: 1,
       revokedAt: null,
     },
@@ -265,7 +283,7 @@ const resolve = (
   clock = now,
 ) =>
   createKnowledgeRegistry({
-    contractVersion: "knowledge-foundation-v2",
+    contractVersion: "knowledge-foundation-v3",
     partitions: [p],
   }).resolve(c, a, clock);
 const server = (eventId = "synthetic-event", clock = now) => ({
@@ -332,7 +350,7 @@ function mutate(value: unknown, keys: string[], replacement: unknown) {
   record[keys.at(-1)!] = replacement;
 }
 
-describe("v2 provenance and strict canonical contracts", () => {
+describe("v3 provenance and strict canonical contracts", () => {
   it("retains 17 claim mappings and separates inference from human attestation", () => {
     expect(claimTypes).toHaveLength(17);
     expect(authorityMatrix.CLINICAL_INFERENCE).toEqual(["MODEL_INFERENCE"]);
@@ -381,7 +399,7 @@ describe("v2 provenance and strict canonical contracts", () => {
     expect(
       Object.keys(
         createKnowledgeRegistry({
-          contractVersion: "knowledge-foundation-v2",
+          contractVersion: "knowledge-foundation-v3",
           partitions: [fixture()],
         }),
       ),
@@ -509,6 +527,11 @@ describe("complete manifest review binding", () => {
       if (key === "rights.id") v.rightsOverlay.rightsId = v.rights.id;
       if (key === "rights.revision")
         v.rightsOverlay.rightsRevision = v.rights.revision;
+      v.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+        v.scopeId,
+        v.rights.id,
+        v.rights.revision,
+      );
       let accepted = false;
       try {
         accepted = hasCurrentApproval(
@@ -583,7 +606,7 @@ describe("tenant and candidate observability", () => {
         foreign = structuredClone(p);
       foreign.scope = { id: "tenant:2", kind: "TENANT", organizationId: 2 };
       const r = createKnowledgeRegistry({
-        contractVersion: "knowledge-foundation-v2",
+        contractVersion: "knowledge-foundation-v3",
         partitions: [p, foreign],
       }).resolve(context, actor(), now);
       (foreign as unknown as Record<string, unknown>)[collection] = [
@@ -591,7 +614,7 @@ describe("tenant and candidate observability", () => {
       ];
       expect(
         createKnowledgeRegistry({
-          contractVersion: "knowledge-foundation-v2",
+          contractVersion: "knowledge-foundation-v3",
           partitions: [foreign, p],
         }).resolve(context, actor(), now),
       ).toEqual(r);
@@ -610,7 +633,7 @@ describe("tenant and candidate observability", () => {
     });
     expect(
       createKnowledgeRegistry({
-        contractVersion: "knowledge-foundation-v2",
+        contractVersion: "knowledge-foundation-v3",
         partitions: [fixture(), foreign],
       }).resolve(context, actor(), now),
     ).toEqual(resolve());
@@ -663,7 +686,7 @@ describe("tenant and candidate observability", () => {
       a = actor(),
       c = structuredClone(context),
       registry = createKnowledgeRegistry({
-        contractVersion: "knowledge-foundation-v2",
+        contractVersion: "knowledge-foundation-v3",
         partitions: [p],
       });
     const first = registry.resolve(c, a, now);
@@ -756,10 +779,17 @@ describe("scoped capability, qualification and duties", () => {
     expect(resolve(p).state).toBe("NOT_APPROVED");
     expect(p.versions[0].approvals[0]).toEqual(before);
   });
-  it("synthetic qualification cannot enter production context", () =>
-    expect(
-      resolve(fixture(), context, { ...actor(), synthetic: false }).state,
-    ).toBe("LICENSE_NOT_PERMITTED"));
+  it("synthetic qualification cannot enter production context", () => {
+    const p = fixture();
+    for (const g of p.grants)
+      g.issuance = {
+        kind: "OWNER_BOOTSTRAP",
+        reference: "synthetic-owner-test-only",
+      };
+    expect(resolve(p, context, { ...actor(), synthetic: false }).state).toBe(
+      "LICENSE_NOT_PERMITTED",
+    );
+  });
   it("class label cannot replace domain qualification or geographic coverage", () => {
     const p = fixture(),
       q = p.qualifications[1];
@@ -775,10 +805,30 @@ describe("scoped capability, qualification and duties", () => {
   it("self-grant/self-verification reject and valid delegation cannot broaden", () => {
     const p = fixture(),
       parent = p.grants.find((g) => g.subjectMemberId === 90)!;
-    const child = { ...p.grants[0], grantedByMemberId: 90 };
-    expect(() =>
-      validateGrantDelegation(parent, child, p.scope, now),
-    ).not.toThrow();
+    const child = {
+      ...p.grants[0],
+      id: "synthetic-child",
+      grantedByMemberId: 90,
+      verifiedByMemberId: 90,
+      createdAt: now,
+      verifiedAt: now,
+      effectiveFrom: now,
+      issuance: {
+        kind: "DELEGATED",
+        parentGrantId: parent.id,
+        parentGrantRevision: parent.revision,
+        requestId: "synthetic-issuance",
+      },
+    };
+    const ctx = {
+      actor: actor(90),
+      now,
+      parentGrantId: parent.id,
+      expectedParentRevision: parent.revision,
+      newGrantId: child.id,
+      requestId: "synthetic-issuance",
+    };
+    expect(() => validateGrantDelegation(p, child, ctx)).not.toThrow();
     expect(
       grantSchema.safeParse({ ...child, grantedByMemberId: 1 }).success,
     ).toBe(false);
@@ -791,20 +841,15 @@ describe("scoped capability, qualification and duties", () => {
         verifiedByMemberId: 1,
       }).success,
     ).toBe(false);
+    parent.capabilities = ["knowledge.grants"];
+    expect(() => validateGrantDelegation(p, child, ctx)).toThrow(
+      "KNOWLEDGE_DELEGATION_DENIED",
+    );
     expect(() =>
       validateGrantDelegation(
-        { ...parent, capabilities: ["knowledge.grants"] },
-        child,
-        p.scope,
-        now,
-      ),
-    ).toThrow("KNOWLEDGE_DELEGATION_DENIED");
-    expect(() =>
-      validateGrantDelegation(
-        parent,
+        p,
         { ...child, expiresAt: "2028-01-01T00:00:00Z" },
-        p.scope,
-        now,
+        ctx,
       ),
     ).toThrow();
   });
@@ -1314,7 +1359,8 @@ describe("aggregate lifecycle publication and future delivery", () => {
     expect(r.eventIntents[0]).toMatchObject({
       invalidation: "PUBLICATION",
       reasonCode: "SECURITY_REVOCATION",
-      affectedAssignmentIds: ["synthetic-assignment"],
+      aggregateKind: "VERSION",
+      aggregateId: "synthetic-v1",
     });
     expect(resolve(r.state).state).toBe("SOURCE_REVOKED");
     expect(() =>
@@ -1348,9 +1394,8 @@ describe("aggregate lifecycle publication and future delivery", () => {
               };
       const r = transition(p, cmd);
       expect(r.eventIntents[0].invalidation).toBe("ELIGIBILITY");
-      expect(r.eventIntents[0].affectedAssignmentIds).toContain(
-        "synthetic-assignment",
-      );
+      expect(r.eventIntents[0]).not.toHaveProperty("affectedAssignmentIds");
+      expect(eventSchema.safeParse(r.eventIntents[0]).success).toBe(true);
       expect(r.eventIntents[0].contentRemoval).toBe(
         operation === "REVOKE_RIGHTS",
       );
@@ -1432,17 +1477,22 @@ describe("aggregate lifecycle publication and future delivery", () => {
   it("future contracts specify one transaction, scope-first locks and at-least-once delivery without persistence", () => {
     expect(
       futureTransactionOrder.indexOf("REAUTHORIZE_CURRENT_CONTEXT"),
-    ).toBeLessThan(futureTransactionOrder.indexOf("VERIFY_EXPECTED_REVISIONS"));
-    expect(futureTransactionOrder.slice(-4)).toEqual([
+    ).toBeLessThan(
+      futureTransactionOrder.indexOf(
+        "REPLAY_COMMITTED_RESULT_OR_VERIFY_EXPECTED_REVISIONS",
+      ),
+    );
+    expect(futureTransactionOrder.slice(-5)).toEqual([
       "WRITE_IMMUTABLE_AUDIT",
       "WRITE_OUTBOX",
       "WRITE_BOUNDED_RESPONSE_RECEIPT",
-      "COMMIT",
+      "RECHECK_DEADLINE_AND_TIME_SENSITIVE_ELIGIBILITY",
+      "COMMIT_ATTEMPT",
     ]);
-    expect(futureLockOrder[0]).toBe("SCOPE_ORDINAL");
+    expect(futureLockOrder[0]).toBe("SINGLE_SCOPE");
     expect(futureProtocol).toMatchObject({
       expectedAffectedRows: 1,
-      waitSeconds: 5,
+      commandBudgetMs: 5000,
       independentlyCommittedPlaceholder: false,
       automaticReceiptTTL: false,
       delivery: "AT_LEAST_ONCE",
@@ -1622,7 +1672,7 @@ it("expiry warning and LKG deadlines emit eligibility invalidation without a sch
     "SOURCE_UNAVAILABLE",
   );
 });
-it("shared rights expiry deduplicates stable event identity and aggregates affected assignments", () => {
+it("shared rights expiry deduplicates stable authority event identity", () => {
   const p = fixture();
   p.versions[0].rights.expiresAt = "2026-10-04T00:00:00.000Z";
   renewDigest(p);
@@ -1645,10 +1695,10 @@ it("shared rights expiry deduplicates stable event identity and aggregates affec
     (e) => e.reasonCode === "RIGHTS_EXPIRED",
   );
   expect(rights).toHaveLength(1);
-  expect(rights[0].affectedAssignmentIds).toEqual([
-    "synthetic-assignment",
-    "synthetic-second-assignment",
-  ]);
+  expect(rights[0]).not.toHaveProperty("affectedAssignmentIds");
+  expect(rights[0].aggregateId).toBe(
+    p.versions[0].rightsOverlay.rightsRevisionId,
+  );
 });
 
 const testBlockingStates = [
@@ -1668,6 +1718,11 @@ for (let i = 0; i < testBlockingStates.length; i++)
       v.documentId = "synthetic-second-document";
       v.rights.id = "synthetic-independent-rights";
       v.rightsOverlay.rightsId = v.rights.id;
+      v.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+        v.scopeId,
+        v.rights.id,
+        v.rights.revision,
+      );
       v.approvals[0].id = "synthetic-second-approval";
       v.approvals[0].versionId = v.id;
       v.approvals[0].reviewManifestDigest = reviewManifestDigest(
@@ -1736,6 +1791,11 @@ function globalFixture() {
   p.sources[0].scope = p.scope;
   for (const v of p.versions) {
     v.scopeId = "global";
+    v.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+      v.scopeId,
+      v.rights.id,
+      v.rights.revision,
+    );
     for (const a of v.approvals) a.scopeId = "global";
   }
   for (const g of p.grants) g.scopeId = "global";
@@ -1748,7 +1808,7 @@ it("global and tenant publication combine only under independent explicit grants
   const tenant = fixture(),
     global = globalFixture(),
     r = createKnowledgeRegistry({
-      contractVersion: "knowledge-foundation-v2",
+      contractVersion: "knowledge-foundation-v3",
       partitions: [tenant, global],
     }).resolve(context, actor(), now);
   expect(r.selected.map((e) => e.scope.id)).toEqual(["global", "tenant:1"]);
@@ -1756,13 +1816,13 @@ it("global and tenant publication combine only under independent explicit grants
   global.versions[0].revokedAt = now;
   global.versions[0].revocationReason = "SECURITY_REVOCATION";
   const changed = createKnowledgeRegistry({
-    contractVersion: "knowledge-foundation-v2",
+    contractVersion: "knowledge-foundation-v3",
     partitions: [tenant, global],
   }).resolve(context, actor(), now);
   expect(changed.state).toBe("SOURCE_REVOKED");
   expect(changed.bundleHash).not.toBe(r.bundleHash);
   const steward = createKnowledgeRegistry({
-    contractVersion: "knowledge-foundation-v2",
+    contractVersion: "knowledge-foundation-v3",
     partitions: [tenant, globalFixture()],
   }).resolve(context, actor(3, 2), now);
   expect(steward.selected.map((e) => e.scope.id)).toEqual(["global"]);
@@ -1773,7 +1833,7 @@ for (const part of ["rights", "health", "draft"])
     foreign.scope = { id: "tenant:2", kind: "TENANT", organizationId: 2 };
     const registry = () =>
       createKnowledgeRegistry({
-        contractVersion: "knowledge-foundation-v2",
+        contractVersion: "knowledge-foundation-v3",
         partitions: [fixture(), foreign],
       }).resolve(context, actor(), now);
     const before = registry();
@@ -1916,4 +1976,1977 @@ it("an unpublished source metadata revision cannot change published domain autho
   v.activatedAt = null;
   p.versions.push(v);
   expect(resolve(p)).toEqual(before);
+});
+
+// K1A-REPAIR regressions. All data and principals are synthetic.
+const instant = (value: string, delta: number) =>
+  new Date(Date.parse(value) + delta).toISOString();
+function attestationFixture(kind: "review" | "rights" | "lkg") {
+  let p = fixture();
+  const t = kind === "lkg" ? now : "2026-01-03T00:00:00.000Z";
+  if (kind === "rights") {
+    p.versions[0].rights.verifiedAt = t;
+    renewDigest(p);
+  }
+  if (kind === "lkg") {
+    const g = p.grants.find((g) => g.subjectMemberId === 3)!;
+    g.capabilities = ["knowledge.review", "knowledge.read"];
+    p.grants.push({
+      ...structuredClone(g),
+      id: "health-only",
+      capabilities: ["knowledge.health"],
+    });
+    p = transition(p, {
+      operation: "APPROVE_LKG",
+      versionId: "synthetic-v1",
+      until: "2026-10-09T00:00:00.000Z",
+    }).state;
+    p.versions[0].health.state = "UPSTREAM_UNAVAILABLE";
+  }
+  const member = kind === "review" ? 2 : kind === "rights" ? 4 : 3;
+  const g = p.grants.find((g) => g.id === `grant-${member}`)!;
+  const q = p.qualifications.find((q) => q.subjectMemberId === member)!;
+  const evaluate = () =>
+    kind === "review"
+      ? hasCurrentApproval(
+          p,
+          p.sources[0],
+          p.versions[0],
+          p.versions[0].approvals[0],
+          instant(now, 86400000),
+          true,
+        )
+      : kind === "rights"
+        ? licenseAllows(
+            p,
+            p.sources[0],
+            p.versions[0],
+            instant(now, 86400000),
+            "MODEL_INPUT",
+            true,
+          )
+        : healthState(
+            p,
+            p.sources[0],
+            p.versions[0],
+            instant(now, 86400000),
+            true,
+          ) === "APPLICABLE";
+  return { p, t, g, q, member, evaluate };
+}
+describe("H2 exact credential history and current authority", () => {
+  for (const kind of ["review", "rights", "lkg"] as const) {
+    for (const credential of [
+      "grant",
+      "qualification",
+      ...(kind === "lkg" ? ["health"] : []),
+    ]) {
+      for (const field of ["effectiveFrom", "verifiedAt"] as const)
+        for (const delta of [-1, 0, 1]) {
+          it(`${kind} ${credential} ${field} ${delta}ms from attestation`, () => {
+            const { p, t, g, q, evaluate } = attestationFixture(kind);
+            const record =
+              credential === "qualification"
+                ? q
+                : credential === "health"
+                  ? p.grants.find((g) => g.id === "health-only")!
+                  : g;
+            record[field] = instant(t, delta);
+            if (
+              credential !== "qualification" &&
+              record.verifiedAt > record.effectiveFrom
+            )
+              record.effectiveFrom = record.verifiedAt;
+            expect(evaluate()).toBe(delta <= 0);
+          });
+        }
+      for (const boundary of [
+        "expiresAt",
+        "revokedAt",
+        ...(credential === "qualification" ? ["reviewDueAt"] : []),
+      ]) {
+        it(`${kind} ${credential} ${boundary} blocks at T and N without replacing its pin`, () => {
+          for (const at of ["T", "N"]) {
+            const { p, t, g, q, evaluate } = attestationFixture(kind);
+            const record =
+              credential === "qualification"
+                ? q
+                : credential === "health"
+                  ? p.grants.find((g) => g.id === "health-only")!
+                  : g;
+            (record as unknown as Record<string, unknown>)[boundary] =
+              at === "T" ? t : instant(now, 86400000);
+            const replacement = {
+              ...structuredClone(record),
+              id: `new-${record.id}`,
+              expiresAt: end,
+              reviewDueAt: end,
+              revokedAt: null,
+            };
+            if (credential === "qualification")
+              p.qualifications.push(
+                parseContract(qualificationSchema, replacement),
+              );
+            else {
+              delete (replacement as Partial<typeof replacement>).reviewDueAt;
+              p.grants.push(parseContract(grantSchema, replacement));
+            }
+            expect(evaluate()).toBe(false);
+          }
+        });
+      }
+    }
+    for (const field of ["membershipActive", "organizationActive"] as const)
+      it(`${kind} inactive attestor ${field}`, () => {
+        const { p, member, evaluate } = attestationFixture(kind);
+        p.members.find((m) => m.memberId === member)![field] = false;
+        expect(evaluate()).toBe(false);
+      });
+    it(`${kind} cannot precede grant creation or lie in the future`, () => {
+      const { p, t, g, evaluate } = attestationFixture(kind);
+      g.createdAt = instant(t, 1);
+      expect(evaluate()).toBe(false);
+      g.createdAt = start;
+      if (kind === "review") p.versions[0].approvals[0].reviewedAt = end;
+      else if (kind === "rights") p.versions[0].rights.verifiedAt = end;
+      else p.versions[0].health.lkg!.approvedAt = end;
+      expect(evaluate()).toBe(false);
+    });
+  }
+  it("LKG health pin is mandatory, expiry-referenced and cannot exceed either grant", () => {
+    const { p, g, evaluate } = attestationFixture("lkg"),
+      h = p.grants.find((g) => g.id === "health-only")!;
+    expect(evaluate()).toBe(true);
+    const bad = structuredClone(p);
+    delete (
+      bad.versions[0].health.lkg as Partial<
+        NonNullable<KnowledgeVersion["health"]["lkg"]>
+      >
+    ).healthGrantId;
+    expect(partitionSchema.safeParse(bad).success).toBe(false);
+    for (const grant of [g, h]) {
+      grant.expiresAt = "2026-10-08T00:00:00.000Z";
+      expect(evaluate()).toBe(false);
+      grant.expiresAt = end;
+    }
+    h.expiresAt = "2026-10-09T00:00:00.000Z";
+    expect(
+      evaluateExpiryIntents(p, h.expiresAt).some(
+        (e) =>
+          e.aggregateId === h.id && e.expiryCondition?.kind === "GRANT_END",
+      ),
+    ).toBe(true);
+    const revoked = transition(
+      p,
+      {
+        operation: "REVOKE_GRANT",
+        credentialId: h.id,
+        expectedCredentialRevision: h.revision,
+      },
+      actor(90),
+    ).state;
+    expect(resolve(revoked).state).toBe("SOURCE_UNAVAILABLE");
+  });
+  for (const bound of ["grant", "qualification", "due"])
+    it(`imported approval cannot outlive ${bound}`, () => {
+      const { g, q, evaluate } = attestationFixture("review");
+      if (bound === "grant") g.expiresAt = "2026-12-01T00:00:00.000Z";
+      else
+        q[bound === "due" ? "reviewDueAt" : "expiresAt"] =
+          "2026-12-01T00:00:00.000Z";
+      expect(evaluate()).toBe(false);
+    });
+});
+
+function issuanceFixture() {
+  const p = fixture(),
+    parent = p.grants.find((g) => g.subjectMemberId === 3)!;
+  const child = {
+    ...structuredClone(parent),
+    id: "delegated-child",
+    subjectMemberId: 2,
+    grantedByMemberId: 3,
+    verifiedByMemberId: 3,
+    createdAt: now,
+    verifiedAt: now,
+    effectiveFrom: now,
+    issuance: {
+      kind: "DELEGATED" as const,
+      parentGrantId: parent.id,
+      parentGrantRevision: parent.revision,
+      requestId: "issuance-request",
+    },
+  };
+  const ctx = {
+    actor: actor(),
+    now,
+    parentGrantId: parent.id,
+    expectedParentRevision: parent.revision,
+    newGrantId: child.id,
+    requestId: "issuance-request",
+  };
+  return { p, parent, child, ctx };
+}
+describe("H3 trusted atomic delegated issuance", () => {
+  const negatives: [string, (x: ReturnType<typeof issuanceFixture>) => void][] =
+    [
+      ...(
+        ["sessionVerified", "membershipActive", "organizationActive"] as const
+      ).map(
+        (field): [string, (x: ReturnType<typeof issuanceFixture>) => void] => [
+          field,
+          (x) => {
+            x.ctx.actor[field] = false;
+          },
+        ],
+      ),
+      [
+        "canonical actor inactive",
+        (x) => {
+          x.p.members.find((m) => m.memberId === 3)!.membershipActive = false;
+        },
+      ],
+      [
+        "canonical organization mismatch",
+        (x) => {
+          x.p.members.find((m) => m.memberId === 3)!.organizationId = 2;
+        },
+      ],
+      [
+        "recipient inactive",
+        (x) => {
+          x.p.members.find((m) => m.memberId === 2)!.organizationActive = false;
+        },
+      ],
+      [
+        "recipient absent",
+        (x) => {
+          x.child.subjectMemberId = 77;
+        },
+      ],
+      [
+        "foreign scope",
+        (x) => {
+          x.child.scopeId = "tenant:2";
+        },
+      ],
+      [
+        "foreign actor",
+        (x) => {
+          x.ctx.actor.organizationId = 2;
+        },
+      ],
+      [
+        "missing parent",
+        (x) => {
+          x.ctx.parentGrantId = "missing";
+        },
+      ],
+      [
+        "duplicate ID",
+        (x) => {
+          x.child.id = x.ctx.newGrantId = "grant-2";
+        },
+      ],
+      [
+        "self-grant",
+        (x) => {
+          x.child.subjectMemberId = 3;
+        },
+      ],
+      [
+        "client issuer",
+        (x) => {
+          x.child.grantedByMemberId = 4;
+        },
+      ],
+      [
+        "self-verification",
+        (x) => {
+          x.child.verifiedByMemberId = 2;
+        },
+      ],
+      [
+        "stale parent revision",
+        (x) => {
+          x.ctx.expectedParentRevision++;
+        },
+      ],
+      [
+        "backdated creation",
+        (x) => {
+          x.child.createdAt = instant(now, -1);
+        },
+      ],
+      [
+        "backdated verification",
+        (x) => {
+          x.child.verifiedAt = instant(now, -1);
+        },
+      ],
+      [
+        "backdated start",
+        (x) => {
+          x.child.effectiveFrom = instant(now, -1);
+        },
+      ],
+      [
+        "parent future start",
+        (x) => {
+          x.parent.effectiveFrom = instant(now, 1);
+        },
+      ],
+      [
+        "parent future verification",
+        (x) => {
+          x.parent.verifiedAt = x.parent.effectiveFrom = instant(now, 1);
+        },
+      ],
+      [
+        "expanded expiry",
+        (x) => {
+          x.child.expiresAt = instant(end, 1);
+        },
+      ],
+      [
+        "revoked parent",
+        (x) => {
+          x.parent.revokedAt = now;
+        },
+      ],
+      [
+        "expired parent",
+        (x) => {
+          x.parent.expiresAt = now;
+        },
+      ],
+      [
+        "no grants authority",
+        (x) => {
+          x.parent.capabilities = ["knowledge.read"];
+        },
+      ],
+      [
+        "capability expansion",
+        (x) => {
+          x.parent.capabilities = ["knowledge.grants", "knowledge.read"];
+        },
+      ],
+      [
+        "domain expansion",
+        (x) => {
+          x.child.domains.push("REGULATION");
+        },
+      ],
+      [
+        "wrong lineage",
+        (x) => {
+          x.child.issuance.parentGrantId = "grant-4";
+        },
+      ],
+      [
+        "wrong receipt",
+        (x) => {
+          x.child.issuance.requestId = "other";
+        },
+      ],
+      [
+        "synthetic root outside synthetic",
+        (x) => {
+          x.ctx.actor.synthetic = false;
+        },
+      ],
+    ];
+  for (const [label, change] of negatives)
+    it(label, () => {
+      const x = issuanceFixture();
+      change(x);
+      const before = structuredClone(x.p);
+      expect(() => validateGrantDelegation(x.p, x.child, x.ctx)).toThrow(
+        /^KNOWLEDGE_/,
+      );
+      expect(x.p).toEqual(before);
+    });
+  it("returns owned metadata, complete parent witnesses, and permits future effectiveness", () => {
+    const x = issuanceFixture();
+    x.child.effectiveFrom = instant(now, 86400000);
+    const result = validateGrantDelegation(x.p, x.child, x.ctx);
+    expect(result.authorizationWitnesses).toHaveLength(capabilities.length);
+    expect(
+      result.authorizationWitnesses.every((w) => w.grantId === x.parent.id),
+    ).toBe(true);
+    expect(
+      grantEligible(
+        result.grant,
+        x.p.scope,
+        "MAC_COVERAGE",
+        "knowledge.read",
+        now,
+        true,
+      ),
+    ).toBe(false);
+    expect(
+      grantEligible(
+        result.grant,
+        x.p.scope,
+        "MAC_COVERAGE",
+        "knowledge.read",
+        x.child.effectiveFrom,
+        true,
+      ),
+    ).toBe(true);
+    result.grant.capabilities.pop();
+    expect(result.grant.capabilities).not.toEqual(x.child.capabilities);
+  });
+  it("A→B→C→D retains exact immutable ancestry after parent departure, never broadens", () => {
+    const x = issuanceFixture();
+    let parent = x.parent;
+    for (const [i, recipient] of [2, 4, 1].entries()) {
+      const t = instant(now, i),
+        child = {
+          ...x.child,
+          id: `generation-${i}`,
+          subjectMemberId: recipient,
+          grantedByMemberId: parent.subjectMemberId,
+          verifiedByMemberId: parent.subjectMemberId,
+          createdAt: t,
+          verifiedAt: t,
+          effectiveFrom: t,
+          issuance: {
+            kind: "DELEGATED" as const,
+            parentGrantId: parent.id,
+            parentGrantRevision: parent.revision,
+            requestId: `r-${i}`,
+          },
+        };
+      const result = validateGrantDelegation(x.p, child, {
+        ...x.ctx,
+        actor: actor(parent.subjectMemberId),
+        now: t,
+        parentGrantId: parent.id,
+        newGrantId: child.id,
+        requestId: `r-${i}`,
+      });
+      x.p.grants.push(result.grant);
+      parent = result.grant;
+    }
+    x.parent.revokedAt = instant(now, 100);
+    x.parent.revision++;
+    x.p.members.find((m) => m.memberId === 3)!.membershipActive = false;
+    expect(() => validateGrantAncestry(x.p)).not.toThrow();
+    expect(
+      requireCapability(
+        x.p,
+        actor(1),
+        "MAC_COVERAGE",
+        "knowledge.read",
+        instant(now, 200),
+      ).id,
+    ).toBe("generation-2");
+    x.p.grants = x.p.grants.filter((g) => g.id !== "grant-1");
+    parent.revokedAt = instant(now, 200);
+    expect(() =>
+      requireCapability(
+        x.p,
+        actor(1),
+        "MAC_COVERAGE",
+        "knowledge.read",
+        instant(now, 200),
+      ),
+    ).toThrow("KNOWLEDGE_PERMISSION_DENIED");
+    parent.revokedAt = null;
+    x.parent.revokedAt = now;
+    expect(() => validateGrantAncestry(x.p)).toThrow(
+      "KNOWLEDGE_DELEGATION_DENIED",
+    );
+  });
+  it("validates 2,000 generations iteratively, rejects cycle/missing parent and record 2,001", () => {
+    const x = issuanceFixture();
+    x.p.grants = [x.parent];
+    for (let i = 1; i < 2000; i++) {
+      const parent = x.p.grants[i - 1],
+        subject = parent.subjectMemberId === 3 ? 2 : 3;
+      x.p.grants.push({
+        ...structuredClone(x.child),
+        id: `chain-${i}`,
+        subjectMemberId: subject,
+        grantedByMemberId: parent.subjectMemberId,
+        verifiedByMemberId: parent.subjectMemberId,
+        issuance: {
+          kind: "DELEGATED",
+          parentGrantId: parent.id,
+          parentGrantRevision: 1,
+          requestId: `r-${i}`,
+        },
+      });
+    }
+    expect(() => validateGrantAncestry(x.p)).not.toThrow();
+    const parent = x.p.grants.at(-1)!,
+      child = {
+        ...x.child,
+        id: "overflow-child",
+        subjectMemberId: 3,
+        grantedByMemberId: 2,
+        verifiedByMemberId: 2,
+        issuance: {
+          kind: "DELEGATED",
+          parentGrantId: parent.id,
+          parentGrantRevision: 1,
+          requestId: x.ctx.requestId,
+        },
+      };
+    expect(() =>
+      validateGrantDelegation(x.p, child, {
+        ...x.ctx,
+        actor: actor(2),
+        parentGrantId: parent.id,
+        newGrantId: child.id,
+      }),
+    ).toThrow("KNOWLEDGE_CAPACITY_EXCEEDED");
+    const missing = structuredClone(x.p);
+    missing.grants.splice(1000, 1);
+    expect(() => validateGrantAncestry(missing)).toThrow(
+      "KNOWLEDGE_DELEGATION_DENIED",
+    );
+    x.parent.createdAt = x.parent.verifiedAt = x.parent.effectiveFrom = now;
+    x.parent.grantedByMemberId = x.parent.verifiedByMemberId = 2;
+    x.parent.issuance = {
+      kind: "DELEGATED",
+      parentGrantId: parent.id,
+      parentGrantRevision: 1,
+      requestId: "cycle",
+    };
+    expect(() => validateGrantAncestry(x.p)).toThrow(
+      "KNOWLEDGE_DELEGATION_DENIED",
+    );
+  }, 30000);
+});
+
+describe("H4 publication causality remains separate from service dates", () => {
+  const pairs = [
+    ["publishedAt", "retrievedAt"],
+    ["retrievedAt", "reviewedAt"],
+    ["reviewedAt", "createdAt"],
+    ["createdAt", "now"],
+  ] as const;
+  for (const [left, right] of pairs)
+    for (const relation of [-1, 0, 1])
+      it(`${left} vs ${right}: ${relation}`, () => {
+        const p = fixture(),
+          v = p.versions[0],
+          a = p.assignments[0];
+        v.publishedAt =
+          v.retrievedAt =
+          v.approvals[0].reviewedAt =
+          a.createdAt =
+            now;
+        const adjusted = instant(now, relation);
+        if (left === "publishedAt" || left === "retrievedAt")
+          v[left] = adjusted;
+        else if (left === "reviewedAt") {
+          v.publishedAt = v.retrievedAt = start;
+          v.approvals[0].reviewedAt = adjusted;
+        } else {
+          v.publishedAt = v.retrievedAt = v.approvals[0].reviewedAt = start;
+          a.createdAt = adjusted;
+        }
+        if (left === "retrievedAt") v.publishedAt = start;
+        if (!(left === "publishedAt" && relation > 0)) renewDigest(p);
+        if (relation > 0)
+          expect(() => resolve(p)).toThrow(
+            left === "publishedAt"
+              ? "KNOWLEDGE_CONTRACT_INVALID"
+              : "KNOWLEDGE_PUBLICATION_CHRONOLOGY_INVALID",
+          );
+        else expect(resolve(p).state).toBe("APPLICABLE");
+      });
+  it("retrospective service, renewed approval and refresh preserve original retired history", () => {
+    const original = fixture(),
+      old = structuredClone(original.assignments[0]);
+    const renewed = transition(
+      original,
+      { operation: "REAPPROVE", versionId: "synthetic-v1", reviewDueAt: end },
+      actor(2),
+    );
+    expect(renewed.state.assignments[0]).toEqual(old);
+    const fresh = renewed.state.versions[0].approvals.at(-1)!;
+    const refreshed = transition(
+      renewed.state,
+      {
+        operation: "REFRESH_APPROVAL",
+        versionId: "synthetic-v1",
+        assignmentId: old.id,
+        approvalId: fresh.id,
+      },
+      actor(),
+      server("refresh"),
+    );
+    const newAssignment = refreshed.state.assignments.at(-1)!;
+    expect(newAssignment.createdAt).toBe(now);
+    expect(newAssignment.serviceFrom).toBe("2026-01-01");
+    expect(refreshed.state.assignments[0]).toEqual({
+      ...old,
+      retiredAt: now,
+      retirementEventId: "refresh",
+      revision: old.revision + 1,
+    });
+    expect(resolve(refreshed.state).state).toBe("APPLICABLE");
+    const impossible = structuredClone(refreshed.state);
+    impossible.assignments[0].approvalId = fresh.id;
+    impossible.assignments[0].reviewManifestDigest = fresh.reviewManifestDigest;
+    expect(() =>
+      transition(impossible, {
+        operation: "REVOKE",
+        versionId: "synthetic-v1",
+      }),
+    ).toThrow("KNOWLEDGE_PUBLICATION_CHRONOLOGY_INVALID");
+  });
+});
+
+function manyPublications(count: number): Partition {
+  const p = fixture(),
+    v = p.versions[0];
+  v.effectiveTo = "2040-01-01";
+  renewDigest(p);
+  p.assignments = Array.from({ length: count }, (_, i) => ({
+    ...structuredClone(p.assignments[0]),
+    id: `publication-${i.toString().padStart(4, "0")}`,
+    serviceFrom: instant(start, i * 86400000).slice(0, 10),
+    serviceTo: instant(start, (i + 1) * 86400000).slice(0, 10),
+  }));
+  return p;
+}
+function reconciliationTargets(
+  p: Partition,
+  e: ReturnType<typeof evaluateExpiryIntents>[number],
+) {
+  return p.assignments
+    .filter((a) => {
+      const v = p.versions.find((v) => v.id === a.versionId)!,
+        review = v.approvals.find((r) => r.id === a.approvalId)!;
+      if (e.scopeId !== a.scopeId) return false;
+      switch (e.aggregateKind) {
+        case "PUBLICATION":
+          return true;
+        case "VERSION":
+          return v.id === e.aggregateId;
+        case "RIGHTS_REVISION":
+          return v.rightsOverlay.rightsRevisionId === e.aggregateId;
+        case "GRANT":
+          return [
+            review.reviewGrantId,
+            v.rights.verificationGrantId,
+            v.health.lkg?.reviewGrantId,
+            v.health.lkg?.healthGrantId,
+          ].includes(e.aggregateId);
+        case "QUALIFICATION":
+          return [
+            review.qualificationId,
+            v.rights.verificationQualificationId,
+            v.health.lkg?.qualificationId,
+          ].includes(e.aggregateId);
+      }
+    })
+    .map((a) => a.id)
+    .sort();
+}
+describe("H5 authority reconciliation at 100, 101 and 4,000 publications", () => {
+  for (const count of [100, 101, 4000])
+    for (const operation of [
+      "REVOKE",
+      "REVOKE_RIGHTS",
+      "REVOKE_GRANT",
+      "REVOKE_QUALIFICATION",
+      "RECORD_HEALTH",
+      "EVALUATE_EXPIRY",
+    ]) {
+      it(`${operation}: ${count} valid disjoint assignments remain complete and bounded`, () => {
+        const p = manyPublications(count),
+          before = canonicalBytes(p);
+        const command =
+          operation === "REVOKE_GRANT" || operation === "REVOKE_QUALIFICATION"
+            ? {
+                operation,
+                credentialId:
+                  operation === "REVOKE_GRANT" ? "grant-2" : "qualification-2",
+                expectedCredentialRevision: 1,
+              }
+            : operation === "RECORD_HEALTH"
+              ? {
+                  operation,
+                  versionId: "synthetic-v1",
+                  health: {
+                    ...p.versions[0].health,
+                    state: "STALE_BLOCKED",
+                    checkedAt: now,
+                  },
+                }
+              : operation === "REVOKE_RIGHTS"
+                ? {
+                    operation,
+                    versionId: "synthetic-v1",
+                    expectedRightsRevision: 1,
+                  }
+                : { operation, versionId: "synthetic-v1" };
+        const expiry = operation === "EVALUATE_EXPIRY",
+          clock = expiry ? "2026-10-10T00:00:00.000Z" : now;
+        const result = expiry
+          ? { state: p, eventIntents: evaluateExpiryIntents(p, clock) }
+          : transition(p, command);
+        expect(result.eventIntents).toHaveLength(1);
+        expect(
+          expiry
+            ? expiryIntentsSchema.safeParse(result.eventIntents).success
+            : transitionResultSchema.safeParse(result).success,
+        ).toBe(true);
+        const e = result.eventIntents[0];
+        for (const forbidden of [
+          "affectedAssignmentIds",
+          "affectedAssignmentCount",
+          "checksum",
+          "chunks",
+          "hints",
+        ])
+          expect(e).not.toHaveProperty(forbidden);
+        expect(reconciliationTargets(p, e)).toEqual(
+          p.assignments.map((a) => a.id).sort(),
+        );
+        expect(
+          reconciliationTargets(
+            {
+              ...p,
+              scope: { id: "tenant:2", kind: "TENANT", organizationId: 2 },
+              assignments: p.assignments.map((a) => ({
+                ...a,
+                scopeId: "tenant:2",
+              })),
+            },
+            e,
+          ),
+        ).toEqual([]);
+        const fresh = resolve(
+          result.state,
+          { ...context, serviceDate: "2026-01-01" },
+          actor(),
+          clock,
+        );
+        expect(fresh.selected).toEqual([]);
+        expect(fresh.state).not.toBe("APPLICABLE");
+        expect(resolverResultSchema.safeParse(fresh).success).toBe(true);
+        expect(canonicalBytes(p)).toBe(before);
+      }, 60000);
+    }
+});
+
+describe("H6 witnesses, revision-specific rights and stable expiry", () => {
+  for (const separate of [false, true])
+    it(`LKG preserves both capability witnesses (separate=${separate}) and real attestors`, () => {
+      const p = fixture();
+      if (separate) {
+        p.grants.find((g) => g.id === "grant-3")!.capabilities = [
+          "knowledge.review",
+        ];
+        p.grants.push({
+          ...structuredClone(p.grants.find((g) => g.id === "grant-3")!),
+          id: "health-only",
+          capabilities: ["knowledge.health"],
+        });
+      }
+      const r = transition(p, {
+        operation: "APPROVE_LKG",
+        versionId: "synthetic-v1",
+        until: "2026-10-09T00:00:00.000Z",
+      });
+      const e = r.eventIntents[0],
+        ws = e.authorizationWitnesses;
+      expect(
+        ws.map((w) => [
+          w.witnessType,
+          w.actorMemberId,
+          w.capability,
+          w.grantId,
+        ]),
+      ).toEqual([
+        [
+          "ACTOR_CAPABILITY",
+          3,
+          "knowledge.health",
+          separate ? "health-only" : "grant-3",
+        ],
+        ["ACTOR_CAPABILITY", 3, "knowledge.review", "grant-3"],
+        ["REVIEW_ATTESTATION", 2, "knowledge.review", "grant-2"],
+        ["RIGHTS_ATTESTATION", 4, "knowledge.license", "grant-4"],
+      ]);
+      expect(r.state.versions[0].health.lkg!.healthGrantId).toBe(
+        separate ? "health-only" : "grant-3",
+      );
+      for (let i = 0; i < ws.length; i++)
+        expect(
+          eventSchema.safeParse({
+            ...e,
+            authorizationWitnesses: ws.filter((_, j) => i !== j),
+          }).success,
+        ).toBe(false);
+      for (const invalid of [
+        { ...ws[0], actorMemberId: 77 },
+        { ...ws[0], scopeId: "tenant:2" },
+        { ...ws[0], qualificationId: "q", qualificationRevision: null },
+        { ...ws[0], sourceText: "SYNTHETIC_SENTINEL" },
+      ])
+        expect(
+          eventSchema.safeParse({
+            ...e,
+            authorizationWitnesses: [invalid, ...ws.slice(1)],
+          }).success,
+        ).toBe(false);
+      expect(
+        eventSchema.safeParse({
+          ...e,
+          authorizationWitnesses: [...ws].reverse(),
+        }).success,
+      ).toBe(false);
+    });
+  it("all 190 domain/capability predicates are emitted, sorted, pre-mutation and under body bound", () => {
+    const p = fixture();
+    for (const g of p.grants) g.domains = [...domains];
+    const r = transition(p, {
+      operation: "REVOKE_GRANT",
+      credentialId: "grant-2",
+      expectedCredentialRevision: 1,
+    });
+    const e = r.eventIntents[0];
+    expect(e.authorizationWitnesses).toHaveLength(
+      domains.length * capabilities.length,
+    );
+    expect(
+      new Set(
+        e.authorizationWitnesses.map((w) => `${w.domain}/${w.capability}`),
+      ).size,
+    ).toBe(190);
+    expect(e.authorizationWitnesses.every((w) => w.grantRevision === 1)).toBe(
+      true,
+    );
+    expect(Buffer.byteLength(canonicalBytes(e))).toBeLessThan(524288);
+    const reversed = structuredClone(p);
+    reversed.grants.reverse();
+    reversed.qualifications.reverse();
+    reversed.members.reverse();
+    expect(
+      transition(reversed, {
+        operation: "REVOKE_GRANT",
+        credentialId: "grant-2",
+        expectedCredentialRevision: 1,
+      }).eventIntents,
+    ).toEqual(r.eventIntents);
+    const one = p.grants.find((g) => g.id === "grant-3")!;
+    one.capabilities = ["knowledge.grants"];
+    one.domains = ["MAC_COVERAGE"];
+    p.grants.push({
+      ...structuredClone(one),
+      id: "partial-other",
+      domains: domains.filter((d) => d !== "MAC_COVERAGE"),
+      capabilities: [...capabilities],
+    });
+    expect(() =>
+      transition(p, {
+        operation: "REVOKE_GRANT",
+        credentialId: "grant-2",
+        expectedCredentialRevision: 1,
+      }),
+    ).toThrow("KNOWLEDGE_DELEGATION_DENIED");
+  });
+  it("rights authority covers every referencing domain; terms revisions never collide", () => {
+    const p = fixture(),
+      v = candidate(p, "second-rights-version");
+    const s = {
+      ...structuredClone(p.sources[0]),
+      id: "regulation-source",
+      domain: "REGULATION" as const,
+    };
+    p.sources.push(s);
+    v.sourceId = s.id;
+    v.approvals[0].reviewManifestDigest = reviewManifestDigest(s, v);
+    expect(() =>
+      transition(p, {
+        operation: "REVOKE_RIGHTS",
+        versionId: "synthetic-v1",
+        expectedRightsRevision: 1,
+      }),
+    ).toThrow("KNOWLEDGE_PERMISSION_DENIED");
+    p.grants.find((g) => g.id === "grant-3")!.domains.push("REGULATION");
+    const same = transition(p, {
+      operation: "REVOKE_RIGHTS",
+      versionId: "synthetic-v1",
+      expectedRightsRevision: 1,
+    });
+    expect(
+      same.eventIntents[0].authorizationWitnesses.map((w) => w.domain),
+    ).toEqual(["MAC_COVERAGE", "REGULATION"]);
+    expect(same.state.versions.map((v) => v.rightsOverlay)).toEqual([
+      same.state.versions[0].rightsOverlay,
+      same.state.versions[0].rightsOverlay,
+    ]);
+    v.rights.revision = 2;
+    v.rightsOverlay.rightsRevision = 2;
+    v.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+      p.scope.id,
+      v.rights.id,
+      2,
+    );
+    v.approvals[0].reviewManifestDigest = reviewManifestDigest(s, v);
+    const first = transition(p, {
+      operation: "REVOKE_RIGHTS",
+      versionId: "synthetic-v1",
+      expectedRightsRevision: 1,
+    });
+    expect(first.state.versions[1].rightsOverlay.revokedAt).toBeNull();
+    const second = transition(
+      first.state,
+      {
+        operation: "REVOKE_RIGHTS",
+        versionId: v.id,
+        expectedRightsRevision: 1,
+      },
+      actor(),
+      server("second-rights-event"),
+    );
+    expect(second.eventIntents[0].newRevision).toBe(
+      first.eventIntents[0].newRevision,
+    );
+    expect(second.eventIntents[0].aggregateId).not.toBe(
+      first.eventIntents[0].aggregateId,
+    );
+    expect(rightsRevisionIdentity("tenant:2", v.rights.id, 2)).not.toBe(
+      v.rightsOverlay.rightsRevisionId,
+    );
+    const conflicting = fixture(),
+      copy = candidate(conflicting);
+    copy.rights.reference = "different-terms";
+    copy.approvals[0].reviewManifestDigest = reviewManifestDigest(
+      conflicting.sources[0],
+      copy,
+    );
+    expect(() =>
+      transition(conflicting, {
+        operation: "REVOKE",
+        versionId: "synthetic-v1",
+      }),
+    ).toThrow("KNOWLEDGE_IDENTITY_CONFLICT");
+  });
+  it("chooses ordinal-smallest eligible grant, qualification and supporting approval", () => {
+    const p = fixture();
+    p.grants.push({
+      ...structuredClone(p.grants.find((g) => g.id === "grant-3")!),
+      id: "a-grant",
+    });
+    p.qualifications.push({
+      ...structuredClone(
+        p.qualifications.find((q) => q.id === "qualification-3")!,
+      ),
+      id: "a-qualification",
+    });
+    p.versions[0].approvals.push({
+      ...p.versions[0].approvals[0],
+      id: "a-approval",
+    });
+    const e = transition(p, {
+      operation: "APPROVE_LKG",
+      versionId: "synthetic-v1",
+      until: "2026-10-09T00:00:00.000Z",
+    }).eventIntents[0];
+    expect(
+      e.authorizationWitnesses
+        .filter((w) => w.witnessType === "ACTOR_CAPABILITY")
+        .every((w) => w.grantId === "a-grant"),
+    ).toBe(true);
+    expect(
+      e.authorizationWitnesses.find(
+        (w) =>
+          w.witnessType === "ACTOR_CAPABILITY" &&
+          w.capability === "knowledge.review",
+      )!.qualificationId,
+    ).toBe("a-qualification");
+    expect(
+      e.authorizationWitnesses.find(
+        (w) => w.witnessType === "REVIEW_ATTESTATION",
+      )!.attestationId,
+    ).toBe("a-approval");
+  });
+  it("expiry identity names actual version and exact deadline; repeats are byte-identical", () => {
+    const { p } = attestationFixture("lkg"),
+      v = p.versions[0];
+    v.health.state = "CURRENT";
+    v.approvals[0].reviewDueAt = v.health.warningAt!;
+    const t = "2027-02-01T00:00:00.000Z",
+      first = evaluateExpiryIntents(p, t),
+      later = evaluateExpiryIntents(p, instant(t, 86400000));
+    expect(canonicalBytes(first)).toBe(canonicalBytes(later));
+    expect(new Set(first.map((e) => e.id)).size).toBe(first.length);
+    const approval = first.find((e) => e.reasonCode === "APPROVAL_EXPIRED")!;
+    expect(approval).toMatchObject({
+      aggregateKind: "VERSION",
+      aggregateId: v.id,
+      versionId: v.id,
+      approvalId: v.approvals[0].id,
+      occurredAt: v.approvals[0].reviewDueAt,
+    });
+    expect(
+      first
+        .filter((e) => e.reasonCode === "HEALTH_EXPIRED")
+        .map((e) => e.expiryCondition!.kind)
+        .sort(),
+    ).toEqual(["HEALTH_HARD_END", "HEALTH_WARNING", "LKG_END"]);
+    expect(
+      first
+        .filter((e) => e.aggregateKind === "QUALIFICATION")
+        .every((e) => e.expiryCondition!.kind === "QUALIFICATION_REVIEW_DUE"),
+    ).toBe(true);
+    p.qualifications[0].expiresAt = instant(end, -1);
+    expect(expiryIntentsSchema.safeParse(first).success).toBe(true);
+    expect(
+      eventSchema.safeParse({ ...approval, aggregateId: approval.approvalId })
+        .success,
+    ).toBe(false);
+    expect(
+      eventSchema.safeParse({ ...approval, reasonCode: "HEALTH_EXPIRED" })
+        .success,
+    ).toBe(false);
+    expect(eventSchema.safeParse({ ...approval, occurredAt: t }).success).toBe(
+      false,
+    );
+  });
+  it("synthetic reconciliation handles duplicate, same-revision condition, stale and gap by canonical reread", () => {
+    const p = fixture(),
+      es = evaluateExpiryIntents(p, "2027-02-01T00:00:00.000Z"),
+      seen = new Map<string, string>();
+    let rereads = 0;
+    let cache = "old";
+    const canonical = resolve(p).bundleHash;
+    const deliver = (e: (typeof es)[number]) => {
+      const body = canonicalBytes(e);
+      if (seen.has(e.id)) {
+        if (seen.get(e.id) !== body) throw Error("INTEGRITY_ERROR");
+        return;
+      }
+      seen.set(e.id, body);
+      rereads++;
+      cache = canonical;
+    };
+    const health = es.filter((e) => e.reasonCode === "HEALTH_EXPIRED");
+    expect(health).toHaveLength(2);
+    health.forEach(deliver);
+    expect(rereads).toBe(2);
+    deliver(health[0]);
+    expect(rereads).toBe(2);
+    expect(() => deliver({ ...health[0], requestId: "changed" })).toThrow(
+      "INTEGRITY_ERROR",
+    );
+    const revised = structuredClone(p);
+    revised.versions[0].revision += 5;
+    evaluateExpiryIntents(revised, "2027-02-01T00:00:00.000Z")
+      .filter((e) => e.reasonCode === "HEALTH_EXPIRED")
+      .reverse()
+      .forEach(deliver);
+    expect(rereads).toBe(4);
+    es.forEach(deliver);
+    expect(cache).toBe(canonical);
+    expect(futureProtocol).toMatchObject({
+      consumerDeduplication: "EVENT_ID",
+      duplicateDifferentBody: "INTEGRITY_ERROR",
+      unseenConditionAtSameRevision: "CANONICAL_REREAD",
+      revisionGaps: "CANONICAL_REREAD",
+      staleEventsCannotRollbackState: true,
+    });
+  });
+});
+
+function historyCapacity(p: Partition, count: number) {
+  while (p.assignments.length < count)
+    p.assignments.push({
+      ...structuredClone(p.assignments[0]),
+      id: `retired-${p.assignments.length}`,
+      retiredAt: now,
+      retirementEventId: "synthetic-old-retirement",
+    });
+  return p;
+}
+function registration(p: Partition, newSource = false) {
+  const source = {
+    ...structuredClone(p.sources[0]),
+    ...(newSource ? { id: "new-source" } : {}),
+  };
+  const version = {
+    ...structuredClone(p.versions[0]),
+    id: "new-version",
+    sourceId: source.id,
+    artifactRevision: 9000,
+    state: "DETECTED",
+    revision: 0,
+    approvals: [],
+    activatedAt: null,
+    submittedByMemberId: null,
+    health: unchecked(),
+  };
+  return { operation: "REGISTER", source, version };
+}
+describe("K1A output-schema closure and atomic capacity limits", () => {
+  for (const [collection, limit] of [
+    ["sources", 500],
+    ["versions", 2000],
+    ["assignments", 4000],
+    ["grants", 2000],
+    ["qualifications", 2000],
+    ["members", 2000],
+  ] as const) {
+    it(`${collection} accepts its boundary and rejects boundary+1`, () => {
+      const p = fixture(),
+        sample = p[collection][0];
+      const records = Array.from({ length: limit }, (_, i) => ({
+        ...structuredClone(sample),
+        ...(collection === "members"
+          ? { memberId: i + 1 }
+          : collection === "sources"
+            ? { metadataRevision: i + 1 }
+            : { id: `record-${i}` }),
+      }));
+      const input = { ...p, [collection]: records };
+      // Public shape boundary; semantic uniqueness/reference coverage is exercised by actual commands below.
+      expect(partitionSchema.safeParse(input).success).toBe(
+        collection !== "versions",
+      );
+      if (collection === "versions") {
+        const versions = records as KnowledgeVersion[];
+        versions.forEach((v) => {
+          v.approvals = [];
+        });
+        expect(partitionSchema.safeParse({ ...p, versions }).success).toBe(
+          true,
+        );
+      }
+      expect(
+        partitionSchema.safeParse({
+          ...input,
+          [collection]: [...records, structuredClone(records[0])],
+        }).success,
+      ).toBe(false);
+    });
+  }
+  for (const collection of ["sources", "versions"] as const)
+    it(`REGISTER reserves ${collection}, permits final slot/duplicate, fails overflow atomically`, () => {
+      const p = fixture(),
+        limit = collection === "sources" ? 500 : 2000;
+      if (collection === "sources")
+        while (p.sources.length < limit - 1)
+          p.sources.push({
+            ...structuredClone(p.sources[0]),
+            id: `source-${p.sources.length}`,
+          });
+      else
+        while (p.versions.length < limit - 1) {
+          const v = candidate(p, `version-${p.versions.length}`);
+          v.artifactRevision = p.versions.length;
+          v.approvals = [];
+        }
+      const command = registration(p, collection === "sources"),
+        r = transition(p, command, actor(1));
+      expect(r.state[collection]).toHaveLength(limit);
+      expect(transitionResultSchema.safeParse(r).success).toBe(true);
+      const duplicate = transition(r.state, command, actor(1));
+      expect(duplicate.eventIntents).toEqual([]);
+      expect(duplicate.existingVersionId).toBe("new-version");
+      const next = registration(r.state, collection === "sources");
+      next.version.id = "overflow-version";
+      next.version.artifactRevision++;
+      if (collection === "sources")
+        next.source.id = next.version.sourceId = "overflow-source";
+      const before = canonicalBytes(r.state);
+      expect(() => transition(r.state, next, actor(1))).toThrow(
+        "KNOWLEDGE_CAPACITY_EXCEEDED",
+      );
+      expect(canonicalBytes(r.state)).toBe(before);
+    }, 30000);
+  it("APPROVE and REAPPROVE reserve approval history without pruning", () => {
+    for (const operation of ["APPROVE", "REAPPROVE"]) {
+      const p = fixture();
+      p.versions[0].approvals = Array.from({ length: 99 }, (_, i) => ({
+        ...p.versions[0].approvals[0],
+        id: i === 0 ? "synthetic-approval" : `approval-${i}`,
+      }));
+      if (operation === "APPROVE") {
+        p.assignments = [];
+        p.versions[0].state = "REVIEW_PENDING";
+      }
+      const cmd = { operation, versionId: "synthetic-v1", reviewDueAt: end };
+      const r = transition(p, cmd, actor(2));
+      expect(r.state.versions[0].approvals).toHaveLength(100);
+      const full = r.state;
+      if (operation === "APPROVE") full.versions[0].state = "REVIEW_PENDING";
+      const before = canonicalBytes(full);
+      expect(() =>
+        transition(full, cmd, actor(2), server("overflow-review")),
+      ).toThrow("KNOWLEDGE_CAPACITY_EXCEEDED");
+      expect(canonicalBytes(full)).toBe(before);
+      expect(
+        versionSchema.safeParse({
+          ...full.versions[0],
+          approvals: [
+            ...full.versions[0].approvals,
+            { ...full.versions[0].approvals[0], id: "101" },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+  for (const operation of [
+    "ACTIVATE",
+    "REFRESH_APPROVAL",
+    "SUPERSEDE",
+    "ROLLBACK",
+  ] as const)
+    it(`${operation} reserves all appended history, including both split records`, () => {
+      let p = fixture(),
+        v = candidate(p);
+      let assignmentId = "synthetic-assignment";
+      if (operation === "ACTIVATE") {
+        v.documentId = "new-document";
+        v.approvals[0].reviewManifestDigest = reviewManifestDigest(
+          p.sources[0],
+          v,
+        );
+      }
+      if (operation === "ROLLBACK") {
+        const r = transition(p, {
+          operation: "SUPERSEDE",
+          versionId: v.id,
+          assignmentId,
+          approvalId: v.approvals[0].id,
+          cutover: "2026-07-01",
+        });
+        p = r.state;
+        assignmentId = p.assignments.at(-1)!.id;
+        v = p.versions[0];
+      }
+      const growth =
+        operation === "SUPERSEDE" || operation === "ROLLBACK" ? 2 : 1;
+      historyCapacity(p, 4000 - growth);
+      const command =
+        operation === "ACTIVATE"
+          ? activation(v)
+          : operation === "REFRESH_APPROVAL"
+            ? {
+                operation,
+                versionId: "synthetic-v1",
+                assignmentId,
+                approvalId: "synthetic-approval",
+              }
+            : {
+                operation,
+                versionId: v.id,
+                assignmentId,
+                approvalId: v.approvals[0].id,
+                cutover: operation === "ROLLBACK" ? "2026-11-01" : "2026-07-01",
+              };
+      if (operation === "REFRESH_APPROVAL") {
+        const approval = {
+          ...p.versions[0].approvals[0],
+          id: "renewed",
+          reviewedAt: now,
+        };
+        p.versions[0].approvals.push(approval);
+        command.approvalId = approval.id;
+      }
+      const result = transition(
+        p,
+        command,
+        actor(),
+        server("capacity-publication"),
+      );
+      expect(result.state.assignments).toHaveLength(4000);
+      expect(transitionResultSchema.safeParse(result).success).toBe(true);
+      const full = historyCapacity(structuredClone(p), 4001 - growth),
+        before = canonicalBytes(full);
+      expect(() =>
+        transition(full, command, actor(), server("overflow-publication")),
+      ).toThrow("KNOWLEDGE_CAPACITY_EXCEEDED");
+      expect(canonicalBytes(full)).toBe(before);
+    }, 30000);
+  for (const target of [
+    "scope",
+    "version",
+    "grant",
+    "qualification",
+    "rights",
+    "assignment",
+  ] as const)
+    it(`safe integer ${target} exhaustion fails atomically`, () => {
+      const p = fixture();
+      let cmd: Record<string, unknown> = {
+        operation: "REVOKE",
+        versionId: "synthetic-v1",
+      };
+      if (target === "scope") p.revision = Number.MAX_SAFE_INTEGER;
+      if (target === "version")
+        p.versions[0].revision = Number.MAX_SAFE_INTEGER;
+      if (target === "grant" || target === "qualification") {
+        (target === "grant" ? p.grants : p.qualifications).find(
+          (x) => x.id === `${target}-2`,
+        )!.revision = Number.MAX_SAFE_INTEGER;
+        cmd = {
+          operation:
+            target === "grant" ? "REVOKE_GRANT" : "REVOKE_QUALIFICATION",
+          credentialId: `${target}-2`,
+          expectedCredentialRevision: Number.MAX_SAFE_INTEGER,
+        };
+      }
+      if (target === "rights") {
+        p.versions[0].rightsOverlay.revision = Number.MAX_SAFE_INTEGER;
+        cmd = {
+          operation: "REVOKE_RIGHTS",
+          versionId: "synthetic-v1",
+          expectedRightsRevision: Number.MAX_SAFE_INTEGER,
+        };
+      }
+      if (target === "assignment") {
+        p.assignments[0].revision = Number.MAX_SAFE_INTEGER;
+        p.versions[0].approvals.push({
+          ...p.versions[0].approvals[0],
+          id: "renewed",
+          reviewedAt: now,
+        });
+        cmd = {
+          operation: "REFRESH_APPROVAL",
+          versionId: "synthetic-v1",
+          assignmentId: p.assignments[0].id,
+          approvalId: "renewed",
+        };
+      }
+      const before = canonicalBytes(p);
+      expect(() => transition(p, cmd)).toThrow("KNOWLEDGE_CAPACITY_EXCEEDED");
+      expect(canonicalBytes(p)).toBe(before);
+    });
+  it("expected revisions include up to 2,000 known targets and reject extras/missing touched targets", () => {
+    const p = fixture(),
+      cmd = { ...expected(p), operation: "REVOKE", versionId: "synthetic-v1" };
+    const revisions = Object.fromEntries(
+      Array.from({ length: 2000 }, (_, i) => [`v-${i}`, 1]),
+    );
+    expect(
+      commandSchema.safeParse({ ...cmd, expectedVersionRevisions: revisions })
+        .success,
+    ).toBe(true);
+    expect(
+      commandSchema.safeParse({
+        ...cmd,
+        expectedVersionRevisions: { ...revisions, overflow: 1 },
+      }).success,
+    ).toBe(false);
+    expect(() =>
+      transitionKnowledge(
+        p,
+        actor(),
+        {
+          ...cmd,
+          expectedVersionRevisions: {
+            ...cmd.expectedVersionRevisions,
+            foreign: 1,
+          },
+        },
+        server(),
+      ),
+    ).toThrow("KNOWLEDGE_REFERENCE_INVALID");
+    expect(() =>
+      transitionKnowledge(
+        p,
+        actor(),
+        { ...cmd, expectedVersionRevisions: {} },
+        server(),
+      ),
+    ).toThrow("KNOWLEDGE_REVISION_CONFLICT");
+  });
+  it("witness maximum, exact dedup and sorted unique receipts close the public contracts", () => {
+    const e = transition(fixture(), {
+        operation: "REVOKE",
+        versionId: "synthetic-v1",
+      }).eventIntents[0],
+      w = e.authorizationWitnesses[0];
+    const witnesses = normalizeWitnesses(
+      Array.from({ length: 256 }, (_, i) => ({
+        ...w,
+        grantId: `g-${i.toString().padStart(3, "0")}`,
+      })),
+    );
+    expect(authorizationWitnessesSchema.safeParse(witnesses).success).toBe(
+      true,
+    );
+    expect(
+      authorizationWitnessesSchema.safeParse([
+        ...witnesses,
+        { ...w, grantId: "g-256" },
+      ]).success,
+    ).toBe(false);
+    expect(normalizeWitnesses([w, w])).toEqual([w]);
+    const receipt = {
+      ...receiptKey("tenant:1", 3, "REVOKE", "synthetic-receipt-key"),
+      fingerprint: "a".repeat(64),
+      committedAt: now,
+      response: {
+        scopeRevision: 1,
+        versionIds: Array.from(
+          { length: 2000 },
+          (_, i) => `v-${i.toString().padStart(4, "0")}`,
+        ),
+        assignmentIds: Array.from(
+          { length: 4000 },
+          (_, i) => `a-${i.toString().padStart(4, "0")}`,
+        ),
+        eventIds: ["event"],
+      },
+    };
+    expect(receiptSchema.safeParse(receipt).success).toBe(true);
+    for (const key of ["versionIds", "assignmentIds", "eventIds"] as const)
+      expect(
+        receiptSchema.safeParse({
+          ...receipt,
+          response: {
+            ...receipt.response,
+            [key]: [...receipt.response[key], "zz-overflow"],
+          },
+        }).success,
+      ).toBe(false);
+    expect(
+      receiptSchema.safeParse({
+        ...receipt,
+        response: { ...receipt.response, versionIds: ["z", "a"] },
+      }).success,
+    ).toBe(false);
+    expect(
+      receiptSchema.safeParse({
+        ...receipt,
+        response: { ...receipt.response, versionIds: ["a", "a"] },
+      }).success,
+    ).toBe(false);
+  });
+  it("expiry array closes at 16,000 unique valid condition intents and rejects duplicates/overflow", () => {
+    const template = evaluateExpiryIntents(
+      fixture(),
+      "2026-10-10T00:00:00.000Z",
+    )[0];
+    const events = Array.from({ length: 16000 }, (_, i) => {
+      const aggregateId = `v-${i}`,
+        condition = { ...template.expiryCondition!, referenceId: aggregateId };
+      const digest = canonicalDigest({
+        schemaVersion: "knowledge-expiry-intent-v3",
+        scopeId: template.scopeId,
+        aggregateKind: "VERSION",
+        aggregateId,
+        aggregateRevision: template.newRevision,
+        conditionKind: condition.kind,
+        conditionReferenceId: condition.referenceId,
+        deadline: condition.deadline,
+      });
+      return {
+        ...template,
+        id: `expiry:${digest}`,
+        requestId: `expiry:${digest}`,
+        aggregateId,
+        versionId: aggregateId,
+        expiryCondition: condition,
+      };
+    }).sort((a, b) => (a.id < b.id ? -1 : 1));
+    expect(expiryIntentsSchema.safeParse(events).success).toBe(true);
+    expect(expiryIntentsSchema.safeParse([...events, events[0]]).success).toBe(
+      false,
+    );
+    expect(expiryIntentsSchema.safeParse([events[0], events[0]]).success).toBe(
+      false,
+    );
+  }, 30000);
+  it("final results reject inconsistent aggregate references and excess normal events", () => {
+    const r = transition(fixture(), {
+      operation: "REVOKE",
+      versionId: "synthetic-v1",
+    });
+    expect(
+      transitionResultSchema.safeParse({
+        ...r,
+        eventIntents: [...r.eventIntents, ...r.eventIntents],
+      }).success,
+    ).toBe(false);
+    expect(
+      transitionResultSchema.safeParse({
+        ...r,
+        state: { ...r.state, versions: [] },
+      }).success,
+    ).toBe(false);
+    expect(
+      transitionResultSchema.safeParse({
+        ...r,
+        eventIntents: [{ ...r.eventIntents[0], sourceId: "foreign-source" }],
+      }).success,
+    ).toBe(false);
+    const out = resolve();
+    expect(
+      resolverResultSchema.safeParse({ ...out, selected: [] }).success,
+    ).toBe(false);
+    expect(
+      resolverResultSchema.safeParse({ ...out, bundleHash: "a".repeat(64) })
+        .success,
+    ).toBe(false);
+    expect(
+      resolverResultSchema.safeParse({
+        ...out,
+        clinicalText: "SYNTHETIC_SENTINEL",
+      }).success,
+    ).toBe(false);
+    for (const old of ["knowledge-foundation-v1", "knowledge-foundation-v2"])
+      expect(() =>
+        createKnowledgeRegistry({ contractVersion: old, partitions: [] }),
+      ).toThrow("KNOWLEDGE_CONTRACT_INVALID");
+  });
+  it("authorized global plus tenant output closes at 8,000 entries without changing manifest v2", () => {
+    const tenant = manyPublications(4000),
+      global = structuredClone(tenant);
+    global.scope = { id: "global", kind: "GLOBAL", organizationId: null };
+    global.sources.forEach((s) => (s.scope = global.scope));
+    global.grants.forEach((g) => (g.scopeId = "global"));
+    global.qualifications.forEach((q) => (q.scopeId = "global"));
+    global.versions.forEach((v) => {
+      v.scopeId = "global";
+      v.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+        "global",
+        v.rights.id,
+        v.rights.revision,
+      );
+      v.approvals.forEach((a) => {
+        a.scopeId = "global";
+        a.reviewManifestDigest = reviewManifestDigest(global.sources[0], v);
+      });
+    });
+    global.assignments.forEach((a) => {
+      a.scopeId = "global";
+      a.reviewManifestDigest =
+        global.versions[0].approvals[0].reviewManifestDigest;
+    });
+    const r = createKnowledgeRegistry({
+      contractVersion: "knowledge-foundation-v3",
+      partitions: [tenant, global],
+    }).resolve({ ...context, serviceDate: "2026-01-01" }, actor(), now);
+    expect(r.decisions).toHaveLength(8000);
+    expect(r.manifest.authorizedScopeIds).toEqual(["global", "tenant:1"]);
+    expect(resolverResultSchema.safeParse(r).success).toBe(true);
+    expect(r.manifest.schemaVersion).toBe("knowledge-runtime-manifest-v2");
+    expect(
+      resolverResultSchema.safeParse({
+        ...r,
+        decisions: [...r.decisions, r.decisions[0]],
+      }).success,
+    ).toBe(false);
+    expect(
+      resolverResultSchema.safeParse({
+        ...r,
+        manifest: {
+          ...r.manifest,
+          authorizedScopeIds: ["global", "tenant:1", "tenant:2"],
+        },
+      }).success,
+    ).toBe(false);
+  }, 60000);
+});
+
+describe("H7 future adapter deadline and writer contract (no database implementation)", () => {
+  it("one absolute deadline starts before all pool/auth DB work and never resets", () => {
+    expect(futureTransactionOrder[0]).toBe(
+      "START_DEADLINE_BEFORE_AUTH_DB_OR_POOL",
+    );
+    expect(futureProtocol.deadlineBeforeGlobalLoadSession).toBe(true);
+    const phases = [0, 100, 400, 900, 1400, 2100, 3000, 3999, 4998];
+    expect(
+      phases.map((t) => remainingCommandBudget(10000, 10000 + t).remainingMs),
+    ).toEqual([5000, 4900, 4600, 4100, 3600, 2900, 2000, 1001, 2]);
+    expect(remainingCommandBudget(10000, 14998)).toEqual({
+      remainingMs: 2,
+      statementTimeoutMs: 2,
+      lockTimeoutMs: 1,
+    });
+    for (const elapsed of [4998.1, 4999, 5000, 6000])
+      expect(() => remainingCommandBudget(10000, 10000 + elapsed)).toThrow(
+        "COMMAND_IN_PROGRESS",
+      );
+    for (const [startTime, current] of [
+      [NaN, 1],
+      [0, Infinity],
+      [5, 4],
+      [-1, 1],
+      [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+    ])
+      expect(() => remainingCommandBudget(startTime, current)).toThrow(
+        "KNOWLEDGE_CONTRACT_INVALID",
+      );
+    expect(futureProtocol).toMatchObject({
+      timerResets: false,
+      commandBudgetMs: 5000,
+      idleTransactionTimeoutMs: 5000,
+      cleanupBudgetMs: 1000,
+      cleanupAllowsCommitOrMutation: false,
+      returnConnectionRequiresCleanProtocolAndTransaction: true,
+    });
+  });
+  for (const cause of [
+    "CONTENTION",
+    "DEADLINE",
+    "DEADLOCK",
+    "SERIALIZATION",
+  ] as const)
+    for (const commit of ["NOT_SENT", "ABORTED"] as const)
+      it(`${cause} ${commit} confirms abort and bounded same-request retry`, () => {
+        expect(commandFailureDisposition({ cause, commit })).toMatchObject({
+          code: "COMMAND_IN_PROGRESS",
+          httpStatus: 409,
+          retryAfterSeconds: 1,
+          sameKeyAndPayload: true,
+          automaticRetry: false,
+          rollbackRequired: true,
+          mutationMayHaveCommitted: false,
+        });
+      });
+  it("unavailable, confirmed commit and uncertain commit have different outcomes", () => {
+    expect(
+      commandFailureDisposition({ cause: "UNAVAILABLE", commit: "NOT_SENT" }),
+    ).toMatchObject({ code: "COMMAND_UNAVAILABLE", httpStatus: 503 });
+    expect(
+      commandFailureDisposition({ cause: "DEADLINE", commit: "CONFIRMED" }),
+    ).toEqual({ outcome: "RETURN_COMMITTED_RECEIPT" });
+    for (const cause of ["DEADLINE", "UNAVAILABLE"])
+      expect(
+        commandFailureDisposition({ cause, commit: "UNKNOWN" }),
+      ).toMatchObject({
+        code: "COMMAND_OUTCOME_UNKNOWN",
+        httpStatus: 503,
+        rollbackRequired: false,
+        mutationMayHaveCommitted: true,
+        sameKeyAndPayload: true,
+      });
+  });
+  it("replay follows current authorization, never old CAS or a second mutation", () => {
+    expect(
+      futureTransactionOrder.indexOf("REAUTHORIZE_CURRENT_CONTEXT"),
+    ).toBeLessThan(
+      futureTransactionOrder.indexOf(
+        "REPLAY_COMMITTED_RESULT_OR_VERIFY_EXPECTED_REVISIONS",
+      ),
+    );
+    expect(futureProtocol).toMatchObject({
+      reauthorizationBeforeReplay: true,
+      replayDoesNotRecheckOldMutationPreconditions: true,
+      receiptWritesShareMutationTransaction: true,
+      independentlyCommittedPlaceholder: false,
+      automaticReceiptTTL: false,
+      automaticTransactionRetry: false,
+      retryKeyAndPayload: "UNCHANGED",
+      eventClock: "FRESH_DATABASE_UTC_AFTER_LOCKS",
+    });
+    expect(futureTransactionOrder.at(-2)).toBe(
+      "RECHECK_DEADLINE_AND_TIME_SENSITIVE_ELIGIBILITY",
+    );
+    expect(futureTransactionOrder.at(-1)).toBe("COMMIT_ATTEMPT");
+  });
+  it("single scope precedes numeric identity locks; all writers follow compatible ordered subsets", () => {
+    expect(validateMutationScopes(["tenant:1"])).toEqual(["tenant:1"]);
+    for (const scopes of [
+      ["global", "tenant:1"],
+      ["tenant:1", "tenant:2"],
+      ["tenant:1", "tenant:1"],
+    ])
+      expect(() => validateMutationScopes(scopes)).toThrow(
+        "KNOWLEDGE_SCOPE_DENIED",
+      );
+    expect(futureLockOrder).toEqual([
+      "SINGLE_SCOPE",
+      "ORGANIZATION_INTEGER_ASCENDING",
+      "MEMBER_INTEGER_ASCENDING",
+      "MEMBERSHIP_ORGANIZATION_MEMBER_ASCENDING",
+      "SESSION_INTEGER_ASCENDING",
+      "SOURCE_DOCUMENT_ORDINAL",
+      "VERSION_ORDINAL",
+      "GRANT_ORDINAL",
+      "QUALIFICATION_ORDINAL",
+      "RIGHTS_REVISION_ID_ORDINAL",
+      "HEALTH_ORDINAL",
+      "RECEIPT",
+    ]);
+    expect(futureProtocol).toMatchObject({
+      transactionIsolation: "READ_COMMITTED",
+      requiredAuthorityLock: "FOR_UPDATE",
+      identityWriterMayAcquireScopeAfterIdentity: false,
+      outboxWriterMayAcquireAuthorityLocks: false,
+      missingEarlierDependency: "ROLLBACK_AND_RETRY",
+      expiryEventsPerTransaction: 1,
+      expiryRequiresHumanReceipt: false,
+    });
+    expect(futureWriterParticipation).toEqual({
+      knowledge: "SCOPE_THEN_ORDERED_AUTHORITY_ROWS_AND_EXACT_CAS",
+      identity:
+        "ORDERED_ORGANIZATION_MEMBER_MEMBERSHIP_SESSION_SUBSET_NEVER_THEN_SCOPE",
+      session:
+        "ORDERED_IDENTITY_BEFORE_SESSION_OR_SESSION_ONLY_NEVER_BACKWARDS",
+      expiry: "SINGLE_SCOPE_AGGREGATE_RECHECK_THEN_DEDUP_AUDIT_OUTBOX",
+      delivery: "LEASE_TOKEN_CAS_ONLY_NO_AUTHORITY_MUTATION",
+    });
+  });
+});
+
+it("H3 delegated descendants cannot hide a synthetic seed outside synthetic server context", () => {
+  const x = issuanceFixture();
+  const child = validateGrantDelegation(x.p, x.child, x.ctx).grant;
+  x.p.grants.push(child);
+  const grandchild = {
+    ...structuredClone(child),
+    id: "grandchild",
+    subjectMemberId: 4,
+    grantedByMemberId: 2,
+    verifiedByMemberId: 2,
+    issuance: {
+      kind: "DELEGATED",
+      parentGrantId: child.id,
+      parentGrantRevision: 1,
+      requestId: x.ctx.requestId,
+    },
+  };
+  expect(() =>
+    validateGrantDelegation(x.p, grandchild, {
+      ...x.ctx,
+      actor: { ...actor(2), synthetic: false },
+      parentGrantId: child.id,
+      newGrantId: grandchild.id,
+    }),
+  ).toThrow("KNOWLEDGE_DELEGATION_DENIED");
+  expect(() =>
+    requireCapability(
+      x.p,
+      { ...actor(2), synthetic: false },
+      "MAC_COVERAGE",
+      "knowledge.read",
+      now,
+    ),
+  ).toThrow("KNOWLEDGE_PERMISSION_DENIED");
+});
+it("H6 final output checks all multi-domain witnesses against canonical state", () => {
+  const p = fixture();
+  for (const g of p.grants) g.domains = [...domains];
+  const r = transition(p, {
+    operation: "REVOKE_GRANT",
+    credentialId: "grant-2",
+    expectedCredentialRevision: 1,
+  });
+  const e = r.eventIntents[0];
+  expect(
+    transitionResultSchema.safeParse({
+      ...r,
+      eventIntents: [
+        { ...e, authorizationWitnesses: e.authorizationWitnesses.slice(1) },
+      ],
+    }).success,
+  ).toBe(false);
+  const altered = structuredClone(r);
+  altered.eventIntents[0].authorizationWitnesses[0].grantRevision++;
+  expect(transitionResultSchema.safeParse(altered).success).toBe(false);
+  // A smaller partial grant cannot replace the required whole-domain grants predicate.
+  p.grants.push({
+    ...structuredClone(p.grants.find((g) => g.id === "grant-3")!),
+    id: "a-partial",
+    domains: ["MAC_COVERAGE"],
+    capabilities: ["knowledge.grants"],
+  });
+  const again = transition(p, {
+    operation: "REVOKE_GRANT",
+    credentialId: "grant-2",
+    expectedCredentialRevision: 1,
+  });
+  expect(again.eventIntents[0].authorizationWitnesses).toHaveLength(190);
+  expect(
+    again.eventIntents[0].authorizationWitnesses.every(
+      (w) => w.grantId === "grant-3",
+    ),
+  ).toBe(true);
+});
+it("H6 maximum-length metadata for all supported predicates stays below the event byte limit", () => {
+  const p = fixture();
+  for (const g of p.grants) g.domains = [...domains];
+  const e = transition(p, {
+    operation: "REVOKE_GRANT",
+    credentialId: "grant-2",
+    expectedCredentialRevision: 1,
+  }).eventIntents[0];
+  const maximal = {
+    ...e,
+    id: "e".repeat(128),
+    aggregateId: "g".repeat(128),
+    requestId: "r".repeat(128),
+    authorizationWitnesses: e.authorizationWitnesses.map((w) => ({
+      ...w,
+      grantId: "w".repeat(128),
+      grantRevision: Number.MAX_SAFE_INTEGER,
+    })),
+  };
+  expect(eventSchema.safeParse(maximal).success).toBe(true);
+  expect(Buffer.byteLength(canonicalBytes(maximal))).toBeLessThan(524288);
+});
+
+it("H3/H6 whole-domain revocation still requires canonical active command membership", () => {
+  for (const field of ["membershipActive", "organizationActive"] as const) {
+    const p = fixture();
+    p.members.find((m) => m.memberId === 3)![field] = false;
+    expect(() =>
+      transition(p, {
+        operation: "REVOKE_GRANT",
+        credentialId: "grant-2",
+        expectedCredentialRevision: 1,
+      }),
+    ).toThrow("KNOWLEDGE_SCOPE_DENIED");
+  }
+});
+
+it("H6 deserialized revocation cannot assemble whole-domain authority from partial grants", () => {
+  const p = fixture();
+  for (const g of p.grants) g.domains = ["MAC_COVERAGE", "REGULATION"];
+  const r = transition(p, {
+    operation: "REVOKE_GRANT",
+    credentialId: "grant-2",
+    expectedCredentialRevision: 1,
+  });
+  const g = r.state.grants.find((g) => g.id === "grant-3")!;
+  g.domains = ["MAC_COVERAGE"];
+  r.state.grants.push({
+    ...structuredClone(g),
+    id: "partial-regulation",
+    domains: ["REGULATION"],
+  });
+  r.eventIntents[0].authorizationWitnesses = normalizeWitnesses(
+    r.eventIntents[0].authorizationWitnesses.map((w) =>
+      w.domain === "REGULATION" ? { ...w, grantId: "partial-regulation" } : w,
+    ),
+  );
+  expect(transitionResultSchema.safeParse(r).success).toBe(false);
+});
+
+for (const kind of ["review", "rights", "lkg"] as const)
+  it(`H2/H3 nonsynthetic ${kind} attestation denial preserves per-publication states`, () => {
+    const { p } = attestationFixture(kind),
+      v = p.versions[0];
+    for (const g of p.grants)
+      g.issuance = {
+        kind: "OWNER_BOOTSTRAP",
+        reference: "synthetic-test-of-owner-metadata",
+      };
+    for (const q of p.qualifications) q.verificationMethod = "CREDENTIAL_CHECK";
+    const grant = p.grants.find(
+      (g) =>
+        g.id ===
+        (kind === "review"
+          ? "grant-2"
+          : kind === "rights"
+            ? "grant-4"
+            : "health-only"),
+    )!;
+    const parent = {
+      ...structuredClone(grant),
+      id: "synthetic-ancestor",
+      subjectMemberId: 90,
+      grantedByMemberId: 98,
+      verifiedByMemberId: 99,
+      capabilities: [...capabilities],
+      issuance: {
+        kind: "SYNTHETIC_SEED" as const,
+        reference: "synthetic-root",
+      },
+    };
+    p.grants.push(parent);
+    grant.grantedByMemberId = grant.verifiedByMemberId = 90;
+    grant.createdAt = grant.verifiedAt = start;
+    grant.issuance = {
+      kind: "DELEGATED",
+      parentGrantId: parent.id,
+      parentGrantRevision: 1,
+      requestId: "synthetic-prior-issuance",
+    };
+    // Keep a second independently valid publication visible alongside the denial.
+    const good = structuredClone(v);
+    good.id = "independent-valid-version";
+    good.documentId = "independent-valid-document";
+    good.artifactRevision++;
+    good.approvals[0].id = "independent-valid-approval";
+    good.approvals[0].versionId = good.id;
+    const independentGrant = {
+      ...structuredClone(grant),
+      id: "independent-owner-grant",
+      issuance: {
+        kind: "OWNER_BOOTSTRAP" as const,
+        reference: "synthetic-owner-reference",
+      },
+    };
+    p.grants.push(independentGrant);
+    if (kind === "review")
+      good.approvals[0].reviewGrantId = independentGrant.id;
+    if (kind === "rights") {
+      good.rights.id = "independent-rights";
+      good.rights.verificationGrantId = independentGrant.id;
+      good.rightsOverlay.rightsId = good.rights.id;
+      good.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+        good.scopeId,
+        good.rights.id,
+        good.rights.revision,
+      );
+    }
+    if (kind === "lkg") {
+      good.health.state = "CURRENT";
+      good.health.lkg = null;
+    }
+    good.approvals[0].reviewManifestDigest = reviewManifestDigest(
+      p.sources[0],
+      good,
+    );
+    p.versions.push(good);
+    p.assignments.push({
+      ...structuredClone(p.assignments[0]),
+      id: "independent-valid-assignment",
+      versionId: good.id,
+      documentId: good.documentId,
+      approvalId: good.approvals[0].id,
+      reviewManifestDigest: good.approvals[0].reviewManifestDigest,
+    });
+    const result = resolve(p, context, { ...actor(), synthetic: false });
+    expect(
+      result.decisions.find((entry) => entry.versionId === good.id)?.state,
+    ).toBe("APPLICABLE");
+    expect(result.state).toBe(
+      kind === "review"
+        ? "NOT_APPROVED"
+        : kind === "rights"
+          ? "LICENSE_NOT_PERMITTED"
+          : "SOURCE_UNAVAILABLE",
+    );
+    expect(result.decisions).toHaveLength(2);
+    expect(result.decisions.some((entry) => entry.versionId === v.id)).toBe(
+      true,
+    );
+  });
+it("H3 nonsynthetic reader cannot use a delegated read grant rooted in a synthetic seed", () => {
+  const p = fixture(),
+    g = p.grants.find((g) => g.id === "grant-3")!;
+  const parent = {
+    ...structuredClone(g),
+    id: "read-parent",
+    subjectMemberId: 90,
+  };
+  p.grants.push(parent);
+  g.grantedByMemberId = g.verifiedByMemberId = 90;
+  g.issuance = {
+    kind: "DELEGATED",
+    parentGrantId: parent.id,
+    parentGrantRevision: 1,
+    requestId: "synthetic-read",
+  };
+  expect(resolve(p, context, { ...actor(), synthetic: false }).state).toBe(
+    "SCOPE_DENIED",
+  );
 });

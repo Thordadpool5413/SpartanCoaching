@@ -1,5 +1,6 @@
 import {
   actorSchema,
+  resolverResultSchema,
   approvalSchema,
   assignmentSchema,
   authorityMatrix,
@@ -13,6 +14,8 @@ import {
   stamp,
   versionSchema,
   type Actor,
+  type Grant,
+  type Scope,
   type Assignment,
   type KnowledgeContext,
   type KnowledgeSource,
@@ -22,7 +25,9 @@ import {
 } from "./contracts";
 import {
   actorInScope,
+  validateGrantAncestry,
   grantEligible,
+  grantContextEligible,
   hasCurrentApproval,
   healthState,
   licenseAllows,
@@ -70,6 +75,34 @@ function reference(
   if (matches.length !== 1) fail("KNOWLEDGE_REFERENCE_INVALID");
   return matches[0];
 }
+/** Only same-scope ancestry of the supplied roots enters an authorized projection. */
+function projectGrantAncestry(
+  rawGrants: unknown[],
+  scope: Scope,
+  roots: Grant[],
+): Grant[] {
+  const grants = [...roots];
+  for (let i = 0; i < grants.length; i++) {
+    const g = grants[i];
+    if (g.issuance.kind === "DELEGATED") {
+      const parentId = g.issuance.parentGrantId;
+      if (!grants.some((x) => x.id === parentId))
+        grants.push(
+          parseContract(
+            grantSchema,
+            reference(
+              rawGrants,
+              (x) =>
+                data(x, "id") === parentId && data(x, "scopeId") === scope.id,
+            ),
+          ),
+        );
+    }
+    if (grants.length > 2000) fail();
+  }
+  validateGrantAncestry({ scope, grants });
+  return grants;
+}
 function project(
   raw: unknown,
   actor: Actor,
@@ -89,7 +122,7 @@ function project(
     const scope = parseContract(scopeSchema, rawScope);
     if (!actorInScope(actor, scope)) continue;
     const rawGrants = array(data(rawPartition, "grants"));
-    const reads = rawGrants
+    const readCandidates = rawGrants
       .filter(
         (g) =>
           data(g, "subjectMemberId") === actor.memberId &&
@@ -100,9 +133,15 @@ function project(
       .map((g) => parseContract(grantSchema, g))
       .filter((g) =>
         g.domains.some((d) =>
-          grantEligible(g, scope, d, "knowledge.read", now),
+          grantEligible(g, scope, d, "knowledge.read", now, actor.synthetic),
         ),
       );
+    // Read authority must be established before inspecting publication payloads.
+    // Attestation ancestry is evaluated later per publication, not as a partition-wide denial.
+    const readAncestry = projectGrantAncestry(rawGrants, scope, readCandidates);
+    const reads = readCandidates.filter((g) =>
+      grantContextEligible({ scope, grants: readAncestry }, g, actor.synthetic),
+    );
     if (!reads.length) continue;
     if (new Set(reads.map((g) => g.id)).size !== reads.length)
       fail("KNOWLEDGE_REFERENCE_INVALID");
@@ -189,7 +228,7 @@ function project(
         !allowed.has(s.domain)
       )
         fail("KNOWLEDGE_REFERENCE_INVALID");
-      validateAssignment({ scope } as Partition, a, v);
+      validateAssignment({ scope } as Partition, a, v, now);
       if (
         !sources.some(
           (x) => x.id === s.id && x.metadataRevision === s.metadataRevision,
@@ -226,10 +265,10 @@ function project(
         overlay: v.rightsOverlay,
       });
       if (rightsRecords.has(key) && rightsRecords.get(key) !== digest)
-        fail("KNOWLEDGE_REFERENCE_INVALID");
+        fail("KNOWLEDGE_IDENTITY_CONFLICT");
       rightsRecords.set(key, digest);
     }
-    const grantIds = new Set<string>();
+    const grantIds = new Set<string>(reads.map((g) => g.id));
     const qualificationIds = new Set<string>();
     const memberIds = new Set<number>();
     for (const v of versions) {
@@ -246,6 +285,7 @@ function project(
       const l = v.health.lkg;
       if (l) {
         grantIds.add(l.reviewGrantId);
+        grantIds.add(l.healthGrantId);
         qualificationIds.add(l.qualificationId);
         memberIds.add(l.reviewerMemberId);
       }
@@ -256,6 +296,7 @@ function project(
         reference(rawGrants, (g) => data(g, "id") === id),
       ),
     );
+    const attestationGrants = projectGrantAncestry(rawGrants, scope, grants);
     const qualifications = [...qualificationIds].map((id) =>
       parseContract(
         qualificationSchema,
@@ -275,17 +316,18 @@ function project(
       ),
     );
     if (
-      grants.some((g) => g.scopeId !== scope.id) ||
+      attestationGrants.some((g) => g.scopeId !== scope.id) ||
       qualifications.some((q) => q.scopeId !== scope.id)
     )
       fail("KNOWLEDGE_REFERENCE_INVALID");
+    if (qualifications.length > 2000 || members.length > 2000) fail();
     const p = {
       scope,
       revision: 0,
       sources,
       versions,
       assignments,
-      grants,
+      grants: attestationGrants,
       qualifications,
       members,
       configuration: parseContract(
@@ -371,7 +413,7 @@ export function evaluateApplicability(
 }
 export function createKnowledgeRegistry(input: unknown) {
   if (
-    data(input, "contractVersion") !== "knowledge-foundation-v2" ||
+    data(input, "contractVersion") !== "knowledge-foundation-v3" ||
     !Array.isArray(data(input, "partitions")) ||
     !input ||
     Object.keys(input).some(
@@ -524,7 +566,7 @@ export function createKnowledgeRegistry(input: unknown) {
         publishedEntries: entries,
       };
       const bundleHash = canonicalDigest(manifest);
-      return {
+      return parseContract(resolverResultSchema, {
         state,
         bundleHash,
         bundleId: `kb2:${bundleHash}`,
@@ -537,7 +579,7 @@ export function createKnowledgeRegistry(input: unknown) {
             : [],
         warnings: sortedSet(entries.flatMap((e) => e.warningCodes)),
         manifest,
-      };
+      });
     },
   });
 }
