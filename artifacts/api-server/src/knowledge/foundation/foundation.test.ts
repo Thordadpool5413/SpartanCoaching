@@ -3805,3 +3805,148 @@ it("H3/H6 whole-domain revocation still requires canonical active command member
     ).toThrow("KNOWLEDGE_SCOPE_DENIED");
   }
 });
+
+it("H6 deserialized revocation cannot assemble whole-domain authority from partial grants", () => {
+  const p = fixture();
+  for (const g of p.grants) g.domains = ["MAC_COVERAGE", "REGULATION"];
+  const r = transition(p, {
+    operation: "REVOKE_GRANT",
+    credentialId: "grant-2",
+    expectedCredentialRevision: 1,
+  });
+  const g = r.state.grants.find((g) => g.id === "grant-3")!;
+  g.domains = ["MAC_COVERAGE"];
+  r.state.grants.push({
+    ...structuredClone(g),
+    id: "partial-regulation",
+    domains: ["REGULATION"],
+  });
+  r.eventIntents[0].authorizationWitnesses = normalizeWitnesses(
+    r.eventIntents[0].authorizationWitnesses.map((w) =>
+      w.domain === "REGULATION" ? { ...w, grantId: "partial-regulation" } : w,
+    ),
+  );
+  expect(transitionResultSchema.safeParse(r).success).toBe(false);
+});
+
+for (const kind of ["review", "rights", "lkg"] as const)
+  it(`H2/H3 nonsynthetic ${kind} attestation denial preserves per-publication states`, () => {
+    const { p } = attestationFixture(kind),
+      v = p.versions[0];
+    for (const g of p.grants)
+      g.issuance = {
+        kind: "OWNER_BOOTSTRAP",
+        reference: "synthetic-test-of-owner-metadata",
+      };
+    for (const q of p.qualifications) q.verificationMethod = "CREDENTIAL_CHECK";
+    const grant = p.grants.find(
+      (g) =>
+        g.id ===
+        (kind === "review"
+          ? "grant-2"
+          : kind === "rights"
+            ? "grant-4"
+            : "health-only"),
+    )!;
+    const parent = {
+      ...structuredClone(grant),
+      id: "synthetic-ancestor",
+      subjectMemberId: 90,
+      grantedByMemberId: 98,
+      verifiedByMemberId: 99,
+      capabilities: [...capabilities],
+      issuance: {
+        kind: "SYNTHETIC_SEED" as const,
+        reference: "synthetic-root",
+      },
+    };
+    p.grants.push(parent);
+    grant.grantedByMemberId = grant.verifiedByMemberId = 90;
+    grant.createdAt = grant.verifiedAt = start;
+    grant.issuance = {
+      kind: "DELEGATED",
+      parentGrantId: parent.id,
+      parentGrantRevision: 1,
+      requestId: "synthetic-prior-issuance",
+    };
+    // Keep a second independently valid publication visible alongside the denial.
+    const good = structuredClone(v);
+    good.id = "independent-valid-version";
+    good.documentId = "independent-valid-document";
+    good.artifactRevision++;
+    good.approvals[0].id = "independent-valid-approval";
+    good.approvals[0].versionId = good.id;
+    const independentGrant = {
+      ...structuredClone(grant),
+      id: "independent-owner-grant",
+      issuance: {
+        kind: "OWNER_BOOTSTRAP" as const,
+        reference: "synthetic-owner-reference",
+      },
+    };
+    p.grants.push(independentGrant);
+    if (kind === "review")
+      good.approvals[0].reviewGrantId = independentGrant.id;
+    if (kind === "rights") {
+      good.rights.id = "independent-rights";
+      good.rights.verificationGrantId = independentGrant.id;
+      good.rightsOverlay.rightsId = good.rights.id;
+      good.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+        good.scopeId,
+        good.rights.id,
+        good.rights.revision,
+      );
+    }
+    if (kind === "lkg") {
+      good.health.state = "CURRENT";
+      good.health.lkg = null;
+    }
+    good.approvals[0].reviewManifestDigest = reviewManifestDigest(
+      p.sources[0],
+      good,
+    );
+    p.versions.push(good);
+    p.assignments.push({
+      ...structuredClone(p.assignments[0]),
+      id: "independent-valid-assignment",
+      versionId: good.id,
+      documentId: good.documentId,
+      approvalId: good.approvals[0].id,
+      reviewManifestDigest: good.approvals[0].reviewManifestDigest,
+    });
+    const result = resolve(p, context, { ...actor(), synthetic: false });
+    expect(
+      result.decisions.find((entry) => entry.versionId === good.id)?.state,
+    ).toBe("APPLICABLE");
+    expect(result.state).toBe(
+      kind === "review"
+        ? "NOT_APPROVED"
+        : kind === "rights"
+          ? "LICENSE_NOT_PERMITTED"
+          : "SOURCE_UNAVAILABLE",
+    );
+    expect(result.decisions).toHaveLength(2);
+    expect(result.decisions.some((entry) => entry.versionId === v.id)).toBe(
+      true,
+    );
+  });
+it("H3 nonsynthetic reader cannot use a delegated read grant rooted in a synthetic seed", () => {
+  const p = fixture(),
+    g = p.grants.find((g) => g.id === "grant-3")!;
+  const parent = {
+    ...structuredClone(g),
+    id: "read-parent",
+    subjectMemberId: 90,
+  };
+  p.grants.push(parent);
+  g.grantedByMemberId = g.verifiedByMemberId = 90;
+  g.issuance = {
+    kind: "DELEGATED",
+    parentGrantId: parent.id,
+    parentGrantRevision: 1,
+    requestId: "synthetic-read",
+  };
+  expect(resolve(p, context, { ...actor(), synthetic: false }).state).toBe(
+    "SCOPE_DENIED",
+  );
+});

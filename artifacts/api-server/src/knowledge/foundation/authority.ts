@@ -74,7 +74,7 @@ export function grantEligible(
 }
 /** Ancestry must first pass validateGrantAncestry; this adds the server-context root restriction. */
 export function grantContextEligible(
-  p: Partition,
+  p: Pick<Partition, "scope" | "grants">,
   grant: Grant,
   synthetic: boolean,
 ): boolean {

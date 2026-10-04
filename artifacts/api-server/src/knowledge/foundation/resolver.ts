@@ -14,6 +14,8 @@ import {
   stamp,
   versionSchema,
   type Actor,
+  type Grant,
+  type Scope,
   type Assignment,
   type KnowledgeContext,
   type KnowledgeSource,
@@ -25,6 +27,7 @@ import {
   actorInScope,
   validateGrantAncestry,
   grantEligible,
+  grantContextEligible,
   hasCurrentApproval,
   healthState,
   licenseAllows,
@@ -72,6 +75,34 @@ function reference(
   if (matches.length !== 1) fail("KNOWLEDGE_REFERENCE_INVALID");
   return matches[0];
 }
+/** Only same-scope ancestry of the supplied roots enters an authorized projection. */
+function projectGrantAncestry(
+  rawGrants: unknown[],
+  scope: Scope,
+  roots: Grant[],
+): Grant[] {
+  const grants = [...roots];
+  for (let i = 0; i < grants.length; i++) {
+    const g = grants[i];
+    if (g.issuance.kind === "DELEGATED") {
+      const parentId = g.issuance.parentGrantId;
+      if (!grants.some((x) => x.id === parentId))
+        grants.push(
+          parseContract(
+            grantSchema,
+            reference(
+              rawGrants,
+              (x) =>
+                data(x, "id") === parentId && data(x, "scopeId") === scope.id,
+            ),
+          ),
+        );
+    }
+    if (grants.length > 2000) fail();
+  }
+  validateGrantAncestry({ scope, grants });
+  return grants;
+}
 function project(
   raw: unknown,
   actor: Actor,
@@ -91,7 +122,7 @@ function project(
     const scope = parseContract(scopeSchema, rawScope);
     if (!actorInScope(actor, scope)) continue;
     const rawGrants = array(data(rawPartition, "grants"));
-    const reads = rawGrants
+    const readCandidates = rawGrants
       .filter(
         (g) =>
           data(g, "subjectMemberId") === actor.memberId &&
@@ -105,6 +136,12 @@ function project(
           grantEligible(g, scope, d, "knowledge.read", now, actor.synthetic),
         ),
       );
+    // Read authority must be established before inspecting publication payloads.
+    // Attestation ancestry is evaluated later per publication, not as a partition-wide denial.
+    const readAncestry = projectGrantAncestry(rawGrants, scope, readCandidates);
+    const reads = readCandidates.filter((g) =>
+      grantContextEligible({ scope, grants: readAncestry }, g, actor.synthetic),
+    );
     if (!reads.length) continue;
     if (new Set(reads.map((g) => g.id)).size !== reads.length)
       fail("KNOWLEDGE_REFERENCE_INVALID");
@@ -259,27 +296,7 @@ function project(
         reference(rawGrants, (g) => data(g, "id") === id),
       ),
     );
-    // Include only referenced immutable ancestry; later ancestor status never grants or revokes a child.
-    for (let i = 0; i < grants.length; i++) {
-      const g = grants[i];
-      if (g.issuance.kind === "DELEGATED") {
-        const parentId = g.issuance.parentGrantId;
-        if (grants.some((x) => x.id === parentId)) continue;
-        grants.push(
-          parseContract(
-            grantSchema,
-            reference(rawGrants, (x) => data(x, "id") === parentId),
-          ),
-        );
-      }
-      if (grants.length > 2000) fail();
-    }
-    validateGrantAncestry({ scope, grants });
-    if (
-      !actor.synthetic &&
-      grants.some((g) => g.issuance.kind === "SYNTHETIC_SEED")
-    )
-      fail("KNOWLEDGE_DELEGATION_DENIED");
+    const attestationGrants = projectGrantAncestry(rawGrants, scope, grants);
     const qualifications = [...qualificationIds].map((id) =>
       parseContract(
         qualificationSchema,
@@ -299,7 +316,7 @@ function project(
       ),
     );
     if (
-      grants.some((g) => g.scopeId !== scope.id) ||
+      attestationGrants.some((g) => g.scopeId !== scope.id) ||
       qualifications.some((q) => q.scopeId !== scope.id)
     )
       fail("KNOWLEDGE_REFERENCE_INVALID");
@@ -310,7 +327,7 @@ function project(
       sources,
       versions,
       assignments,
-      grants,
+      grants: attestationGrants,
       qualifications,
       members,
       configuration: parseContract(

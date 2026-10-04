@@ -1222,6 +1222,23 @@ export const transitionResultSchema = z
       for (const cap of caps[e.operation] ?? [])
         requiredPredicates.add(`${domainOf(v)}/${cap}`);
     }
+    if (e.operation === "REVOKE_GRANT") {
+      const target = p.grants.find((g) => g.id === e.aggregateId);
+      if (target)
+        for (const capability of target.capabilities) {
+          const witnesses = actorWitnesses.filter(
+            (w) => w.capability === capability,
+          );
+          const grantIds = new Set(witnesses.map((w) => w.grantId));
+          const grant = p.grants.find((g) => g.id === witnesses[0]?.grantId);
+          if (
+            grantIds.size !== 1 ||
+            !grant ||
+            !target.domains.every((domain) => grant.domains.includes(domain))
+          )
+            invalid();
+        }
+    }
     const actualPredicates = new Set(
       actorWitnesses.map((w) => `${w.domain}/${w.capability}`),
     );

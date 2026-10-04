@@ -497,3 +497,32 @@ This follow-up is documentation only and records the durable handoff link. The P
 body is the terminal ledger for its final head, required CI, all eight thread
 resolutions, authorized merge and post-merge main verification. Require a current
 full run after this checkpoint; do not substitute the initial PR run.
+
+### PR #187 review follow-up (same approved packet)
+
+The initial final-head PR run `37224580579` passed all seven jobs, but the automatic
+code review of implementation commit `c917a546` then found two additional H2/H3/H6
+contract gaps. That green run does not authorize merging the updated code.
+
+- Discussion `4178823627`: final-result validation checked individual witness
+  domains but could accept a union of partial grants for a whole-domain revocation
+  predicate. The public result schema now requires one identical referenced grant
+  covering every target domain for each target capability, matching the producer.
+- Discussion `4178823630`: rejecting any synthetic ancestor in the entire authorized
+  partition hid the required per-publication denial states. The resolver now checks
+  read ancestry before inspecting publication payloads, filters ineligible read
+  authority, and leaves referenced attestation eligibility to the exact review,
+  rights and health predicates. Same-scope bounded ancestry validation is shared;
+  malformed/cyclic provenance still fails closed. This does not authorize a
+  nonsynthetic reader through a synthetic ancestor or change bundle precedence.
+
+Five focused regressions failed before the fixes (0 pass / 5 fail), then passed.
+The three attestation variants now also retain an independently valid publication
+in the decision set. Existing tenant isolation and canonical golden vectors pass.
+The new cases stay in mandatory `foundation.test.ts`; total new regressions = 242.
+Latest targeted verification: 502/502 (foundation 395, guard 90, middleware 11,
+session 6). Full API rerun passes 800/800 across 50 files (49.13s), including generated
+contract/OpenAPI pretests. Root typecheck and API build pass after these fixes. The broader client,
+mobile, browser, policy and workspace-build results above remain unchanged; no
+related files changed. Fresh seven-job PR/main evidence is required before completion. No architecture change, scope expansion or new owner
+authorization is needed for these corrections.
