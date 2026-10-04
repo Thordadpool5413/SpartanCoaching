@@ -1,6 +1,11 @@
 import { z } from "zod";
 import {
   actorSchema,
+  transitionResultSchema,
+  expiryIntentsSchema,
+  rightsRevisionIdentity,
+  type AuthorizationWitness,
+  type Approval,
   applicabilitySchema,
   assignmentSchema,
   eventSchema,
@@ -24,6 +29,12 @@ import {
 } from "./contracts";
 import {
   actorInScope,
+  memberCurrent,
+  authorizationWitness,
+  normalizeWitnesses,
+  validateGrantAncestry,
+  grantEligible,
+  grantContextEligible,
   hasCurrentApproval,
   healthState,
   licenseAllows,
@@ -48,7 +59,9 @@ import {
 } from "./canonical";
 const expected = {
   expectedScopeRevision: revision,
-  expectedVersionRevisions: z.record(id, revision),
+  expectedVersionRevisions: z
+    .record(id, revision)
+    .refine((rs) => Object.keys(rs).length <= 2000),
 };
 const target = { ...expected, versionId: id };
 export const commandSchema = z.discriminatedUnion("operation", [
@@ -175,7 +188,8 @@ const versionIdentity = (s: KnowledgeSource, v: KnowledgeVersion) => {
   } = manifest;
   return canonicalDigest({ source: s, artifact: identity });
 };
-function validateState(p: Partition): void {
+function validateState(p: Partition, now?: string): void {
+  validateGrantAncestry(p);
   const unique = (values: readonly unknown[]) =>
     new Set(values).size === values.length;
   if (
@@ -215,7 +229,7 @@ function validateState(p: Partition): void {
   for (const a of p.assignments) {
     const v = p.versions.find((v) => v.id === a.versionId);
     if (!v) fail("KNOWLEDGE_REFERENCE_INVALID");
-    validateAssignment(p, a, v);
+    validateAssignment(p, a, v, now);
   }
   validateLineage(p);
   assertNoOverlaps(p);
@@ -243,9 +257,22 @@ export function transitionKnowledge(
     !actorInScope(actor, parseContract(partitionSchema.shape.scope, rawScope))
   )
     fail("KNOWLEDGE_SCOPE_DENIED");
-  const p = parseContract(partitionSchema, stateInput),
-    command = parseContract(commandSchema, commandInput);
-  validateState(p);
+  const p = parseContract(partitionSchema, stateInput);
+  if (
+    actor &&
+    (!memberCurrent(p, actor.memberId) ||
+      p.members.find((m) => m.memberId === actor.memberId)?.organizationId !==
+        actor.organizationId)
+  )
+    fail("KNOWLEDGE_SCOPE_DENIED");
+  const command = parseContract(commandSchema, commandInput);
+  validateState(p, server.now);
+  if (
+    Object.keys(command.expectedVersionRevisions).some(
+      (id) => !p.versions.some((v) => v.id === id),
+    )
+  )
+    fail("KNOWLEDGE_REFERENCE_INVALID");
   if (p.revision !== command.expectedScopeRevision)
     fail("KNOWLEDGE_REVISION_CONFLICT");
   if (
@@ -274,8 +301,7 @@ export function transitionKnowledge(
         s.metadataRevision === version.sourceMetadataRevision,
     )!;
   let source = v ? sourceFor(v) : undefined;
-  let grantId: string | null = null,
-    qualificationId: string | null = null;
+  const witnesses: AuthorizationWitness[] = [];
   let reason: KnowledgeEvent["reasonCode"] = "VALIDATION_RECORDED",
     invalidation: KnowledgeEvent["invalidation"] = "NONE",
     contentRemoval = false;
@@ -286,19 +312,70 @@ export function transitionKnowledge(
     previousAssignmentId: string | null = null,
     approvalId: string | null = null,
     previousApprovalId: string | null = null;
-  const affected = new Set<string>();
+
   const authorize = (
     domain: KnowledgeSource["domain"],
     capability: Parameters<typeof requireCapability>[3],
   ) => {
     const g = requireCapability(next, actor!, domain, capability, server.now);
-    grantId = g.id;
+    witnesses.push(
+      authorizationWitness(next, actor!.memberId, domain, capability, g.id),
+    );
     return g;
   };
   const qualification = (s: KnowledgeSource, version: KnowledgeVersion) => {
     const q = requireQualification(next, actor!, s, version, server.now);
-    qualificationId = q.id;
+    const witness = witnesses.find(
+      (w) =>
+        w.witnessType === "ACTOR_CAPABILITY" &&
+        w.actorMemberId === actor!.memberId &&
+        w.domain === s.domain &&
+        w.capability === "knowledge.review",
+    );
+    if (!witness) fail();
+    witness.qualificationId = q.id;
+    witness.qualificationRevision = q.revision;
     return q;
+  };
+  const recordAttestations = (
+    version: KnowledgeVersion,
+    approval: Approval,
+  ) => {
+    const domain = sourceFor(version).domain,
+      r = version.rights;
+    witnesses.push(
+      authorizationWitness(
+        next,
+        approval.reviewerMemberId,
+        domain,
+        "knowledge.review",
+        approval.reviewGrantId,
+        approval.qualificationId,
+        "REVIEW_ATTESTATION",
+        approval.id,
+        approval.reviewedAt,
+      ),
+    );
+    witnesses.push(
+      authorizationWitness(
+        next,
+        r.verifiedByMemberId!,
+        domain,
+        "knowledge.license",
+        r.verificationGrantId!,
+        r.verificationQualificationId,
+        "RIGHTS_ATTESTATION",
+        rightsRevisionIdentity(version.scopeId, r.id, r.revision),
+        r.verifiedAt,
+      ),
+    );
+  };
+  const reserve = (size: number, growth: number, maximum: number) => {
+    if (size + growth > maximum) fail("KNOWLEDGE_CAPACITY_EXCEEDED");
+  };
+  const increment = (value: number) => {
+    if (value >= Number.MAX_SAFE_INTEGER) fail("KNOWLEDGE_CAPACITY_EXCEEDED");
+    return value + 1;
   };
   const eligible = (version: KnowledgeVersion, pin: string) => {
     const s = sourceFor(version),
@@ -341,6 +418,8 @@ export function transitionKnowledge(
       )
     )
       fail("ACTIVATION_RIGHTS_OR_INTERVAL_REQUIRED");
+    reserve(next.assignments.length, 1, 4000);
+    recordAttestations(version, a);
     const result = parseContract(assignmentSchema, {
       id: childId(server.eventId, suffix),
       scopeId: next.scope.id,
@@ -362,7 +441,6 @@ export function transitionKnowledge(
       retirementEventId: null,
     });
     next.assignments.push(result);
-    affected.add(result.id);
     return result;
   };
   if (command.operation === "REGISTER") {
@@ -388,7 +466,11 @@ export function transitionKnowledge(
         versionIdentity(source, command.version)
       )
         fail("KNOWLEDGE_IDENTITY_CONFLICT");
-      return { state: next, eventIntents: [], existingVersionId: duplicate.id };
+      return parseContract(transitionResultSchema, {
+        state: next,
+        eventIntents: [],
+        existingVersionId: duplicate.id,
+      });
     }
     if (next.versions.some((v) => v.id === command.version.id))
       fail("KNOWLEDGE_IDENTITY_CONFLICT");
@@ -422,6 +504,8 @@ export function transitionKnowledge(
       registeredByMemberId: actor!.memberId,
       revision: 1,
     };
+    reserve(next.versions.length, 1, 2000);
+    reserve(next.sources.length, existingSource ? 0 : 1, 500);
     if (!existingSource) next.sources.push(source);
     const existingRights = next.versions.find(
       (x) =>
@@ -446,28 +530,49 @@ export function transitionKnowledge(
       fail("KNOWLEDGE_REFERENCE_INVALID");
     if (target.revision !== command.expectedCredentialRevision)
       fail("KNOWLEDGE_REVISION_CONFLICT");
-    for (const domain of target.domains) authorize(domain, "knowledge.grants");
+    // When grants authority is itself delegated, its whole-domain predicate
+    // subsumes the per-domain checks. Do not add competing partial witnesses.
     if (
-      "capabilities" in target &&
-      !target.capabilities.every((c) =>
-        next.grants.some(
-          (g) =>
-            g.subjectMemberId === actor!.memberId &&
-            target.domains.every((d) => g.domains.includes(d)) &&
-            g.scopeId === next.scope.id &&
-            !g.revokedAt &&
-            g.effectiveFrom <= server.now &&
-            g.verifiedAt <= server.now &&
-            server.now < g.expiresAt &&
-            g.capabilities.includes(c),
-        ),
-      )
+      !("capabilities" in target) ||
+      !target.capabilities.includes("knowledge.grants")
     )
-      fail("KNOWLEDGE_DELEGATION_DENIED");
+      for (const domain of target.domains)
+        authorize(domain, "knowledge.grants");
+    if ("capabilities" in target)
+      for (const capability of target.capabilities) {
+        const grant = [...next.grants]
+          .sort((a, b) => ordinal(a.id, b.id))
+          .find(
+            (g) =>
+              g.subjectMemberId === actor!.memberId &&
+              grantContextEligible(next, g, actor!.synthetic) &&
+              target.domains.every((domain) =>
+                grantEligible(
+                  g,
+                  next.scope,
+                  domain,
+                  capability,
+                  server.now,
+                  actor!.synthetic,
+                ),
+              ),
+          );
+        if (!grant) fail("KNOWLEDGE_DELEGATION_DENIED");
+        for (const domain of target.domains)
+          witnesses.push(
+            authorizationWitness(
+              next,
+              actor!.memberId,
+              domain,
+              capability,
+              grant.id,
+            ),
+          );
+      }
     if (target.revokedAt) fail("KNOWLEDGE_REVOKED");
     previousRevision = target.revision;
     target.revokedAt = server.now;
-    target.revision++;
+    target.revision = increment(target.revision);
     aggregateKind =
       command.operation === "REVOKE_GRANT" ? "GRANT" : "QUALIFICATION";
     aggregateId = target.id;
@@ -476,27 +581,6 @@ export function transitionKnowledge(
         ? "GRANT_REVOKED"
         : "QUALIFICATION_REVOKED";
     invalidation = "ELIGIBILITY";
-    for (const version of next.versions) {
-      const refs = [
-        ...version.approvals,
-        ...(version.health.lkg ? [version.health.lkg] : []),
-      ];
-      const r = version.rights;
-      if (
-        refs.some((a) =>
-          command.operation === "REVOKE_GRANT"
-            ? a.reviewGrantId === target.id
-            : a.qualificationId === target.id,
-        ) ||
-        (command.operation === "REVOKE_GRANT"
-          ? r.verificationGrantId === target.id
-          : r.verificationQualificationId === target.id)
-      )
-        for (const a of next.assignments.filter(
-          (a) => !a.retiredAt && a.versionId === version.id,
-        ))
-          affected.add(a.id);
-    }
   } else {
     if (!v || !source) fail("KNOWLEDGE_REFERENCE_INVALID");
     if (
@@ -562,6 +646,7 @@ export function transitionKnowledge(
         )
           fail("KNOWLEDGE_REVIEW_WINDOW_INVALID");
         approvalId = childId(server.eventId, "approval");
+        reserve(v.approvals.length, 1, 100);
         v.approvals.push({
           id: approvalId,
           versionId: v.id,
@@ -584,13 +669,21 @@ export function transitionKnowledge(
       reason = "SECURITY_REVOCATION";
       invalidation = "PUBLICATION";
     } else if (command.operation === "REVOKE_RIGHTS") {
-      authorize(source.domain, "knowledge.license");
+      const referencing = next.versions.filter(
+        (x) =>
+          x.rightsOverlay.rightsRevisionId ===
+          v!.rightsOverlay.rightsRevisionId,
+      );
+      for (const domain of sortedSet(
+        referencing.map((x) => sourceFor(x).domain),
+      ))
+        authorize(domain as KnowledgeSource["domain"], "knowledge.license");
       if (command.expectedRightsRevision !== v.rightsOverlay.revision)
         fail("KNOWLEDGE_REVISION_CONFLICT");
       if (v.rightsOverlay.revokedAt) fail("KNOWLEDGE_REVOKED");
       previousRevision = v.rightsOverlay.revision;
-      aggregateKind = "RIGHTS";
-      aggregateId = v.rights.id;
+      aggregateKind = "RIGHTS_REVISION";
+      aggregateId = v.rightsOverlay.rightsRevisionId;
       for (const same of next.versions.filter(
         (x) =>
           x.rights.id === v!.rights.id &&
@@ -598,8 +691,8 @@ export function transitionKnowledge(
       )) {
         touch(same);
         same.rightsOverlay.revokedAt = server.now;
-        same.rightsOverlay.revision++;
-        if (same !== v) same.revision++;
+        same.rightsOverlay.revision = increment(same.rightsOverlay.revision);
+        if (same !== v) same.revision = increment(same.revision);
       }
       reason = "RIGHTS_REVOKED";
       invalidation = "ELIGIBILITY";
@@ -626,7 +719,7 @@ export function transitionKnowledge(
         invalidation = "ELIGIBILITY";
       }
     } else if (command.operation === "APPROVE_LKG") {
-      authorize(source.domain, "knowledge.health");
+      const healthGrant = authorize(source.domain, "knowledge.health");
       const g = authorize(source.domain, "knowledge.review");
       const q = qualification(source, v);
       if (
@@ -640,6 +733,7 @@ export function transitionKnowledge(
         command.until <= server.now ||
         command.until > v.health.hardExpiresAt ||
         command.until > g.expiresAt ||
+        command.until > healthGrant.expiresAt ||
         command.until > q.expiresAt ||
         command.until > q.reviewDueAt ||
         v.health.checkedAt! > server.now ||
@@ -663,10 +757,24 @@ export function transitionKnowledge(
         )
       )
         fail("KNOWLEDGE_LKG_INVALID");
+      const supporting = [...v.approvals]
+        .sort((a, b) => ordinal(a.id, b.id))
+        .find((a) =>
+          hasCurrentApproval(
+            next,
+            source!,
+            v!,
+            a,
+            server.now,
+            actor!.synthetic,
+          ),
+        )!;
+      recordAttestations(v, supporting);
       v.health.lkg = {
         id: childId(server.eventId, "lkg"),
         reviewManifestDigest: reviewManifestDigest(source, v),
         reviewerMemberId: actor!.memberId,
+        healthGrantId: healthGrant.id,
         reviewGrantId: g.id,
         qualificationId: q.id,
         approvedAt: server.now,
@@ -756,8 +864,8 @@ export function transitionKnowledge(
               retiredAt: null,
               retirementEventId: null,
             };
+            reserve(next.assignments.length, 2, 4000);
             next.assignments.push(historical);
-            affected.add(historical.id);
           }
           assignmentId = createAssignment(
             v,
@@ -770,7 +878,7 @@ export function transitionKnowledge(
             "assignment",
           ).id;
           if (previous.state !== "REVOKED") previous.state = "SUPERSEDED";
-          if (previous !== v) previous.revision++;
+          if (previous !== v) previous.revision = increment(previous.revision);
           reason =
             command.operation === "SUPERSEDE"
               ? "SUPERSEDED"
@@ -778,35 +886,22 @@ export function transitionKnowledge(
         }
         old.retiredAt = server.now;
         old.retirementEventId = server.eventId;
-        old.revision++;
+        old.revision = increment(old.revision);
         previousAssignmentId = old.id;
         previousApprovalId = old.approvalId;
         approvalId = command.approvalId;
-        affected.add(old.id);
       } else fail("KNOWLEDGE_COMMAND_INVALID");
       v.state = "ACTIVE";
       v.activatedAt ??= server.now;
     }
-    v.revision++;
+    v.revision = increment(v.revision);
   }
-  if (v && ["PUBLICATION", "ELIGIBILITY"].includes(invalidation))
-    for (const a of next.assignments.filter(
-      (a) =>
-        !a.retiredAt &&
-        (a.versionId === v!.id ||
-          (contentRemoval &&
-            next.versions.find((x) => x.id === a.versionId)?.rights.id ===
-              v!.rights.id &&
-            next.versions.find((x) => x.id === a.versionId)?.rights.revision ===
-              v!.rights.revision)),
-    ))
-      affected.add(a.id);
-  next.revision++;
-  validateState(next);
+  next.revision = increment(next.revision);
+  validateState(next, server.now);
   const newRevision =
     aggregateKind === "PUBLICATION"
       ? next.revision
-      : aggregateKind === "RIGHTS"
+      : aggregateKind === "RIGHTS_REVISION"
         ? v!.rightsOverlay.revision
         : aggregateKind === "GRANT"
           ? next.grants.find((g) => g.id === aggregateId)!.revision
@@ -815,12 +910,16 @@ export function transitionKnowledge(
             : v!.revision;
   const event = parseContract(eventSchema, {
     id: server.eventId,
-    schemaVersion: "knowledge-event-v2",
+    schemaVersion: "knowledge-event-v3",
     scopeId: next.scope.id,
     aggregateKind,
     aggregateId,
-    sourceId: source?.id ?? null,
-    versionId: v?.id ?? null,
+    sourceId: ["VERSION", "PUBLICATION"].includes(aggregateKind)
+      ? (source?.id ?? null)
+      : null,
+    versionId: ["VERSION", "PUBLICATION"].includes(aggregateKind)
+      ? (v?.id ?? null)
+      : null,
     assignmentId,
     previousAssignmentId,
     approvalId,
@@ -831,8 +930,11 @@ export function transitionKnowledge(
     systemActorId: server.kind === "PIPELINE" ? "synthetic-pipeline" : null,
     evidenceRef:
       command.operation === "RECORD_STAGE" ? command.evidenceRef : null,
-    grantId,
-    qualificationId,
+    authorizationWitnesses: normalizeWitnesses(witnesses),
+    logicalRightsId: aggregateKind === "RIGHTS_REVISION" ? v!.rights.id : null,
+    rightsTermsRevision:
+      aggregateKind === "RIGHTS_REVISION" ? v!.rights.revision : null,
+    expiryCondition: null,
     previousRevision,
     newRevision,
     occurredAt: server.now,
@@ -844,160 +946,179 @@ export function transitionKnowledge(
         : null,
     reasonCode: reason,
     invalidation,
-    affectedAssignmentIds: [...affected],
     contentRemoval,
   });
-  return { state: next, eventIntents: [event], existingVersionId: null };
+  return parseContract(transitionResultSchema, {
+    state: next,
+    eventIntents: [event],
+    existingVersionId: null,
+  });
 }
 
-/** Trusted pure expiry evaluation; it neither schedules nor persists delivery. */
+/** Trusted pure expiry evaluation; selection never waits for notification delivery. */
 export function evaluateExpiryIntents(stateInput: unknown, nowInput: unknown) {
   const p = parseContract(partitionSchema, stateInput),
     now = parseContract(stamp, nowInput);
-  validateState(p);
+  validateState(p, now);
   const intents = new Map<string, KnowledgeEvent>();
   const emit = (
-    objectId: string,
-    objectRevision: number,
-    deadline: string | null,
-    reason: KnowledgeEvent["reasonCode"],
     kind: KnowledgeEvent["aggregateKind"],
-    v: KnowledgeVersion,
-    assignment: Assignment,
-    approvalId: string | null = null,
+    aggregateId: string,
+    aggregateRevision: number,
+    conditionKind: NonNullable<KnowledgeEvent["expiryCondition"]>["kind"],
+    referenceId: string,
+    deadline: string | null,
+    reasonCode: KnowledgeEvent["reasonCode"],
+    v?: KnowledgeVersion,
+    approval?: Approval,
   ) => {
     if (!deadline || deadline > now) return;
     const key = canonicalDigest({
+      schemaVersion: "knowledge-expiry-intent-v3",
       scopeId: p.scope.id,
-      objectId:
-        kind === "RIGHTS"
-          ? { id: objectId, rightsRevision: v.rights.revision }
-          : objectId,
-      revision: objectRevision,
+      aggregateKind: kind,
+      aggregateId,
+      aggregateRevision,
+      conditionKind,
+      conditionReferenceId: referenceId,
       deadline,
-      type: reason,
     });
-    const existing = intents.get(key);
-    if (existing) {
-      existing.affectedAssignmentIds = sortedSet([
-        ...existing.affectedAssignmentIds,
-        assignment.id,
-      ]);
-      return;
-    }
-    intents.set(
-      key,
-      parseContract(eventSchema, {
-        id: `expiry:${key}`,
-        schemaVersion: "knowledge-event-v2",
-        scopeId: p.scope.id,
-        aggregateKind: kind,
-        aggregateId: objectId,
-        sourceId: kind === "VERSION" ? v.sourceId : null,
-        versionId: kind === "VERSION" ? v.id : null,
-        assignmentId: null,
-        previousAssignmentId: null,
-        approvalId,
-        previousApprovalId: null,
-        operation: "EVALUATE_EXPIRY",
-        actorKind: "SYSTEM",
-        actorMemberId: null,
-        systemActorId: "expiry-evaluator",
-        evidenceRef: null,
-        grantId: kind === "GRANT" ? objectId : null,
-        qualificationId: kind === "QUALIFICATION" ? objectId : null,
-        previousRevision: objectRevision,
-        newRevision: objectRevision,
-        occurredAt: now,
-        requestId: `expiry:${key}`,
-        receiptRef: null,
-        reviewManifestDigest: approvalId
-          ? (v.approvals.find((a) => a.id === approvalId)
-              ?.reviewManifestDigest ?? null)
-          : null,
-        reasonCode: reason,
-        invalidation: "ELIGIBILITY",
-        affectedAssignmentIds: [assignment.id],
-        contentRemoval: reason === "RIGHTS_EXPIRED",
-      }),
-    );
+    if (intents.has(key)) return;
+    const version = kind === "VERSION" ? v : undefined;
+    intents.set(key, {
+      id: `expiry:${key}`,
+      schemaVersion: "knowledge-event-v3",
+      scopeId: p.scope.id,
+      aggregateKind: kind,
+      aggregateId,
+      sourceId: version?.sourceId ?? null,
+      versionId: version?.id ?? null,
+      assignmentId: null,
+      previousAssignmentId: null,
+      approvalId: approval?.id ?? null,
+      previousApprovalId: null,
+      operation: "EVALUATE_EXPIRY",
+      actorKind: "SYSTEM",
+      actorMemberId: null,
+      systemActorId: "expiry-evaluator",
+      evidenceRef: null,
+      authorizationWitnesses: [],
+      logicalRightsId: kind === "RIGHTS_REVISION" ? v!.rights.id : null,
+      rightsTermsRevision:
+        kind === "RIGHTS_REVISION" ? v!.rights.revision : null,
+      expiryCondition: { kind: conditionKind, referenceId, deadline },
+      previousRevision: aggregateRevision,
+      newRevision: aggregateRevision,
+      occurredAt: deadline,
+      requestId: `expiry:${key}`,
+      receiptRef: null,
+      reviewManifestDigest: approval?.reviewManifestDigest ?? null,
+      reasonCode,
+      invalidation: "ELIGIBILITY",
+      contentRemoval: reasonCode === "RIGHTS_EXPIRED",
+    });
   };
+  const versionMap = new Map(p.versions.map((v) => [v.id, v]));
+  const grantMap = new Map(p.grants.map((g) => [g.id, g]));
+  const qualificationMap = new Map(p.qualifications.map((q) => [q.id, q]));
   for (const a of p.assignments.filter((a) => !a.retiredAt)) {
-    const v = p.versions.find((v) => v.id === a.versionId)!;
+    const v = versionMap.get(a.versionId)!;
     emit(
-      v.rights.id,
+      "RIGHTS_REVISION",
+      v.rightsOverlay.rightsRevisionId,
       v.rightsOverlay.revision,
+      "RIGHTS_END",
+      v.rightsOverlay.rightsRevisionId,
       v.rights.expiresAt,
       "RIGHTS_EXPIRED",
-      "RIGHTS",
       v,
-      a,
     );
     emit(
+      "VERSION",
       v.id,
       v.revision,
+      "HEALTH_HARD_END",
+      v.id,
       v.health.hardExpiresAt,
       "HEALTH_EXPIRED",
-      "VERSION",
       v,
-      a,
     );
-    if (v.health.lkg)
+    if (v.health.state === "CURRENT")
       emit(
-        v.id,
-        v.revision,
-        v.health.lkg.until,
-        "HEALTH_EXPIRED",
         "VERSION",
-        v,
-        a,
-      );
-    else if (v.health.state === "CURRENT")
-      emit(
         v.id,
         v.revision,
+        "HEALTH_WARNING",
+        v.id,
         v.health.warningAt,
         "HEALTH_EXPIRED",
-        "VERSION",
         v,
-        a,
+      );
+    if (v.health.lkg)
+      emit(
+        "VERSION",
+        v.id,
+        v.revision,
+        "LKG_END",
+        v.health.lkg.id,
+        v.health.lkg.until,
+        "HEALTH_EXPIRED",
+        v,
       );
     const approval = v.approvals.find((x) => x.id === a.approvalId);
     if (approval)
       emit(
-        approval.id,
+        "VERSION",
+        v.id,
         v.revision,
+        "APPROVAL_REVIEW_DUE",
+        approval.id,
         approval.reviewDueAt,
         "APPROVAL_EXPIRED",
-        "VERSION",
         v,
-        a,
-        approval.id,
+        approval,
       );
-    const grantIds = [
+    const grantIds = new Set([
       approval?.reviewGrantId,
       v.rights.verificationGrantId,
       v.health.lkg?.reviewGrantId,
-    ];
-    const qualificationIds = [
+      v.health.lkg?.healthGrantId,
+    ]);
+    for (const id of grantIds) {
+      const g = id ? grantMap.get(id) : undefined;
+      if (g)
+        emit(
+          "GRANT",
+          g.id,
+          g.revision,
+          "GRANT_END",
+          g.id,
+          g.expiresAt,
+          "GRANT_EXPIRED",
+        );
+    }
+    for (const id of new Set([
       approval?.qualificationId,
       v.rights.verificationQualificationId,
       v.health.lkg?.qualificationId,
-    ];
-    for (const g of p.grants.filter((g) => grantIds.includes(g.id)))
-      emit(g.id, g.revision, g.expiresAt, "GRANT_EXPIRED", "GRANT", v, a);
-    for (const q of p.qualifications.filter((q) =>
-      qualificationIds.includes(q.id),
-    ))
-      emit(
-        q.id,
-        q.revision,
-        q.reviewDueAt < q.expiresAt ? q.reviewDueAt : q.expiresAt,
-        "QUALIFICATION_EXPIRED",
-        "QUALIFICATION",
-        v,
-        a,
-      );
+    ])) {
+      const q = id ? qualificationMap.get(id) : undefined;
+      if (q)
+        emit(
+          "QUALIFICATION",
+          q.id,
+          q.revision,
+          q.reviewDueAt <= q.expiresAt
+            ? "QUALIFICATION_REVIEW_DUE"
+            : "QUALIFICATION_END",
+          q.id,
+          q.reviewDueAt <= q.expiresAt ? q.reviewDueAt : q.expiresAt,
+          "QUALIFICATION_EXPIRED",
+        );
+    }
   }
-  return [...intents.values()].sort((a, b) => ordinal(a.id, b.id));
+  return parseContract(
+    expiryIntentsSchema,
+    [...intents.values()].sort((a, b) => ordinal(a.id, b.id)),
+  );
 }

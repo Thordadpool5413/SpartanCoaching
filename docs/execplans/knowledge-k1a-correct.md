@@ -349,3 +349,137 @@ middleware 11, session 6); full API 558/558 across 50 files, 6.89s. Final typech
 and API build passed. Prior unchanged web/mobile/browser/security checks remain
 valid. This is an implementation defect correction; prior PR runs are stale after
 this commit and cannot authorize merge.
+
+## K1A-REPAIR implementation — 2026-10-04
+
+Approved packet: `docs/architecture/knowledge-2026-10-03/04-k1a-repair.md`.
+Starting main: `7b5a1cbff2086f0b5dffca744882efb66ea04ee0`.
+Starting exact-main CI: `37159495581`, all seven jobs successful.
+Feature branch: `fix/k1a-repair-contracts`. Main was clean and unchanged from review.
+User authorizes this bounded repair through normal PR merge and verified main.
+No production activation, persistence, K1B/K2 or clinical integration is authorized.
+
+Prior completion claims are corrected by the adversarial review: eight unresolved
+PR #186 findings map to seven HIGH defects. Fifteen external synthetic review
+scenarios reproduced the current failures before editing, plus the named Express
+route casing probe. The governing mandate/ADRs/ExecPlan and complete implementation
+were read in this conversation; current affected code, package/CI registration and
+approved packet were rechecked. No alternative architecture is selected here.
+
+### Implemented repair and acceptance evidence
+
+H1–H7 implementation and local acceptance are complete. PR/main verification is
+pending until the publication ledger below records the exact current runs. This
+checkpoint is not a completion claim from local tests alone.
+
+| Requirement | Implementation | Committed regression evidence |
+|---|---|---|
+| H1 | `requestSecurity.ts` ASCII-folds reserved path before legacy early return; cookie-first Origin rule preserved | `requestSecurity.test.ts`: named real Express routes, actual cookieParser/guard/loadSession/requireAuth chain, uppercase/mixed/base/child/trailing/query and credential/origin matrix; encoded/double slash/lookalike/safe method behavior |
+| H2 | `authority.ts`: same exact credentials at attestation T and now N; current revocation and membership; bounded approval/LKG windows. `contracts.ts` and resolver require distinct LKG health pin | `H2 exact credential history and current authority`: before/equal/after effective/verified times, expiry/due equality, no replacement credential, membership, missing health pin, health revocation/expiry |
+| H3 | Strict trusted-context validator, atomic creation/verification, exact parent revision/provenance, finite subset windows, iterative ancestry, context-bound synthetic roots | `H3 trusted atomic delegated issuance`: actor/session/org/recipient negatives, A→B→C→D, 2,000 records, cycles, historical parent revocation and later departure, synthetic descendant denial |
+| H4 | `publication.ts` causal instant ordering; service dates independent; reducer and authorized resolver validate imported/current assignments | `H4 publication causality remains separate from service dates`: ordered/equal/reversed adjacent pairs, retrospective coverage, reapproval/refresh history; existing UTC and supersession/rollback regressions retained |
+| H5 | Option C only: authority-level events; no assignment list/hints/chunks/count; fresh canonical eligibility denies without notification delivery | `H5 authority reconciliation at 100, 101 and 4,000 publications`: all six required operations, complete synthetic reconciliation targets, schema-valid outputs, unchanged inputs and fresh denial |
+| H6 | Sorted exact witnesses, pre-mutation revisions, actual attestors; revision-qualified rights IDs/overlays; stable condition-specific expiry IDs/time; final state/event/reference validation | `H6 witnesses, revision-specific rights and stable expiry`: separate/same LKG grants, all 190 predicates, multi-domain licensing, distinct terms revisions, conflict rejection, duplicate/stale/gap reconciliation, body limit, invalid witness/aggregate/output rejection |
+| H7 | `future.ts`: 5,000 ms before authentication DB/pool; remaining-budget arithmetic; 1,000 ms cleanup only; confirmed abort vs unknown commit; current-authorized receipt replay; ordered FOR UPDATE writer participation; exactly one scope | `H7 future adapter deadline and writer contract (no database implementation)`: boundary math, no zero/reset, cause/outcome mapping, replay order, multi-scope denial, numeric identity lock order. Actual PostgreSQL races remain future K1B work |
+
+Strict public transition/expiry/resolver/witness schemas parse final constructed
+outputs. Capacity tests cover source 500, version/grant/qualification/member 2,000,
+assignment 4,000 (including retired history), approval 100, expected-revision 2,000,
+witness 256, receipt 2,000/4,000/1, expiry 16,000 and authorized resolver 8,000/two
+scopes, including boundary+1 rejection. Growth commands preflight every history
+append and safe revision arithmetic. Security revocations work at assignment
+capacity. Final state-aware validation rejects missing domain predicates and
+misidentified credential revisions/references. Whole-domain grants predicates are
+not duplicated into competing partial witnesses; maximum generation remains 190.
+Canonical command actors are checked against current canonical membership even
+when a whole-domain grant supplies every predicate.
+
+Compatibility: registry/event/fingerprint v3; review/runtime manifest v2, `kb2:`
+and `k1a-c14n-v1` unchanged. Both literal canonical golden vectors still pass.
+`canonical.ts`, auth middleware, route mounts, CI, dependency policy, package files
+and lockfile are unchanged. No new dependencies. All 12 changed files are the
+nine expected implementation/test files, this plan, `.agent/PLANS.md` and the
+verbatim approved repair document (SHA-256
+`244f07f67284419b7514b39fab8724c25b18a508cfc2c9f597952daec81ca6e3`).
+
+### Eight PR #186 discussions
+
+Each disposition must be posted with the repair commit and PR link before resolving
+its original thread. No discussion is considered repaired merely by this table.
+
+| Original discussion | Disposition | Specific evidence |
+|---|---|---|
+| 4175208372 | FIXED — H2 | `hasCurrentApproval`, `licenseAllows`, `healthState`; dual-time matrices for exact qualifications and grants |
+| 4175208376 | FIXED — H3 | `validateGrantDelegation`, `validateGrantAncestry`, strict issuance metadata; backdating/window/context/lineage regressions |
+| 4175208382 | FIXED — H6 | `evaluateExpiryIntents` VERSION aggregate equals actual version ID; approval remains condition/reference; stable-body/identity regression |
+| 4175208386 | FIXED — H1 | ASCII path folding before `/api` early return; named uppercase route now 403 for unsafe untrusted cookie requests |
+| 4175208391 | FIXED — H4 | `validateAssignment` full chronology; every adjacent pair equality/reversal plus imported/refresh history tests |
+| 4175208397 | FIXED — H2/H6 | Required healthGrantId plus complete actor health/review witnesses and supporting actual attestors; distinct and shared grant tests |
+| 4175208400 | FIXED — approved H5 Option C | No enumerated invalidation payload; all six operations succeed/reconcile at 100/101/4,000; strict final event/state parsing |
+| 4175208404 | ARCHITECTURALLY_DISPOSITIONED AND IMPLEMENTED — H7 future contract | Deadline starts before first auth DB/pool/lock; arithmetic, error/uncertainty/replay/order regressions. No persistence implementation claimed |
+
+### Exact local verification
+
+Node v24.19.0; repository pnpm 10.26.1. A temporary Corepack shim at the front of
+PATH ensures nested scripts also use pinned pnpm (the machine fallback is 11.25.0).
+Commands below use that pinned binary; no repository tool/dependency changes.
+
+| Command | Actual result |
+|---|---|
+| `pnpm install --frozen-lockfile` | PASS, lockfile unchanged |
+| `pnpm run typecheck` | PASS; also rerun by successful final full build |
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts` | PASS: 497/497, 4 files (foundation 390, guard 90, middleware 11, session 6) |
+| `pnpm --filter @workspace/spartan-ai-tools test` | PASS: 94/94, 8 files |
+| `pnpm --filter @workspace/api-server test` | PASS: 795/795, 50 files; generated/openapi pretests also pass |
+| `pnpm --filter @workspace/spartan-coaching test` | PASS: 328/328, 63 files |
+| `pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand` | PASS: 298/298, 60 suites |
+| `CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build` | PASS: complete workspace including iOS/Android static bundles; synthetic build only, no deploy |
+| `CI=true pnpm run test:e2e` | PASS: 51 passed, 1 existing project-conditional skip, 52 total |
+| `pnpm run release-gate` | PASS automated suites; 3 existing PostgreSQL integration skips; live health/parity/auth, device and external checks explicitly UNVERIFIED |
+| `pnpm audit --audit-level high` | EXIT 1: 24 findings (3 high, 20 moderate, 1 low); not represented as raw-audit success |
+| `node scripts/forge-security.test.mjs` | PASS: 2/2 |
+| `node scripts/security/dependency-regression.test.mjs` | PASS: 8/8 |
+| `node scripts/security/patched-audit.test.mjs` | PASS: 39/39 |
+| `node scripts/security/patched-audit.mjs` | PASS with existing exact-artifact mitigation; all three approved high advisories attested, unchanged expiry 2026-11-01 |
+| `pnpm exec prettier --check` on all nine changed TypeScript files | PASS |
+| `git diff --check` | PASS |
+
+Unexpected environment findings: initial unconfigured build failed for missing
+EXPO_PUBLIC_DOMAIN; with the synthetic domain but without CI, Expo Bonjour hit
+`uv_interface_addresses` unavailable in this container. Re-running with the same
+CI settings as GitHub succeeded without code changes. Initial audit-policy command
+spawned pnpm 11 fallback and rejected its incompatible `muted` report field; pinned
+pnpm 10.26.1 passed the unchanged policy. Playwright download retried a truncated
+mirror response successfully; browser tests then passed. These initial failures
+are retained here and not concealed as code repairs.
+
+Local P02/P03 PostgreSQL integration/recovery and full-history gitleaks were not
+run: PostgreSQL server/client, Docker and gitleaks are absent. Require the exact PR
+and post-merge GitHub jobs for this evidence. H7 actual multi-connection database
+races are intentionally not implemented/tested in K1A. No Terraform or clinical AI
+evaluation applies: no infrastructure, prompts, models, clinical schemas/retrieval
+or clinical integration changed.
+
+### Mandatory CI and publication ledger
+
+All 237 new regressions are in the existing mandatory foundation and request
+security files. The API `test` script explicitly includes both plus middleware and
+sessionSecurityContract; `.github/workflows/ci.yml` runs that script in Application
+typecheck, test, and build, which is required by the aggregate job. No test was
+split, skipped, deregistered or made optional. All seven original CI jobs remain.
+
+The repair PR against `main` is the terminal publication ledger. Its body records
+actual implementation commit/head/tree, original-thread disposition links, exact
+PR CI job results and synthetic tested SHA, pre-merge main refresh, merge SHA and
+post-merge main run/job results. Those values are only available after this
+checkpoint is committed. Read that PR ledger with this plan; a green PR alone is
+insufficient and no prior/historical run authorizes this repair's merge.
+
+Complete diff and file inventory reviewed before intentional staging: no app/client,
+database, migration, dependency/lockfile, CI policy, production URL/secret, runtime
+integration or canonical serializer changes. No debug or generated artifacts staged.
+No architecture blocker. No owner-only operation is required for this code repair
+or has been performed. Clinical runtime remains disconnected. No K1B, K2,
+persistence, PHI, clinical/FHIR integration or production activation started.
+After authorized merge and green main, stop. The next permitted step is a fresh
+independent Astra adversarial review in a different conversation before K1B.

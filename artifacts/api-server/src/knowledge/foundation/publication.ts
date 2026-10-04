@@ -58,7 +58,17 @@ export function validateAssignment(
   p: Partition,
   a: Assignment,
   v: KnowledgeVersion,
+  now?: string,
 ): void {
+  const approval = v.approvals.find((review) => review.id === a.approvalId);
+  if (!approval) fail("KNOWLEDGE_REFERENCE_INVALID");
+  if (
+    v.publishedAt > v.retrievedAt ||
+    v.retrievedAt > approval.reviewedAt ||
+    approval.reviewedAt > a.createdAt ||
+    (now !== undefined && a.createdAt > now)
+  )
+    fail("KNOWLEDGE_PUBLICATION_CHRONOLOGY_INVALID");
   if (
     a.scopeId !== p.scope.id ||
     v.scopeId !== p.scope.id ||

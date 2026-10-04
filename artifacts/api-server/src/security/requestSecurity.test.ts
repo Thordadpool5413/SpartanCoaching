@@ -232,8 +232,16 @@ describe("reserved knowledge-control actual middleware chain", () => {
     const app = express();
     app.use(cookieParser());
     app.use(requireTrustedMutationOrigin, loadSession, requireAuth);
-    app.use((req: AuthedRequest, res) =>
-      res.json({ principal: req.clientMemberId }),
+    app.all(
+      [
+        "/api/knowledge-control",
+        "/api/knowledge-control/example",
+        "/api/knowledge-controlx",
+        "/api/knowledge-controls",
+        "/api/provider/webhook",
+        "/api/auth/login",
+      ],
+      (req: AuthedRequest, res) => res.json({ principal: req.clientMemberId }),
     );
     server = createServer(app);
     await new Promise<void>((resolve) =>
@@ -259,7 +267,12 @@ describe("reserved knowledge-control actual middleware chain", () => {
     const response = await fetch(base + path, { method, headers });
     return {
       status: response.status,
-      body: method === "HEAD" ? null : await response.json(),
+      body:
+        method === "HEAD"
+          ? null
+          : response.headers.get("content-type")?.includes("application/json")
+            ? await response.json()
+            : await response.text(),
     };
   }
   const cookie = { cookie: "spartan_session=synthetic-cookie-A" };
@@ -270,6 +283,10 @@ describe("reserved knowledge-control actual middleware chain", () => {
     "/api/knowledge-control/",
     "/api/knowledge-control/example",
     "/api/knowledge-control?x=synthetic",
+    "/API/KNOWLEDGE-CONTROL",
+    "/API/KNOWLEDGE-CONTROL/",
+    "/ApI/KnOwLeDgE-CoNtRoL/example",
+    "/API/KNOWLEDGE-CONTROL/example?x=synthetic",
   ]) {
     for (const origin of [
       undefined,
@@ -350,5 +367,84 @@ describe("reserved knowledge-control actual middleware chain", () => {
         })
       ).status,
     ).toBe(401);
+  });
+  for (const path of [
+    "/API/KNOWLEDGE-CONTROL",
+    "/ApI/KnOwLeDgE-CoNtRoL/example/",
+  ]) {
+    for (const credentials of [
+      cookie,
+      { ...cookie, ...bearer },
+      { ...cookie, authorization: "Bearer synthetic-invalid" },
+      { ...cookie, authorization: "arbitrary" },
+      { ...cookie, "x-client-platform": "ios" },
+    ]) {
+      for (const origin of [
+        undefined,
+        "https://hostile.example.invalid",
+        trusted.origin,
+      ]) {
+        test(`H1 named ${path} credentials=${JSON.stringify(credentials)} origin=${origin}`, async () => {
+          const result = await call(path, "POST", {
+            ...credentials,
+            ...(origin ? { origin } : {}),
+          });
+          expect(result.status).toBe(origin === trusted.origin ? 200 : 403);
+          expect(result.body).toEqual(
+            origin === trusted.origin
+              ? { principal: 101 }
+              : {
+                  error: "Request origin is not allowed",
+                  code: "CSRF_ORIGIN_REJECTED",
+                },
+          );
+        });
+      }
+    }
+    test(`H1 bearer and cookie authentication remain real on ${path}`, async () => {
+      expect(await call(path, "POST", bearer)).toEqual({
+        status: 200,
+        body: { principal: 202 },
+      });
+      expect(
+        (await call(path, "POST", { authorization: "Bearer invalid" })).status,
+      ).toBe(401);
+      expect(
+        (
+          await call(path, "POST", {
+            ...bearer,
+            ...trusted,
+            cookie: "spartan_session=invalid",
+          })
+        ).status,
+      ).toBe(401);
+      for (const method of ["GET", "HEAD", "OPTIONS"])
+        expect((await call(path, method, cookie)).status).toBe(200);
+    });
+  }
+  for (const path of [
+    "/api//knowledge-control",
+    "/API//knowledge-control",
+    "/api/%6Bnowledge-control",
+    "/api/knowledge%2Dcontrol",
+    "/api/knowledge-control%2Fexample",
+    "/api/knowledge-control//example",
+  ]) {
+    test(`H1 unnormalized ${path} cannot dispatch a reserved named route`, async () => {
+      expect(
+        (await call(path, "POST", { ...cookie, ...bearer, ...trusted })).status,
+      ).toBe(404);
+      expect([403, 404]).toContain(
+        (await call(path, "POST", { ...cookie, ...bearer })).status,
+      );
+    });
+  }
+  test("H1 an empty cookie retains Bearer authentication", async () => {
+    expect(
+      await call("/API/KNOWLEDGE-CONTROL", "POST", {
+        ...bearer,
+        cookie: "spartan_session=",
+      }),
+    ).toEqual({ status: 200, body: { principal: 202 } });
   });
 });

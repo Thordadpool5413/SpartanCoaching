@@ -68,19 +68,19 @@ export function requireTrustedMutationOrigin(
   res: Response,
   next: NextFunction,
 ) {
-  if (
-    SAFE_METHODS.has(req.method.toUpperCase()) ||
-    !req.path.startsWith("/api")
-  ) {
+  if (SAFE_METHODS.has(req.method.toUpperCase())) {
     return next();
   }
 
   // This reserved control namespace follows cookie-first authentication. A Bearer
   // header cannot remove the origin requirement when that cookie wins selection.
   const cookie = req.cookies?.[SESSION_COOKIE_NAME];
+  // Express matches these routes without case sensitivity. Classify before the
+  // legacy /api early return, without decoding or rewriting the request path.
+  const reservedPath = req.path.replace(/[A-Z]/g, (c) => c.toLowerCase());
   const isKnowledgeControl =
-    req.path === "/api/knowledge-control" ||
-    req.path.startsWith("/api/knowledge-control/");
+    reservedPath === "/api/knowledge-control" ||
+    reservedPath.startsWith("/api/knowledge-control/");
   if (isKnowledgeControl && typeof cookie === "string" && cookie.length > 0) {
     const origin = req.headers.origin;
     if (!origin || !isAllowedOrigin(origin)) {
@@ -91,6 +91,8 @@ export function requireTrustedMutationOrigin(
     }
     return next();
   }
+
+  if (!req.path.startsWith("/api")) return next();
 
   // React Native keeps Set-Cookie values in its native cookie jar. After a
   // password reset that stale cookie can accompany the next login, but the
