@@ -526,3 +526,116 @@ contract/OpenAPI pretests. Root typecheck and API build pass after these fixes. 
 mobile, browser, policy and workspace-build results above remain unchanged; no
 related files changed. Fresh seven-job PR/main evidence is required before completion. No architecture change, scope expansion or new owner
 authorization is needed for these corrections.
+
+## PR #187 seven-finding follow-up — 2026-10-04
+
+This is a bounded implementation correction under the unchanged approved
+`04-k1a-repair.md`, explicitly authorized through normal PR merge and verified
+post-merge main. Do not restart K1A or begin the next packet.
+
+Starting main: `8f1afddf990a37e67656ceca78502efcbf227cef`.
+Latest starting main CI: `37226336418`, completed successfully with all seven
+required jobs. Branch: `fix/k1a-repair-seven-review-findings`.
+The transient checkout had been cleared between turns; it was restored from
+the committed main tree into the same workspace, then fetched, checked out and
+fast-forward synchronized. No human changes were present or discarded.
+
+All seven unresolved comments against PR #187 head `781f558e` were read before
+editing. Governing instructions, current ExecPlan, relevant unchanged packet
+sections, implementation and mandatory test registration were inspected.
+Scope is exactly these findings:
+
+| Finding | Observed root cause | Required correction |
+|---|---|---|
+| 4178885928 | Ancestry accepts every parent revision below current | Exact issuance revision, accounting for one later revocation |
+| 4178885930 | Final resolver schema trusts caller's aggregate state | Derive state using existing context/configuration/blocking precedence |
+| 4178885932 | Duplicate-registration output returns after shape checks | Reuse full reducer semantic state validation before accepting no-op |
+| 4178885936 | Warning evaluation is gated on CURRENT health | Emit due warning boundary for already-stale applicable publications |
+| 4178885940 | Publication references are validated only when non-null | Require each operation's direct new/predecessor publication references |
+| 4178885945 | Authorized scope check accepts supersets | Exact deterministic configuration scope set |
+| 4178885949 | Supplied CAS keys need only exist in the partition | Exact touched-version keys, including empty no-op/credential sets |
+
+Initial regression cases are in the existing mandatory `foundation.test.ts`;
+implementation and fresh verification evidence will be recorded below.
+No changes to H5 Option C, witnesses, rightsRevisionId, H7 policy, canonical
+serialization, manifest formats, tenant/rights-purpose models, CI policy,
+dependencies, lockfile, database, clients, clinical integrations or production
+configuration are authorized. No architecture blocker has been identified.
+
+### Follow-up implementation and reproduction evidence
+
+All seven defects reproduced before production edits: the focused run had
+61 failures and 6 passing controls across 67 cases. After implementation all
+67 pass. The original 395 foundation cases remain enabled and pass as well.
+
+| Finding | Small implementation correction | New committed cases (before → after) |
+|---|---|---|
+| 4178885928 | Historical parent revision must equal current revision when unrevoked, or current minus the single later revocation; at/before-issuance revocation still denies | 6 ancestry/runtime cases: 3 fail + 3 controls → 6 pass; valid child survives later parent departure/revocation |
+| 4178885930 | Producer and public schema share the existing aggregate-state calculation and precedence in `deriveResolverState`; schema compares the serialized state | 16 precedence/context/configuration/empty/denial-tampering cases: 16 fail → 16 pass |
+| 4178885932 | Duplicate/no-op result schema invokes the same full `validateState` as the reducer; semantic exceptions become schema rejection | 12 shape-valid dangling/cross-scope/duplicate/rights/lineage/overlap/chronology/ancestry corruptions: 12 fail → 12 pass |
+| 4178885936 | Warning boundary is evaluated for every nonretired publication carrying it; no CURRENT-only gate | 3 health states: 2 fail + 1 control → 3 pass; before/equal/after deadline, stable identity and no mutation |
+| 4178885940 | Public event schema requires direct source/version/assignment/approval and operation-specific predecessor references before state-aware target checks | 18 ACTIVATE/SUPERSEDE/ROLLBACK/REFRESH_APPROVAL cases: 18 fail → 18 pass |
+| 4178885945 | Authorized scope IDs must exactly equal sorted unique configuration scopes; duplicate configurations fail | 5 extra/missing/duplicate/order/configuration cases with recomputed hash: 3 fail + 2 controls → 5 pass |
+| 4178885949 | Existing `touch` CAS checks record touched IDs; unrelated supplied entries fail before normal or duplicate success | 7 operation classes: 7 fail → 7 pass; current/stale extras, missing/stale required versions, shared rights, predecessor versions and empty credential/registration/no-op maps |
+
+`stateValidation.ts` only extracts the existing ancestry and reducer semantic
+checks for reuse without circular schema initialization. The existing ancestry
+export remains available from `authority.ts`. `blockingPrecedence` retains its
+existing values/order and resolver export. No new authority model or validator
+policy is introduced. The fixture transition helper now supplies exact mutation
+targets; negative CAS cases use explicit maps independently of that helper.
+Every new case is under `PR187 seven-finding follow-up` in the existing mandatory
+`foundation.test.ts`, explicitly run by the unchanged API `test` script and
+Application typecheck, test, and build CI job, required by the aggregate gate.
+
+### Follow-up local verification
+
+Node 24.19.0 and pinned pnpm 10.26.1. A temporary Corepack PATH shim ensures nested
+scripts use the same pinned package manager. Exact commands and final outcomes:
+
+| Command | Result |
+|---|---|
+| `pnpm install --frozen-lockfile` | PASS; 7m31s restore, no lockfile/dependency changes |
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'PR187 seven-finding follow-up'` | Baseline: 61 fail / 6 pass; fixed: 67/67 pass; other tests excluded only by this reproduction filter |
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts` | PASS 569/569, no skips: foundation 462, guard 90, middleware 11, session 6 |
+| `pnpm --filter @workspace/api-server test` | PASS 867/867, 50 files; generated/OpenAPI pretests also pass |
+| `pnpm run typecheck` | PASS, root and all workspace targets |
+| `pnpm --filter @workspace/spartan-ai-tools test` | PASS 94/94, 8 files |
+| `pnpm --filter @workspace/spartan-coaching test` | PASS 328/328, 63 files |
+| `pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand` | PASS 298/298, 60 suites |
+| `CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build` | PASS complete workspace, including native static bundles; no deployment |
+| `CI=true pnpm run test:e2e` | PASS: 50 passed, 1 flaky passed on existing retry, 1 existing project-conditional skip; unchanged desktop navigation focus assertion at `e2e/public-site.spec.ts:892` |
+| `pnpm run release-gate` | PASS automated suites; 3 PostgreSQL integration skips; live/device/external paths UNVERIFIED |
+| `pnpm audit --audit-level high` | EXIT 1: 24 findings, 3 high / 20 moderate / 1 low |
+| `node scripts/forge-security.test.mjs` | PASS 2/2 |
+| `node scripts/security/dependency-regression.test.mjs` | PASS 8/8 |
+| `node scripts/security/patched-audit.test.mjs` | PASS 39/39 |
+| `node scripts/security/patched-audit.mjs` | PASS existing exact-artifact mitigations; unchanged scope/hashes/2026-11-01 expiry |
+| `pnpm exec prettier --check` on all six changed/new TypeScript files | PASS |
+| `node scripts/performance-budget.mjs` | PASS |
+| `git diff --check` | PASS |
+
+Environment observations: a test startup attempted before dependency installation
+completed could not resolve `convert-source-map`; it ran no tests and is not the
+baseline reproduction. The complete pinned install resolved this. Playwright's
+download mirrors retried truncated archives and installation completed successfully.
+The existing browser retry policy and test remain unchanged. PostgreSQL server,
+psql, pg_dump, Docker and gitleaks are absent locally; require current PR and main
+P02/P03/full-history-secret jobs rather than claiming local verification. No
+Terraform or clinical AI evaluation is applicable to these disconnected changes.
+
+### Follow-up publication and stop boundary
+
+Complete diff reviewed: six foundation TypeScript files (including the shared
+validator) and this ExecPlan only. No source outside the bounded seven findings,
+test deregistration, generated artifacts, secrets or real clinical content staged.
+The follow-up PR for `fix/k1a-repair-seven-review-findings` is the terminal ledger
+for exact commit/head/tree, seven discussion replies/resolutions, current-head CI,
+immediate pre-merge main refresh, normal merge SHA and exact post-merge main jobs.
+These publication identifiers are recorded there after this checkpoint commits;
+the old PR #187 green run is not verification of this follow-up.
+
+No architecture blocker or owner-only action is required. Do not claim completion
+until the follow-up is merged and all seven post-merge jobs pass. No K1B, K2,
+persistence, migrations, production knowledge API, PHI, FHIR/clinical AI integration
+or production activation has started. Stop after this repair is green on main.

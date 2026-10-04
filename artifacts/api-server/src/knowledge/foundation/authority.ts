@@ -1,3 +1,5 @@
+import { validateGrantAncestry } from "./stateValidation";
+export { validateGrantAncestry } from "./stateValidation";
 import { z } from "zod";
 import {
   actorSchema,
@@ -447,46 +449,6 @@ export function healthState(
     : "SOURCE_UNAVAILABLE";
 }
 
-/** Immutable provenance checks. Later parent revocation/departure is NOT child revocation. */
-export function validateGrantAncestry(
-  p: Pick<Partition, "scope" | "grants">,
-): void {
-  const map = new Map(p.grants.map((g) => [g.id, g]));
-  if (map.size !== p.grants.length || map.size > 2000)
-    fail("KNOWLEDGE_REFERENCE_INVALID");
-  const checked = new Set<string>();
-  for (const origin of p.grants) {
-    let child = origin;
-    const path = new Set<string>();
-    while (!checked.has(child.id)) {
-      if (path.has(child.id) || child.scopeId !== p.scope.id)
-        fail("KNOWLEDGE_DELEGATION_DENIED");
-      path.add(child.id);
-      if (child.issuance.kind !== "DELEGATED") break;
-      const parent = map.get(child.issuance.parentGrantId);
-      if (
-        !parent ||
-        parent.scopeId !== child.scopeId ||
-        parent.subjectMemberId !== child.grantedByMemberId ||
-        child.verifiedByMemberId !== child.grantedByMemberId ||
-        child.createdAt !== child.verifiedAt ||
-        parent.createdAt > child.createdAt ||
-        parent.effectiveFrom > child.createdAt ||
-        parent.verifiedAt > child.createdAt ||
-        child.expiresAt > parent.expiresAt ||
-        child.createdAt >= parent.expiresAt ||
-        (parent.revokedAt !== null && parent.revokedAt <= child.createdAt) ||
-        child.issuance.parentGrantRevision > parent.revision ||
-        !parent.capabilities.includes("knowledge.grants") ||
-        !child.domains.every((d) => parent.domains.includes(d)) ||
-        !child.capabilities.every((c) => parent.capabilities.includes(c))
-      )
-        fail("KNOWLEDGE_DELEGATION_DENIED");
-      child = parent;
-    }
-    for (const entry of path) checked.add(entry);
-  }
-}
 export function normalizeWitnesses(
   input: readonly AuthorizationWitness[],
 ): AuthorizationWitness[] {

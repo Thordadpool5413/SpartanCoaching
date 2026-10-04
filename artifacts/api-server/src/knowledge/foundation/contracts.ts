@@ -1,3 +1,4 @@
+import { validateState } from "./stateValidation";
 import { z } from "zod";
 
 export const claimTypes = [
@@ -1103,6 +1104,16 @@ export const eventSchema = z
               ? "QUALIFICATION"
               : "VERSION";
       if (e.aggregateKind !== expectedAggregate) invalid();
+      if (expectedAggregate === "PUBLICATION") {
+        if (!e.sourceId || !e.versionId || !e.assignmentId || !e.approvalId)
+          invalid();
+        if (
+          e.operation === "ACTIVATE"
+            ? e.previousAssignmentId !== null || e.previousApprovalId !== null
+            : e.previousAssignmentId === null || e.previousApprovalId === null
+        )
+          invalid();
+      }
     }
     const publication = [
       "ACTIVATE",
@@ -1143,6 +1154,11 @@ export const transitionResultSchema = z
     const invalid = () =>
       c.addIssue({ code: "custom", message: "INVALID_RESULT" });
     if (r.existingVersionId !== null) {
+      try {
+        validateState(r.state);
+      } catch {
+        invalid();
+      }
       if (
         r.eventIntents.length ||
         !r.state.versions.some((v) => v.id === r.existingVersionId)
@@ -1386,6 +1402,44 @@ export const runtimeManifestSchema = z
     publishedEntries: z.array(runtimeEntrySchema).max(8000),
   })
   .strict();
+/** Existing resolver precedence shared with the final serialized result contract. */
+export const blockingPrecedence = [
+  "SOURCE_REVOKED",
+  "LICENSE_NOT_PERMITTED",
+  "SOURCE_EXPIRED",
+  "NOT_APPROVED",
+  "SOURCE_UNAVAILABLE",
+  "CONFLICT_REQUIRES_REVIEW",
+  "INSUFFICIENT_CONTEXT",
+  "NOT_ACTIVE",
+] as const;
+export function deriveResolverState(
+  context: KnowledgeContext | z.infer<typeof normalizedContextSchema>,
+  configuration: readonly z.infer<typeof runtimeConfigurationSchema>[],
+  entries: readonly Pick<z.infer<typeof runtimeEntrySchema>, "state">[],
+):
+  | ApplicabilityState
+  | "PAYER_KNOWLEDGE_NOT_CONFIGURED"
+  | "JURISDICTION_NOT_SUPPORTED" {
+  const { serviceDate, payer, jurisdiction } = context;
+  if (!configuration.length) return "SCOPE_DENIED";
+  if (!serviceDate || !jurisdiction || !payer || payer === "UNKNOWN")
+    return "INSUFFICIENT_CONTEXT";
+  if (!configuration.some((c) => c.supportedPayers.includes(payer)))
+    return "PAYER_KNOWLEDGE_NOT_CONFIGURED";
+  if (
+    !configuration.some((c) => c.supportedJurisdictions.includes(jurisdiction))
+  )
+    return "JURISDICTION_NOT_SUPPORTED";
+  return (
+    blockingPrecedence.find((s) => entries.some((e) => e.state === s)) ??
+    (entries.some((e) => e.state === "APPLICABLE")
+      ? "APPLICABLE"
+      : entries.length
+        ? "NOT_APPLICABLE"
+        : "SOURCE_UNAVAILABLE")
+  );
+}
 export const resolverResultSchema = z
   .object({
     state: z.enum([
@@ -1407,6 +1461,12 @@ export const resolverResultSchema = z
     const invalid = () =>
       c.addIssue({ code: "custom", message: "INVALID_RESULT" });
     if (
+      r.state !==
+        deriveResolverState(
+          r.manifest.context,
+          r.manifest.configuration,
+          r.manifest.publishedEntries,
+        ) ||
       r.bundleHash !== canonicalDigest(r.manifest) ||
       r.bundleId !== `kb2:${r.bundleHash}` ||
       canonicalBytes(r.decisions) !==
@@ -1423,8 +1483,10 @@ export const resolverResultSchema = z
       invalid();
     const scopes = r.manifest.authorizedScopeIds;
     if (
-      new Set(scopes).size !== scopes.length ||
-      r.configuration.some((c) => !scopes.includes(c.scopeId)) ||
+      new Set(r.configuration.map((c) => c.scopeId)).size !==
+        r.configuration.length ||
+      canonicalBytes(scopes) !==
+        canonicalBytes(sortedSet(r.configuration.map((c) => c.scopeId))) ||
       r.decisions.some((e) => !scopes.includes(e.scope.id))
     )
       invalid();

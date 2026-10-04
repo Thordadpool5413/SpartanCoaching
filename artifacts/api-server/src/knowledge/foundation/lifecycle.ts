@@ -1,3 +1,4 @@
+import { validateState } from "./stateValidation";
 import { z } from "zod";
 import {
   actorSchema,
@@ -25,14 +26,12 @@ import {
   type KnowledgeEvent,
   type KnowledgeSource,
   type KnowledgeVersion,
-  type Partition,
 } from "./contracts";
 import {
   actorInScope,
   memberCurrent,
   authorizationWitness,
   normalizeWitnesses,
-  validateGrantAncestry,
   grantEligible,
   grantContextEligible,
   hasCurrentApproval,
@@ -42,13 +41,7 @@ import {
   requireQualification,
   reviewManifestDigest,
 } from "./authority";
-import {
-  assertNoOverlaps,
-  applicabilitySubset,
-  intervalSubset,
-  validateAssignment,
-  validateLineage,
-} from "./publication";
+import { applicabilitySubset, intervalSubset } from "./publication";
 import {
   canonicalDigest,
   fail,
@@ -188,52 +181,6 @@ const versionIdentity = (s: KnowledgeSource, v: KnowledgeVersion) => {
   } = manifest;
   return canonicalDigest({ source: s, artifact: identity });
 };
-function validateState(p: Partition, now?: string): void {
-  validateGrantAncestry(p);
-  const unique = (values: readonly unknown[]) =>
-    new Set(values).size === values.length;
-  if (
-    !unique(p.sources.map((s) => `${s.id}/${s.metadataRevision}`)) ||
-    !unique(p.versions.map((v) => v.id)) ||
-    !unique(p.grants.map((g) => g.id)) ||
-    !unique(p.qualifications.map((q) => q.id)) ||
-    !unique(p.members.map((m) => m.memberId))
-  )
-    fail("KNOWLEDGE_REFERENCE_INVALID");
-  if (
-    p.sources.some((s) => s.scope.id !== p.scope.id) ||
-    p.versions.some(
-      (v) =>
-        v.scopeId !== p.scope.id ||
-        !p.sources.some(
-          (s) =>
-            s.id === v.sourceId &&
-            s.metadataRevision === v.sourceMetadataRevision,
-        ),
-    ) ||
-    p.grants.some((g) => g.scopeId !== p.scope.id) ||
-    p.qualifications.some((q) => q.scopeId !== p.scope.id)
-  )
-    fail("KNOWLEDGE_REFERENCE_INVALID");
-  const rightsRecords = new Map<string, string>();
-  for (const version of p.versions) {
-    const key = `${version.rights.id}/${version.rights.revision}`;
-    const digest = canonicalDigest({
-      terms: version.rights,
-      overlay: version.rightsOverlay,
-    });
-    if (rightsRecords.has(key) && rightsRecords.get(key) !== digest)
-      fail("KNOWLEDGE_IDENTITY_CONFLICT");
-    rightsRecords.set(key, digest);
-  }
-  for (const a of p.assignments) {
-    const v = p.versions.find((v) => v.id === a.versionId);
-    if (!v) fail("KNOWLEDGE_REFERENCE_INVALID");
-    validateAssignment(p, a, v, now);
-  }
-  validateLineage(p);
-  assertNoOverlaps(p);
-}
 export function transitionKnowledge(
   stateInput: unknown,
   actorInput: unknown,
@@ -289,9 +236,19 @@ export function transitionKnowledge(
       ? next.versions.find((v) => v.id === command.versionId)
       : undefined;
   if ("versionId" in command && !v) fail("KNOWLEDGE_REFERENCE_INVALID");
+  const touchedVersionIds = new Set<string>();
   const touch = (version: KnowledgeVersion) => {
     if (command.expectedVersionRevisions[version.id] !== version.revision)
       fail("KNOWLEDGE_REVISION_CONFLICT");
+    touchedVersionIds.add(version.id);
+  };
+  const validateTouchedVersions = () => {
+    if (
+      Object.keys(command.expectedVersionRevisions).some(
+        (id) => !touchedVersionIds.has(id),
+      )
+    )
+      fail("KNOWLEDGE_REFERENCE_INVALID");
   };
   if (v) touch(v);
   const sourceFor = (version: KnowledgeVersion) =>
@@ -466,6 +423,7 @@ export function transitionKnowledge(
         versionIdentity(source, command.version)
       )
         fail("KNOWLEDGE_IDENTITY_CONFLICT");
+      validateTouchedVersions();
       return parseContract(transitionResultSchema, {
         state: next,
         eventIntents: [],
@@ -896,6 +854,7 @@ export function transitionKnowledge(
     }
     v.revision = increment(v.revision);
   }
+  validateTouchedVersions();
   next.revision = increment(next.revision);
   validateState(next, server.now);
   const newRevision =
@@ -1043,17 +1002,16 @@ export function evaluateExpiryIntents(stateInput: unknown, nowInput: unknown) {
       "HEALTH_EXPIRED",
       v,
     );
-    if (v.health.state === "CURRENT")
-      emit(
-        "VERSION",
-        v.id,
-        v.revision,
-        "HEALTH_WARNING",
-        v.id,
-        v.health.warningAt,
-        "HEALTH_EXPIRED",
-        v,
-      );
+    emit(
+      "VERSION",
+      v.id,
+      v.revision,
+      "HEALTH_WARNING",
+      v.id,
+      v.health.warningAt,
+      "HEALTH_EXPIRED",
+      v,
+    );
     if (v.health.lkg)
       emit(
         "VERSION",

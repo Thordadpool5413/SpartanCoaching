@@ -1,6 +1,7 @@
 import {
   actorSchema,
   resolverResultSchema,
+  deriveResolverState,
   approvalSchema,
   assignmentSchema,
   authorityMatrix,
@@ -48,16 +49,7 @@ import {
   sortedSet,
 } from "./canonical";
 export { parseContract, hasCurrentApproval, licenseAllows };
-export const blockingPrecedence = [
-  "SOURCE_REVOKED",
-  "LICENSE_NOT_PERMITTED",
-  "SOURCE_EXPIRED",
-  "NOT_APPROVED",
-  "SOURCE_UNAVAILABLE",
-  "CONFLICT_REQUIRES_REVIEW",
-  "INSUFFICIENT_CONTEXT",
-  "NOT_ACTIVE",
-] as const;
+export { blockingPrecedence } from "./contracts";
 function data(value: unknown, key: string): unknown {
   if (!value || typeof value !== "object") return undefined;
   const descriptor = Object.getOwnPropertyDescriptor(value, key);
@@ -516,41 +508,7 @@ export function createKnowledgeRegistry(input: unknown) {
         scopeId: p.scope.id,
         ...p.configuration,
       }));
-      let state: string;
-      if (
-        !actor.sessionVerified ||
-        !actor.membershipActive ||
-        !actor.organizationActive ||
-        !partitions.length
-      )
-        state = "SCOPE_DENIED";
-      else if (
-        !context.serviceDate ||
-        !context.jurisdiction ||
-        !context.payer ||
-        context.payer === "UNKNOWN"
-      )
-        state = "INSUFFICIENT_CONTEXT";
-      else if (
-        !configuration.some((c) =>
-          c.supportedPayers.includes(context.payer as never),
-        )
-      )
-        state = "PAYER_KNOWLEDGE_NOT_CONFIGURED";
-      else if (
-        !configuration.some((c) =>
-          c.supportedJurisdictions.includes(context.jurisdiction!),
-        )
-      )
-        state = "JURISDICTION_NOT_SUPPORTED";
-      else
-        state =
-          blockingPrecedence.find((s) => entries.some((e) => e.state === s)) ??
-          (entries.some((e) => e.state === "APPLICABLE")
-            ? "APPLICABLE"
-            : entries.length
-              ? "NOT_APPLICABLE"
-              : "SOURCE_UNAVAILABLE");
+      const state = deriveResolverState(context, configuration, entries);
       const normalizedContext = Object.fromEntries(
         Object.keys(contextSchema.shape).map((key) => [
           key,
