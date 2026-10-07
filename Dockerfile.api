@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1.7
+
+FROM node:24-bookworm-slim AS build
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+WORKDIR /workspace
+
+RUN npm install --global pnpm@10.26.1
+
+COPY . .
+
+RUN pnpm install --frozen-lockfile --filter @workspace/api-server...
+RUN pnpm --filter @workspace/api-server run build
+RUN pnpm --filter @workspace/api-server --prod deploy --legacy /runtime
+
+FROM node:24-bookworm-slim AS runtime
+
+ENV NODE_ENV="production"
+ENV PORT="8080"
+
+WORKDIR /app
+
+COPY --from=build --chown=node:node /runtime/package.json ./package.json
+COPY --from=build --chown=node:node /runtime/node_modules ./node_modules
+COPY --from=build --chown=node:node /workspace/artifacts/api-server/dist ./dist
+
+USER node
+
+EXPOSE 8080
+
+CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
