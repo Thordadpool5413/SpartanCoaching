@@ -751,3 +751,65 @@ existing feature history. PR #188 remains the terminal ledger for final head,
 fresh CI (all seven required jobs plus the existing container workflow), review
 resolutions, immediate pre-merge refresh, merge SHA and post-merge main evidence.
 No architecture blocker, owner-only operation or next-packet work is introduced.
+
+### Final semantic review corrections on PR #188
+
+Automatic review of head `27fe7c49779e46c3b9bd247c060b70b4bf56e61f`
+identified four remaining output-closure cases within the original seven findings.
+The same PR implements these corrections; neither architecture nor CI policy changes.
+
+| Review comment | Original finding | Root cause, correction and regression evidence |
+|---|---|---|
+| 4225205573 | 4178885932 | Attestation references checked identity but not the pinned credential's capability, domain, qualification class, jurisdiction or temporal eligibility at attestation time. Reuse the existing eligibility predicates at T and bound review/LKG deadlines; 33 review/rights/LKG corruption cases, two separate LKG health-grant cases and three valid historical controls. Current revocation still denies runtime use. |
+| 4225205580 | 4178885940 | Publication relationships did not distinguish refresh, initial publication and rollback. Require refresh to retain version, interval, applicability and uses while changing approval; rollback requires a prior target publication and a different predecessor version; activation/supersession cannot republish an already-published target. Four operation-relabeling and three refresh-field corruption regressions. |
+| 4225205583 | 4178885932 | Assignment creator and version registrar/submitter were not closed against canonical tenant members. Validate all three identities, with six missing/cross-tenant regressions. Historical inactive membership remains representable. |
+| 4225205589 | 4178885932 | Assignment/approval/LKG digest pins were not bound to the recomputed canonical review manifest. Reuse the unchanged manifest implementation and reject incoherent or coherently forged pins; four regressions. |
+
+The existing grant/qualification predicates and review-manifest builder/digest were
+moved unchanged into shared state validation and re-exported through their existing
+authority API. Their function bodies were compared with the previous commit; all
+match. The canonical serializer, manifest format, H5 Option C, witnesses, rights
+revision identity, tenant/purpose model and H7 policy are unchanged. Digest computation
+is cached per version during validation; existing 4,000-publication capacity tests pass.
+
+Focused reproduction command:
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'historical semantics review closure'`.
+Before implementation: **52 fail / 3 passing historical controls**. After implementation:
+**55/55 pass**. Each corrupted input remains structurally valid, isolating semantic
+closure. The historical controls also cover later revocation at the same clock
+precision as the earlier attestation. Validation rejects revocation strictly before
+T without inventing historical membership or overriding current revocation checks.
+
+The first broader run exposed a legitimate same-timestamp approval/revocation sequence,
+an unnecessary current-evaluation-time restriction on historical attestations, and a
+multi-domain fixture whose attestors lacked its added domain. The first two were
+corrected in implementation. The fixture now gives its review/licensing attestors
+REGULATION coverage while retaining the command actor's missing authority and every
+existing denial/success assertion. No test was removed or weakened.
+
+Final verification after all four corrections:
+
+| Command | Exact result |
+|---|---|
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts` | **679/679**, no skips: foundation 572, guard 90, middleware 11, session 6 |
+| `pnpm --filter @workspace/api-server test` | **977/977**, 50 files, 51.09s; generated-contract, normalization and OpenAPI pretests pass |
+| `pnpm run typecheck` | **PASS**, root and every workspace target |
+| `pnpm --filter @workspace/api-server build` | **PASS**, final API bundles |
+| `pnpm exec prettier --check` on all six foundation TypeScript files | **PASS** |
+| `git diff --check` | **PASS** |
+
+The follow-up now adds **177** committed regression cases: **6 / 22 / 84 / 3 / 50 /
+5 / 7**, in original finding order. Every case is in the existing foundation test
+file and runs through the unchanged mandatory API test command in Application CI.
+The October 8 full-workspace, AI, web, mobile, browser, release-gate, performance and
+audit results above remain the broader local evidence; the final delta is foundation
+code/tests only, plus this record. Fresh current-head CI must rerun all seven required
+jobs and the existing API-container check. Local PostgreSQL/Docker/gitleaks limitations
+remain explicit; no clinical AI evaluation, Terraform or owner activation applies.
+
+Complete final diff reviewed against current main: only the same six foundation files
+and this ExecPlan. No dependency, lockfile, CI, migration, client, production or other
+packet changes. PR #188 records the final commit/head, these four discussion resolutions,
+fresh CI, immediate pre-merge main refresh, normal merge and post-merge main evidence.
+No architecture blocker or owner-only action. Stop only after verified green main;
+the next step remains a fresh independent Astra adversarial review before K1B.

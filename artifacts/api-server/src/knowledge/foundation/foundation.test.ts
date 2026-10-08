@@ -2896,6 +2896,13 @@ describe("H6 witnesses, revision-specific rights and stable expiry", () => {
     p.sources.push(s);
     v.sourceId = s.id;
     v.approvals[0].reviewManifestDigest = reviewManifestDigest(s, v);
+    // Both attestations cover this domain; only the command actor lacks it.
+    for (const id of [2, 4]) {
+      p.grants.find((g) => g.id === `grant-${id}`)!.domains.push("REGULATION");
+      p.qualifications
+        .find((q) => q.id === `qualification-${id}`)!
+        .domains.push("REGULATION");
+    }
     expect(() =>
       transition(p, {
         operation: "REVOKE_RIGHTS",
@@ -4564,6 +4571,169 @@ describe("PR187 seven-finding follow-up", () => {
             expect(transitionResultSchema.safeParse(r).success).toBe(false);
           },
         );
+  });
+
+  describe("historical semantics review closure", () => {
+    const duplicate = (p = fixture()) => {
+      const cmd = { ...registration(p), expectedVersionRevisions: {} };
+      return transition(transition(p, cmd, actor(1)).state, cmd, actor(1));
+    };
+    for (const kind of ["review", "rights", "lkg"] as const)
+      for (const corruption of [
+        "capability",
+        "grant-domain",
+        "grant-created",
+        "grant-verified",
+        "grant-start",
+        "qualification-class",
+        "qualification-domain",
+        "qualification-jurisdiction",
+        "qualification-verified",
+        "qualification-expiry",
+        "qualification-review-due",
+      ])
+        it("4178885932 historical " + kind + " rejects " + corruption, () => {
+          const x = attestationFixture(kind);
+          const r = duplicate(x.p);
+          const g = r.state.grants.find((g) => g.id === x.g.id)!;
+          const q = r.state.qualifications.find((q) => q.id === x.q.id)!;
+          if (corruption === "capability") g.capabilities = ["knowledge.read"];
+          if (corruption === "grant-domain") g.domains = ["REGULATION"];
+          if (corruption === "grant-created")
+            g.createdAt = g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "grant-verified")
+            g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "grant-start") g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "qualification-class") q.class = "PHARMACIST";
+          if (corruption === "qualification-domain") q.domains = ["REGULATION"];
+          if (corruption === "qualification-jurisdiction")
+            q.jurisdictions = ["US-GA"];
+          if (corruption === "qualification-verified")
+            q.verifiedAt = instant(x.t, 1);
+          if (corruption === "qualification-expiry")
+            q.expiresAt = q.reviewDueAt = x.t;
+          if (corruption === "qualification-review-due") q.reviewDueAt = x.t;
+          expect(partitionSchema.safeParse(r.state).success).toBe(true);
+          expect(transitionResultSchema.safeParse(r).success).toBe(false);
+        });
+    for (const corruption of ["capability", "created"])
+      it("4178885932 validates separate LKG health grant " + corruption, () => {
+        const x = attestationFixture("lkg");
+        const r = duplicate(x.p);
+        const g = r.state.grants.find((g) => g.id === "health-only")!;
+        if (corruption === "capability") g.capabilities = ["knowledge.read"];
+        else g.createdAt = g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const kind of ["review", "rights", "lkg"] as const)
+      it(
+        "4178885932 retains historical " +
+          kind +
+          " authority after subsequent revocation",
+        () => {
+          for (const delta of [0, 1]) {
+            const x = attestationFixture(kind);
+            const r = duplicate(x.p);
+            r.state.members.find(
+              (m) => m.memberId === x.member,
+            )!.membershipActive = false;
+            for (const g of [
+              r.state.grants.find((g) => g.id === x.g.id)!,
+              r.state.qualifications.find((q) => q.id === x.q.id)!,
+            ]) {
+              g.revokedAt = instant(x.t, delta);
+              g.revision++;
+            }
+            expect(transitionResultSchema.safeParse(r).success).toBe(true);
+          }
+        },
+      );
+    for (const field of [
+      "createdByMemberId",
+      "registeredByMemberId",
+      "submittedByMemberId",
+    ])
+      for (const crossTenant of [false, true])
+        it(
+          "4178885932 closes actor " + field + ", crossTenant=" + crossTenant,
+          () => {
+            const r = duplicate();
+            const record =
+              field === "createdByMemberId"
+                ? r.state.assignments[0]
+                : r.state.versions[0];
+            if (crossTenant)
+              r.state.members.push({
+                ...r.state.members[0],
+                memberId: 999,
+                organizationId: 2,
+              });
+            mutate(record, [field], 999);
+            // Keep content pins coherent to isolate the actor-reference invariant.
+            renewDigest(r.state);
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+    for (const corruption of ["assignment", "approval", "both", "lkg"])
+      it("4178885932 binds manifest pin " + corruption, () => {
+        const r = duplicate(attestationFixture("lkg").p);
+        if (corruption === "assignment" || corruption === "both")
+          r.state.assignments[0].reviewManifestDigest = "0".repeat(64);
+        if (corruption === "approval" || corruption === "both")
+          r.state.versions[0].approvals[0].reviewManifestDigest = "0".repeat(
+            64,
+          );
+        if (corruption === "lkg")
+          r.state.versions[0].health.lkg!.reviewManifestDigest = "0".repeat(64);
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const [from, to] of [
+      ["SUPERSEDE", "REFRESH_APPROVAL"],
+      ["SUPERSEDE", "ROLLBACK"],
+      ["ROLLBACK", "SUPERSEDE"],
+      ["REFRESH_APPROVAL", "SUPERSEDE"],
+    ] as const)
+      it("4178885940 cannot relabel " + from + " as " + to, () => {
+        const r = publicationResult(from),
+          e = r.eventIntents[0];
+        e.operation = to;
+        e.reasonCode =
+          to === "REFRESH_APPROVAL"
+            ? "PUBLISHED"
+            : to === "ROLLBACK"
+              ? "ROLLBACK_APPROVED"
+              : "SUPERSEDED";
+        e.authorizationWitnesses = normalizeWitnesses(
+          e.authorizationWitnesses.map((w) =>
+            w.witnessType === "ACTOR_CAPABILITY"
+              ? {
+                  ...w,
+                  capability:
+                    to === "ROLLBACK"
+                      ? "knowledge.rollback"
+                      : "knowledge.activate",
+                }
+              : w,
+          ),
+        );
+        expect(eventSchema.safeParse(e).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const field of ["serviceFrom", "applicability", "enabledUses"])
+      it("4178885940 approval refresh preserves " + field, () => {
+        const r = publicationResult("REFRESH_APPROVAL");
+        const a = r.state.assignments.find(
+          (a) => a.id === r.eventIntents[0].assignmentId,
+        )!;
+        if (field === "serviceFrom") a.serviceFrom = "2026-02-01";
+        if (field === "applicability") a.applicability.macs = ["another-mac"];
+        if (field === "enabledUses") a.enabledUses = ["INTERNAL_STORAGE"];
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
   });
 
   describe("4178885949 exact touched-version CAS", () => {

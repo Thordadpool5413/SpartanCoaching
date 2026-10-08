@@ -1352,6 +1352,39 @@ export const transitionResultSchema = z
           previous.retirementEventId !== e.id)
       )
         invalid();
+      const priorTargetPublication = p.assignments.some(
+        (a) =>
+          a.versionId === e.versionId &&
+          a.sourceId === e.sourceId &&
+          a.documentId === created?.documentId &&
+          a.scopeId === e.scopeId &&
+          a.eventId !== e.id &&
+          a.createdAt <= e.occurredAt,
+      );
+      if (e.operation === "REFRESH_APPROVAL") {
+        if (
+          !created ||
+          !previous ||
+          created.versionId !== previous.versionId ||
+          created.approvalId === previous.approvalId ||
+          created.serviceFrom !== previous.serviceFrom ||
+          canonicalBytes(created.applicability) !==
+            canonicalBytes(previous.applicability) ||
+          canonicalBytes(created.enabledUses) !==
+            canonicalBytes(previous.enabledUses)
+        )
+          invalid();
+      } else if (e.operation === "ACTIVATE" || e.operation === "SUPERSEDE") {
+        if (
+          priorTargetPublication ||
+          (previous && previous.versionId === e.versionId)
+        )
+          invalid();
+      } else if (
+        e.operation === "ROLLBACK" &&
+        (!priorTargetPublication || previous?.versionId === e.versionId)
+      )
+        invalid();
     }
     if (
       e.assignmentId !== null &&
