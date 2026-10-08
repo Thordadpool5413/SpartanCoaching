@@ -1,0 +1,72 @@
+name: Cloud Run API container
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile.api"
+      - ".dockerignore"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "patches/**"
+      - "artifacts/api-server/**"
+      - "lib/**"
+      - ".github/workflows/cloud-run-api-container.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-run-api-container-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-smoke:
+    name: Build and smoke API container
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Build API image
+        run: docker build --file Dockerfile.api --tag spartan-api:ci .
+
+      - name: Verify non-root runtime and packaged dependencies
+        run: |
+          set -euo pipefail
+          test "$(docker inspect --format='{{.Config.User}}' spartan-api:ci)" = "node"
+          docker run --rm --entrypoint sh spartan-api:ci -c 'test -f /app/dist/index.mjs && test -d /app/dist/public/resources && test "$(id -u)" -ne 0'
+          docker run --rm --entrypoint node spartan-api:ci --input-type=module -e "await import('@google-cloud/storage')"
+
+      - name: Smoke health endpoint
+        run: |
+          set -euo pipefail
+          docker run -d \
+            --name spartan-api-container-ci \
+            -e PORT=8080 \
+            -e SITE_URL=http://127.0.0.1:8080 \
+            -e DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:59999/spartan \
+            -e OPENAI_API_KEY=ci-placeholder-no-network-calls \
+            -p 18080:8080 \
+            spartan-api:ci
+
+          cleanup() {
+            docker logs spartan-api-container-ci || true
+            docker rm -f spartan-api-container-ci >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:18080/api/healthz > /tmp/health.json; then
+              node -e 'const fs=require("fs"); const body=JSON.parse(fs.readFileSync("/tmp/health.json","utf8")); if(body.status!=="ok") process.exit(1)'
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Container did not become healthy" >&2
+          exit 1

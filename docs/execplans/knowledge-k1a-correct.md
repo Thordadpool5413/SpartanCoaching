@@ -679,3 +679,75 @@ current-head CI must rerun every mandatory job before merge. The PR body records
 the final build result, final head, all seven original discussion resolutions
 and these three refinements, exact current-head CI and post-merge main evidence.
 There is no architecture change, new packet, owner-only action or blocker.
+
+### October 8 continuation of PR #188
+
+The saved head `8924e40e5713aa8b23ec7715013b35345d41e603` passed all seven
+jobs in `37245036190`, but review completed with two residual cases. This
+continues the same branch/PR and does not restart K1A or its architecture work.
+
+Refreshed main on resumption: `2941c8775f9e459019282616685e3d60ecf362e6`.
+Its latest push CI `37664485304` was cancelled: secret scan, dependency audit,
+application, browser and P02 passed; P03 was cancelled and the aggregate failed.
+PRs #189/#190 added container verification and dependency repairs in six files;
+the governing packet and foundation were unchanged. Those exact main changes
+are merged into the existing repair branch without modification or conflicts.
+Relative to current main, this PR still changes only the six foundation files
+and this ExecPlan. Current-head CI must also pass the new API-container workflow.
+The transient checkout was restored from the saved Git objects; no human work
+was overwritten and no implementation was recreated.
+
+| Review refinement | Original finding | Root cause and bounded correction |
+|---|---|---|
+| 4179840038 | 4178885930 | Per-entry state denial was rejected, but contradictory reason codes remained accepted. Bind the single reason code to the evaluated state, matching the existing producer exactly. No manifest format or precedence change. |
+| 4179840042 | 4178885940 | Split-cutover history shares the predecessor and creation event with the replacement. Require the publication target's version to be ACTIVE and its interval to retain the predecessor's end, distinguishing the replacement from the history sibling. No publication algorithm or event format change. |
+
+Eight regressions are added under `final review reason and replacement closure`
+inside the mandatory foundation suite: empty/denied/mixed/contradictory reasons,
+and SUPERSEDE/ROLLBACK history retargeting with consistent event references and
+witnesses, including forged ACTIVE state. Valid producer results are controls.
+
+The focused command
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'final review reason and replacement closure'`
+reproduced **8 fail / 0 pass** before source edits, then **8/8 pass**. Total new
+regressions for the seven findings are now **122**: 6 / 22 / 36 / 3 / 43 / 5 / 7
+in the table's original finding order. All remain in the unchanged mandatory API
+test command. Targeted foundation/security/auth rerun: **624/624**, no skips
+(foundation 517, guard 90, middleware 11, session 6). Full API: **922/922**, 50
+files, 67.27s; generated/OpenAPI pretests pass. Root typecheck passes.
+
+Frozen installation with pinned pnpm 10.26.1 passes (4m52.9s), with no changes to
+main's dependency files. AI tools: **94/94**; web: **328/328**. The first mobile
+run passed 297/298, with the unchanged production-screen Sales Workflow probe
+exceeding 5 seconds during concurrent local suites; no timeout/test/product edit
+was made. The final mobile rerun and broader results are recorded below.
+
+Raw `pnpm audit --audit-level high`: exit 1, **3 high / 24 moderate / 1 low**.
+Current main's existing exact-artifact policy passes with its existing three
+source mitigations and unchanged scope/expiry; this repair does not renew or
+edit attestation hashes. Forge, dependency regression and audit-policy rejection
+suites pass (2/2, 8/8, 39/39). All six changed TypeScript files pass formatting;
+`git diff --check` passes. No Docker/PostgreSQL/gitleaks binary is available
+locally, so exact current-head CI must supply those existing checks.
+
+The full mobile suite rerun without competing builds passes **298/298**, all
+60 suites, 10.856s, using the unchanged command and five-second timeout. Full
+workspace build (including native static bundles), performance budgets and the
+automated release gate pass. The release gate retains three local PostgreSQL
+skips (162 pass / 3 skip in its security suite); live/device/external checks are
+unverified and outside this repair. No deployment or production activation ran.
+
+`CI=true pnpm run test:e2e` passes: **50 passed, 1 flaky passed on its existing
+retry, 1 existing project-conditional skip**, 1.4m. The same unchanged desktop
+navigation focus assertion at `e2e/public-site.spec.ts:892` retried; no browser,
+client or retry-policy changes were made. The full workspace build used
+`CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build`.
+
+The complete diff against refreshed main remains seven files. The two source
+checks, eight regressions and this continuation record are the only new edits
+since the saved PR head. All inherited main files were compared byte-for-byte.
+The final commit includes current main as a merge parent and preserves the
+existing feature history. PR #188 remains the terminal ledger for final head,
+fresh CI (all seven required jobs plus the existing container workflow), review
+resolutions, immediate pre-merge refresh, merge SHA and post-merge main evidence.
+No architecture blocker, owner-only operation or next-packet work is introduced.

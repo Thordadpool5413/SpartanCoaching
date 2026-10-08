@@ -1331,6 +1331,7 @@ export const transitionResultSchema = z
       );
       if (
         !created ||
+        v?.state !== "ACTIVE" ||
         created.scopeId !== p.scope.id ||
         created.sourceId !== e.sourceId ||
         created.documentId !== v?.documentId ||
@@ -1346,6 +1347,7 @@ export const transitionResultSchema = z
           previous.scopeId !== p.scope.id ||
           previous.sourceId !== created?.sourceId ||
           previous.documentId !== created?.documentId ||
+          previous.serviceTo !== created?.serviceTo ||
           previous.retiredAt !== e.occurredAt ||
           previous.retirementEventId !== e.id)
       )
@@ -1403,7 +1405,12 @@ export const runtimeEntrySchema = z
   })
   .strict()
   // Scope authorization happens before projection; denial is top-level only.
-  .refine((entry) => entry.state !== "SCOPE_DENIED");
+  .refine(
+    (entry) =>
+      entry.state !== "SCOPE_DENIED" &&
+      entry.reasonCodes.length === 1 &&
+      entry.reasonCodes[0] === entry.state,
+  );
 const normalizedContextSchema = z
   .object({
     claimType: z.enum(claimTypes),

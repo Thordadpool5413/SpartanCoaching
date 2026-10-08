@@ -4494,6 +4494,78 @@ describe("PR187 seven-finding follow-up", () => {
     });
   });
 
+  describe("final review reason and replacement closure", () => {
+    for (const reasons of [
+      [],
+      ["SCOPE_DENIED"],
+      ["APPLICABLE", "SCOPE_DENIED"],
+      ["NOT_APPROVED"],
+    ] as const)
+      it(
+        "4178885930 rejects contradictory entry reasons " + reasons.join(","),
+        () => {
+          const r = resolve();
+          expect(resolverResultSchema.safeParse(r).success).toBe(true);
+          r.decisions[0].reasonCodes = [...reasons];
+          r.manifest.publishedEntries = structuredClone(r.decisions);
+          r.selected = structuredClone(r.decisions);
+          expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+        },
+      );
+
+    for (const operation of ["SUPERSEDE", "ROLLBACK"])
+      for (const forgeActiveState of [false, true])
+        it(
+          "4178885940 rejects split history as " +
+            operation +
+            " target, active=" +
+            forgeActiveState,
+          () => {
+            const r = publicationResult(operation);
+            expect(transitionResultSchema.safeParse(r).success).toBe(true);
+            const e = r.eventIntents[0];
+            const history = r.state.assignments.find(
+              (a) =>
+                a.eventId === e.id &&
+                a.id !== e.assignmentId &&
+                a.retiredAt === null,
+            )!;
+            const v = r.state.versions.find((v) => v.id === history.versionId)!;
+            const approval = v.approvals.find(
+              (a) => a.id === history.approvalId,
+            )!;
+            e.assignmentId = history.id;
+            e.versionId = v.id;
+            e.approvalId = approval.id;
+            e.reviewManifestDigest = approval.reviewManifestDigest;
+            e.authorizationWitnesses = normalizeWitnesses(
+              e.authorizationWitnesses.map((w) =>
+                w.witnessType === "REVIEW_ATTESTATION"
+                  ? {
+                      ...w,
+                      actorMemberId: approval.reviewerMemberId,
+                      grantId: approval.reviewGrantId,
+                      grantRevision: r.state.grants.find(
+                        (g) => g.id === approval.reviewGrantId,
+                      )!.revision,
+                      qualificationId: approval.qualificationId,
+                      qualificationRevision: r.state.qualifications.find(
+                        (q) => q.id === approval.qualificationId,
+                      )!.revision,
+                      attestationId: approval.id,
+                      attestedAt: approval.reviewedAt,
+                    }
+                  : w,
+              ),
+            );
+            if (forgeActiveState) v.state = "ACTIVE";
+            expect(eventSchema.safeParse(e).success).toBe(true);
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+  });
+
   describe("4178885949 exact touched-version CAS", () => {
     for (const operation of [
       "REVOKE",
