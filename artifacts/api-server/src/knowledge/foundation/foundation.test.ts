@@ -305,7 +305,37 @@ const transition = (
   cmd: Record<string, unknown>,
   a: unknown = actor(),
   s: unknown = server(),
-) => transitionKnowledge(p, a, { ...expected(p), ...cmd }, s);
+) => {
+  // Normal fixture commands name only their mutation targets. The CAS regressions
+  // below supply explicit maps, including deliberate unrelated/missing entries.
+  const ids = new Set([cmd.versionId]);
+  if (cmd.operation === "REVOKE_RIGHTS") {
+    const target = p.versions.find((v) => v.id === cmd.versionId);
+    for (const v of p.versions)
+      if (
+        target &&
+        v.rightsOverlay.rightsRevisionId ===
+          target.rightsOverlay.rightsRevisionId
+      )
+        ids.add(v.id);
+  }
+  if ("assignmentId" in cmd)
+    ids.add(
+      p.assignments.find((entry) => entry.id === cmd.assignmentId)?.versionId,
+    );
+  return transitionKnowledge(
+    p,
+    a,
+    {
+      expectedScopeRevision: p.revision,
+      expectedVersionRevisions: Object.fromEntries(
+        p.versions.filter((v) => ids.has(v.id)).map((v) => [v.id, v.revision]),
+      ),
+      ...cmd,
+    },
+    s,
+  );
+};
 const renewDigest = (p: Partition) => {
   const v = p.versions[0],
     digest = reviewManifestDigest(p.sources[0], v);
@@ -2866,6 +2896,13 @@ describe("H6 witnesses, revision-specific rights and stable expiry", () => {
     p.sources.push(s);
     v.sourceId = s.id;
     v.approvals[0].reviewManifestDigest = reviewManifestDigest(s, v);
+    // Both attestations cover this domain; only the command actor lacks it.
+    for (const id of [2, 4]) {
+      p.grants.find((g) => g.id === `grant-${id}`)!.domains.push("REGULATION");
+      p.qualifications
+        .find((q) => q.id === `qualification-${id}`)!
+        .domains.push("REGULATION");
+    }
     expect(() =>
       transition(p, {
         operation: "REVOKE_RIGHTS",
@@ -3949,4 +3986,881 @@ it("H3 nonsynthetic reader cannot use a delegated read grant rooted in a synthet
   expect(resolve(p, context, { ...actor(), synthetic: false }).state).toBe(
     "SCOPE_DENIED",
   );
+});
+
+describe("PR187 seven-finding follow-up", () => {
+  describe("4178885928 exact historical parent revision", () => {
+    for (const [revoked, revisionAtIssuance, valid] of [
+      [false, 0, false],
+      [false, 1, true],
+      [false, 2, false],
+      [true, 0, false],
+      [true, 1, true],
+      [true, 2, false],
+    ] as const)
+      it(
+        "parent revoked=" +
+          revoked +
+          ", recorded revision=" +
+          revisionAtIssuance,
+        () => {
+          const x = issuanceFixture();
+          x.p.grants.push(x.child);
+          x.child.issuance.parentGrantRevision = revisionAtIssuance;
+          if (revoked) {
+            x.parent.revokedAt = instant(now, 1);
+            x.parent.revision++;
+            x.p.members.find((m) => m.memberId === 3)!.membershipActive = false;
+          }
+          x.p.grants.find((g) => g.id === "grant-2")!.capabilities =
+            capabilities.filter((cap) => cap !== "knowledge.read");
+          expect(partitionSchema.safeParse(x.p).success).toBe(true);
+          if (valid) {
+            expect(() => validateGrantAncestry(x.p)).not.toThrow();
+            expect(resolve(x.p, context, actor(2), instant(now, 2)).state).toBe(
+              "APPLICABLE",
+            );
+          } else {
+            expect(() => validateGrantAncestry(x.p)).toThrow(
+              "KNOWLEDGE_DELEGATION_DENIED",
+            );
+            expect(() =>
+              resolve(x.p, context, actor(2), instant(now, 2)),
+            ).toThrow("KNOWLEDGE_DELEGATION_DENIED");
+          }
+        },
+      );
+  });
+
+  const rehash = (r: ReturnType<typeof resolve>) => {
+    r.bundleHash = canonicalDigest(r.manifest);
+    r.bundleId = "kb2:" + r.bundleHash;
+    return r;
+  };
+  const combined = () =>
+    createKnowledgeRegistry({
+      contractVersion: "knowledge-foundation-v3",
+      partitions: [fixture(), globalFixture()],
+    }).resolve(context, actor(), now);
+
+  describe("4178885930 aggregate resolver state", () => {
+    for (const blocker of blockingPrecedence)
+      it("cannot bypass " + blocker + " with an applicable selection", () => {
+        const r = combined();
+        r.decisions[0].state = blocker;
+        r.decisions[0].reasonCodes = [blocker];
+        r.manifest.publishedEntries = structuredClone(r.decisions);
+        r.state = blocker;
+        r.selected = [];
+        rehash(r);
+        expect(resolverResultSchema.safeParse(r).success).toBe(true);
+        const forged = structuredClone(r);
+        forged.state = "APPLICABLE";
+        forged.selected = forged.decisions.filter(
+          (e) => e.state === "APPLICABLE",
+        );
+        expect(forged.bundleHash).toBe(r.bundleHash);
+        expect(resolverResultSchema.safeParse(forged).success).toBe(false);
+      });
+    it("rejects a lower-priority blocking state", () => {
+      const r = combined();
+      r.decisions[0].state = "SOURCE_REVOKED";
+      r.decisions[0].reasonCodes = ["SOURCE_REVOKED"];
+      r.decisions[1].state = "NOT_APPROVED";
+      r.decisions[1].reasonCodes = ["NOT_APPROVED"];
+      r.manifest.publishedEntries = structuredClone(r.decisions);
+      r.state = "NOT_APPROVED";
+      r.selected = [];
+      expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+    });
+    for (const kind of [
+      "scope",
+      "context",
+      "payer",
+      "jurisdiction",
+      "empty",
+      "mismatch",
+    ] as const)
+      it("derives the " + kind + " outcome from manifest inputs", () => {
+        const p = fixture();
+        let c: unknown = context;
+        let a = actor();
+        if (kind === "scope") a.sessionVerified = false;
+        if (kind === "context") {
+          const { serviceDate, ...missingDate } = context;
+          c = missingDate;
+        }
+        if (kind === "payer") c = { ...context, payer: "MEDICAID" };
+        if (kind === "jurisdiction") c = { ...context, jurisdiction: "US-GA" };
+        if (kind === "empty") p.assignments = [];
+        if (kind === "mismatch") c = { ...context, mac: "other-mac" };
+        const r = resolve(p, c, a);
+        expect(resolverResultSchema.safeParse(r).success).toBe(true);
+        r.state =
+          r.state === "SOURCE_UNAVAILABLE"
+            ? "NOT_APPROVED"
+            : "SOURCE_UNAVAILABLE";
+        r.selected = [];
+        expect(resolverResultSchema.safeParse(r).success).toBe(false);
+      });
+    it("does not accept a fabricated denial for an applicable manifest", () => {
+      const r = resolve();
+      r.state = "SCOPE_DENIED";
+      r.selected = [];
+      expect(resolverResultSchema.safeParse(r).success).toBe(false);
+    });
+  });
+
+  describe("4178885932 semantic no-op state", () => {
+    const corruptions: [string, (p: Partition) => void][] = [
+      [
+        "dangling assignment",
+        (p) => {
+          p.assignments[0].versionId = "missing";
+        },
+      ],
+      [
+        "cross-scope source",
+        (p) => {
+          p.sources[0].scope = {
+            id: "tenant:2",
+            kind: "TENANT",
+            organizationId: 2,
+          };
+        },
+      ],
+      [
+        "missing source revision",
+        (p) => {
+          p.versions[0].sourceMetadataRevision++;
+        },
+      ],
+      [
+        "duplicate version",
+        (p) => {
+          p.versions.push(structuredClone(p.versions[0]));
+        },
+      ],
+      [
+        "duplicate source",
+        (p) => {
+          p.sources.push(structuredClone(p.sources[0]));
+        },
+      ],
+      [
+        "duplicate member",
+        (p) => {
+          p.members.push(structuredClone(p.members[0]));
+        },
+      ],
+      [
+        "cross-scope qualification",
+        (p) => {
+          p.qualifications[0].scopeId = "tenant:2";
+        },
+      ],
+      [
+        "shared rights mismatch",
+        (p) => {
+          p.versions[1].rights.reference = "different-terms";
+        },
+      ],
+      [
+        "assignment overlap",
+        (p) => {
+          p.assignments.push({ ...p.assignments[0], id: "overlap" });
+        },
+      ],
+      [
+        "missing predecessor",
+        (p) => {
+          p.assignments[0].predecessorAssignmentId = "missing";
+        },
+      ],
+      [
+        "causal inversion",
+        (p) => {
+          p.assignments[0].createdAt = start;
+        },
+      ],
+      [
+        "invalid grant ancestry",
+        (p) => {
+          p.grants[0].issuance = {
+            kind: "DELEGATED",
+            parentGrantId: "missing",
+            parentGrantRevision: 1,
+            requestId: "synthetic-request",
+          };
+        },
+      ],
+    ];
+    for (const [label, corrupt] of corruptions)
+      it("rejects " + label + " in duplicate-registration output", () => {
+        const initial = fixture();
+        const cmd = { ...registration(initial), expectedVersionRevisions: {} };
+        const added = transition(initial, cmd, actor(1)).state;
+        const r = transition(added, cmd, actor(1));
+        expect(r.existingVersionId).toBe("new-version");
+        expect(r.eventIntents).toEqual([]);
+        expect(transitionResultSchema.safeParse(r).success).toBe(true);
+        const forged = structuredClone(r);
+        corrupt(forged.state);
+        expect(partitionSchema.safeParse(forged.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(forged).success).toBe(false);
+      });
+  });
+
+  describe("4178885936 due stale health warning", () => {
+    for (const state of [
+      "CURRENT",
+      "STALE_ALLOWED_WITH_WARNING",
+      "UPSTREAM_UNAVAILABLE",
+    ] as const)
+      it("emits the due boundary on first evaluation of " + state, () => {
+        const { p } = attestationFixture("lkg");
+        const v = p.versions[0];
+        v.health.state = state;
+        v.health.warningAt = now;
+        expect(resolve(p).state).toBe("APPLICABLE");
+        const before = canonicalBytes(p);
+        expect(
+          evaluateExpiryIntents(p, instant(now, -1)).some(
+            (e) => e.expiryCondition?.kind === "HEALTH_WARNING",
+          ),
+        ).toBe(false);
+        const due = evaluateExpiryIntents(p, now);
+        const warnings = due.filter(
+          (e) => e.expiryCondition?.kind === "HEALTH_WARNING",
+        );
+        expect(warnings).toHaveLength(1);
+        expect(warnings[0]).toMatchObject({
+          aggregateKind: "VERSION",
+          aggregateId: v.id,
+          versionId: v.id,
+          occurredAt: now,
+          invalidation: "ELIGIBILITY",
+          expiryCondition: {
+            kind: "HEALTH_WARNING",
+            referenceId: v.id,
+            deadline: now,
+          },
+        });
+        expect(canonicalBytes(evaluateExpiryIntents(p, instant(now, 1)))).toBe(
+          canonicalBytes(due),
+        );
+        expect(canonicalBytes(p)).toBe(before);
+      });
+  });
+
+  const publicationResult = (operation: string) => {
+    let p = fixture();
+    if (operation === "ACTIVATE") {
+      p.assignments = [];
+      p.versions[0].state = "APPROVED";
+      p.versions[0].activatedAt = null;
+      return transition(p, activation(p.versions[0]));
+    }
+    if (operation === "REFRESH_APPROVAL") {
+      p.versions[0].approvals.push({
+        ...p.versions[0].approvals[0],
+        id: "new-approval",
+        reviewedAt: now,
+      });
+      return transition(p, {
+        operation,
+        versionId: p.versions[0].id,
+        assignmentId: p.assignments[0].id,
+        approvalId: "new-approval",
+      });
+    }
+    const v = candidate(p);
+    const superseded = transition(p, {
+      operation: "SUPERSEDE",
+      versionId: v.id,
+      assignmentId: p.assignments[0].id,
+      approvalId: v.approvals[0].id,
+      cutover: "2026-10-01",
+    });
+    if (operation === "SUPERSEDE") return superseded;
+    p = superseded.state;
+    return transition(
+      p,
+      {
+        operation: "ROLLBACK",
+        versionId: p.versions[0].id,
+        assignmentId: superseded.eventIntents[0].assignmentId!,
+        approvalId: p.versions[0].approvals[0].id,
+        cutover: "2026-10-02",
+      },
+      actor(),
+      server("rollback-event"),
+    );
+  };
+  describe("4178885940 direct publication event references", () => {
+    for (const operation of [
+      "ACTIVATE",
+      "SUPERSEDE",
+      "ROLLBACK",
+      "REFRESH_APPROVAL",
+    ])
+      for (const field of [
+        "assignmentId",
+        "approvalId",
+        ...(operation === "ACTIVATE"
+          ? []
+          : ["previousAssignmentId", "previousApprovalId"]),
+        "all",
+      ])
+        it(operation + " requires " + field, () => {
+          const r = publicationResult(operation);
+          expect(transitionResultSchema.safeParse(r).success).toBe(true);
+          const forged = structuredClone(r);
+          for (const key of field === "all"
+            ? [
+                "assignmentId",
+                "approvalId",
+                "previousAssignmentId",
+                "previousApprovalId",
+              ]
+            : [field])
+            mutate(forged.eventIntents[0], [key], null);
+          expect(eventSchema.safeParse(forged.eventIntents[0]).success).toBe(
+            false,
+          );
+          expect(transitionResultSchema.safeParse(forged).success).toBe(false);
+        });
+  });
+
+  describe("4178885945 exact authorized scopes", () => {
+    for (const kind of [
+      "foreign extra",
+      "missing",
+      "duplicate",
+      "reversed",
+      "duplicate configuration",
+    ] as const)
+      it("rejects " + kind + " even with a recomputed hash", () => {
+        const r = kind === "reversed" ? combined() : resolve();
+        expect(resolverResultSchema.safeParse(r).success).toBe(true);
+        if (kind === "foreign extra")
+          r.manifest.authorizedScopeIds.push("tenant:2");
+        if (kind === "missing") r.manifest.authorizedScopeIds = [];
+        if (kind === "duplicate")
+          r.manifest.authorizedScopeIds.push("tenant:1");
+        if (kind === "reversed") r.manifest.authorizedScopeIds.reverse();
+        if (kind === "duplicate configuration") {
+          r.configuration.push(structuredClone(r.configuration[0]));
+          r.manifest.configuration = structuredClone(r.configuration);
+        }
+        expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+      });
+  });
+
+  describe("review closure within 4178885930, 4178885940 and 4178885932", () => {
+    for (const mixed of [false, true])
+      it(
+        "4178885930 rejects an impossible scope-denied publication, mixed=" +
+          mixed,
+        () => {
+          const r = mixed ? combined() : resolve();
+          r.decisions[0].state = "SCOPE_DENIED";
+          r.decisions[0].reasonCodes = ["SCOPE_DENIED"];
+          r.manifest.publishedEntries = structuredClone(r.decisions);
+          r.state = mixed ? "APPLICABLE" : "NOT_APPLICABLE";
+          r.selected = r.decisions.filter((e) => e.state === "APPLICABLE");
+          expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+          const denied = resolve(fixture(), context, {
+            ...actor(),
+            sessionVerified: false,
+          });
+          expect(denied.state).toBe("SCOPE_DENIED");
+          expect(denied.decisions).toEqual([]);
+          expect(resolverResultSchema.safeParse(denied).success).toBe(true);
+        },
+      );
+
+    for (const operation of ["SUPERSEDE", "ROLLBACK", "REFRESH_APPROVAL"])
+      for (const corruption of [
+        "self",
+        "unrelated",
+        "source",
+        "document",
+        "not-retired",
+        "retirement-event",
+        "creation-event",
+      ])
+        it(
+          "4178885940 binds " + operation + " lineage against " + corruption,
+          () => {
+            const r = publicationResult(operation);
+            const e = r.eventIntents[0];
+            const created = r.state.assignments.find(
+              (a) => a.id === e.assignmentId,
+            )!;
+            const previous = r.state.assignments.find(
+              (a) => a.id === e.previousAssignmentId,
+            )!;
+            if (corruption === "self") {
+              e.previousAssignmentId = e.assignmentId;
+              e.previousApprovalId = e.approvalId;
+            } else if (corruption === "unrelated") {
+              r.state.assignments.push({
+                ...previous,
+                id: "unrelated-publication",
+              });
+              e.previousAssignmentId = "unrelated-publication";
+            } else if (corruption === "source")
+              previous.sourceId = "another-source";
+            else if (corruption === "document")
+              previous.documentId = "another-document";
+            else if (corruption === "not-retired") {
+              previous.retiredAt = null;
+              previous.retirementEventId = null;
+            } else if (corruption === "retirement-event")
+              previous.retirementEventId = "another-event";
+            else created.eventId = "another-event";
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+
+    const duplicateWithLkg = () => {
+      const { p } = attestationFixture("lkg");
+      const cmd = { ...registration(p), expectedVersionRevisions: {} };
+      const added = transition(p, cmd, actor(1)).state;
+      return transition(added, cmd, actor(1));
+    };
+    for (const kind of ["approval", "rights", "lkg"] as const)
+      for (const field of kind === "approval"
+        ? ["reviewGrantId", "qualificationId", "reviewerMemberId"]
+        : kind === "rights"
+          ? [
+              "verificationGrantId",
+              "verificationQualificationId",
+              "verifiedByMemberId",
+            ]
+          : [
+              "healthGrantId",
+              "reviewGrantId",
+              "qualificationId",
+              "reviewerMemberId",
+            ])
+        for (const missing of [true, false])
+          it(
+            "4178885932 closes " + kind + "." + field + ", missing=" + missing,
+            () => {
+              const r = duplicateWithLkg();
+              const value = field.endsWith("MemberId")
+                ? missing
+                  ? 999
+                  : 1
+                : field.toLowerCase().includes("qualification")
+                  ? missing
+                    ? "missing-qualification"
+                    : "qualification-1"
+                  : missing
+                    ? "missing-grant"
+                    : "grant-1";
+              if (kind === "rights") {
+                // Preserve the shared-terms invariant so this tests authority references.
+                for (const v of r.state.versions)
+                  mutate(v.rights, [field], value);
+              } else {
+                const v = r.state.versions[0];
+                mutate(
+                  kind === "approval" ? v.approvals[0] : v.health.lkg!,
+                  [field],
+                  value,
+                );
+              }
+              expect(partitionSchema.safeParse(r.state).success).toBe(true);
+              expect(transitionResultSchema.safeParse(r).success).toBe(false);
+            },
+          );
+    for (const memberId of [2, 3, 4])
+      it("4178885932 requires attesting canonical member " + memberId, () => {
+        const r = duplicateWithLkg();
+        r.state.members = r.state.members.filter(
+          (m) => m.memberId !== memberId,
+        );
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    it("4178885932 retains well-referenced revoked/inactive historical authority", () => {
+      const r = duplicateWithLkg();
+      r.state.members.find((m) => m.memberId === 2)!.membershipActive = false;
+      for (const credential of [
+        r.state.grants.find((g) => g.id === "grant-2")!,
+        r.state.qualifications.find((q) => q.id === "qualification-2")!,
+      ]) {
+        credential.revokedAt = now;
+        credential.revision++;
+      }
+      expect(transitionResultSchema.safeParse(r).success).toBe(true);
+    });
+  });
+
+  describe("final review reason and replacement closure", () => {
+    for (const reasons of [
+      [],
+      ["SCOPE_DENIED"],
+      ["APPLICABLE", "SCOPE_DENIED"],
+      ["NOT_APPROVED"],
+    ] as const)
+      it(
+        "4178885930 rejects contradictory entry reasons " + reasons.join(","),
+        () => {
+          const r = resolve();
+          expect(resolverResultSchema.safeParse(r).success).toBe(true);
+          r.decisions[0].reasonCodes = [...reasons];
+          r.manifest.publishedEntries = structuredClone(r.decisions);
+          r.selected = structuredClone(r.decisions);
+          expect(resolverResultSchema.safeParse(rehash(r)).success).toBe(false);
+        },
+      );
+
+    for (const operation of ["SUPERSEDE", "ROLLBACK"])
+      for (const forgeActiveState of [false, true])
+        it(
+          "4178885940 rejects split history as " +
+            operation +
+            " target, active=" +
+            forgeActiveState,
+          () => {
+            const r = publicationResult(operation);
+            expect(transitionResultSchema.safeParse(r).success).toBe(true);
+            const e = r.eventIntents[0];
+            const history = r.state.assignments.find(
+              (a) =>
+                a.eventId === e.id &&
+                a.id !== e.assignmentId &&
+                a.retiredAt === null,
+            )!;
+            const v = r.state.versions.find((v) => v.id === history.versionId)!;
+            const approval = v.approvals.find(
+              (a) => a.id === history.approvalId,
+            )!;
+            e.assignmentId = history.id;
+            e.versionId = v.id;
+            e.approvalId = approval.id;
+            e.reviewManifestDigest = approval.reviewManifestDigest;
+            e.authorizationWitnesses = normalizeWitnesses(
+              e.authorizationWitnesses.map((w) =>
+                w.witnessType === "REVIEW_ATTESTATION"
+                  ? {
+                      ...w,
+                      actorMemberId: approval.reviewerMemberId,
+                      grantId: approval.reviewGrantId,
+                      grantRevision: r.state.grants.find(
+                        (g) => g.id === approval.reviewGrantId,
+                      )!.revision,
+                      qualificationId: approval.qualificationId,
+                      qualificationRevision: r.state.qualifications.find(
+                        (q) => q.id === approval.qualificationId,
+                      )!.revision,
+                      attestationId: approval.id,
+                      attestedAt: approval.reviewedAt,
+                    }
+                  : w,
+              ),
+            );
+            if (forgeActiveState) v.state = "ACTIVE";
+            expect(eventSchema.safeParse(e).success).toBe(true);
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+  });
+
+  describe("historical semantics review closure", () => {
+    const duplicate = (p = fixture()) => {
+      const cmd = { ...registration(p), expectedVersionRevisions: {} };
+      return transition(transition(p, cmd, actor(1)).state, cmd, actor(1));
+    };
+    for (const kind of ["review", "rights", "lkg"] as const)
+      for (const corruption of [
+        "capability",
+        "grant-domain",
+        "grant-created",
+        "grant-verified",
+        "grant-start",
+        "qualification-class",
+        "qualification-domain",
+        "qualification-jurisdiction",
+        "qualification-verified",
+        "qualification-expiry",
+        "qualification-review-due",
+      ])
+        it("4178885932 historical " + kind + " rejects " + corruption, () => {
+          const x = attestationFixture(kind);
+          const r = duplicate(x.p);
+          const g = r.state.grants.find((g) => g.id === x.g.id)!;
+          const q = r.state.qualifications.find((q) => q.id === x.q.id)!;
+          if (corruption === "capability") g.capabilities = ["knowledge.read"];
+          if (corruption === "grant-domain") g.domains = ["REGULATION"];
+          if (corruption === "grant-created")
+            g.createdAt = g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "grant-verified")
+            g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "grant-start") g.effectiveFrom = instant(x.t, 1);
+          if (corruption === "qualification-class") q.class = "PHARMACIST";
+          if (corruption === "qualification-domain") q.domains = ["REGULATION"];
+          if (corruption === "qualification-jurisdiction")
+            q.jurisdictions = ["US-GA"];
+          if (corruption === "qualification-verified")
+            q.verifiedAt = instant(x.t, 1);
+          if (corruption === "qualification-expiry")
+            q.expiresAt = q.reviewDueAt = x.t;
+          if (corruption === "qualification-review-due") q.reviewDueAt = x.t;
+          expect(partitionSchema.safeParse(r.state).success).toBe(true);
+          expect(transitionResultSchema.safeParse(r).success).toBe(false);
+        });
+    for (const corruption of ["capability", "created"])
+      it("4178885932 validates separate LKG health grant " + corruption, () => {
+        const x = attestationFixture("lkg");
+        const r = duplicate(x.p);
+        const g = r.state.grants.find((g) => g.id === "health-only")!;
+        if (corruption === "capability") g.capabilities = ["knowledge.read"];
+        else g.createdAt = g.verifiedAt = g.effectiveFrom = instant(x.t, 1);
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const kind of ["review", "rights", "lkg"] as const)
+      it(
+        "4178885932 retains historical " +
+          kind +
+          " authority after subsequent revocation",
+        () => {
+          for (const delta of [0, 1]) {
+            const x = attestationFixture(kind);
+            const r = duplicate(x.p);
+            r.state.members.find(
+              (m) => m.memberId === x.member,
+            )!.membershipActive = false;
+            for (const g of [
+              r.state.grants.find((g) => g.id === x.g.id)!,
+              r.state.qualifications.find((q) => q.id === x.q.id)!,
+            ]) {
+              g.revokedAt = instant(x.t, delta);
+              g.revision++;
+            }
+            expect(transitionResultSchema.safeParse(r).success).toBe(true);
+          }
+        },
+      );
+    for (const field of [
+      "createdByMemberId",
+      "registeredByMemberId",
+      "submittedByMemberId",
+    ])
+      for (const crossTenant of [false, true])
+        it(
+          "4178885932 closes actor " + field + ", crossTenant=" + crossTenant,
+          () => {
+            const r = duplicate();
+            const record =
+              field === "createdByMemberId"
+                ? r.state.assignments[0]
+                : r.state.versions[0];
+            if (crossTenant)
+              r.state.members.push({
+                ...r.state.members[0],
+                memberId: 999,
+                organizationId: 2,
+              });
+            mutate(record, [field], 999);
+            // Keep content pins coherent to isolate the actor-reference invariant.
+            renewDigest(r.state);
+            expect(partitionSchema.safeParse(r.state).success).toBe(true);
+            expect(transitionResultSchema.safeParse(r).success).toBe(false);
+          },
+        );
+    for (const corruption of ["assignment", "approval", "both", "lkg"])
+      it("4178885932 binds manifest pin " + corruption, () => {
+        const r = duplicate(attestationFixture("lkg").p);
+        if (corruption === "assignment" || corruption === "both")
+          r.state.assignments[0].reviewManifestDigest = "0".repeat(64);
+        if (corruption === "approval" || corruption === "both")
+          r.state.versions[0].approvals[0].reviewManifestDigest = "0".repeat(
+            64,
+          );
+        if (corruption === "lkg")
+          r.state.versions[0].health.lkg!.reviewManifestDigest = "0".repeat(64);
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const [from, to] of [
+      ["SUPERSEDE", "REFRESH_APPROVAL"],
+      ["SUPERSEDE", "ROLLBACK"],
+      ["ROLLBACK", "SUPERSEDE"],
+      ["REFRESH_APPROVAL", "SUPERSEDE"],
+    ] as const)
+      it("4178885940 cannot relabel " + from + " as " + to, () => {
+        const r = publicationResult(from),
+          e = r.eventIntents[0];
+        e.operation = to;
+        e.reasonCode =
+          to === "REFRESH_APPROVAL"
+            ? "PUBLISHED"
+            : to === "ROLLBACK"
+              ? "ROLLBACK_APPROVED"
+              : "SUPERSEDED";
+        e.authorizationWitnesses = normalizeWitnesses(
+          e.authorizationWitnesses.map((w) =>
+            w.witnessType === "ACTOR_CAPABILITY"
+              ? {
+                  ...w,
+                  capability:
+                    to === "ROLLBACK"
+                      ? "knowledge.rollback"
+                      : "knowledge.activate",
+                }
+              : w,
+          ),
+        );
+        expect(eventSchema.safeParse(e).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+    for (const field of ["serviceFrom", "applicability", "enabledUses"])
+      it("4178885940 approval refresh preserves " + field, () => {
+        const r = publicationResult("REFRESH_APPROVAL");
+        const a = r.state.assignments.find(
+          (a) => a.id === r.eventIntents[0].assignmentId,
+        )!;
+        if (field === "serviceFrom") a.serviceFrom = "2026-02-01";
+        if (field === "applicability") a.applicability.macs = ["another-mac"];
+        if (field === "enabledUses") a.enabledUses = ["INTERNAL_STORAGE"];
+        expect(partitionSchema.safeParse(r.state).success).toBe(true);
+        expect(transitionResultSchema.safeParse(r).success).toBe(false);
+      });
+  });
+
+  describe("4178885949 exact touched-version CAS", () => {
+    for (const operation of [
+      "REVOKE",
+      "REVOKE_RIGHTS",
+      "REVOKE_GRANT",
+      "REVOKE_QUALIFICATION",
+      "REGISTER",
+      "SUPERSEDE",
+      "REFRESH_APPROVAL",
+    ])
+      it(
+        operation + " rejects unrelated current and stale revisions atomically",
+        () => {
+          const p = fixture(),
+            target = p.versions[0],
+            unrelated = candidate(p, "unrelated-version");
+          unrelated.rights.id = "unrelated-rights";
+          unrelated.rightsOverlay.rightsId = unrelated.rights.id;
+          unrelated.rightsOverlay.rightsRevisionId = rightsRevisionIdentity(
+            p.scope.id,
+            unrelated.rights.id,
+            unrelated.rights.revision,
+          );
+          unrelated.approvals[0].reviewManifestDigest = reviewManifestDigest(
+            p.sources[0],
+            unrelated,
+          );
+          let cmd: Record<string, unknown> = {
+            operation,
+            versionId: target.id,
+          };
+          let ids = [target.id];
+          if (operation === "REVOKE_RIGHTS") {
+            const shared = candidate(p, "shared-rights-version");
+            ids.push(shared.id);
+            cmd.expectedRightsRevision = target.rightsOverlay.revision;
+          } else if (
+            operation === "REVOKE_GRANT" ||
+            operation === "REVOKE_QUALIFICATION"
+          ) {
+            cmd = {
+              operation,
+              credentialId:
+                operation === "REVOKE_GRANT" ? "grant-2" : "qualification-2",
+              expectedCredentialRevision: 1,
+            };
+            ids = [];
+          } else if (operation === "REGISTER") {
+            cmd = registration(p);
+            ids = [];
+          } else if (operation === "SUPERSEDE") {
+            const replacement = candidate(p, "replacement");
+            ids.push(replacement.id);
+            cmd = {
+              operation,
+              versionId: replacement.id,
+              assignmentId: p.assignments[0].id,
+              approvalId: replacement.approvals[0].id,
+              cutover: "2026-10-01",
+            };
+          } else if (operation === "REFRESH_APPROVAL") {
+            target.approvals.push({
+              ...target.approvals[0],
+              id: "renewed",
+              reviewedAt: now,
+            });
+            cmd = {
+              operation,
+              versionId: target.id,
+              assignmentId: p.assignments[0].id,
+              approvalId: "renewed",
+            };
+          }
+          const exact = Object.fromEntries(
+            ids.map((id) => [
+              id,
+              p.versions.find((v) => v.id === id)!.revision,
+            ]),
+          );
+          const before = canonicalBytes(p);
+          for (const supplied of [unrelated.revision, unrelated.revision + 99])
+            expect(() =>
+              transition(p, {
+                ...cmd,
+                expectedVersionRevisions: {
+                  ...exact,
+                  [unrelated.id]: supplied,
+                },
+              }),
+            ).toThrow("KNOWLEDGE_REFERENCE_INVALID");
+          expect(canonicalBytes(p)).toBe(before);
+          const valid = transition(p, {
+            ...cmd,
+            expectedVersionRevisions: exact,
+          });
+          expect(transitionResultSchema.safeParse(valid).success).toBe(true);
+          for (const id of ids) {
+            const missing = { ...exact };
+            delete missing[id];
+            expect(() =>
+              transition(p, { ...cmd, expectedVersionRevisions: missing }),
+            ).toThrow("KNOWLEDGE_REVISION_CONFLICT");
+            expect(() =>
+              transition(p, {
+                ...cmd,
+                expectedVersionRevisions: { ...exact, [id]: exact[id] + 99 },
+              }),
+            ).toThrow("KNOWLEDGE_REVISION_CONFLICT");
+          }
+          if (operation === "REGISTER") {
+            const duplicate = transition(valid.state, {
+              ...cmd,
+              expectedVersionRevisions: {},
+            });
+            expect(duplicate.eventIntents).toEqual([]);
+            expect(() =>
+              transition(valid.state, {
+                ...cmd,
+                expectedVersionRevisions: {
+                  [unrelated.id]: unrelated.revision,
+                },
+              }),
+            ).toThrow("KNOWLEDGE_REFERENCE_INVALID");
+          }
+        },
+      );
+  });
 });

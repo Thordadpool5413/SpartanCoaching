@@ -526,3 +526,290 @@ contract/OpenAPI pretests. Root typecheck and API build pass after these fixes. 
 mobile, browser, policy and workspace-build results above remain unchanged; no
 related files changed. Fresh seven-job PR/main evidence is required before completion. No architecture change, scope expansion or new owner
 authorization is needed for these corrections.
+
+## PR #187 seven-finding follow-up — 2026-10-04
+
+This is a bounded implementation correction under the unchanged approved
+`04-k1a-repair.md`, explicitly authorized through normal PR merge and verified
+post-merge main. Do not restart K1A or begin the next packet.
+
+Starting main: `8f1afddf990a37e67656ceca78502efcbf227cef`.
+Latest starting main CI: `37226336418`, completed successfully with all seven
+required jobs. Branch: `fix/k1a-repair-seven-review-findings`.
+The transient checkout had been cleared between turns; it was restored from
+the committed main tree into the same workspace, then fetched, checked out and
+fast-forward synchronized. No human changes were present or discarded.
+
+All seven unresolved comments against PR #187 head `781f558e` were read before
+editing. Governing instructions, current ExecPlan, relevant unchanged packet
+sections, implementation and mandatory test registration were inspected.
+Scope is exactly these findings:
+
+| Finding | Observed root cause | Required correction |
+|---|---|---|
+| 4178885928 | Ancestry accepts every parent revision below current | Exact issuance revision, accounting for one later revocation |
+| 4178885930 | Final resolver schema trusts caller's aggregate state | Derive state using existing context/configuration/blocking precedence |
+| 4178885932 | Duplicate-registration output returns after shape checks | Reuse full reducer semantic state validation before accepting no-op |
+| 4178885936 | Warning evaluation is gated on CURRENT health | Emit due warning boundary for already-stale applicable publications |
+| 4178885940 | Publication references are validated only when non-null | Require each operation's direct new/predecessor publication references |
+| 4178885945 | Authorized scope check accepts supersets | Exact deterministic configuration scope set |
+| 4178885949 | Supplied CAS keys need only exist in the partition | Exact touched-version keys, including empty no-op/credential sets |
+
+Initial regression cases are in the existing mandatory `foundation.test.ts`;
+implementation and fresh verification evidence will be recorded below.
+No changes to H5 Option C, witnesses, rightsRevisionId, H7 policy, canonical
+serialization, manifest formats, tenant/rights-purpose models, CI policy,
+dependencies, lockfile, database, clients, clinical integrations or production
+configuration are authorized. No architecture blocker has been identified.
+
+### Follow-up implementation and reproduction evidence
+
+All seven defects reproduced before production edits: the focused run had
+61 failures and 6 passing controls across 67 cases. After implementation all
+67 pass. The original 395 foundation cases remain enabled and pass as well.
+
+| Finding | Small implementation correction | New committed cases (before → after) |
+|---|---|---|
+| 4178885928 | Historical parent revision must equal current revision when unrevoked, or current minus the single later revocation; at/before-issuance revocation still denies | 6 ancestry/runtime cases: 3 fail + 3 controls → 6 pass; valid child survives later parent departure/revocation |
+| 4178885930 | Producer and public schema share the existing aggregate-state calculation and precedence in `deriveResolverState`; schema compares the serialized state | 16 precedence/context/configuration/empty/denial-tampering cases: 16 fail → 16 pass |
+| 4178885932 | Duplicate/no-op result schema invokes the same full `validateState` as the reducer; semantic exceptions become schema rejection | 12 shape-valid dangling/cross-scope/duplicate/rights/lineage/overlap/chronology/ancestry corruptions: 12 fail → 12 pass |
+| 4178885936 | Warning boundary is evaluated for every nonretired publication carrying it; no CURRENT-only gate | 3 health states: 2 fail + 1 control → 3 pass; before/equal/after deadline, stable identity and no mutation |
+| 4178885940 | Public event schema requires direct source/version/assignment/approval and operation-specific predecessor references before state-aware target checks | 18 ACTIVATE/SUPERSEDE/ROLLBACK/REFRESH_APPROVAL cases: 18 fail → 18 pass |
+| 4178885945 | Authorized scope IDs must exactly equal sorted unique configuration scopes; duplicate configurations fail | 5 extra/missing/duplicate/order/configuration cases with recomputed hash: 3 fail + 2 controls → 5 pass |
+| 4178885949 | Existing `touch` CAS checks record touched IDs; unrelated supplied entries fail before normal or duplicate success | 7 operation classes: 7 fail → 7 pass; current/stale extras, missing/stale required versions, shared rights, predecessor versions and empty credential/registration/no-op maps |
+
+`stateValidation.ts` only extracts the existing ancestry and reducer semantic
+checks for reuse without circular schema initialization. The existing ancestry
+export remains available from `authority.ts`. `blockingPrecedence` retains its
+existing values/order and resolver export. No new authority model or validator
+policy is introduced. The fixture transition helper now supplies exact mutation
+targets; negative CAS cases use explicit maps independently of that helper.
+Every new case is under `PR187 seven-finding follow-up` in the existing mandatory
+`foundation.test.ts`, explicitly run by the unchanged API `test` script and
+Application typecheck, test, and build CI job, required by the aggregate gate.
+
+### Follow-up local verification
+
+Node 24.19.0 and pinned pnpm 10.26.1. A temporary Corepack PATH shim ensures nested
+scripts use the same pinned package manager. Exact commands and final outcomes:
+
+| Command | Result |
+|---|---|
+| `pnpm install --frozen-lockfile` | PASS; 7m31s restore, no lockfile/dependency changes |
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'PR187 seven-finding follow-up'` | Baseline: 61 fail / 6 pass; fixed: 67/67 pass; other tests excluded only by this reproduction filter |
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts` | PASS 569/569, no skips: foundation 462, guard 90, middleware 11, session 6 |
+| `pnpm --filter @workspace/api-server test` | PASS 867/867, 50 files; generated/OpenAPI pretests also pass |
+| `pnpm run typecheck` | PASS, root and all workspace targets |
+| `pnpm --filter @workspace/spartan-ai-tools test` | PASS 94/94, 8 files |
+| `pnpm --filter @workspace/spartan-coaching test` | PASS 328/328, 63 files |
+| `pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand` | PASS 298/298, 60 suites |
+| `CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build` | PASS complete workspace, including native static bundles; no deployment |
+| `CI=true pnpm run test:e2e` | PASS: 50 passed, 1 flaky passed on existing retry, 1 existing project-conditional skip; unchanged desktop navigation focus assertion at `e2e/public-site.spec.ts:892` |
+| `pnpm run release-gate` | PASS automated suites; 3 PostgreSQL integration skips; live/device/external paths UNVERIFIED |
+| `pnpm audit --audit-level high` | EXIT 1: 24 findings, 3 high / 20 moderate / 1 low |
+| `node scripts/forge-security.test.mjs` | PASS 2/2 |
+| `node scripts/security/dependency-regression.test.mjs` | PASS 8/8 |
+| `node scripts/security/patched-audit.test.mjs` | PASS 39/39 |
+| `node scripts/security/patched-audit.mjs` | PASS existing exact-artifact mitigations; unchanged scope/hashes/2026-11-01 expiry |
+| `pnpm exec prettier --check` on all six changed/new TypeScript files | PASS |
+| `node scripts/performance-budget.mjs` | PASS |
+| `git diff --check` | PASS |
+
+Environment observations: a test startup attempted before dependency installation
+completed could not resolve `convert-source-map`; it ran no tests and is not the
+baseline reproduction. The complete pinned install resolved this. Playwright's
+download mirrors retried truncated archives and installation completed successfully.
+The existing browser retry policy and test remain unchanged. PostgreSQL server,
+psql, pg_dump, Docker and gitleaks are absent locally; require current PR and main
+P02/P03/full-history-secret jobs rather than claiming local verification. No
+Terraform or clinical AI evaluation is applicable to these disconnected changes.
+
+### Follow-up publication and stop boundary
+
+Complete diff reviewed: six foundation TypeScript files (including the shared
+validator) and this ExecPlan only. No source outside the bounded seven findings,
+test deregistration, generated artifacts, secrets or real clinical content staged.
+The follow-up PR for `fix/k1a-repair-seven-review-findings` is the terminal ledger
+for exact commit/head/tree, seven discussion replies/resolutions, current-head CI,
+immediate pre-merge main refresh, normal merge SHA and exact post-merge main jobs.
+These publication identifiers are recorded there after this checkpoint commits;
+the old PR #187 green run is not verification of this follow-up.
+
+No architecture blocker or owner-only action is required. Do not claim completion
+until the follow-up is merged and all seven post-merge jobs pass. No K1B, K2,
+persistence, migrations, production knowledge API, PHI, FHIR/clinical AI integration
+or production activation has started. Stop after this repair is green on main.
+
+### PR #188 review closure within the same seven findings
+
+The first follow-up commit `1d5f2e5c7297dfab8e37d4e22152e870b0e396a7`
+passed all seven jobs in run `37243977661`. Before merging, automatic review
+reported three residual cases within the original seven-finding scope. They are
+fixed in the same PR #188; the earlier green run is not final-head verification.
+
+| Review refinement | Original finding | Correction and regression evidence |
+|---|---|---|
+| 4179796452 | 4178885930 | Per-publication `SCOPE_DENIED` is impossible after authorized projection and is rejected by the entry contract; top-level empty-inventory denial remains valid. Two single/mixed entry cases reproduce acceptance with recomputed hashes. Existing precedence is unchanged. |
+| 4179796454 | 4178885940 | A replacement cannot identify itself as predecessor. Direct event references must match the new assignment's predecessor, source/document/scope and creation event/time, and the actual predecessor's retirement event/time. Twenty-one cases cover self/unrelated/source/document/unretired/creation/retirement mismatches across SUPERSEDE, ROLLBACK and REFRESH_APPROVAL. |
+| 4179796458 | 4178885932 | Shared semantic validation closes approval, rights and LKG grant/qualification/member references and their subject identity. Twenty-three missing/wrong-subject/removed-member cases plus one valid revoked/inactive historical-authority control. Historical provenance does not require current credential eligibility. |
+
+Focused command:
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'review closure'`.
+Before these source edits: **46 fail / 1 passing control**. After: **47/47 pass**.
+Total new regressions in this follow-up: **114** (67 original + 47 review closure).
+All run through the unchanged mandatory API command and Application CI job;
+no new test registration or CI policy change was needed.
+
+Final local reruns after review closure:
+
+- The same targeted foundation/security/auth command: **616/616**, no skips
+  (foundation 509, guard 90, middleware 11, session 6).
+- `pnpm --filter @workspace/api-server test`: **914/914**, 50 files, 54.96s;
+  generated-contract, normalization and OpenAPI pretests also pass.
+- `pnpm run typecheck`: **PASS**, root and all workspace targets.
+- `CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build`:
+  **PASS**, full workspace and native static bundles; no deployment.
+- Formatting of all six TypeScript files, `git diff --check`, and performance
+  budgets: **PASS**.
+
+Only contracts, shared state validation, regressions and this ExecPlan changed
+since the first follow-up commit. The broader AI/web/mobile/browser/security
+results and local infrastructure limitations above remain recorded; fresh
+current-head CI must rerun every mandatory job before merge. The PR body records
+the final build result, final head, all seven original discussion resolutions
+and these three refinements, exact current-head CI and post-merge main evidence.
+There is no architecture change, new packet, owner-only action or blocker.
+
+### October 8 continuation of PR #188
+
+The saved head `8924e40e5713aa8b23ec7715013b35345d41e603` passed all seven
+jobs in `37245036190`, but review completed with two residual cases. This
+continues the same branch/PR and does not restart K1A or its architecture work.
+
+Refreshed main on resumption: `2941c8775f9e459019282616685e3d60ecf362e6`.
+Its latest push CI `37664485304` was cancelled: secret scan, dependency audit,
+application, browser and P02 passed; P03 was cancelled and the aggregate failed.
+PRs #189/#190 added container verification and dependency repairs in six files;
+the governing packet and foundation were unchanged. Those exact main changes
+are merged into the existing repair branch without modification or conflicts.
+Relative to current main, this PR still changes only the six foundation files
+and this ExecPlan. Current-head CI must also pass the new API-container workflow.
+The transient checkout was restored from the saved Git objects; no human work
+was overwritten and no implementation was recreated.
+
+| Review refinement | Original finding | Root cause and bounded correction |
+|---|---|---|
+| 4179840038 | 4178885930 | Per-entry state denial was rejected, but contradictory reason codes remained accepted. Bind the single reason code to the evaluated state, matching the existing producer exactly. No manifest format or precedence change. |
+| 4179840042 | 4178885940 | Split-cutover history shares the predecessor and creation event with the replacement. Require the publication target's version to be ACTIVE and its interval to retain the predecessor's end, distinguishing the replacement from the history sibling. No publication algorithm or event format change. |
+
+Eight regressions are added under `final review reason and replacement closure`
+inside the mandatory foundation suite: empty/denied/mixed/contradictory reasons,
+and SUPERSEDE/ROLLBACK history retargeting with consistent event references and
+witnesses, including forged ACTIVE state. Valid producer results are controls.
+
+The focused command
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'final review reason and replacement closure'`
+reproduced **8 fail / 0 pass** before source edits, then **8/8 pass**. Total new
+regressions for the seven findings are now **122**: 6 / 22 / 36 / 3 / 43 / 5 / 7
+in the table's original finding order. All remain in the unchanged mandatory API
+test command. Targeted foundation/security/auth rerun: **624/624**, no skips
+(foundation 517, guard 90, middleware 11, session 6). Full API: **922/922**, 50
+files, 67.27s; generated/OpenAPI pretests pass. Root typecheck passes.
+
+Frozen installation with pinned pnpm 10.26.1 passes (4m52.9s), with no changes to
+main's dependency files. AI tools: **94/94**; web: **328/328**. The first mobile
+run passed 297/298, with the unchanged production-screen Sales Workflow probe
+exceeding 5 seconds during concurrent local suites; no timeout/test/product edit
+was made. The final mobile rerun and broader results are recorded below.
+
+Raw `pnpm audit --audit-level high`: exit 1, **3 high / 24 moderate / 1 low**.
+Current main's existing exact-artifact policy passes with its existing three
+source mitigations and unchanged scope/expiry; this repair does not renew or
+edit attestation hashes. Forge, dependency regression and audit-policy rejection
+suites pass (2/2, 8/8, 39/39). All six changed TypeScript files pass formatting;
+`git diff --check` passes. No Docker/PostgreSQL/gitleaks binary is available
+locally, so exact current-head CI must supply those existing checks.
+
+The full mobile suite rerun without competing builds passes **298/298**, all
+60 suites, 10.856s, using the unchanged command and five-second timeout. Full
+workspace build (including native static bundles), performance budgets and the
+automated release gate pass. The release gate retains three local PostgreSQL
+skips (162 pass / 3 skip in its security suite); live/device/external checks are
+unverified and outside this repair. No deployment or production activation ran.
+
+`CI=true pnpm run test:e2e` passes: **50 passed, 1 flaky passed on its existing
+retry, 1 existing project-conditional skip**, 1.4m. The same unchanged desktop
+navigation focus assertion at `e2e/public-site.spec.ts:892` retried; no browser,
+client or retry-policy changes were made. The full workspace build used
+`CI=true PORT=5000 BASE_PATH=/ EXPO_PUBLIC_DOMAIN=spartan-coaching-ci.invalid pnpm run build`.
+
+The complete diff against refreshed main remains seven files. The two source
+checks, eight regressions and this continuation record are the only new edits
+since the saved PR head. All inherited main files were compared byte-for-byte.
+The final commit includes current main as a merge parent and preserves the
+existing feature history. PR #188 remains the terminal ledger for final head,
+fresh CI (all seven required jobs plus the existing container workflow), review
+resolutions, immediate pre-merge refresh, merge SHA and post-merge main evidence.
+No architecture blocker, owner-only operation or next-packet work is introduced.
+
+### Final semantic review corrections on PR #188
+
+Automatic review of head `27fe7c49779e46c3b9bd247c060b70b4bf56e61f`
+identified four remaining output-closure cases within the original seven findings.
+The same PR implements these corrections; neither architecture nor CI policy changes.
+
+| Review comment | Original finding | Root cause, correction and regression evidence |
+|---|---|---|
+| 4225205573 | 4178885932 | Attestation references checked identity but not the pinned credential's capability, domain, qualification class, jurisdiction or temporal eligibility at attestation time. Reuse the existing eligibility predicates at T and bound review/LKG deadlines; 33 review/rights/LKG corruption cases, two separate LKG health-grant cases and three valid historical controls. Current revocation still denies runtime use. |
+| 4225205580 | 4178885940 | Publication relationships did not distinguish refresh, initial publication and rollback. Require refresh to retain version, interval, applicability and uses while changing approval; rollback requires a prior target publication and a different predecessor version; activation/supersession cannot republish an already-published target. Four operation-relabeling and three refresh-field corruption regressions. |
+| 4225205583 | 4178885932 | Assignment creator and version registrar/submitter were not closed against canonical tenant members. Validate all three identities, with six missing/cross-tenant regressions. Historical inactive membership remains representable. |
+| 4225205589 | 4178885932 | Assignment/approval/LKG digest pins were not bound to the recomputed canonical review manifest. Reuse the unchanged manifest implementation and reject incoherent or coherently forged pins; four regressions. |
+
+The existing grant/qualification predicates and review-manifest builder/digest were
+moved unchanged into shared state validation and re-exported through their existing
+authority API. Their function bodies were compared with the previous commit; all
+match. The canonical serializer, manifest format, H5 Option C, witnesses, rights
+revision identity, tenant/purpose model and H7 policy are unchanged. Digest computation
+is cached per version during validation; existing 4,000-publication capacity tests pass.
+
+Focused reproduction command:
+`pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts -t 'historical semantics review closure'`.
+Before implementation: **52 fail / 3 passing historical controls**. After implementation:
+**55/55 pass**. Each corrupted input remains structurally valid, isolating semantic
+closure. The historical controls also cover later revocation at the same clock
+precision as the earlier attestation. Validation rejects revocation strictly before
+T without inventing historical membership or overriding current revocation checks.
+
+The first broader run exposed a legitimate same-timestamp approval/revocation sequence,
+an unnecessary current-evaluation-time restriction on historical attestations, and a
+multi-domain fixture whose attestors lacked its added domain. The first two were
+corrected in implementation. The fixture now gives its review/licensing attestors
+REGULATION coverage while retaining the command actor's missing authority and every
+existing denial/success assertion. No test was removed or weakened.
+
+Final verification after all four corrections:
+
+| Command | Exact result |
+|---|---|
+| `pnpm --filter @workspace/api-server exec vitest run src/knowledge/foundation/foundation.test.ts src/security/requestSecurity.test.ts src/auth/middleware.test.ts src/auth/sessionSecurityContract.test.ts` | **679/679**, no skips: foundation 572, guard 90, middleware 11, session 6 |
+| `pnpm --filter @workspace/api-server test` | **977/977**, 50 files, 51.09s; generated-contract, normalization and OpenAPI pretests pass |
+| `pnpm run typecheck` | **PASS**, root and every workspace target |
+| `pnpm --filter @workspace/api-server build` | **PASS**, final API bundles |
+| `pnpm exec prettier --check` on all six foundation TypeScript files | **PASS** |
+| `git diff --check` | **PASS** |
+
+The follow-up now adds **177** committed regression cases: **6 / 22 / 84 / 3 / 50 /
+5 / 7**, in original finding order. Every case is in the existing foundation test
+file and runs through the unchanged mandatory API test command in Application CI.
+The October 8 full-workspace, AI, web, mobile, browser, release-gate, performance and
+audit results above remain the broader local evidence; the final delta is foundation
+code/tests only, plus this record. Fresh current-head CI must rerun all seven required
+jobs and the existing API-container check. Local PostgreSQL/Docker/gitleaks limitations
+remain explicit; no clinical AI evaluation, Terraform or owner activation applies.
+
+Complete final diff reviewed against current main: only the same six foundation files
+and this ExecPlan. No dependency, lockfile, CI, migration, client, production or other
+packet changes. PR #188 records the final commit/head, these four discussion resolutions,
+fresh CI, immediate pre-merge main refresh, normal merge and post-merge main evidence.
+No architecture blocker or owner-only action. Stop only after verified green main;
+the next step remains a fresh independent Astra adversarial review before K1B.

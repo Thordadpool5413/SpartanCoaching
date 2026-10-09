@@ -1,3 +1,16 @@
+import {
+  validateGrantAncestry,
+  grantEligible,
+  qualificationEligible,
+  reviewManifestDigest,
+} from "./stateValidation";
+export {
+  validateGrantAncestry,
+  grantEligible,
+  qualificationEligible,
+  buildReviewManifest,
+  reviewManifestDigest,
+} from "./stateValidation";
 import { z } from "zod";
 import {
   actorSchema,
@@ -9,12 +22,8 @@ import {
   revision,
   type AuthorizationWitness,
   grantSchema,
-  reviewManifestSchema,
-  requiredReviewer,
   scopeSchema,
-  sourceSchema,
   stamp,
-  versionSchema,
   type Actor,
   type Approval,
   type AuthorityDomain,
@@ -27,13 +36,7 @@ import {
   type Qualification,
   type Scope,
 } from "./contracts";
-import {
-  canonicalBytes,
-  canonicalDigest,
-  fail,
-  ordinal,
-  parseContract,
-} from "./canonical";
+import { canonicalBytes, fail, ordinal, parseContract } from "./canonical";
 export function actorInScope(actor: Actor, scope: Scope): boolean {
   return (
     actor.sessionVerified &&
@@ -50,26 +53,6 @@ export function memberCurrent(p: Partition, memberId: number): boolean {
     member.organizationActive &&
     (p.scope.kind === "GLOBAL" ||
       member.organizationId === p.scope.organizationId)
-  );
-}
-export function grantEligible(
-  g: Grant,
-  scope: Scope,
-  domain: AuthorityDomain,
-  capability: Capability,
-  now: string,
-  synthetic = false,
-): boolean {
-  return (
-    (synthetic || g.issuance.kind !== "SYNTHETIC_SEED") &&
-    g.createdAt <= now &&
-    g.scopeId === scope.id &&
-    g.domains.includes(domain) &&
-    g.capabilities.includes(capability) &&
-    !g.revokedAt &&
-    g.verifiedAt <= now &&
-    g.effectiveFrom <= now &&
-    now < g.expiresAt
   );
 }
 /** Ancestry must first pass validateGrantAncestry; this adds the server-context root restriction. */
@@ -114,30 +97,6 @@ export function requireCapability(
   if (!grant) fail("KNOWLEDGE_PERMISSION_DENIED");
   return grant;
 }
-export function qualificationEligible(
-  q: Qualification,
-  p: Partition,
-  subject: number,
-  domain: AuthorityDomain,
-  jurisdictions: readonly string[],
-  now: string,
-  synthetic: boolean,
-  requiredClass = requiredReviewer(domain),
-): boolean {
-  return (
-    q.subjectMemberId === subject &&
-    q.scopeId === p.scope.id &&
-    q.class === requiredClass &&
-    q.domains.includes(domain) &&
-    jurisdictions.every((j) => q.jurisdictions.includes(j)) &&
-    !q.revokedAt &&
-    q.verifiedAt <= now &&
-    q.effectiveFrom <= now &&
-    now < q.expiresAt &&
-    now < q.reviewDueAt &&
-    (synthetic || q.verificationMethod !== "SYNTHETIC_TEST")
-  );
-}
 export function requireQualification(
   p: Partition,
   actor: Actor,
@@ -161,69 +120,6 @@ export function requireQualification(
   if (!q) fail("QUALIFIED_REVIEW_REQUIRED");
   return q;
 }
-export function buildReviewManifest(
-  sourceInput: unknown,
-  versionInput: unknown,
-) {
-  const source = parseContract(sourceSchema, sourceInput);
-  const v = parseContract(versionSchema, versionInput);
-  if (
-    source.id !== v.sourceId ||
-    source.metadataRevision !== v.sourceMetadataRevision ||
-    source.scope.id !== v.scopeId ||
-    (source.domain === "MAC_COVERAGE" && v.applicability.macs === null)
-  )
-    fail("KNOWLEDGE_REFERENCE_INVALID");
-  const {
-    id,
-    documentId,
-    upstreamEdition,
-    artifactRevision,
-    rawHash,
-    normalizedHash,
-    parserId,
-    parserVersion,
-    sourceUrl,
-    publishedAt,
-    retrievedAt,
-    effectiveFrom,
-    effectiveTo,
-    legacyCoverageSnapshotId,
-    registeredByMemberId,
-    submittedByMemberId,
-  } = v;
-  const { scope, ...sourceFields } = source;
-  return parseContract(reviewManifestSchema, {
-    schemaVersion: "knowledge-review-manifest-v2",
-    canonicalizationVersion: "k1a-c14n-v1",
-    scope,
-    source: sourceFields,
-    artifact: {
-      id,
-      documentId,
-      upstreamEdition,
-      artifactRevision,
-      rawHash,
-      normalizedHash,
-      parserId,
-      parserVersion,
-      sourceUrl,
-      publishedAt,
-      retrievedAt,
-      effectiveFrom,
-      effectiveTo,
-      legacyCoverageSnapshotId,
-      registeredByMemberId,
-      submittedByMemberId,
-    },
-    applicability: v.applicability,
-    rights: v.rights,
-  });
-}
-export const reviewManifestDigest = (
-  source: KnowledgeSource,
-  version: KnowledgeVersion,
-) => canonicalDigest(buildReviewManifest(source, version));
 export function hasCurrentApproval(
   p: Partition,
   source: KnowledgeSource,
@@ -447,46 +343,6 @@ export function healthState(
     : "SOURCE_UNAVAILABLE";
 }
 
-/** Immutable provenance checks. Later parent revocation/departure is NOT child revocation. */
-export function validateGrantAncestry(
-  p: Pick<Partition, "scope" | "grants">,
-): void {
-  const map = new Map(p.grants.map((g) => [g.id, g]));
-  if (map.size !== p.grants.length || map.size > 2000)
-    fail("KNOWLEDGE_REFERENCE_INVALID");
-  const checked = new Set<string>();
-  for (const origin of p.grants) {
-    let child = origin;
-    const path = new Set<string>();
-    while (!checked.has(child.id)) {
-      if (path.has(child.id) || child.scopeId !== p.scope.id)
-        fail("KNOWLEDGE_DELEGATION_DENIED");
-      path.add(child.id);
-      if (child.issuance.kind !== "DELEGATED") break;
-      const parent = map.get(child.issuance.parentGrantId);
-      if (
-        !parent ||
-        parent.scopeId !== child.scopeId ||
-        parent.subjectMemberId !== child.grantedByMemberId ||
-        child.verifiedByMemberId !== child.grantedByMemberId ||
-        child.createdAt !== child.verifiedAt ||
-        parent.createdAt > child.createdAt ||
-        parent.effectiveFrom > child.createdAt ||
-        parent.verifiedAt > child.createdAt ||
-        child.expiresAt > parent.expiresAt ||
-        child.createdAt >= parent.expiresAt ||
-        (parent.revokedAt !== null && parent.revokedAt <= child.createdAt) ||
-        child.issuance.parentGrantRevision > parent.revision ||
-        !parent.capabilities.includes("knowledge.grants") ||
-        !child.domains.every((d) => parent.domains.includes(d)) ||
-        !child.capabilities.every((c) => parent.capabilities.includes(c))
-      )
-        fail("KNOWLEDGE_DELEGATION_DENIED");
-      child = parent;
-    }
-    for (const entry of path) checked.add(entry);
-  }
-}
 export function normalizeWitnesses(
   input: readonly AuthorizationWitness[],
 ): AuthorizationWitness[] {
