@@ -2195,6 +2195,13 @@ export function registerAuthRoutes(app: Express): void {
 
       const anonymizedEmail = `deleted+${member.id}.${Date.now()}@deleted.invalid`;
       await db.transaction(async (tx) => {
+        // Identity locks precede private child cleanup; knowledge commands never
+        // acquire a scope after holding these rows.
+        await tx.execute(sql`SELECT id FROM client_organizations WHERE id=${member.organizationId} FOR UPDATE`);
+        const locked = await tx.execute(sql`SELECT id,organization_id FROM client_members WHERE id=${member.id} FOR UPDATE`);
+        if (locked.rows.length !== 1 || Number(locked.rows[0].organization_id) !== member.organizationId)
+          throw new Error("IDENTITY_CHANGED_RETRY");
+        await tx.execute(sql`SELECT id FROM client_sessions WHERE member_id=${member.id} ORDER BY id FOR UPDATE`);
         await tx.delete(coachSharedSummaries).where(or(
           eq(coachSharedSummaries.ownerMemberId, member.id),
           eq(coachSharedSummaries.sharedWithMemberId, member.id),

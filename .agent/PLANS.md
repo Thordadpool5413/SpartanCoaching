@@ -1,6 +1,9 @@
 # Execution plans
 
-Active knowledge packet: `docs/execplans/knowledge-k1a-correct.md`.
+Active knowledge packet: `docs/execplans/knowledge-k1b-persist.md`.
+The owner-approved K1B-PERSIST implementation packet is recorded in the active
+plan's scope and implementation checklist. K1A completion history remains at
+`docs/execplans/knowledge-k1a-correct.md`.
 Approved correction decisions and implementation packet:
 `docs/architecture/knowledge-2026-10-03/04-k1a-repair.md`.
 Prior K1A-CORRECT decisions: `docs/architecture/knowledge-2026-10-03/03-k1a-correct.md`.

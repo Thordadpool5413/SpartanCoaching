@@ -12,7 +12,7 @@ function getPool(): pg.Pool {
         "DATABASE_URL must be set. Did you forget to provision a database?",
       );
     }
-    _pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+    _pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 5000 });
   }
   return _pool;
 }
@@ -26,7 +26,9 @@ function getDb() {
 
 export const pool = new Proxy({} as pg.Pool, {
   get(_, prop) {
-    return (getPool() as any)[prop];
+    const actual = getPool();
+    const value = (actual as any)[prop];
+    return typeof value === "function" ? value.bind(actual) : value;
   }
 });
 

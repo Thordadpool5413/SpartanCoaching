@@ -13,7 +13,7 @@ describe("migration ledger preflight", () => {
     expect(MIGRATION_LEDGER_PLAN.dropsLegacyObjects).toBe(false);
   });
   it("prepares every catalogued migration in stable external-last order", () => {
-    expect(migrations).toHaveLength(31);
+    expect(migrations).toHaveLength(32);
     expect(migrations.at(-1)?.id).toBe("0013_sales_workflow.sql");
     for (const row of migrations)
       expect(row.checksum).toMatch(/^[a-f0-9]{64}$/);

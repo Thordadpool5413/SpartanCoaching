@@ -31,3 +31,4 @@ export * from "./coach";
 export * from "./memberContinuity";
 export * from "./memberSync";
 export * from "./memberWork";
+export * from "./knowledge";

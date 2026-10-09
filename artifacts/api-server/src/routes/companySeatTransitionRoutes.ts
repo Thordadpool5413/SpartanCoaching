@@ -135,6 +135,12 @@ export function registerCompanySeatTransitionRoutes(app: Express): void {
           const companyOrganizationId = company.id;
           const memberId = existing.id;
 
+          await tx.execute(sql`SELECT id FROM client_organizations WHERE id IN (${sourceOrganizationId},${companyOrganizationId}) ORDER BY id FOR UPDATE`);
+          const locked = await tx.execute(sql`SELECT id,organization_id FROM client_members WHERE id=${memberId} FOR UPDATE`);
+          if (locked.rows.length !== 1 || Number(locked.rows[0].organization_id) !== sourceOrganizationId)
+            throw new Error("IDENTITY_CHANGED_RETRY");
+          await tx.execute(sql`SELECT id FROM client_sessions WHERE member_id=${memberId} ORDER BY id FOR UPDATE`);
+
           // Private member work follows the same identity. Clinical permissions
           // and clinical cases intentionally do not transfer between tenants.
           await tx.update(coachConversations).set({ organizationId: companyOrganizationId }).where(and(

@@ -1,5 +1,11 @@
 # Complete synthetic expected catalog — D1
 
+K1B adds the independently maintained `knowledge-owned.sql` declaration after
+the Drizzle schema export. Migration 0031 separately installs the approved
+knowledge tables and SQL-owned checks, indexes, foreign keys and immutable
+history guards. P02 compares every catalog category; no knowledge differences
+are excluded. The declaration is never constructed from a replayed catalog.
+
 Owner approval: 2026-10-02 in the implementation conversation, following the
 D1 proposal in `docs/execplans/ci-remediation-decisions.md`.
 

@@ -2,6 +2,8 @@ import express, { type Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
+import { knowledgeRouter, sanitizedKnowledgePath } from "./knowledge/control/routes";
+import { pool } from "./db";
 import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
@@ -52,7 +54,7 @@ app.use(
         return {
           id: req.id,
           method: req.method,
-          url: req.url?.split("?")[0],
+          url: sanitizedKnowledgePath(req.url?.split("?")[0] ?? "/"),
         };
       },
       res(res) {
@@ -68,7 +70,7 @@ app.use((req, res, next) => {
   const start = process.hrtime.bigint();
   res.on("finish", () => {
     const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
-    const pathOnly = (req.originalUrl || req.url || "/").split("?")[0] || "/";
+    const pathOnly = sanitizedKnowledgePath((req.originalUrl || req.url || "/").split("?")[0] || "/");
     recordHttpRequest({
       path: pathOnly,
       method: req.method,
@@ -102,7 +104,9 @@ app.use(
 );
 app.use(cookieParser());
 app.use(applySecurityHeaders);
+app.use("/api/knowledge-control", (_req,res,next)=>{res.setHeader("Cache-Control","no-store");next();});
 app.use(requireTrustedMutationOrigin);
+app.use("/api/knowledge-control", globalApiLimit, knowledgeRouter(pool));
 
 app.post(
   "/api/billing/webhook",

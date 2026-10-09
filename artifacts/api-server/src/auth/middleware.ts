@@ -43,7 +43,7 @@ export function useSecureCookies(): boolean {
   );
 }
 
-function extractSessionToken(req: Request): string | null {
+export function extractSessionToken(req: Request): string | null {
   const cookie = req.cookies?.[COOKIE_NAME];
   if (cookie && typeof cookie === "string") return cookie;
 
