@@ -50,6 +50,7 @@ import type {
   CreateCoachConversationBody,
   ErrorResponse,
   ExecuteKnowledgeCommand429,
+  ExecuteKnowledgeCommandHeaders,
   GetKnowledgeMetadata429,
   GetKnowledgeMetadataParams,
   GetKnowledgeScope429,
@@ -134,13 +135,14 @@ export const getExecuteKnowledgeCommandUrl = (scopeKind: 'global' | 'tenant',) =
  * @summary Mutate durable knowledge authority
  */
 export const executeKnowledgeCommand = async (scopeKind: 'global' | 'tenant',
-    knowledgeControlCommand: KnowledgeControlCommand, options?: RequestInit): Promise<KnowledgeCommandResult> => {
+    knowledgeControlCommand: KnowledgeControlCommand,
+    headers: ExecuteKnowledgeCommandHeaders, options?: RequestInit): Promise<KnowledgeCommandResult> => {
 
   return customFetch<KnowledgeCommandResult>(getExecuteKnowledgeCommandUrl(scopeKind),
   {
     ...options,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    headers: { 'Content-Type': 'application/json',...headers, ...options?.headers },
     body: JSON.stringify(knowledgeControlCommand)
   }
 );}
@@ -150,8 +152,8 @@ export const executeKnowledgeCommand = async (scopeKind: 'global' | 'tenant',
 
 
 export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext> => {
 
 const mutationKey = ['executeKnowledgeCommand'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -163,10 +165,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof executeKnowledgeCommand>>, {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}> = (props) => {
-          const {scopeKind,data} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof executeKnowledgeCommand>>, {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}> = (props) => {
+          const {scopeKind,data,headers} = props ?? {};
 
-          return  executeKnowledgeCommand(scopeKind,data,requestOptions)
+          return  executeKnowledgeCommand(scopeKind,data,headers,requestOptions)
         }
 
 
@@ -184,11 +186,11 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
  * @summary Mutate durable knowledge authority
  */
 export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext>, request?: SecondParameter<typeof customFetch>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof executeKnowledgeCommand>>,
         TError,
-        {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>},
+        {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders},
         TContext
       > => {
       return useMutation(getExecuteKnowledgeCommandMutationOptions(options));

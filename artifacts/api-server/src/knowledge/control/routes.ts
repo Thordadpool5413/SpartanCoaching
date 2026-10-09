@@ -40,7 +40,49 @@ const conflictCodes = new Set([
   "KNOWLEDGE_REVIEW_REQUIRED",
   "KNOWLEDGE_LICENSE_DENIED",
   "KNOWLEDGE_PIPELINE_REQUIRED",
+  "ACTIVATION_RIGHTS_OR_INTERVAL_REQUIRED",
+  "KNOWLEDGE_LKG_INVALID",
+  "KNOWLEDGE_ACTIVATION_INVALID",
+  "KNOWLEDGE_REPLACEMENT_INVALID",
+  "KNOWLEDGE_SUBMISSION_INVALID",
+  "KNOWLEDGE_DUTY_CONFLICT",
+  "KNOWLEDGE_REVIEW_TRANSITION_INVALID",
+  "KNOWLEDGE_REVIEW_WINDOW_INVALID",
 ]);
+export const knowledgeErrorHandler: express.ErrorRequestHandler = (
+  e: unknown,
+  _req,
+  res,
+  _next,
+) => {
+  const message = e instanceof Error ? e.message : "";
+  let code =
+    Object.hasOwn(statuses, message) || conflictCodes.has(message)
+      ? message
+      : "KNOWLEDGE_INTERNAL_ERROR";
+  const tooLarge =
+    !!e &&
+    typeof e === "object" &&
+    "type" in e &&
+    e.type === "entity.too.large";
+  if (tooLarge) code = "KNOWLEDGE_CONTRACT_INVALID";
+  const status = tooLarge
+    ? 413
+    : (statuses[code] ?? (conflictCodes.has(code) ? 409 : 500));
+  if (
+    code === "COMMAND_IN_PROGRESS" ||
+    code === "COMMAND_UNAVAILABLE" ||
+    code === "COMMAND_OUTCOME_UNKNOWN"
+  )
+    res.set("Retry-After", "1");
+  res.status(status).json({
+    code,
+    ...(e instanceof KnowledgeUnavailable &&
+    e.code === "COMMAND_OUTCOME_UNKNOWN"
+      ? { retry: "SAME_KEY_AND_PAYLOAD" }
+      : {}),
+  });
+};
 export function knowledgeRouter(
   pool: Pool,
   options: { enabled?: boolean; synthetic?: boolean } = {},
@@ -118,38 +160,6 @@ export function knowledgeRouter(
   router.use((_req, res) => {
     res.status(404).json({ code: "NOT_FOUND" });
   });
-  router.use(
-    (
-      e: unknown,
-      _req: express.Request,
-      res: express.Response,
-      _next: express.NextFunction,
-    ) => {
-      const message = e instanceof Error ? e.message : "";
-      let code =
-        Object.hasOwn(statuses, message) || conflictCodes.has(message)
-          ? message
-          : "KNOWLEDGE_INTERNAL_ERROR";
-      const tooLarge =
-        !!e &&
-        typeof e === "object" &&
-        "type" in e &&
-        e.type === "entity.too.large";
-      if (tooLarge) code = "KNOWLEDGE_CONTRACT_INVALID";
-      const status = tooLarge
-        ? 413
-        : (statuses[code] ?? (conflictCodes.has(code) ? 409 : 500));
-      if (code === "COMMAND_IN_PROGRESS") res.set("Retry-After", "1");
-      res
-        .status(status)
-        .json({
-          code,
-          ...(e instanceof KnowledgeUnavailable &&
-          e.code === "COMMAND_OUTCOME_UNKNOWN"
-            ? { retry: "SAME_KEY_AND_PAYLOAD" }
-            : {}),
-        });
-    },
-  );
+  router.use(knowledgeErrorHandler);
   return router;
 }

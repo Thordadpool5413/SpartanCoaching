@@ -1101,6 +1101,15 @@ export interface WorkspaceNextMoveResponse {
  */
 export type ErrorResponse = ErrorEnvelope;
 
+export type ExecuteKnowledgeCommandHeaders = {
+/**
+ * Retry an uncertain outcome only with the same key and payload.
+ * @minLength 16
+ * @maxLength 128
+ */
+'Idempotency-Key': string;
+};
+
 export type ExecuteKnowledgeCommand429 = {
   error: string;
 };

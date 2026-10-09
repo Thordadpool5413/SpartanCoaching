@@ -7,12 +7,16 @@ import {
 } from "../foundation/contracts";
 import { parseContract } from "../foundation/canonical";
 import { createKnowledgeRegistry } from "../foundation/resolver";
-import { requireCapability } from "../foundation/authority";
+import {
+  grantEligible,
+  grantContextEligible,
+  validateGrantAncestry,
+} from "../foundation/authority";
 import { acquire, CommandDeadline } from "./deadline";
 import { assertNonOwner } from "./commands";
 import { preliminaryAuth, recheckIdentity } from "../control/auth";
 import { projectCommand } from "./projection";
-import { text, timestamp, type Row } from "./codec";
+import { text, timestamp, scopeFromRow, grantFromRow, type Row } from "./codec";
 /** Internal read-only adapter. GLOBAL and exact TENANT are sequential projections, not an atomic cross-scope snapshot. */
 export async function resolvePersistedKnowledge(
   pool: Pool,
@@ -33,7 +37,7 @@ export async function resolvePersistedKnowledge(
       await c.begin();
       const scope = (
         await c.query(
-          "SELECT scope_id FROM knowledge_scopes WHERE scope_id=$1 FOR UPDATE",
+          "SELECT * FROM knowledge_scopes WHERE scope_id=$1 FOR UPDATE",
           [scopeId],
         )
       ).rows[0];
@@ -41,11 +45,69 @@ export async function resolvePersistedKnowledge(
         await c.finishRead();
         continue;
       }
+      // Discovery is a hint under the scope lock, not Actor authority. Identity
+      // and credentials are still locked in the canonical order by projectCommand
+      // and rechecked before the canonical resolver makes the final decision.
+      const scopeContract = scopeFromRow(scope);
+      const discoveryNow = timestamp(
+        (await c.query<Row>("SELECT clock_timestamp() AS now")).rows[0].now,
+      );
+      const grants = (
+        await c.query<Row>(
+          `WITH RECURSIVE selected AS (
+        SELECT g.* FROM knowledge_grants g WHERE g.scope_id=$1 AND g.subject_member_id=$2 AND 'knowledge.read'=ANY(g.capabilities)
+        UNION SELECT g.* FROM knowledge_grants g JOIN selected s ON g.scope_id=s.scope_id AND g.grant_id=s.parent_grant_id
+      ) SELECT * FROM selected ORDER BY grant_id COLLATE "C"`,
+          [scopeId, identity.memberId],
+        )
+      ).rows.map(grantFromRow);
+      const roots = grants.filter(
+        (g) =>
+          g.subjectMemberId === identity.memberId &&
+          g.domains.some((domain) =>
+            grantEligible(
+              g,
+              scopeContract,
+              domain,
+              "knowledge.read",
+              discoveryNow,
+              synthetic,
+            ),
+          ),
+      );
+      const ancestry = [...roots];
+      for (let i = 0; i < ancestry.length; i++) {
+        const grant = ancestry[i];
+        if (grant.issuance.kind === "DELEGATED") {
+          const parentId = grant.issuance.parentGrantId;
+          if (!ancestry.some((g) => g.id === parentId)) {
+            const parent = grants.find((g) => g.id === parentId);
+            if (!parent) throw new Error("KNOWLEDGE_REFERENCE_INVALID");
+            ancestry.push(parent);
+          }
+        }
+        if (ancestry.length > 2000)
+          throw new Error("KNOWLEDGE_CAPACITY_EXCEEDED");
+      }
+      validateGrantAncestry({ scope: scopeContract, grants: ancestry });
+      const allowed = [
+        ...new Set(
+          roots
+            .filter((g) =>
+              grantContextEligible(
+                { scope: scopeContract, grants: ancestry },
+                g,
+                synthetic,
+              ),
+            )
+            .flatMap((g) => g.domains),
+        ),
+      ].filter((domain) => authorityMatrix[context.claimType].includes(domain));
       const ids = (
         await c.query<Row>(
           `SELECT v.version_id FROM knowledge_versions v JOIN knowledge_source_revisions s ON s.scope_id=v.scope_id AND s.source_id=v.source_id AND s.metadata_revision=v.source_metadata_revision
-        WHERE v.scope_id=$1 AND s.domain=ANY($2::text[]) ORDER BY v.version_id COLLATE "C" LIMIT 2001`,
-          [scopeId, authorityMatrix[context.claimType]],
+        WHERE v.scope_id=$1 AND s.domain=ANY($2::text[]) AND EXISTS(SELECT 1 FROM knowledge_publication_assignments p WHERE p.scope_id=v.scope_id AND p.version_id=v.version_id AND p.retired_at IS NULL) ORDER BY v.version_id COLLATE "C" LIMIT 2001`,
+          [scopeId, allowed],
         )
       ).rows.map((r) => text(r.version_id));
       if (ids.length > 2000) throw new Error("KNOWLEDGE_CAPACITY_EXCEEDED");
@@ -70,36 +132,11 @@ export async function resolvePersistedKnowledge(
         command,
         synthetic,
         ids,
+        true,
       );
       if (!p.actor) throw new Error("KNOWLEDGE_INTERNAL_ERROR");
       const fresh = await recheckIdentity(c, identity, p.state, synthetic);
       actor = fresh.actor;
-      if (
-        !authorityMatrix[context.claimType].some((domain) => {
-          try {
-            requireCapability(
-              fresh.state,
-              fresh.actor,
-              domain,
-              "knowledge.read",
-              fresh.now,
-            );
-            return true;
-          } catch {
-            return false;
-          }
-        })
-      )
-        throw new Error("KNOWLEDGE_PERMISSION_DENIED");
-      // Materialized sources are authorized individually; roles never substitute for read grants.
-      for (const source of fresh.state.sources)
-        requireCapability(
-          fresh.state,
-          fresh.actor,
-          source.domain,
-          "knowledge.read",
-          fresh.now,
-        );
       partitions.push(fresh.state);
       await c.finishRead();
     }

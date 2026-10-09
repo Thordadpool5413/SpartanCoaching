@@ -43,6 +43,7 @@ export async function projectCommand(
   command: Command,
   synthetic: boolean,
   additionalVersionIds: string[] = [],
+  resolutionOnly = false,
 ): Promise<Projection> {
   const scopeRow = (
     await c.query<Row>(
@@ -78,36 +79,45 @@ export async function projectCommand(
   const credentialOnly = ["REVOKE_GRANT", "REVOKE_QUALIFICATION"].includes(
     command.operation,
   );
-  const versions = credentialOnly
-    ? []
-    : (
+  const versions = resolutionOnly
+    ? (
         await c.query<Row>(
-          `WITH RECURSIVE selected AS (
+          'SELECT * FROM knowledge_versions WHERE scope_id=$1 AND version_id=ANY($2::text[]) ORDER BY version_id COLLATE "C"',
+          [scopeId, additionalVersionIds],
+        )
+      ).rows
+    : credentialOnly
+      ? []
+      : (
+          await c.query<Row>(
+            `WITH RECURSIVE selected AS (
     SELECT v.* FROM knowledge_versions v WHERE v.scope_id=$1 AND
       (v.version_id=$2 OR v.version_id=ANY($7::text[]) OR (v.source_id=$3 AND v.document_id=$4) OR ($5::boolean AND v.rights_revision_id=$6))
     UNION SELECT v.* FROM knowledge_versions v JOIN selected p ON v.scope_id=p.scope_id AND v.version_id=ANY(p.conflicts_with)
     ) SELECT * FROM selected ORDER BY version_id COLLATE "C"`,
-          [
-            scopeId,
-            targetId,
-            sourceId,
-            documentId,
-            command.operation === "REVOKE_RIGHTS",
-            rightsId,
-            additionalVersionIds,
-          ],
-        )
-      ).rows;
+            [
+              scopeId,
+              targetId,
+              sourceId,
+              documentId,
+              command.operation === "REVOKE_RIGHTS",
+              rightsId,
+              additionalVersionIds,
+            ],
+          )
+        ).rows;
   const versionIds = versions.map((v) => text(v.version_id));
   const assignments = credentialOnly
     ? []
     : (
         await c.query<Row>(
           `WITH RECURSIVE selected AS (
-    SELECT p.* FROM knowledge_publication_assignments p WHERE p.scope_id=$1 AND (p.version_id=ANY($2::text[]) OR (p.source_id=$3 AND p.document_id=$4))
+    SELECT p.* FROM knowledge_publication_assignments p WHERE p.scope_id=$1 AND
+      (($5::boolean AND p.version_id=ANY($2::text[]) AND p.retired_at IS NULL) OR
+       (NOT $5::boolean AND (p.version_id=ANY($2::text[]) OR (p.source_id=$3 AND p.document_id=$4))))
     UNION SELECT p.* FROM knowledge_publication_assignments p JOIN selected s ON p.scope_id=s.scope_id AND p.assignment_id=s.predecessor_assignment_id
     ) SELECT * FROM selected ORDER BY assignment_id COLLATE "C"`,
-          [scopeId, versionIds, sourceId, documentId],
+          [scopeId, versionIds, sourceId, documentId, resolutionOnly],
         )
       ).rows;
   const extraIds = sortedSet(
@@ -115,7 +125,9 @@ export async function projectCommand(
       .map((a) => text(a.version_id))
       .filter((id) => !versionIds.includes(id)),
   );
-  if (extraIds.length) {
+  // Canonical resolution validates predecessor assignments without inspecting
+  // their retired artifact payloads. Mutation projections retain full history.
+  if (!resolutionOnly && extraIds.length) {
     versions.push(
       ...(
         await c.query<Row>(

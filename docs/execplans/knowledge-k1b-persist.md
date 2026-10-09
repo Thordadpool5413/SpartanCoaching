@@ -134,6 +134,31 @@ revision 1/unretired or 2/retired with retirement event. The adapter's existing
 rows under each named CHECK. Both P02 and P03 must rerun on this corrected head.
 This repairs a persistence contract omission; no architecture decision changed.
 
+Fifth commit `ef761fbab36031fd23400bf18c25647d372939f7` passed all seven
+mandatory jobs in CI `37972466200`; container CI `37972466205` also passed.
+The automated review of the preceding implementation head returned four bounded
+implementation findings. They are addressed before merge, and require fresh CI:
+
+| PR #191 finding | Root cause and implementation | Committed regression / mandatory CI |
+| --- | --- | --- |
+| 4233273317 | Retry timing covered only the 409 contention response. Shared error middleware now includes `Retry-After: 1` for unavailable and uncertain 503 outcomes, retaining same-key/payload instructions. | Three HTTP error cases in control/routes.test.ts; mandatory API and PostgreSQL/release-gate commands. |
+| 4233273329 | Orval ignored the already-required OpenAPI header. Enable header generation; generated direct calls and mutation variables require their own Idempotency-Key. No other existing endpoint has a header parameter, so existing product signatures remain unchanged. | Actual generated direct call and two mutationFn executions assert distinct transmitted keys/payloads in control/routes.test.ts; mandatory API command. |
+| 4233273339 | Eight expected reducer failures were missing from the bounded conflict allowlist. Map them to 409; unknown failures still return an opaque 500. | Eight HTTP semantic cases plus a sentinel non-disclosure case in control/routes.test.ts; mandatory API command. |
+| 4233273347 | Resolver demanded authority for every scope/domain and used mutation-style sibling hydration. Discover read-grant ancestry/domains under the scope lock, load only their live publication artifacts plus assignment lineage, then use the unchanged canonical resolver and locked current server Actor for final authorization. Mutation/expiry projections and lock order remain unchanged. | Real PostgreSQL tenant-only/global-only/no-authorized-scope parity and unreadable-domain/malformed-sibling tests in parity.integration.test.ts; mandatory API and PostgreSQL/release-gate commands. |
+
+The resolver discovery is not an authority decision: canonical identity and
+credentials are locked/rechecked in the approved order, and the K1A resolver
+filters the final snapshot. Read projections avoid inspecting retired or
+unreadable artifact payloads while preserving referenced predecessor assignment
+history. The malformed sibling fixture is synthetic SQL-valid drift in an
+unauthorized domain, not a source-ingestion path or clinical data. No approved
+architecture, dependency, CI policy, tenant model or product flow changed.
+Root typecheck and API regeneration passed after these corrections. Local
+control regressions: 18 passed. Final focused foundation/auth/control/deadline/parity:
+4 passed files / 1 skipped, 595 passed / 8 PostgreSQL skipped. Full local API repeat:
+54 passed files / 6 skipped, 1,001 passed / 49 PostgreSQL skipped. PostgreSQL parity requires the fresh mandatory
+PostgreSQL-enabled run; no local PostgreSQL result is claimed.
+
 This plan's durable completion ledger is [PR #191](https://github.com/Thordadpool5413/SpartanCoaching/pull/191).
 Its final-head CI, merge SHA and exact post-merge main CI/job results are recorded
 in the PR description after GitHub allocates them. Follow that record to determine
@@ -147,7 +172,7 @@ Local evidence so far:
 | `pnpm install --frozen-lockfile`                  | Passed; lockfile unchanged                                                                          |
 | `pnpm run typecheck`                              | Passed, including generated K1B contracts                                                           |
 | Focused K1A/auth/session/request-security         | 5 files / 674 passed                                                                                |
-| `pnpm --filter @workspace/api-server test`        | Latest completed local run: 54 passed files, 6 skipped; 988 passed, 43 skipped (PostgreSQL unavailable) |
+| `pnpm --filter @workspace/api-server test`        | Latest completed local run: 54 passed files, 6 skipped; 1,001 passed, 49 skipped (PostgreSQL unavailable) |
 | Final focused foundation/auth/request-security/control/deadline | 6 files; 678 passed, 2 PostgreSQL skipped                                                        |
 | Focused control/deadline worker tests             | 2 files; 8 passed, 2 PostgreSQL skipped                                                             |
 | `pnpm --filter @workspace/db test`                | 45 passed, 9 PostgreSQL skipped                                                                     |
@@ -254,6 +279,7 @@ docs/execplans/knowledge-k1b-persist.md
 lib/api-client-react/src/generated/api.schemas.ts
 lib/api-client-react/src/generated/api.ts
 lib/api-spec/openapi.yaml
+lib/api-spec/orval.config.ts
 lib/api-zod/src/generated/api.ts
 lib/api-zod/src/generated/types/executeKnowledgeCommand429.ts
 lib/api-zod/src/generated/types/getKnowledgeMetadata429.ts
