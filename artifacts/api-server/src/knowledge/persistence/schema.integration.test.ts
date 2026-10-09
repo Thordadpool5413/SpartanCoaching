@@ -94,6 +94,38 @@ databaseSuite(
         ),
       ).toBe(1);
     });
+    it("rights and publication rows cannot start with inconsistent first-transition revisions", async () => {
+      for (const [revision, revokedAt] of [
+        [0, null],
+        [1, "2026-10-09T00:00:00Z"],
+        [2, null],
+        [3, "2026-10-09T00:00:00Z"],
+      ])
+        await expect(
+          db.owner.query(
+            "INSERT INTO knowledge_rights_state SELECT (jsonb_populate_record(NULL::knowledge_rights_state,to_jsonb(r)||jsonb_build_object('revision',$2::bigint,'revoked_at',$3::timestamptz))).* FROM knowledge_rights_state r WHERE scope_id=$1",
+            [db.fixture.scopeId, revision, revokedAt],
+          ),
+        ).rejects.toMatchObject({
+          code: "23514",
+          constraint: "ck_rights_state_revision_status",
+        });
+      for (const [revision, retiredAt, eventId] of [
+        [1, "2026-10-09T00:00:00Z", "synthetic-invalid-retirement"],
+        [2, null, null],
+        [3, null, null],
+        [3, "2026-10-09T00:00:00Z", "synthetic-invalid-retirement"],
+      ])
+        await expect(
+          db.owner.query(
+            "INSERT INTO knowledge_publication_assignments SELECT (jsonb_populate_record(NULL::knowledge_publication_assignments,to_jsonb(p)||jsonb_build_object('revision',$2::bigint,'retired_at',$3::timestamptz,'retirement_event_id',$4::text))).* FROM knowledge_publication_assignments p WHERE scope_id=$1",
+            [db.fixture.scopeId, revision, retiredAt, eventId],
+          ),
+        ).rejects.toMatchObject({
+          code: "23514",
+          constraint: "ck_publication_assignments_revision_status",
+        });
+    });
     it("non-owner cannot delete history, mutate audit or assume ownership", async () => {
       await expect(
         db.pool.query("DELETE FROM knowledge_audit_events"),

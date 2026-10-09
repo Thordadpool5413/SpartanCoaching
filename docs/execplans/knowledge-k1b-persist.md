@@ -126,6 +126,14 @@ It must pass on the next current-head CI, rather than inheriting this older run.
 The complete 73-file diff was reviewed; CI policy, dependency/lockfile,
 historical migrations, K1A foundation and historical plans are unchanged.
 
+Final SQL review found that initial raw rights-overlay and publication rows were
+not constrained to the already-approved first-transition states. Added matching
+independent-catalog CHECKs: rights revision 1/unrevoked or 2/revoked; publication
+revision 1/unretired or 2/retired with retirement event. The adapter's existing
+1-to-2 behavior is unchanged. PostgreSQL regressions reject inconsistent initial
+rows under each named CHECK. Both P02 and P03 must rerun on this corrected head.
+This repairs a persistence contract omission; no architecture decision changed.
+
 This plan's durable completion ledger is [PR #191](https://github.com/Thordadpool5413/SpartanCoaching/pull/191).
 Its final-head CI, merge SHA and exact post-merge main CI/job results are recorded
 in the PR description after GitHub allocates them. Follow that record to determine
