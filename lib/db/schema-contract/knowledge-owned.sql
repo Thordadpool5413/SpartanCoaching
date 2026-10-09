@@ -1,6 +1,6 @@
 -- Independent expected declaration for approved K1B SQL-owned invariants.
 CREATE FUNCTION knowledge_valid_set(v text[], minimum integer, maximum integer)
-RETURNS boolean LANGUAGE sql IMMUTABLE STRICT AS $$
+RETURNS boolean LANGUAGE sql IMMUTABLE STRICT SET search_path=pg_catalog,public,pg_temp AS $$
   SELECT cardinality(v) BETWEEN minimum AND maximum
     AND array_ndims(v) IS NOT DISTINCT FROM CASE WHEN cardinality(v)=0 THEN NULL ELSE 1 END
     AND NOT EXISTS (SELECT 1 FROM unnest(v) x WHERE x IS NULL OR x !~ '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$')
@@ -8,7 +8,7 @@ RETURNS boolean LANGUAGE sql IMMUTABLE STRICT AS $$
 $$;
 
 CREATE FUNCTION knowledge_valid_witnesses(v jsonb)
-RETURNS boolean LANGUAGE plpgsql IMMUTABLE STRICT AS $$
+RETURNS boolean LANGUAGE plpgsql IMMUTABLE STRICT SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE w jsonb; previous_key text[]; current_key text[];
 BEGIN
   IF jsonb_typeof(v)<>'array' OR jsonb_array_length(v)>256 THEN RETURN false; END IF;
@@ -46,12 +46,12 @@ END;
 $$;
 
 CREATE FUNCTION knowledge_iso(v timestamptz)
-RETURNS text LANGUAGE sql IMMUTABLE STRICT AS $$
+RETURNS text LANGUAGE sql IMMUTABLE STRICT SET search_path=pg_catalog,public,pg_temp AS $$
   SELECT CASE WHEN extract(year FROM v AT TIME ZONE 'UTC')=-1 THEN '0000' ELSE to_char(v AT TIME ZONE 'UTC','YYYY') END || to_char(v AT TIME ZONE 'UTC','-MM-DD"T"HH24:MI:SS.MS"Z"');
 $$;
 
 CREATE FUNCTION knowledge_valid_stamp(v text)
-RETURNS boolean LANGUAGE plpgsql IMMUTABLE STRICT AS $$
+RETURNS boolean LANGUAGE plpgsql IMMUTABLE STRICT SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE parsed timestamptz;
 BEGIN
   IF v !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$' THEN RETURN false; END IF;
@@ -61,7 +61,7 @@ EXCEPTION WHEN OTHERS THEN RETURN false;
 END;
 $$;
 
-CREATE FUNCTION knowledge_history_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION knowledge_history_guard() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE old_body jsonb; new_body jsonb; mutable text[];
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'KNOWLEDGE_HISTORY_IMMUTABLE' USING ERRCODE='23514'; END IF;
@@ -105,7 +105,7 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION knowledge_audit_consistency() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION knowledge_audit_consistency() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 DECLARE e knowledge_audit_events; body jsonb; projected jsonb; exists_aggregate boolean;
 BEGIN
   SELECT * INTO e FROM knowledge_audit_events WHERE event_id=NEW.event_id;
@@ -143,7 +143,7 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION knowledge_outbox_consistency() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION knowledge_outbox_consistency() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 BEGIN
   IF NOT EXISTS(SELECT 1 FROM knowledge_audit_events e WHERE e.scope_id=NEW.scope_id AND e.event_id=NEW.event_id
     AND e.aggregate_kind=NEW.aggregate_kind AND e.aggregate_id=NEW.aggregate_id AND e.new_revision=NEW.aggregate_revision) THEN
@@ -153,7 +153,7 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION knowledge_health_consistency() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION knowledge_health_consistency() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog,public,pg_temp AS $$
 BEGIN
   IF NEW.lkg_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM knowledge_lkg_attestations l
     WHERE l.scope_id=NEW.scope_id AND l.version_id=NEW.version_id AND l.lkg_id=NEW.lkg_id AND l.until_at<=NEW.hard_expires_at) THEN

@@ -70,6 +70,37 @@ correctly rejected it. The fixture now creates a distinct reapproval; regression
 commands use that approval. New current-head CI is required after these repairs.
 No architecture was changed.
 
+Second commit: `578a421ce4d99dd2be01c38faf5ab13d03677ba6` (tree
+`91377fb32278d1b5c9ebe64c3052ca21f34663e5`). CI `37968781880` passed P02,
+secret scanning and dependency audit. API ran 1,024 PostgreSQL-enabled tests:
+1,023 passed and one round-trip comparison failed because SQL returns approval
+history by ordinal ID while the pure fixture appends it. The regression now
+compares every approval field after ordering the expected ID-addressed history;
+transition state and event equality remain asserted. No history is discarded.
+
+P03 reached actual restore and exposed a check-function resolution failure:
+`pg_restore` clears `search_path`, so the witness validator could not find its
+timestamp helper and failed closed. All K1B SQL functions now declare
+`pg_catalog,public,pg_temp` explicitly in both the numbered migration and the
+independent expected catalog. A regression exercises non-null witness stamps
+under an empty caller search path. The failed restore checks were retained.
+
+Additional committed-regression candidates cover an actual successful PostgreSQL
+COMMIT whose transport response is lost, role-only authority denial, foreign
+version mutation denial, historical reviewer membership after transfer, session
+expiry during metadata reads, and excluding unadopted historical approvals from
+expiry root selection. Current locked identity and grant authority is refreshed
+before fingerprint/replay and before returning replay/read results. No alternate
+authority, temporal or persistence semantics were introduced.
+
+Local API repeat polling was automatically rejected over a potential outbound
+NPI request. Inspection identified the existing test's exact public GET payload:
+hard-coded last name Smith and state FL (or Smith wildcard fallback), with no
+body, credentials, token, patient or organization fields. The process had ended
+when polling resumed; the available repeat log has no final summary, so that
+repeat is not counted as verified. The prior complete local API result and
+mandatory PostgreSQL-enabled CI results are reported separately.
+
 Local evidence so far:
 
 | Command                                           | Actual result                                                                                       |
@@ -89,7 +120,7 @@ Local evidence so far:
 | Existing forge / dependency / attestation tests   | Passed; existing approved audit disposition `MUTED_FINDINGS`                                        |
 | `pnpm run build` with synthetic CI domain         | API/web builds passed; overall mobile build blocked by host `uv_interface_addresses` restriction    |
 | `pnpm run release-gate`                           | Automated suites passed; existing owner-only live/device checks remain unverified                   |
-| `pnpm run test:e2e`                               | Failed because matching Playwright binaries were absent; workspace browser installation in progress |
+| `pnpm run test:e2e`                               | Failed because matching Playwright binaries were absent; attempted installation also failed on a stale download lock |
 
 ## Architecture implementation matrix
 

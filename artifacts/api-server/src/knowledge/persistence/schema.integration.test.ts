@@ -155,5 +155,28 @@ databaseSuite(
         await c.close();
       }
     });
+    it("witness helpers remain valid under pg_restore's empty search path", async () => {
+      const witnesses = (
+        await db.owner.query(
+          "SELECT authorization_witnesses FROM knowledge_audit_events WHERE operation='ACTIVATE' LIMIT 1",
+        )
+      ).rows[0].authorization_witnesses;
+      const c = await db.owner.connect();
+      try {
+        await c.query("BEGIN");
+        await c.query("SET LOCAL search_path=''");
+        expect(
+          (
+            await c.query(
+              "SELECT public.knowledge_valid_witnesses($1::jsonb) AS valid",
+              [JSON.stringify(witnesses)],
+            )
+          ).rows[0].valid,
+        ).toBe(true);
+      } finally {
+        await c.query("ROLLBACK");
+        c.release();
+      }
+    });
   },
 );

@@ -11,7 +11,7 @@ import {
   requireCapability,
   validateGrantAncestry,
 } from "../foundation/authority";
-import { preliminaryAuth, lockIdentity } from "./auth";
+import { preliminaryAuth, lockIdentity, recheckIdentity } from "./auth";
 import {
   acquire,
   CommandDeadline,
@@ -99,10 +99,7 @@ export async function readKnowledge(
         [scopeId, grants.map((g) => text(g.grant_id))],
       )
     ).rows;
-    const now = timestamp(
-      (await c.query<Row>("SELECT clock_timestamp() AS now")).rows[0].now,
-    );
-    const p = parseContract(partitionSchema, {
+    const initial = parseContract(partitionSchema, {
       scope,
       revision: number(scopeRow.revision),
       sources: [],
@@ -116,16 +113,18 @@ export async function readKnowledge(
         supportedJurisdictions: scopeRow.supported_jurisdictions,
       },
     });
+    const fresh = await recheckIdentity(
+        c,
+        identity,
+        initial,
+        options.synthetic === true,
+      ),
+      p = fresh.state,
+      now = fresh.now;
     validateGrantAncestry(p);
     const readableDomains = domains.filter((domain) => {
       try {
-        requireCapability(
-          p,
-          lockedIdentity.actor,
-          domain,
-          "knowledge.read",
-          now,
-        );
+        requireCapability(p, fresh.actor, domain, "knowledge.read", now);
         return true;
       } catch {
         return false;
@@ -210,6 +209,21 @@ export async function readKnowledge(
             ]),
           ).toString("base64url")
         : null;
+    // Time may expire while the metadata query runs, even though revocation
+    // writers cannot change the already locked identity and grant rows.
+    const final = await recheckIdentity(
+      c,
+      identity,
+      p,
+      options.synthetic === true,
+    );
+    requireCapability(
+      final.state,
+      final.actor,
+      q.domain,
+      "knowledge.read",
+      final.now,
+    );
     await c.finishRead();
     if (next && next.length > 512) throw new Error("KNOWLEDGE_INTERNAL_ERROR");
     const serialized = items.map((row) =>

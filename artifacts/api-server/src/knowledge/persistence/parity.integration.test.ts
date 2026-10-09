@@ -32,9 +32,15 @@ databaseSuite("K1B SQL projection and K1A parity", () => {
         },
         true,
       );
-      expect(canonicalDigest(p.state.versions)).toBe(
-        canonicalDigest(db.fixture.state.versions),
-      );
+      // Approval history is an ID-addressed set. SQL deliberately materializes
+      // it in ordinal ID order; K1A appends newly issued approvals. Compare every
+      // field in the same order, without dropping unused historical approvals.
+      const fullState = structuredClone(db.fixture.state);
+      for (const version of fullState.versions)
+        version.approvals.sort((a, b) =>
+          a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+        );
+      expect(p.state.versions).toEqual(fullState.versions);
       expect(canonicalDigest(p.state.sources)).toBe(
         canonicalDigest(db.fixture.state.sources),
       );
@@ -57,12 +63,7 @@ databaseSuite("K1B SQL projection and K1A parity", () => {
           requestId: "synthetic-parity-request",
           receiptRef: null,
         };
-      const full = transitionKnowledge(
-          db.fixture.state,
-          p.actor,
-          command,
-          server,
-        ),
+      const full = transitionKnowledge(fullState, p.actor, command, server),
         projected = transitionKnowledge(p.state, p.actor, command, server);
       expect(projected.eventIntents).toEqual(full.eventIntents);
       expect(projected.state.versions).toEqual(full.state.versions);

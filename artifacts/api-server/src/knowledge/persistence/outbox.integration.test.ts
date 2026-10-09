@@ -3,6 +3,12 @@ import { databaseSuite, databaseFixture } from "./testing.test";
 import { claimOutbox, completeOutbox, consumeEvent } from "./outbox";
 import { persistDueExpiry } from "./expiry";
 import { executeCommand } from "./commands";
+import { acquire, CommandDeadline } from "./deadline";
+import { preliminaryAuth } from "../control/auth";
+import { projectCommand } from "./projection";
+import { transitionKnowledge } from "../foundation/lifecycle";
+import { persistDelta } from "./writes";
+import type { Pool, PoolClient } from "pg";
 databaseSuite(
   "K1B PostgreSQL outbox lease CAS, retries and consumer atomicity",
   () => {
@@ -145,6 +151,107 @@ databaseSuite(
         "HEALTH_HARD_END",
         "HEALTH_WARNING",
       ]);
+    });
+    it("does not select an unadopted historical review as a credential expiry root", async () => {
+      const f = db.second,
+        credentialId = "aaa-synthetic-unused-review";
+      await db.owner.query(
+        "INSERT INTO knowledge_qualifications SELECT (jsonb_populate_record(NULL::knowledge_qualifications,to_jsonb(q)||jsonb_build_object('qualification_id',$3::text,'expires_at','2021-01-01T00:00:00Z','review_due_at','2021-01-01T00:00:00Z'))).* FROM knowledge_qualifications q WHERE scope_id=$1 AND subject_member_id=$2",
+        [f.scopeId, f.subjects[1], credentialId],
+      );
+      // Reconstruct a synthetic historical reapproval through K1A, then retain
+      // the original publication pin. This is owner-only disposable fixture work.
+      const c = await acquire(db.owner, new CommandDeadline());
+      try {
+        const identity = await preliminaryAuth(c, f.tokens.get(f.subjects[1])!);
+        await c.begin();
+        const command = {
+            operation: "REAPPROVE" as const,
+            versionId: f.versionId,
+            expectedScopeRevision: f.state.revision,
+            expectedVersionRevisions: {
+              [f.versionId]: f.state.versions[0].revision,
+            },
+            reviewDueAt: "2021-01-01T00:00:00.000Z",
+          },
+          p = await projectCommand(c, identity, f.scopeId, command, true);
+        const result = transitionKnowledge(p.state, p.actor, command, {
+          kind: "HUMAN_SERVER",
+          synthetic: true,
+          now: "2020-01-03T00:00:00.000Z",
+          eventId: "synthetic-unused-review-event",
+          requestId: "synthetic-unused-review-request",
+          receiptRef: null,
+        });
+        expect(result.state.versions[0].approvals.at(-1)?.qualificationId).toBe(
+          credentialId,
+        );
+        await persistDelta(
+          c,
+          p.state,
+          result.state,
+          result.eventIntents[0],
+          "2020-01-03T00:00:00.000Z",
+        );
+        await c.commit();
+      } finally {
+        await c.close();
+      }
+      let selected: number | undefined;
+      const observing = new Proxy(db.pool, {
+        get(target, key) {
+          if (key !== "connect") {
+            const value = Reflect.get(target, key);
+            return typeof value === "function" ? value.bind(target) : value;
+          }
+          return async () => {
+            const client = await target.connect();
+            return new Proxy(client, {
+              get(target, key) {
+                if (key === "query")
+                  return async (...args: unknown[]) => {
+                    const result = await (
+                      target.query as (
+                        ...a: unknown[]
+                      ) => Promise<{ rows: unknown[] }>
+                    ).apply(target, args);
+                    const sql =
+                      typeof args[0] === "string"
+                        ? args[0]
+                        : (args[0] as { text: string }).text;
+                    if (
+                      sql.startsWith(
+                        "SELECT v.version_id FROM knowledge_versions",
+                      )
+                    )
+                      selected = result.rows.length;
+                    return result;
+                  };
+                const value = Reflect.get(target, key);
+                return typeof value === "function" ? value.bind(target) : value;
+              },
+            }) as PoolClient;
+          };
+        },
+      }) as Pool;
+      expect(
+        await persistDueExpiry(observing, {
+          scopeId: f.scopeId,
+          aggregateKind: "QUALIFICATION",
+          aggregateId: credentialId,
+        }),
+      ).toEqual({ eventId: null });
+      expect(selected).toBe(0);
+      expect(
+        Number(
+          (
+            await db.owner.query(
+              "SELECT count(*) AS n FROM knowledge_audit_events WHERE scope_id=$1 AND operation='EVALUATE_EXPIRY'",
+              [f.scopeId],
+            )
+          ).rows[0].n,
+        ),
+      ).toBe(0);
     });
   },
 );

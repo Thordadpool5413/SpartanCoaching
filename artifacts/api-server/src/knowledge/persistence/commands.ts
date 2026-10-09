@@ -91,11 +91,17 @@ export async function executeCommand(
       options.synthetic === true,
     );
     if (!projection.actor) throw new Error("KNOWLEDGE_INTERNAL_ERROR");
-    requireCommandAuthority(
+    const replayAuthority = await recheckIdentity(
+      c,
+      identity,
       projection.state,
-      projection.actor,
+      options.synthetic === true,
+    );
+    requireCommandAuthority(
+      replayAuthority.state,
+      replayAuthority.actor,
       command,
-      projection.now,
+      replayAuthority.now,
     );
     const canonicalKey = receiptKey(
         scope.id,
@@ -114,6 +120,18 @@ export async function executeCommand(
       if (existing.fingerprint !== fingerprint)
         throw new Error("IDEMPOTENCY_CONFLICT");
       const receipt = receiptFromRow(existing);
+      const finalAuthority = await recheckIdentity(
+        c,
+        identity,
+        projection.state,
+        options.synthetic === true,
+      );
+      requireCommandAuthority(
+        finalAuthority.state,
+        finalAuthority.actor,
+        command,
+        finalAuthority.now,
+      );
       recordKnowledgeMetric("replay");
       await c.finishRead();
       return receipt.response;

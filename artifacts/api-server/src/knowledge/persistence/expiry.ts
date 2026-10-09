@@ -41,8 +41,8 @@ export async function persistDueExpiry(pool: Pool, input: unknown) {
       LEFT JOIN knowledge_lkg_attestations l ON l.scope_id=h.scope_id AND l.version_id=h.version_id AND l.lkg_id=h.lkg_id
       WHERE v.scope_id=$1 AND EXISTS(SELECT 1 FROM knowledge_publication_assignments p WHERE p.scope_id=v.scope_id AND p.version_id=v.version_id AND p.retired_at IS NULL)
       AND (($2='VERSION' AND v.version_id=$3) OR ($2='RIGHTS_REVISION' AND r.rights_revision_id=$3)
-      OR ($2='GRANT' AND (r.verification_grant_id=$3 OR l.health_grant_id=$3 OR l.review_grant_id=$3 OR EXISTS(SELECT 1 FROM knowledge_approvals a WHERE a.scope_id=v.scope_id AND a.version_id=v.version_id AND a.review_grant_id=$3)))
-      OR ($2='QUALIFICATION' AND (r.verification_qualification_id=$3 OR l.qualification_id=$3 OR EXISTS(SELECT 1 FROM knowledge_approvals a WHERE a.scope_id=v.scope_id AND a.version_id=v.version_id AND a.qualification_id=$3)))) ORDER BY v.version_id COLLATE "C" LIMIT 1`,
+      OR ($2='GRANT' AND (r.verification_grant_id=$3 OR l.health_grant_id=$3 OR l.review_grant_id=$3 OR EXISTS(SELECT 1 FROM knowledge_approvals a JOIN knowledge_publication_assignments p ON p.scope_id=a.scope_id AND p.version_id=a.version_id AND p.approval_id=a.approval_id WHERE a.scope_id=v.scope_id AND a.version_id=v.version_id AND p.retired_at IS NULL AND a.review_grant_id=$3)))
+      OR ($2='QUALIFICATION' AND (r.verification_qualification_id=$3 OR l.qualification_id=$3 OR EXISTS(SELECT 1 FROM knowledge_approvals a JOIN knowledge_publication_assignments p ON p.scope_id=a.scope_id AND p.version_id=a.version_id AND p.approval_id=a.approval_id WHERE a.scope_id=v.scope_id AND a.version_id=v.version_id AND p.retired_at IS NULL AND a.qualification_id=$3)))) ORDER BY v.version_id COLLATE "C" LIMIT 1`,
         [target.scopeId, target.aggregateKind, target.aggregateId],
       )
     ).rows[0];

@@ -10,7 +10,7 @@ import { createKnowledgeRegistry } from "../foundation/resolver";
 import { requireCapability } from "../foundation/authority";
 import { acquire, CommandDeadline } from "./deadline";
 import { assertNonOwner } from "./commands";
-import { preliminaryAuth } from "../control/auth";
+import { preliminaryAuth, recheckIdentity } from "../control/auth";
 import { projectCommand } from "./projection";
 import { text, timestamp, type Row } from "./codec";
 /** Internal read-only adapter. GLOBAL and exact TENANT are sequential projections, not an atomic cross-scope snapshot. */
@@ -72,16 +72,17 @@ export async function resolvePersistedKnowledge(
         ids,
       );
       if (!p.actor) throw new Error("KNOWLEDGE_INTERNAL_ERROR");
-      actor = p.actor;
+      const fresh = await recheckIdentity(c, identity, p.state, synthetic);
+      actor = fresh.actor;
       if (
         !authorityMatrix[context.claimType].some((domain) => {
           try {
             requireCapability(
-              p.state,
-              p.actor!,
+              fresh.state,
+              fresh.actor,
               domain,
               "knowledge.read",
-              p.now,
+              fresh.now,
             );
             return true;
           } catch {
@@ -91,15 +92,15 @@ export async function resolvePersistedKnowledge(
       )
         throw new Error("KNOWLEDGE_PERMISSION_DENIED");
       // Materialized sources are authorized individually; roles never substitute for read grants.
-      for (const source of p.state.sources)
+      for (const source of fresh.state.sources)
         requireCapability(
-          p.state,
-          p.actor,
+          fresh.state,
+          fresh.actor,
           source.domain,
           "knowledge.read",
-          p.now,
+          fresh.now,
         );
-      partitions.push(p.state);
+      partitions.push(fresh.state);
       await c.finishRead();
     }
     if (!actor) throw new Error("KNOWLEDGE_SCOPE_DENIED");
