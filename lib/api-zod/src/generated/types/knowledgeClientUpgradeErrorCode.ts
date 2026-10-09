@@ -12,12 +12,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetKnowledgeMetadataKind = typeof GetKnowledgeMetadataKind[keyof typeof GetKnowledgeMetadataKind];
+export type KnowledgeClientUpgradeErrorCode = typeof KnowledgeClientUpgradeErrorCode[keyof typeof KnowledgeClientUpgradeErrorCode];
 
 
-export const GetKnowledgeMetadataKind = {
-  sources: 'sources',
-  versions: 'versions',
-  assignments: 'assignments',
-  approvals: 'approvals',
+export const KnowledgeClientUpgradeErrorCode = {
+  CLIENT_UPGRADE_REQUIRED: 'CLIENT_UPGRADE_REQUIRED',
 } as const;

@@ -526,6 +526,62 @@ export interface KnowledgeApprovalsMetadata {
   review_due_at: string;
 }
 
+export type KnowledgeClientUpgradeErrorError = typeof KnowledgeClientUpgradeErrorError[keyof typeof KnowledgeClientUpgradeErrorError];
+
+
+export const KnowledgeClientUpgradeErrorError = {
+  Client_upgrade_required: 'Client upgrade required',
+} as const;
+
+export type KnowledgeClientUpgradeErrorCode = typeof KnowledgeClientUpgradeErrorCode[keyof typeof KnowledgeClientUpgradeErrorCode];
+
+
+export const KnowledgeClientUpgradeErrorCode = {
+  CLIENT_UPGRADE_REQUIRED: 'CLIENT_UPGRADE_REQUIRED',
+} as const;
+
+export type KnowledgeClientUpgradeErrorReason = typeof KnowledgeClientUpgradeErrorReason[keyof typeof KnowledgeClientUpgradeErrorReason];
+
+
+export const KnowledgeClientUpgradeErrorReason = {
+  invalid_version: 'invalid_version',
+  below_min_ios: 'below_min_ios',
+  api_contract_too_old: 'api_contract_too_old',
+} as const;
+
+export interface KnowledgeClientUpgradeError {
+  error: KnowledgeClientUpgradeErrorError;
+  code: KnowledgeClientUpgradeErrorCode;
+  reason: KnowledgeClientUpgradeErrorReason;
+  minIosAppVersion: string;
+  apiContractVersion: number;
+}
+
+export type KnowledgeMetadataQuery = {
+  versionId?: never;
+  kind: 'sources' | 'versions' | 'assignments';
+  domain: 'STATUTE' | 'REGULATION' | 'STATE_LAW' | 'MEDICARE_NATIONAL' | 'MAC_COVERAGE' | 'CMS_MANUAL' | 'CMS_PAYMENT' | 'OFFICIAL_CODING' | 'DRUG_TERMINOLOGY' | 'DRUG_LABEL' | 'PHARMACOLOGY' | 'CLINICAL_EVIDENCE' | 'CLINICAL_PROTOCOL' | 'PATIENT_EVIDENCE' | 'DETERMINISTIC_DERIVATION' | 'MODEL_INFERENCE' | 'SPARTAN_WORKFLOW' | 'QUALITY_REPORTING' | 'COMPLIANCE';
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  limit?: number;
+  /** @maxLength 512 */
+  cursor?: string;
+} | {
+  kind: 'approvals';
+  domain: 'STATUTE' | 'REGULATION' | 'STATE_LAW' | 'MEDICARE_NATIONAL' | 'MAC_COVERAGE' | 'CMS_MANUAL' | 'CMS_PAYMENT' | 'OFFICIAL_CODING' | 'DRUG_TERMINOLOGY' | 'DRUG_LABEL' | 'PHARMACOLOGY' | 'CLINICAL_EVIDENCE' | 'CLINICAL_PROTOCOL' | 'PATIENT_EVIDENCE' | 'DETERMINISTIC_DERIVATION' | 'MODEL_INFERENCE' | 'SPARTAN_WORKFLOW' | 'QUALITY_REPORTING' | 'COMPLIANCE';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  limit?: number;
+  /** @maxLength 512 */
+  cursor?: string;
+};
+
 export interface KnowledgeMetadataResult {
   /** @maxItems 100 */
   items: (KnowledgeSourcesMetadata | KnowledgeVersionsMetadata | KnowledgeAssignmentsMetadata | KnowledgeApprovalsMetadata)[];
@@ -1119,35 +1175,11 @@ export type GetKnowledgeScope429 = {
 };
 
 export type GetKnowledgeMetadataParams = {
-kind: GetKnowledgeMetadataKind;
 /**
- * @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+ * Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.
  */
-domain: string;
-/**
- * @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
- */
-versionId?: string;
-/**
- * @minimum 1
- * @maximum 100
- */
-limit?: number;
-/**
- * @maxLength 512
- */
-cursor?: string;
+filter: KnowledgeMetadataQuery;
 };
-
-export type GetKnowledgeMetadataKind = typeof GetKnowledgeMetadataKind[keyof typeof GetKnowledgeMetadataKind];
-
-
-export const GetKnowledgeMetadataKind = {
-  sources: 'sources',
-  versions: 'versions',
-  assignments: 'assignments',
-  approvals: 'approvals',
-} as const;
 
 export type GetKnowledgeMetadata429 = {
   error: string;

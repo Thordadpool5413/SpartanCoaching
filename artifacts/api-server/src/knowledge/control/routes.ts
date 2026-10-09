@@ -106,8 +106,6 @@ export function knowledgeRouter(
         res.status(404).json({ code: "NOT_FOUND" });
         return;
       }
-      const deadline = new CommandDeadline();
-      res.locals.knowledgeDeadline = deadline;
       if (!req.is("application/json")) {
         res.status(400).json({ code: "KNOWLEDGE_CONTRACT_INVALID" });
         return;
@@ -117,6 +115,9 @@ export function knowledgeRouter(
     express.text({ type: "application/json", limit: "1mb" }),
     async (req, res, next) => {
       try {
+        // General HTTP body handling is outside H7. Start before validation,
+        // pool acquisition or any command authentication DB operation.
+        const deadline = new CommandDeadline();
         const result = await executeCommand(
           pool,
           extractSessionToken(req),
@@ -124,7 +125,7 @@ export function knowledgeRouter(
           strictJson(req.body),
           req.headers["idempotency-key"],
           {
-            deadline: res.locals.knowledgeDeadline,
+            deadline,
             synthetic: options.synthetic === true,
           },
         );

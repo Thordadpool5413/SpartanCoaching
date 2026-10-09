@@ -92,6 +92,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
         '429':
           description: Existing shared API rate limit
           content:
@@ -173,6 +179,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
         '429':
           description: Existing shared API rate limit
           content:
@@ -205,40 +217,14 @@ paths:
           enum:
           - global
           - tenant
-      - name: kind
+      - name: filter
         in: query
         required: true
+        style: form
+        explode: true
+        description: Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.
         schema:
-          type: string
-          enum:
-          - sources
-          - versions
-          - assignments
-          - approvals
-      - name: domain
-        in: query
-        required: true
-        schema: &id001
-          type: string
-          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
-      - name: versionId
-        in: query
-        required: false
-        schema: *id001
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 1
-          maximum: 100
-          default: 25
-      - name: cursor
-        in: query
-        required: false
-        schema:
-          type: string
-          maxLength: 512
+          $ref: '#/components/schemas/KnowledgeMetadataQuery'
       responses:
         '200':
           description: Authorized bounded result
@@ -282,6 +268,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
         '429':
           description: Existing shared API rate limit
           content:
@@ -1840,6 +1832,37 @@ components:
       - reviewed_at
       - review_due_at
       additionalProperties: false
+    KnowledgeClientUpgradeError:
+      type: object
+      properties:
+        error: {type: string, enum: ['Client upgrade required']}
+        code: {type: string, enum: [CLIENT_UPGRADE_REQUIRED]}
+        reason: {type: string, enum: [invalid_version, below_min_ios, api_contract_too_old]}
+        minIosAppVersion: {type: string}
+        apiContractVersion: {type: integer}
+      required: [error, code, reason, minIosAppVersion, apiContractVersion]
+      additionalProperties: false
+    KnowledgeMetadataQuery:
+      oneOf:
+      - type: object
+        properties:
+          kind: {type: string, enum: [sources, versions, assignments]}
+          domain: &knowledgeQueryDomain
+            type: string
+            enum: [STATUTE, REGULATION, STATE_LAW, MEDICARE_NATIONAL, MAC_COVERAGE, CMS_MANUAL, CMS_PAYMENT, OFFICIAL_CODING, DRUG_TERMINOLOGY, DRUG_LABEL, PHARMACOLOGY, CLINICAL_EVIDENCE, CLINICAL_PROTOCOL, PATIENT_EVIDENCE, DETERMINISTIC_DERIVATION, MODEL_INFERENCE, SPARTAN_WORKFLOW, QUALITY_REPORTING, COMPLIANCE]
+          limit: &knowledgeQueryLimit {type: integer, minimum: 1, maximum: 100, default: 25}
+          cursor: &knowledgeQueryCursor {type: string, maxLength: 512}
+        required: [kind, domain]
+        additionalProperties: false
+      - type: object
+        properties:
+          kind: {type: string, enum: [approvals]}
+          domain: *knowledgeQueryDomain
+          versionId: *id001
+          limit: *knowledgeQueryLimit
+          cursor: *knowledgeQueryCursor
+        required: [kind, domain, versionId]
+        additionalProperties: false
     KnowledgeMetadataResult:
       type: object
       properties:

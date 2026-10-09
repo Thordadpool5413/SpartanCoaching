@@ -3,6 +3,9 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import request from "supertest";
 import type { Pool } from "pg";
+import { request as httpRequest, type ClientRequest } from "node:http";
+import { once } from "node:events";
+import { performance } from "node:perf_hooks";
 import {
   knowledgeRouter,
   sanitizedKnowledgePath,
@@ -12,7 +15,9 @@ import { KnowledgeUnavailable } from "../persistence/deadline";
 import {
   executeKnowledgeCommand,
   getExecuteKnowledgeCommandMutationOptions,
+  getGetKnowledgeMetadataUrl,
 } from "../../../../../lib/api-client-react/src/generated/api";
+import { GetKnowledgeMetadataQueryParams } from "@workspace/api-zod";
 import { requireTrustedMutationOrigin } from "../../security/requestSecurity";
 import { strictJson, wireCommandSchema } from "./contracts";
 import {
@@ -221,5 +226,134 @@ it("generated command calls and mutation variables send their own required idemp
     ).toBe(2);
   } finally {
     vi.unstubAllGlobals();
+  }
+});
+it("generated metadata query variants require an approval version and forbid it for other kinds", () => {
+  for (const kind of ["sources", "versions", "assignments"] as const) {
+    const filter = { kind, domain: "MAC_COVERAGE" as const };
+    expect(GetKnowledgeMetadataQueryParams.safeParse({ filter }).success).toBe(
+      true,
+    );
+    expect(
+      GetKnowledgeMetadataQueryParams.safeParse({
+        filter: { ...filter, versionId: "synthetic-version" },
+      }).success,
+    ).toBe(false);
+    const url = new URL(
+      getGetKnowledgeMetadataUrl("tenant", { filter }),
+      "https://synthetic.example.invalid",
+    );
+    expect(Object.fromEntries(url.searchParams)).toEqual(filter);
+  }
+  expect(
+    GetKnowledgeMetadataQueryParams.safeParse({
+      filter: { kind: "approvals", domain: "MAC_COVERAGE" },
+    }).success,
+  ).toBe(false);
+  for (const versionId of [undefined, null, 123, "", "bad id"]) {
+    expect(
+      GetKnowledgeMetadataQueryParams.safeParse({
+        filter: { kind: "approvals", domain: "MAC_COVERAGE", versionId },
+      }).success,
+    ).toBe(false);
+  }
+  const filter = {
+    kind: "approvals" as const,
+    domain: "MAC_COVERAGE" as const,
+    versionId: "synthetic-version",
+    limit: 5,
+    cursor: "synthetic-cursor",
+  };
+  expect(GetKnowledgeMetadataQueryParams.safeParse({ filter }).success).toBe(
+    true,
+  );
+  expect(
+    Object.fromEntries(
+      new URL(
+        getGetKnowledgeMetadataUrl("global", { filter }),
+        "https://synthetic.example.invalid",
+      ).searchParams,
+    ),
+  ).toEqual({ ...filter, limit: "5" });
+  expect(
+    GetKnowledgeMetadataQueryParams.safeParse({
+      filter: { ...filter, actor: "synthetic" },
+    }).success,
+  ).toBe(false);
+});
+it("body upload time is outside the single command budget, which starts before pool/auth work", async () => {
+  let clock = 0;
+  const time = vi.spyOn(performance, "now").mockImplementation(() => clock);
+  let bodyStarted!: () => void;
+  const started = new Promise<void>((resolve) => {
+    bodyStarted = resolve;
+  });
+  const app = express();
+  app.use((_req, _res, next) => {
+    _req.once("data", bodyStarted);
+    next();
+  });
+  app.use(cookieParser());
+  const connect = vi.fn(async () => {
+    throw new Error("synthetic-unavailable-database");
+  });
+  app.use(
+    "/api/knowledge-control",
+    knowledgeRouter({ connect } as unknown as Pool, { enabled: true }),
+  );
+  const server = app.listen(0, "127.0.0.1");
+  let upload: ClientRequest | undefined;
+  try {
+    await once(server, "listening");
+    const port = (server.address() as { port: number }).port;
+    const body = JSON.stringify({
+      operation: "REVOKE",
+      versionId: "synthetic-version",
+      expectedScopeRevision: 1,
+      expectedVersionRevisions: { "synthetic-version": 1 },
+    });
+    const result = new Promise<{ status: number; body: { code: string } }>(
+      (resolve, reject) => {
+        upload = httpRequest(
+          {
+            hostname: "127.0.0.1",
+            port,
+            path: "/api/knowledge-control/tenant/commands",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": Buffer.byteLength(body),
+              Authorization: "Bearer synthetic-native-session",
+            },
+          },
+          (response) => {
+            let data = "";
+            response.on("data", (chunk) => {
+              data += chunk;
+            });
+            response.on("end", () =>
+              resolve({ status: response.statusCode!, body: JSON.parse(data) }),
+            );
+            response.on("error", reject);
+          },
+        );
+        upload.on("error", reject);
+        upload.write(body.slice(0, 5));
+      },
+    );
+    await started;
+    clock = 6000; // Simulate a slow HTTP upload without a six-second CI sleep.
+    upload!.end(body.slice(5));
+    expect(await result).toEqual({
+      status: 503,
+      body: { code: "COMMAND_UNAVAILABLE" },
+    });
+    expect(connect).toHaveBeenCalledOnce();
+  } finally {
+    time.mockRestore();
+    upload?.destroy();
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
   }
 });

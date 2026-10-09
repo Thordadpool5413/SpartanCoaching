@@ -36,11 +36,7 @@ import {
 } from "./security/requestSecurity";
 import { recordHttpRequest } from "./observability/requestMetrics";
 import { evaluateAgainstTarget } from "./observability/reliabilityTargets";
-import {
-  API_CONTRACT_VERSION,
-  MIN_IOS_APP_VERSION,
-  checkIosCompatibility,
-} from "@workspace/field-kit-catalog";
+import { requireCompatibleApiClient } from "./delivery/clientConfig";
 
 const app: Express = express();
 
@@ -106,7 +102,7 @@ app.use(cookieParser());
 app.use(applySecurityHeaders);
 app.use("/api/knowledge-control", (_req,res,next)=>{res.setHeader("Cache-Control","no-store");next();});
 app.use(requireTrustedMutationOrigin);
-app.use("/api/knowledge-control", globalApiLimit, knowledgeRouter(pool));
+app.use("/api/knowledge-control", globalApiLimit, requireCompatibleApiClient, knowledgeRouter(pool));
 app.set("apiRouteManifest", [
   "POST /api/knowledge-control/:scopeKind/commands",
   "GET /api/knowledge-control/:scopeKind/scope",
@@ -126,42 +122,7 @@ app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT 
 
 app.use(loadSession);
 
-app.use("/api", (req, res, next) => {
-  if (process.env.ENFORCE_MIN_IOS_VERSION !== "true" && process.env.ENFORCE_MIN_IOS_VERSION !== "1") {
-    return next();
-  }
-  const pathOnly = (req.originalUrl || req.url || "").split("?")[0] || "";
-  if (
-    pathOnly.startsWith("/api/health") ||
-    pathOnly.startsWith("/api/healthz") ||
-    pathOnly === "/api/client-config" ||
-    pathOnly.startsWith("/api/billing/webhook")
-  ) {
-    return next();
-  }
-  const platform = String(req.get("x-client-platform") || "").toLowerCase();
-  if (platform !== "ios") return next();
-  const version = req.get("x-client-version") || "";
-  const minIos = process.env.MIN_IOS_APP_VERSION?.trim() || MIN_IOS_APP_VERSION;
-  const contractRaw = req.get("x-client-api-contract");
-  const clientApiContract = contractRaw ? Number(contractRaw) : undefined;
-  const check = checkIosCompatibility(version, {
-    minIosAppVersion: minIos,
-    apiContractVersion: API_CONTRACT_VERSION,
-    clientApiContract:
-      clientApiContract != null && !Number.isNaN(clientApiContract)
-        ? clientApiContract
-        : undefined,
-  });
-  if (check.ok) return next();
-  return res.status(426).json({
-    error: "Client upgrade required",
-    code: "CLIENT_UPGRADE_REQUIRED",
-    reason: check.reason,
-    minIosAppVersion: check.minIosAppVersion,
-    apiContractVersion: check.apiContractVersion,
-  });
-});
+app.use("/api", requireCompatibleApiClient);
 
 app.use("/api", globalApiLimit);
 app.use("/api", router);

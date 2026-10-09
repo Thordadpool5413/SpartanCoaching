@@ -15,6 +15,8 @@ import * as zod from 'zod';
 
 const looseObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).passthrough();
 
+const strictObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).strict();
+
 /**
  * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
  * @summary Mutate durable knowledge authority
@@ -472,19 +474,30 @@ export const GetKnowledgeMetadataParams = zod.object({
   "scopeKind": zod.enum(['global', 'tenant'])
 })
 
-export const getKnowledgeMetadataQueryDomainRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
-export const getKnowledgeMetadataQueryVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
-export const getKnowledgeMetadataQueryLimitDefault = 25;
-export const getKnowledgeMetadataQueryLimitMax = 100;
+export const getKnowledgeMetadataQueryFilterOneLimitDefault = 25;
+export const getKnowledgeMetadataQueryFilterOneLimitMax = 100;
 
-export const getKnowledgeMetadataQueryCursorMax = 512;
+export const getKnowledgeMetadataQueryFilterOneCursorMax = 512;
 
-export const GetKnowledgeMetadataQueryParams = zod.object({
-  "kind": zod.enum(['sources', 'versions', 'assignments', 'approvals']),
-  "domain": zod.coerce.string().regex(getKnowledgeMetadataQueryDomainRegExp),
-  "versionId": zod.coerce.string().regex(getKnowledgeMetadataQueryVersionIdRegExp).optional(),
-  "limit": zod.coerce.number().min(1).max(getKnowledgeMetadataQueryLimitMax).default(getKnowledgeMetadataQueryLimitDefault),
-  "cursor": zod.coerce.string().max(getKnowledgeMetadataQueryCursorMax).optional()
+export const getKnowledgeMetadataQueryFilterTwoVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataQueryFilterTwoLimitDefault = 25;
+export const getKnowledgeMetadataQueryFilterTwoLimitMax = 100;
+
+export const getKnowledgeMetadataQueryFilterTwoCursorMax = 512;
+
+export const GetKnowledgeMetadataQueryParams = strictObject({
+  "filter": zod.union([strictObject({
+  "kind": zod.enum(['sources', 'versions', 'assignments']),
+  "domain": zod.enum(['STATUTE', 'REGULATION', 'STATE_LAW', 'MEDICARE_NATIONAL', 'MAC_COVERAGE', 'CMS_MANUAL', 'CMS_PAYMENT', 'OFFICIAL_CODING', 'DRUG_TERMINOLOGY', 'DRUG_LABEL', 'PHARMACOLOGY', 'CLINICAL_EVIDENCE', 'CLINICAL_PROTOCOL', 'PATIENT_EVIDENCE', 'DETERMINISTIC_DERIVATION', 'MODEL_INFERENCE', 'SPARTAN_WORKFLOW', 'QUALITY_REPORTING', 'COMPLIANCE']),
+  "limit": zod.number().min(1).max(getKnowledgeMetadataQueryFilterOneLimitMax).default(getKnowledgeMetadataQueryFilterOneLimitDefault),
+  "cursor": zod.string().max(getKnowledgeMetadataQueryFilterOneCursorMax).optional()
+}),strictObject({
+  "kind": zod.enum(['approvals']),
+  "domain": zod.enum(['STATUTE', 'REGULATION', 'STATE_LAW', 'MEDICARE_NATIONAL', 'MAC_COVERAGE', 'CMS_MANUAL', 'CMS_PAYMENT', 'OFFICIAL_CODING', 'DRUG_TERMINOLOGY', 'DRUG_LABEL', 'PHARMACOLOGY', 'CLINICAL_EVIDENCE', 'CLINICAL_PROTOCOL', 'PATIENT_EVIDENCE', 'DETERMINISTIC_DERIVATION', 'MODEL_INFERENCE', 'SPARTAN_WORKFLOW', 'QUALITY_REPORTING', 'COMPLIANCE']),
+  "versionId": zod.string().regex(getKnowledgeMetadataQueryFilterTwoVersionIdRegExp),
+  "limit": zod.number().min(1).max(getKnowledgeMetadataQueryFilterTwoLimitMax).default(getKnowledgeMetadataQueryFilterTwoLimitDefault),
+  "cursor": zod.string().max(getKnowledgeMetadataQueryFilterTwoCursorMax).optional()
+})]).describe('Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.')
 })
 
 export const getKnowledgeMetadataResponseItemsItemOneIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');

@@ -63,6 +63,7 @@ import type {
   HealthStatus,
   ItemEnvelope,
   ItemsEnvelope,
+  KnowledgeClientUpgradeError,
   KnowledgeCommandResult,
   KnowledgeControlCommand,
   KnowledgeControlError,
@@ -97,6 +98,7 @@ import type {
 
 import { customFetch } from '../custom-fetch';
 import type { ErrorType , BodyType } from '../custom-fetch';
+import { knowledgeMetadataQueryString } from '../knowledge-query';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -151,7 +153,7 @@ export const executeKnowledgeCommand = async (scopeKind: 'global' | 'tenant',
 
 
 
-export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
+export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext> => {
 
@@ -180,12 +182,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type ExecuteKnowledgeCommandMutationResult = NonNullable<Awaited<ReturnType<typeof executeKnowledgeCommand>>>
     export type ExecuteKnowledgeCommandMutationBody = BodyType<KnowledgeControlCommand>
-    export type ExecuteKnowledgeCommandMutationError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>
+    export type ExecuteKnowledgeCommandMutationError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>
 
     /**
  * @summary Mutate durable knowledge authority
  */
-export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
+export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof executeKnowledgeCommand>>,
@@ -230,7 +232,7 @@ export const getGetKnowledgeScopeQueryKey = (scopeKind: 'global' | 'tenant',) =>
     }
 
 
-export const getGetKnowledgeScopeQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>>(scopeKind: 'global' | 'tenant', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetKnowledgeScopeQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeScope429>>(scopeKind: 'global' | 'tenant', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -249,14 +251,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetKnowledgeScopeQueryResult = NonNullable<Awaited<ReturnType<typeof getKnowledgeScope>>>
-export type GetKnowledgeScopeQueryError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>
+export type GetKnowledgeScopeQueryError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeScope429>
 
 
 /**
  * @summary Read authorized knowledge scope configuration
  */
 
-export function useGetKnowledgeScope<TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>>(
+export function useGetKnowledgeScope<TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeScope429>>(
  scopeKind: 'global' | 'tenant', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -276,16 +278,7 @@ export function useGetKnowledgeScope<TData = Awaited<ReturnType<typeof getKnowle
 
 export const getGetKnowledgeMetadataUrl = (scopeKind: 'global' | 'tenant',
     params: GetKnowledgeMetadataParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : String(value))
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
+  const stringifiedParams = knowledgeMetadataQueryString(params);
 
   return stringifiedParams.length > 0 ? `/api/knowledge-control/${scopeKind}/metadata?${stringifiedParams}` : `/api/knowledge-control/${scopeKind}/metadata`
 }
@@ -318,7 +311,7 @@ export const getGetKnowledgeMetadataQueryKey = (scopeKind: 'global' | 'tenant',
     }
 
 
-export const getGetKnowledgeMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>>(scopeKind: 'global' | 'tenant',
+export const getGetKnowledgeMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeMetadata429>>(scopeKind: 'global' | 'tenant',
     params: GetKnowledgeMetadataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
@@ -338,14 +331,14 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetKnowledgeMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getKnowledgeMetadata>>>
-export type GetKnowledgeMetadataQueryError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>
+export type GetKnowledgeMetadataQueryError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeMetadata429>
 
 
 /**
  * @summary Read authorized bounded knowledge metadata
  */
 
-export function useGetKnowledgeMetadata<TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>>(
+export function useGetKnowledgeMetadata<TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | GetKnowledgeMetadata429>>(
  scopeKind: 'global' | 'tenant',
     params: GetKnowledgeMetadataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 

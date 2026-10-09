@@ -11,11 +11,12 @@
  *
  * OpenAPI spec version: 0.1.0
  */
-import type { KnowledgeMetadataQuery } from './knowledgeMetadataQuery';
 
-export type GetKnowledgeMetadataParams = {
-/**
- * Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.
- */
-filter: KnowledgeMetadataQuery;
-};
+export type KnowledgeClientUpgradeErrorReason = typeof KnowledgeClientUpgradeErrorReason[keyof typeof KnowledgeClientUpgradeErrorReason];
+
+
+export const KnowledgeClientUpgradeErrorReason = {
+  invalid_version: 'invalid_version',
+  below_min_ios: 'below_min_ios',
+  api_contract_too_old: 'api_contract_too_old',
+} as const;
