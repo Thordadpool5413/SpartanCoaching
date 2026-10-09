@@ -2,6 +2,7 @@
  * Client config payload for web + iOS (HSP-44).
  */
 
+import type { RequestHandler } from "express";
 import {
   API_CONTRACT_VERSION,
   MIN_IOS_APP_VERSION,
@@ -89,3 +90,44 @@ export function buildClientConfig(
     },
   };
 }
+
+/** Shared existing API compatibility gate, including early reserved control routes. */
+export const requireCompatibleApiClient: RequestHandler = (req, res, next) => {
+  if (
+    process.env.ENFORCE_MIN_IOS_VERSION !== "true" &&
+    process.env.ENFORCE_MIN_IOS_VERSION !== "1"
+  ) {
+    return next();
+  }
+  const pathOnly = (req.originalUrl || req.url || "").split("?")[0] || "";
+  if (
+    pathOnly.startsWith("/api/health") ||
+    pathOnly.startsWith("/api/healthz") ||
+    pathOnly === "/api/client-config" ||
+    pathOnly.startsWith("/api/billing/webhook")
+  ) {
+    return next();
+  }
+  const platform = String(req.get("x-client-platform") || "").toLowerCase();
+  if (platform !== "ios") return next();
+  const version = req.get("x-client-version") || "";
+  const minIos = process.env.MIN_IOS_APP_VERSION?.trim() || MIN_IOS_APP_VERSION;
+  const contractRaw = req.get("x-client-api-contract");
+  const clientApiContract = contractRaw ? Number(contractRaw) : undefined;
+  const check = checkIosCompatibility(version, {
+    minIosAppVersion: minIos,
+    apiContractVersion: API_CONTRACT_VERSION,
+    clientApiContract:
+      clientApiContract != null && !Number.isNaN(clientApiContract)
+        ? clientApiContract
+        : undefined,
+  });
+  if (check.ok) return next();
+  return res.status(426).json({
+    error: "Client upgrade required",
+    code: "CLIENT_UPGRADE_REQUIRED",
+    reason: check.reason,
+    minIosAppVersion: check.minIosAppVersion,
+    apiContractVersion: check.apiContractVersion,
+  });
+};

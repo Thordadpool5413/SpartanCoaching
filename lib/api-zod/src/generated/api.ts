@@ -15,6 +15,589 @@ import * as zod from 'zod';
 
 const looseObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).passthrough();
 
+const strictObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).strict();
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Mutate durable knowledge authority
+ */
+export const ExecuteKnowledgeCommandParams = zod.object({
+  "scopeKind": zod.enum(['global', 'tenant'])
+})
+
+export const executeKnowledgeCommandHeaderIdempotencyKeyMin = 16;
+export const executeKnowledgeCommandHeaderIdempotencyKeyMax = 128;
+
+export const ExecuteKnowledgeCommandHeader = zod.object({
+  "Idempotency-Key": zod.string().min(executeKnowledgeCommandHeaderIdempotencyKeyMin).max(executeKnowledgeCommandHeaderIdempotencyKeyMax).describe('Retry an uncertain outcome only with the same key and payload.')
+})
+
+export const executeKnowledgeCommandBodyOneExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOneExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOneExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneSourceIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneSourceMetadataRevisionExclusiveMin = 0;
+export const executeKnowledgeCommandBodyOneSourceMetadataRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneSourcePublisherMax = 200;
+
+export const executeKnowledgeCommandBodyOneSourceTitleMax = 300;
+
+export const executeKnowledgeCommandBodyOneSourceClaimTypesMax = 100;
+
+export const executeKnowledgeCommandBodyOneSourceOfficialUrlMax = 2000;
+
+export const executeKnowledgeCommandBodyOneVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionSourceIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionSourceMetadataRevisionExclusiveMin = 0;
+export const executeKnowledgeCommandBodyOneVersionSourceMetadataRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneVersionDocumentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionUpstreamEditionRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionArtifactRevisionExclusiveMin = 0;
+export const executeKnowledgeCommandBodyOneVersionArtifactRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneVersionRawHashRegExp = new RegExp('^[a-f0-9]{64}$');
+export const executeKnowledgeCommandBodyOneVersionNormalizedHashRegExp = new RegExp('^[a-f0-9]{64}$');
+export const executeKnowledgeCommandBodyOneVersionParserIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionParserVersionRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionSourceUrlMax = 2000;
+
+export const executeKnowledgeCommandBodyOneVersionEffectiveFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodyOneVersionEffectiveToOneRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityPayersMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityJurisdictionsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityJurisdictionsMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityMacsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityMacsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityProviderTypesOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityProviderTypesOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilitySettingsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilitySettingsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityBenefitPeriodsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityBenefitPeriodsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityCodeEditionsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityCodeEditionsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityProductsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityProductsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionApplicabilityPopulationsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneVersionApplicabilityPopulationsOneMax = 100;
+
+export const executeKnowledgeCommandBodyOneVersionRightsRevisionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyTwoExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyTwoExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyTwoExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyTwoExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyTwoVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyThreeExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyThreeExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyThreeExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyThreeExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyThreeVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyFourExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyFourExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyFourExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyFourExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyFourVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyFiveExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyFiveExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyFiveExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyFiveExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyFiveVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodySixExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodySixExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodySixExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodySixVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApprovalIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixServiceFromRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodySixServiceToOneRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodySixApplicabilityPayersMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityJurisdictionsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityJurisdictionsMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityMacsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityMacsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityProviderTypesOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityProviderTypesOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilitySettingsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilitySettingsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityBenefitPeriodsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityBenefitPeriodsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityCodeEditionsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityCodeEditionsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityProductsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityProductsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixApplicabilityPopulationsOneItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySixApplicabilityPopulationsOneMax = 100;
+
+export const executeKnowledgeCommandBodySixEnabledUsesMax = 100;
+
+export const executeKnowledgeCommandBodySevenExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodySevenExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodySevenExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodySevenExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodySevenVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySevenAssignmentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySevenApprovalIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodySevenCutoverRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodyEightExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyEightExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyEightExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyEightExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyEightVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyEightAssignmentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyEightApprovalIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyEightCutoverRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const executeKnowledgeCommandBodyNineExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyNineExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyNineExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyNineExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyNineVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyNineAssignmentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyNineApprovalIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnezeroExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnezeroExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnezeroExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOnezeroExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnezeroVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneoneExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOneoneExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneoneExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOneoneExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneoneVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneReviewManifestDigestRegExp = new RegExp('^[a-f0-9]{64}$');
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneReviewerMemberIdExclusiveMin = 0;
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneReviewerMemberIdMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneHealthGrantIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneReviewGrantIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOneoneHealthLkgOneQualificationIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnetwoExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnetwoExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnetwoExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOnetwoExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnetwoVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnethreeExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnethreeExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnethreeExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOnethreeExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnethreeVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnethreeExpectedRightsRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnethreeExpectedRightsRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefourExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnefourExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefourExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOnefourExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefourCredentialIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnefourExpectedCredentialRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnefourExpectedCredentialRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefiveExpectedScopeRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnefiveExpectedScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefiveExpectedVersionRevisionsMinOne = 0;
+export const executeKnowledgeCommandBodyOnefiveExpectedVersionRevisionsMaxOne = 9007199254740991;
+
+export const executeKnowledgeCommandBodyOnefiveCredentialIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandBodyOnefiveExpectedCredentialRevisionMin = 0;
+export const executeKnowledgeCommandBodyOnefiveExpectedCredentialRevisionMax = 9007199254740991;
+
+export const ExecuteKnowledgeCommandBody = zod.union([zod.object({
+  "operation": zod.enum(['REGISTER']),
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOneExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOneExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOneExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOneExpectedVersionRevisionsMaxOne)),
+  "source": zod.object({
+  "id": zod.string().regex(executeKnowledgeCommandBodyOneSourceIdRegExp),
+  "metadataRevision": zod.number().gt(executeKnowledgeCommandBodyOneSourceMetadataRevisionExclusiveMin).max(executeKnowledgeCommandBodyOneSourceMetadataRevisionMax),
+  "publisher": zod.string().min(1).max(executeKnowledgeCommandBodyOneSourcePublisherMax),
+  "title": zod.string().min(1).max(executeKnowledgeCommandBodyOneSourceTitleMax),
+  "domain": zod.enum(['STATUTE', 'REGULATION', 'STATE_LAW', 'MEDICARE_NATIONAL', 'MAC_COVERAGE', 'CMS_MANUAL', 'CMS_PAYMENT', 'OFFICIAL_CODING', 'DRUG_TERMINOLOGY', 'DRUG_LABEL', 'PHARMACOLOGY', 'CLINICAL_EVIDENCE', 'CLINICAL_PROTOCOL', 'PATIENT_EVIDENCE', 'DETERMINISTIC_DERIVATION', 'MODEL_INFERENCE', 'SPARTAN_WORKFLOW', 'QUALITY_REPORTING', 'COMPLIANCE']),
+  "claimTypes": zod.array(zod.enum(['LEGAL_REQUIREMENT', 'MEDICARE_COVERAGE_REQUIREMENT', 'MEDICARE_PAYMENT_RULE', 'MEDICARE_CLAIMS_RULE', 'CODING_RULE', 'CODE_DEFINITION', 'DRUG_IDENTITY', 'DRUG_LABEL_FACT', 'DRUG_INTERACTION_FACT', 'CLINICAL_RESEARCH_EVIDENCE', 'CLINICAL_PROTOCOL_GUIDANCE', 'PATIENT_SOURCE_FACT', 'DERIVED_PATIENT_FACT', 'CLINICAL_INFERENCE', 'WORKFLOW_GUIDANCE', 'QUALITY_REPORTING_RULE', 'COMPLIANCE_GUIDANCE'])).min(1).max(executeKnowledgeCommandBodyOneSourceClaimTypesMax),
+  "officialUrl": zod.string().url().max(executeKnowledgeCommandBodyOneSourceOfficialUrlMax),
+  "educationalOnly": zod.boolean()
+}),
+  "version": zod.object({
+  "id": zod.string().regex(executeKnowledgeCommandBodyOneVersionIdRegExp),
+  "sourceId": zod.string().regex(executeKnowledgeCommandBodyOneVersionSourceIdRegExp),
+  "sourceMetadataRevision": zod.number().gt(executeKnowledgeCommandBodyOneVersionSourceMetadataRevisionExclusiveMin).max(executeKnowledgeCommandBodyOneVersionSourceMetadataRevisionMax),
+  "documentId": zod.string().regex(executeKnowledgeCommandBodyOneVersionDocumentIdRegExp),
+  "upstreamEdition": zod.string().regex(executeKnowledgeCommandBodyOneVersionUpstreamEditionRegExp),
+  "artifactRevision": zod.number().gt(executeKnowledgeCommandBodyOneVersionArtifactRevisionExclusiveMin).max(executeKnowledgeCommandBodyOneVersionArtifactRevisionMax),
+  "rawHash": zod.string().regex(executeKnowledgeCommandBodyOneVersionRawHashRegExp),
+  "normalizedHash": zod.string().regex(executeKnowledgeCommandBodyOneVersionNormalizedHashRegExp),
+  "parserId": zod.string().regex(executeKnowledgeCommandBodyOneVersionParserIdRegExp),
+  "parserVersion": zod.string().regex(executeKnowledgeCommandBodyOneVersionParserVersionRegExp),
+  "sourceUrl": zod.string().url().max(executeKnowledgeCommandBodyOneVersionSourceUrlMax),
+  "publishedAt": zod.coerce.date(),
+  "retrievedAt": zod.coerce.date(),
+  "effectiveFrom": zod.string().regex(executeKnowledgeCommandBodyOneVersionEffectiveFromRegExp),
+  "effectiveTo": zod.union([zod.string().regex(executeKnowledgeCommandBodyOneVersionEffectiveToOneRegExp),zod.null()]),
+  "applicability": zod.object({
+  "payers": zod.array(zod.enum(['TRADITIONAL_MEDICARE', 'MEDICAID', 'COMMERCIAL', 'OTHER'])).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityPayersMax),
+  "jurisdictions": zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityJurisdictionsItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityJurisdictionsMax),
+  "macs": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityMacsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityMacsOneMax),zod.null()]),
+  "providerTypes": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityProviderTypesOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityProviderTypesOneMax),zod.null()]),
+  "settings": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilitySettingsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilitySettingsOneMax),zod.null()]),
+  "benefitPeriods": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityBenefitPeriodsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityBenefitPeriodsOneMax),zod.null()]),
+  "codeEditions": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityCodeEditionsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityCodeEditionsOneMax),zod.null()]),
+  "products": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityProductsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityProductsOneMax),zod.null()]),
+  "populations": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodyOneVersionApplicabilityPopulationsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodyOneVersionApplicabilityPopulationsOneMax),zod.null()])
+}),
+  "legacyCoverageSnapshotId": zod.union([zod.string().uuid(),zod.null()]),
+  "rightsRevisionId": zod.string().regex(executeKnowledgeCommandBodyOneVersionRightsRevisionIdRegExp)
+})
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyTwoExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyTwoExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyTwoExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyTwoExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyTwoVersionIdRegExp),
+  "operation": zod.enum(['SUBMIT'])
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyThreeExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyThreeExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyThreeExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyThreeExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyThreeVersionIdRegExp),
+  "operation": zod.enum(['APPROVE']),
+  "reviewDueAt": zod.union([zod.coerce.date(),zod.null()])
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyFourExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyFourExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyFourExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyFourExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyFourVersionIdRegExp),
+  "operation": zod.enum(['REAPPROVE']),
+  "reviewDueAt": zod.union([zod.coerce.date(),zod.null()])
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyFiveExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyFiveExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyFiveExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyFiveExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyFiveVersionIdRegExp),
+  "operation": zod.enum(['REJECT_REVIEW']),
+  "reviewDueAt": zod.union([zod.coerce.date(),zod.null()])
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodySixExpectedScopeRevisionMin).max(executeKnowledgeCommandBodySixExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodySixExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodySixExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodySixVersionIdRegExp),
+  "operation": zod.enum(['ACTIVATE']),
+  "approvalId": zod.string().regex(executeKnowledgeCommandBodySixApprovalIdRegExp),
+  "serviceFrom": zod.string().regex(executeKnowledgeCommandBodySixServiceFromRegExp),
+  "serviceTo": zod.union([zod.string().regex(executeKnowledgeCommandBodySixServiceToOneRegExp),zod.null()]),
+  "applicability": zod.object({
+  "payers": zod.array(zod.enum(['TRADITIONAL_MEDICARE', 'MEDICAID', 'COMMERCIAL', 'OTHER'])).min(1).max(executeKnowledgeCommandBodySixApplicabilityPayersMax),
+  "jurisdictions": zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityJurisdictionsItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityJurisdictionsMax),
+  "macs": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityMacsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityMacsOneMax),zod.null()]),
+  "providerTypes": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityProviderTypesOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityProviderTypesOneMax),zod.null()]),
+  "settings": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilitySettingsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilitySettingsOneMax),zod.null()]),
+  "benefitPeriods": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityBenefitPeriodsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityBenefitPeriodsOneMax),zod.null()]),
+  "codeEditions": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityCodeEditionsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityCodeEditionsOneMax),zod.null()]),
+  "products": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityProductsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityProductsOneMax),zod.null()]),
+  "populations": zod.union([zod.array(zod.string().regex(executeKnowledgeCommandBodySixApplicabilityPopulationsOneItemRegExp)).min(1).max(executeKnowledgeCommandBodySixApplicabilityPopulationsOneMax),zod.null()])
+}),
+  "enabledUses": zod.array(zod.enum(['INTERNAL_STORAGE', 'MODEL_INPUT', 'PROMPT_USE', 'CUSTOMER_DISPLAY', 'DERIVED_OUTPUT', 'REDISTRIBUTION'])).min(1).max(executeKnowledgeCommandBodySixEnabledUsesMax)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodySevenExpectedScopeRevisionMin).max(executeKnowledgeCommandBodySevenExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodySevenExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodySevenExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodySevenVersionIdRegExp),
+  "operation": zod.enum(['SUPERSEDE']),
+  "assignmentId": zod.string().regex(executeKnowledgeCommandBodySevenAssignmentIdRegExp),
+  "approvalId": zod.string().regex(executeKnowledgeCommandBodySevenApprovalIdRegExp),
+  "cutover": zod.string().regex(executeKnowledgeCommandBodySevenCutoverRegExp)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyEightExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyEightExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyEightExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyEightExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyEightVersionIdRegExp),
+  "operation": zod.enum(['ROLLBACK']),
+  "assignmentId": zod.string().regex(executeKnowledgeCommandBodyEightAssignmentIdRegExp),
+  "approvalId": zod.string().regex(executeKnowledgeCommandBodyEightApprovalIdRegExp),
+  "cutover": zod.string().regex(executeKnowledgeCommandBodyEightCutoverRegExp)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyNineExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyNineExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyNineExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyNineExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyNineVersionIdRegExp),
+  "operation": zod.enum(['REFRESH_APPROVAL']),
+  "assignmentId": zod.string().regex(executeKnowledgeCommandBodyNineAssignmentIdRegExp),
+  "approvalId": zod.string().regex(executeKnowledgeCommandBodyNineApprovalIdRegExp)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOnezeroExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOnezeroExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOnezeroExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOnezeroExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyOnezeroVersionIdRegExp),
+  "operation": zod.enum(['REVOKE'])
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOneoneExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOneoneExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOneoneExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOneoneExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyOneoneVersionIdRegExp),
+  "operation": zod.enum(['RECORD_HEALTH']),
+  "health": zod.object({
+  "state": zod.enum(['NOT_CHECKED', 'CURRENT', 'STALE_ALLOWED_WITH_WARNING', 'STALE_BLOCKED', 'UPSTREAM_UNAVAILABLE', 'REVOKED']),
+  "checkedAt": zod.union([zod.coerce.date(),zod.null()]),
+  "lastValidatedAt": zod.union([zod.coerce.date(),zod.null()]),
+  "warningAt": zod.union([zod.coerce.date(),zod.null()]),
+  "hardExpiresAt": zod.union([zod.coerce.date(),zod.null()]),
+  "lkg": zod.union([zod.object({
+  "id": zod.string().regex(executeKnowledgeCommandBodyOneoneHealthLkgOneIdRegExp),
+  "reviewManifestDigest": zod.string().regex(executeKnowledgeCommandBodyOneoneHealthLkgOneReviewManifestDigestRegExp),
+  "reviewerMemberId": zod.number().gt(executeKnowledgeCommandBodyOneoneHealthLkgOneReviewerMemberIdExclusiveMin).max(executeKnowledgeCommandBodyOneoneHealthLkgOneReviewerMemberIdMax),
+  "healthGrantId": zod.string().regex(executeKnowledgeCommandBodyOneoneHealthLkgOneHealthGrantIdRegExp),
+  "reviewGrantId": zod.string().regex(executeKnowledgeCommandBodyOneoneHealthLkgOneReviewGrantIdRegExp),
+  "qualificationId": zod.string().regex(executeKnowledgeCommandBodyOneoneHealthLkgOneQualificationIdRegExp),
+  "approvedAt": zod.coerce.date(),
+  "until": zod.coerce.date()
+}),zod.null()])
+})
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOnetwoExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOnetwoExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOnetwoExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOnetwoExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyOnetwoVersionIdRegExp),
+  "operation": zod.enum(['APPROVE_LKG']),
+  "until": zod.coerce.date()
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOnethreeExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOnethreeExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOnethreeExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOnethreeExpectedVersionRevisionsMaxOne)),
+  "versionId": zod.string().regex(executeKnowledgeCommandBodyOnethreeVersionIdRegExp),
+  "operation": zod.enum(['REVOKE_RIGHTS']),
+  "expectedRightsRevision": zod.number().min(executeKnowledgeCommandBodyOnethreeExpectedRightsRevisionMin).max(executeKnowledgeCommandBodyOnethreeExpectedRightsRevisionMax)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOnefourExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOnefourExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOnefourExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOnefourExpectedVersionRevisionsMaxOne)),
+  "operation": zod.enum(['REVOKE_GRANT']),
+  "credentialId": zod.string().regex(executeKnowledgeCommandBodyOnefourCredentialIdRegExp),
+  "expectedCredentialRevision": zod.number().min(executeKnowledgeCommandBodyOnefourExpectedCredentialRevisionMin).max(executeKnowledgeCommandBodyOnefourExpectedCredentialRevisionMax)
+}),zod.object({
+  "expectedScopeRevision": zod.number().min(executeKnowledgeCommandBodyOnefiveExpectedScopeRevisionMin).max(executeKnowledgeCommandBodyOnefiveExpectedScopeRevisionMax),
+  "expectedVersionRevisions": zod.record(zod.string(), zod.number().min(executeKnowledgeCommandBodyOnefiveExpectedVersionRevisionsMinOne).max(executeKnowledgeCommandBodyOnefiveExpectedVersionRevisionsMaxOne)),
+  "operation": zod.enum(['REVOKE_QUALIFICATION']),
+  "credentialId": zod.string().regex(executeKnowledgeCommandBodyOnefiveCredentialIdRegExp),
+  "expectedCredentialRevision": zod.number().min(executeKnowledgeCommandBodyOnefiveExpectedCredentialRevisionMin).max(executeKnowledgeCommandBodyOnefiveExpectedCredentialRevisionMax)
+})])
+
+export const executeKnowledgeCommandResponseScopeRevisionMin = 0;
+export const executeKnowledgeCommandResponseScopeRevisionMax = 9007199254740991;
+
+export const executeKnowledgeCommandResponseVersionIdsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandResponseVersionIdsMax = 2000;
+
+export const executeKnowledgeCommandResponseAssignmentIdsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandResponseAssignmentIdsMax = 4000;
+
+export const executeKnowledgeCommandResponseEventIdsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const executeKnowledgeCommandResponseEventIdsMax = 1;
+
+export const ExecuteKnowledgeCommandResponse = zod.object({
+  "scopeRevision": zod.number().min(executeKnowledgeCommandResponseScopeRevisionMin).max(executeKnowledgeCommandResponseScopeRevisionMax),
+  "versionIds": zod.array(zod.string().regex(executeKnowledgeCommandResponseVersionIdsItemRegExp)).max(executeKnowledgeCommandResponseVersionIdsMax),
+  "assignmentIds": zod.array(zod.string().regex(executeKnowledgeCommandResponseAssignmentIdsItemRegExp)).max(executeKnowledgeCommandResponseAssignmentIdsMax),
+  "eventIds": zod.array(zod.string().regex(executeKnowledgeCommandResponseEventIdsItemRegExp)).max(executeKnowledgeCommandResponseEventIdsMax)
+})
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Read authorized knowledge scope configuration
+ */
+export const GetKnowledgeScopeParams = zod.object({
+  "scopeKind": zod.enum(['global', 'tenant'])
+})
+
+export const getKnowledgeScopeResponseScopeIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+
+export const getKnowledgeScopeResponseRevisionMin = 0;
+export const getKnowledgeScopeResponseRevisionMax = 9007199254740991;
+
+export const getKnowledgeScopeResponseConfigurationSupportedPayersMax = 100;
+
+export const getKnowledgeScopeResponseConfigurationSupportedJurisdictionsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeScopeResponseConfigurationSupportedJurisdictionsMax = 100;
+
+export const getKnowledgeScopeResponseReadableDomainsItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeScopeResponseReadableDomainsMax = 19;
+
+export const GetKnowledgeScopeResponse = zod.object({
+  "scope": zod.object({
+  "id": zod.string().regex(getKnowledgeScopeResponseScopeIdRegExp),
+  "kind": zod.enum(['GLOBAL', 'TENANT']),
+  "organizationId": zod.union([zod.number().min(1),zod.null()])
+}),
+  "revision": zod.number().min(getKnowledgeScopeResponseRevisionMin).max(getKnowledgeScopeResponseRevisionMax),
+  "configuration": zod.object({
+  "supportedPayers": zod.array(zod.enum(['TRADITIONAL_MEDICARE', 'MEDICAID', 'COMMERCIAL', 'OTHER'])).max(getKnowledgeScopeResponseConfigurationSupportedPayersMax),
+  "supportedJurisdictions": zod.array(zod.string().regex(getKnowledgeScopeResponseConfigurationSupportedJurisdictionsItemRegExp)).max(getKnowledgeScopeResponseConfigurationSupportedJurisdictionsMax)
+}),
+  "readableDomains": zod.array(zod.string().regex(getKnowledgeScopeResponseReadableDomainsItemRegExp)).max(getKnowledgeScopeResponseReadableDomainsMax)
+})
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Read authorized bounded knowledge metadata
+ */
+export const GetKnowledgeMetadataParams = zod.object({
+  "scopeKind": zod.enum(['global', 'tenant'])
+})
+
+export const getKnowledgeMetadataQueryFilterOneLimitDefault = 25;
+export const getKnowledgeMetadataQueryFilterOneLimitMax = 100;
+
+export const getKnowledgeMetadataQueryFilterOneCursorMax = 512;
+
+export const getKnowledgeMetadataQueryFilterTwoVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataQueryFilterTwoLimitDefault = 25;
+export const getKnowledgeMetadataQueryFilterTwoLimitMax = 100;
+
+export const getKnowledgeMetadataQueryFilterTwoCursorMax = 512;
+
+export const GetKnowledgeMetadataQueryParams = strictObject({
+  "filter": zod.union([strictObject({
+  "kind": zod.enum(['sources', 'versions', 'assignments']),
+  "domain": zod.enum(['STATUTE', 'REGULATION', 'STATE_LAW', 'MEDICARE_NATIONAL', 'MAC_COVERAGE', 'CMS_MANUAL', 'CMS_PAYMENT', 'OFFICIAL_CODING', 'DRUG_TERMINOLOGY', 'DRUG_LABEL', 'PHARMACOLOGY', 'CLINICAL_EVIDENCE', 'CLINICAL_PROTOCOL', 'PATIENT_EVIDENCE', 'DETERMINISTIC_DERIVATION', 'MODEL_INFERENCE', 'SPARTAN_WORKFLOW', 'QUALITY_REPORTING', 'COMPLIANCE']),
+  "limit": zod.number().min(1).max(getKnowledgeMetadataQueryFilterOneLimitMax).default(getKnowledgeMetadataQueryFilterOneLimitDefault),
+  "cursor": zod.string().max(getKnowledgeMetadataQueryFilterOneCursorMax).optional()
+}),strictObject({
+  "kind": zod.enum(['approvals']),
+  "domain": zod.enum(['STATUTE', 'REGULATION', 'STATE_LAW', 'MEDICARE_NATIONAL', 'MAC_COVERAGE', 'CMS_MANUAL', 'CMS_PAYMENT', 'OFFICIAL_CODING', 'DRUG_TERMINOLOGY', 'DRUG_LABEL', 'PHARMACOLOGY', 'CLINICAL_EVIDENCE', 'CLINICAL_PROTOCOL', 'PATIENT_EVIDENCE', 'DETERMINISTIC_DERIVATION', 'MODEL_INFERENCE', 'SPARTAN_WORKFLOW', 'QUALITY_REPORTING', 'COMPLIANCE']),
+  "versionId": zod.string().regex(getKnowledgeMetadataQueryFilterTwoVersionIdRegExp),
+  "limit": zod.number().min(1).max(getKnowledgeMetadataQueryFilterTwoLimitMax).default(getKnowledgeMetadataQueryFilterTwoLimitDefault),
+  "cursor": zod.string().max(getKnowledgeMetadataQueryFilterTwoCursorMax).optional()
+})]).describe('Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.')
+})
+
+export const getKnowledgeMetadataResponseItemsItemOneIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemOneMetadataRevisionMin = 0;
+export const getKnowledgeMetadataResponseItemsItemOneMetadataRevisionMax = 9007199254740991;
+
+export const getKnowledgeMetadataResponseItemsItemOnePublisherMax = 200;
+
+export const getKnowledgeMetadataResponseItemsItemOneTitleMax = 300;
+
+export const getKnowledgeMetadataResponseItemsItemOneDomainRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemOneClaimTypesItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemOneClaimTypesMax = 100;
+
+export const getKnowledgeMetadataResponseItemsItemOneOfficialUrlMax = 2000;
+
+export const getKnowledgeMetadataResponseItemsItemTwoIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemTwoSourceIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemTwoSourceMetadataRevisionMin = 0;
+export const getKnowledgeMetadataResponseItemsItemTwoSourceMetadataRevisionMax = 9007199254740991;
+
+export const getKnowledgeMetadataResponseItemsItemTwoDocumentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemTwoUpstreamEditionRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemTwoArtifactRevisionMin = 0;
+export const getKnowledgeMetadataResponseItemsItemTwoArtifactRevisionMax = 9007199254740991;
+
+export const getKnowledgeMetadataResponseItemsItemTwoStateRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemTwoRevisionMin = 0;
+export const getKnowledgeMetadataResponseItemsItemTwoRevisionMax = 9007199254740991;
+
+export const getKnowledgeMetadataResponseItemsItemTwoEffectiveFromRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+export const getKnowledgeMetadataResponseItemsItemTwoEffectiveToOneRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+export const getKnowledgeMetadataResponseItemsItemTwoRightsRevisionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeSourceIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeDocumentIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeApprovalIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeReviewManifestDigestRegExp = new RegExp('^[a-f0-9]{64}$');
+export const getKnowledgeMetadataResponseItemsItemThreeServiceFromRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+export const getKnowledgeMetadataResponseItemsItemThreeServiceToOneRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+export const getKnowledgeMetadataResponseItemsItemThreeEnabledUsesItemRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemThreeEnabledUsesMax = 100;
+
+export const getKnowledgeMetadataResponseItemsItemThreeRevisionMin = 0;
+export const getKnowledgeMetadataResponseItemsItemThreeRevisionMax = 9007199254740991;
+
+export const getKnowledgeMetadataResponseItemsItemThreePredecessorAssignmentIdOneRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemFourIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemFourVersionIdRegExp = new RegExp('^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$');
+export const getKnowledgeMetadataResponseItemsItemFourReviewManifestDigestRegExp = new RegExp('^[a-f0-9]{64}$');
+export const getKnowledgeMetadataResponseItemsMax = 100;
+
+export const getKnowledgeMetadataResponseNextCursorOneMax = 512;
+
+export const GetKnowledgeMetadataResponse = zod.object({
+  "items": zod.array(zod.union([zod.object({
+  "id": zod.string().regex(getKnowledgeMetadataResponseItemsItemOneIdRegExp),
+  "metadata_revision": zod.number().min(getKnowledgeMetadataResponseItemsItemOneMetadataRevisionMin).max(getKnowledgeMetadataResponseItemsItemOneMetadataRevisionMax),
+  "publisher": zod.string().max(getKnowledgeMetadataResponseItemsItemOnePublisherMax),
+  "title": zod.string().max(getKnowledgeMetadataResponseItemsItemOneTitleMax),
+  "domain": zod.string().regex(getKnowledgeMetadataResponseItemsItemOneDomainRegExp),
+  "claim_types": zod.array(zod.string().regex(getKnowledgeMetadataResponseItemsItemOneClaimTypesItemRegExp)).max(getKnowledgeMetadataResponseItemsItemOneClaimTypesMax),
+  "official_url": zod.string().url().max(getKnowledgeMetadataResponseItemsItemOneOfficialUrlMax),
+  "educational_only": zod.boolean()
+}),zod.object({
+  "id": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoIdRegExp),
+  "source_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoSourceIdRegExp),
+  "source_metadata_revision": zod.number().min(getKnowledgeMetadataResponseItemsItemTwoSourceMetadataRevisionMin).max(getKnowledgeMetadataResponseItemsItemTwoSourceMetadataRevisionMax),
+  "document_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoDocumentIdRegExp),
+  "upstream_edition": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoUpstreamEditionRegExp),
+  "artifact_revision": zod.number().min(getKnowledgeMetadataResponseItemsItemTwoArtifactRevisionMin).max(getKnowledgeMetadataResponseItemsItemTwoArtifactRevisionMax),
+  "state": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoStateRegExp),
+  "revision": zod.number().min(getKnowledgeMetadataResponseItemsItemTwoRevisionMin).max(getKnowledgeMetadataResponseItemsItemTwoRevisionMax),
+  "effective_from": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoEffectiveFromRegExp),
+  "effective_to": zod.union([zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoEffectiveToOneRegExp),zod.null()]),
+  "rights_revision_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemTwoRightsRevisionIdRegExp)
+}),zod.object({
+  "id": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeIdRegExp),
+  "source_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeSourceIdRegExp),
+  "document_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeDocumentIdRegExp),
+  "version_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeVersionIdRegExp),
+  "approval_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeApprovalIdRegExp),
+  "review_manifest_digest": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeReviewManifestDigestRegExp),
+  "service_from": zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeServiceFromRegExp),
+  "service_to": zod.union([zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeServiceToOneRegExp),zod.null()]),
+  "enabled_uses": zod.array(zod.string().regex(getKnowledgeMetadataResponseItemsItemThreeEnabledUsesItemRegExp)).max(getKnowledgeMetadataResponseItemsItemThreeEnabledUsesMax),
+  "revision": zod.number().min(getKnowledgeMetadataResponseItemsItemThreeRevisionMin).max(getKnowledgeMetadataResponseItemsItemThreeRevisionMax),
+  "retired_at": zod.union([zod.coerce.date(),zod.null()]),
+  "predecessor_assignment_id": zod.union([zod.string().regex(getKnowledgeMetadataResponseItemsItemThreePredecessorAssignmentIdOneRegExp),zod.null()])
+}),zod.object({
+  "id": zod.string().regex(getKnowledgeMetadataResponseItemsItemFourIdRegExp),
+  "version_id": zod.string().regex(getKnowledgeMetadataResponseItemsItemFourVersionIdRegExp),
+  "review_manifest_digest": zod.string().regex(getKnowledgeMetadataResponseItemsItemFourReviewManifestDigestRegExp),
+  "reviewed_at": zod.coerce.date(),
+  "review_due_at": zod.coerce.date()
+})])).max(getKnowledgeMetadataResponseItemsMax),
+  "nextCursor": zod.union([zod.string().max(getKnowledgeMetadataResponseNextCursorOneMax),zod.null()])
+})
+
 /**
  * Returns server health status
  * @summary Health check

@@ -62,7 +62,7 @@ function exportExpectedSql(): string {
   return (
     exported.stdout +
     "\n" +
-    readFileSync(`${libDbPackageRoot()}/schema-contract/sql-owned.sql`, "utf8")
+    readFileSync(`${libDbPackageRoot()}/schema-contract/sql-owned.sql`, "utf8") + "\n" + readFileSync(`${libDbPackageRoot()}/schema-contract/knowledge-owned.sql`, "utf8")
   );
 }
 
@@ -70,9 +70,9 @@ function exportExpectedSql(): string {
 suite("synthetic PostgreSQL migration runner", () => {
   it("replays empty, preserves unchanged catalog on rerun, and supports prefix upgrade", async () => {
     const fresh = await isolated(async (client) => {
-      expect((await runMigrations(client, migrations)).applied).toBe(31);
+      expect((await runMigrations(client, migrations)).applied).toBe(32);
       const before = await readCatalog(client);
-      expect((await runMigrations(client, migrations)).skipped).toBe(31);
+      expect((await runMigrations(client, migrations)).skipped).toBe(32);
       expect(diffCatalog(before, await readCatalog(client))).toEqual([]);
       return before;
     });
@@ -228,7 +228,7 @@ suite("synthetic PostgreSQL migration runner", () => {
             (r) => r.status === "rejected",
           ) as PromiseRejectedResult;
           expect(rejected.reason.code).toBe("MIGRATION_LOCK_BUSY");
-          expect((await runMigrations(client, migrations)).skipped).toBe(31);
+          expect((await runMigrations(client, migrations)).skipped).toBe(32);
         } finally {
           other.release();
         }

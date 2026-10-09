@@ -27,11 +27,20 @@ export default defineConfig({
       client: "react-query",
       mode: "split",
       baseUrl: "/api",
+      headers: true,
       clean: true,
       prettier: true,
       override: {
         fetch: {
           includeHttpResponseReturnType: false,
+        },
+        operations: {
+          getKnowledgeMetadata: {
+            paramsSerializer: {
+              path: path.resolve(apiClientReactSrc, "knowledge-query.ts"),
+              name: "knowledgeMetadataQueryString",
+            },
+          },
         },
         mutator: {
           path: path.resolve(apiClientReactSrc, "custom-fetch.ts"),
@@ -62,6 +71,21 @@ export default defineConfig({
             param: ['boolean', 'number', 'string'],
             body: ['bigint', 'date'],
             response: ['bigint', 'date'],
+          },
+        },
+        operations: {
+          getKnowledgeMetadata: {
+            zod: {
+              strict: { query: true },
+              coerce: {
+                // Boolean override replaces Orval's concatenated global coercion array.
+                // Client query values already have their declared types.
+                query: false,
+                param: ['boolean', 'number', 'string'],
+                body: ['bigint', 'date'],
+                response: ['bigint', 'date'],
+              },
+            },
           },
         },
         useDates: true,

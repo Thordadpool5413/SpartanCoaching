@@ -1022,6 +1022,22 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0031_knowledge_authority",
+    title: "K1B durable knowledge authority",
+    forwardPath: "lib/db/migrations/0031_knowledge_authority.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) = 18 AS ok FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'knowledge_%'`,
+      `SELECT count(*) = 18 AS ok FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE t.tgname='knowledge_history_guard' AND c.relname LIKE 'knowledge_%'`,
+    ],
+    rollbackOrRecovery: "Disable the control plane during application rollback; retain immutable history. Restore independently verified synthetic/authorized backups only. No hard delete or legacy backfill.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["knowledge_scopes", "knowledge_scope_members", "knowledge_sources", "knowledge_source_revisions", "knowledge_documents", "knowledge_rights_terms", "knowledge_rights_state", "knowledge_versions", "knowledge_grants", "knowledge_qualifications", "knowledge_approvals", "knowledge_lkg_attestations", "knowledge_health_observations", "knowledge_publication_assignments", "knowledge_command_receipts", "knowledge_audit_events", "knowledge_outbox", "knowledge_consumer_receipts"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -1051,6 +1067,24 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
  * When adding a pgTable in lib/db/src/schema, add it here + a migration.
  */
 export const MIGRATE_ONLY_LIB_DB_TABLES = [
+  "knowledge_scopes",
+  "knowledge_scope_members",
+  "knowledge_sources",
+  "knowledge_source_revisions",
+  "knowledge_documents",
+  "knowledge_rights_terms",
+  "knowledge_rights_state",
+  "knowledge_versions",
+  "knowledge_grants",
+  "knowledge_qualifications",
+  "knowledge_approvals",
+  "knowledge_lkg_attestations",
+  "knowledge_health_observations",
+  "knowledge_publication_assignments",
+  "knowledge_command_receipts",
+  "knowledge_audit_events",
+  "knowledge_outbox",
+  "knowledge_consumer_receipts",
   // 0001 / 0002 AI + clinical
   "ai_tool_organization_flags",
   "clinical_permissions",

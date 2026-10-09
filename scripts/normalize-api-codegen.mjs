@@ -6,12 +6,22 @@ const zodApi = resolve(root, "lib/api-zod/src/generated/api.ts");
 let source = readFileSync(zodApi, "utf8")
   .replaceAll("zod.uuid()", "zod.string().uuid()")
   .replaceAll("zod.email()", "zod.string().email()")
+  .replaceAll("zod.url()", "zod.string().url()")
   .replaceAll("zod.looseObject(", "looseObject(")
+  .replaceAll("zod.strictObject(", "strictObject(")
   .replace(/\n{3,}/g, "\n\n")
   .trimEnd();
 source = source.replace(
   /const looseObject = <T extends zod\.ZodRawShape>\(shape: T\) => zod\.object\(shape\)\.passthrough\(\);\s*/g,
   "",
+);
+source = source.replace(
+  /const strictObject = <T extends zod\.ZodRawShape>\(shape: T\) => zod\.object\(shape\)\.strict\(\);\s*/g,
+  "",
+);
+source = source.replace(
+  "import * as zod from 'zod';",
+  "import * as zod from 'zod';\n\nconst strictObject = <T extends zod.ZodRawShape>(shape: T) => zod.object(shape).strict();",
 );
 source = source.replace(
   "import * as zod from 'zod';",
@@ -59,4 +69,21 @@ for (const relative of [
 ]) {
   const file = resolve(root, relative);
   writeFileSync(file, `${readFileSync(file, "utf8").trimEnd()}\n`);
+}
+
+// OpenAPI closes the non-approval query branch with additionalProperties:false.
+// Orval's TypeScript output is structurally open unless its global union option
+// changes every API. Close only this approved discriminated metadata query.
+for (const relative of [
+  "lib/api-client-react/src/generated/api.schemas.ts",
+  "lib/api-zod/src/generated/types/knowledgeMetadataQuery.ts",
+]) {
+  const file = resolve(root, relative);
+  const generated = readFileSync(file, "utf8");
+  if (!generated.includes("export type KnowledgeMetadataQuery = {"))
+    throw new Error("KNOWLEDGE_QUERY_CODEGEN_CONTRACT_CHANGED");
+  writeFileSync(file, generated.replace(
+    /export type KnowledgeMetadataQuery = \{\n(?!  versionId\?: never;)/,
+    "export type KnowledgeMetadataQuery = {\n  versionId?: never;\n",
+  ));
 }

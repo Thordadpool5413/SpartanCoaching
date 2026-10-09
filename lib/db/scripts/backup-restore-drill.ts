@@ -17,6 +17,11 @@ import {
 } from "../src/migrate-manifest";
 import { prepareMigrations, runMigrations } from "../src/migration-runner";
 import { readCatalog, diffCatalog } from "../src/schema-catalog";
+import { seedKnowledge } from "./knowledge-synthetic";
+import { installKnowledgePrivileges } from "./knowledge-privileges";
+import { executeCommand } from "../../../artifacts/api-server/src/knowledge/persistence/commands";
+import { claimOutbox, completeOutbox, consumeEvent } from "../../../artifacts/api-server/src/knowledge/persistence/outbox";
+import { readKnowledge } from "../../../artifacts/api-server/src/knowledge/control/reads";
 import {
   encryptPhi,
   decryptPhi,
@@ -82,6 +87,7 @@ async function main() {
   });
   const id = randomUUID().replaceAll("-", "");
   const role = `p03_reader_${id}`;
+  const knowledgeRolePassword = randomBytes(24).toString("hex");
   const databases: string[] = [];
   const pools: pg.Pool[] = [];
   const clients: pg.PoolClient[] = [];
@@ -154,7 +160,7 @@ async function main() {
     const source = await database("source");
     const target = await database("restore");
     await admin.query(
-      `CREATE ROLE ${quote(role)} NOLOGIN NOSUPERUSER NOBYPASSRLS`,
+      `CREATE ROLE ${quote(role)} LOGIN PASSWORD '${knowledgeRolePassword}' NOSUPERUSER NOBYPASSRLS`,
     );
     roleCreated = true;
     const migrations = prepareMigrations(
@@ -185,6 +191,35 @@ async function main() {
     await source.client.query(
       "INSERT INTO member_personalization(organization_id,member_id) VALUES (1,1)",
     );
+    const knowledgeA = await seedKnowledge(source.client, 7001);
+    await seedKnowledge(source.client, 7002);
+    await seedKnowledge(source.client, 7001, true);
+    await installKnowledgePrivileges(source.client, role);
+    async function knowledgePool(name: string) {
+      const connection = new URL(raw!); connection.pathname = `/${name}`; connection.username=role; connection.password=knowledgeRolePassword;
+      const pool = new pg.Pool({ connectionString: connection.toString(), connectionTimeoutMillis: 5000 });
+      pools.push(pool); return pool;
+    }
+    const sourceKnowledgePool = await knowledgePool(source.name);
+    const publication = knowledgeA.state.assignments[0];
+    await executeCommand(sourceKnowledgePool, knowledgeA.tokens.get(knowledgeA.subjects[2])!, "tenant", {
+      operation: "REFRESH_APPROVAL", versionId: knowledgeA.versionId, assignmentId: publication.id,
+      approvalId: knowledgeA.state.versions[0].approvals.at(-1)!.id, expectedScopeRevision: knowledgeA.state.revision,
+      expectedVersionRevisions: { [knowledgeA.versionId]: knowledgeA.state.versions[0].revision },
+    }, "synthetic-p03-publication", { synthetic: true });
+    const knowledgeCommand = { operation: "REVOKE_GRANT", credentialId: `synthetic-grant-${knowledgeA.subjects[0]}`,
+      expectedScopeRevision: knowledgeA.state.revision + 1, expectedVersionRevisions: {}, expectedCredentialRevision: 1 };
+    const knowledgeReceipt = await executeCommand(sourceKnowledgePool, knowledgeA.tokens.get(knowledgeA.subjects[1])!, "tenant", knowledgeCommand, "synthetic-p03-replay", { synthetic: true });
+    const knowledgeDeliveries = await claimOutbox(sourceKnowledgePool, 3);
+    check(knowledgeDeliveries.length === 3, "KNOWLEDGE_RECOVERY_FIXTURE_INCOMPLETE");
+    await completeOutbox(sourceKnowledgePool, knowledgeDeliveries[0], true);
+    for (let attempt = 2; attempt <= 10; attempt++) await source.client.query("UPDATE knowledge_outbox SET attempts=$2 WHERE event_id=$1", [knowledgeDeliveries[2].eventId, attempt]);
+    await source.client.query("UPDATE knowledge_outbox SET lease_expires_at=clock_timestamp()-interval '1 second' WHERE event_id=$1", [knowledgeDeliveries[2].eventId]);
+    await claimOutbox(sourceKnowledgePool, 1);
+    await source.client.query("UPDATE knowledge_outbox SET lease_expires_at=clock_timestamp()-interval '1 second' WHERE event_id=$1",[knowledgeDeliveries[1].eventId]);
+    await consumeEvent(sourceKnowledgePool, "synthetic-p03-consumer", knowledgeDeliveries[0].body, async (connection, event) => {
+      check((await connection.query("SELECT scope_id FROM knowledge_scopes WHERE scope_id=$1", [event.scopeId])).rowCount === 1, "KNOWLEDGE_RECONCILE_SCOPE_MISSING");
+    });
     const catalog = await readCatalog(source.client),
       data = await contents(source.client);
     stage = "dump";
@@ -241,6 +276,15 @@ async function main() {
       hash(data) === hash(await contents(target.client)),
       "RESTORED_ROWS_OR_SEQUENCES_DIFFER",
     );
+    const targetKnowledgePool = await knowledgePool(target.name);
+    check(JSON.stringify(await executeCommand(targetKnowledgePool, knowledgeA.tokens.get(knowledgeA.subjects[1])!, "tenant", knowledgeCommand, "synthetic-p03-replay", { synthetic: true })) === JSON.stringify(knowledgeReceipt), "KNOWLEDGE_RECOVERY_RECEIPT_REPLAY_FAILED");
+    check((await consumeEvent(targetKnowledgePool, "synthetic-p03-consumer", knowledgeDeliveries[0].body, async () => { throw new RecoveryError("KNOWLEDGE_DUPLICATE_RECONCILED"); })).duplicate, "KNOWLEDGE_RECOVERY_CONSUMER_DEDUP_FAILED");
+    check(!(await completeOutbox(targetKnowledgePool, { ...knowledgeDeliveries[1], leaseToken: "synthetic-stale-lease" }, true)), "KNOWLEDGE_RECOVERY_STALE_LEASE_ACCEPTED");
+    const reclaimed=(await claimOutbox(targetKnowledgePool,100)).find(d=>d.eventId===knowledgeDeliveries[1].eventId);
+    check(!!reclaimed&&reclaimed.attempt===2&&reclaimed.leaseToken!==knowledgeDeliveries[1].leaseToken,"KNOWLEDGE_RECOVERY_EXPIRED_LEASE_NOT_RECLAIMED");
+    check(!(await completeOutbox(targetKnowledgePool,knowledgeDeliveries[1],true)),"KNOWLEDGE_RECOVERY_OLD_LEASE_ACCEPTED");
+    const knowledgeScope=await readKnowledge(targetKnowledgePool,knowledgeA.tokens.get(knowledgeA.subjects[1])!,"tenant",null,{synthetic:true});
+    check('scope' in knowledgeScope&&knowledgeScope.scope.id===knowledgeA.scopeId,"KNOWLEDGE_RECOVERY_SCOPE_ISOLATION_FAILED");
     stage = "tenant_isolation";
     await target.client.query(`SET ROLE ${quote(role)}`);
     check(
@@ -399,6 +443,11 @@ async function main() {
         "stale_backup_tombstone_fixture",
         "app_transaction",
         "unique_constraint",
+        "knowledge_all_18_tables",
+        "knowledge_receipt_replay",
+        "knowledge_consumer_dedup",
+        "knowledge_lease_recovery_cas",
+        "knowledge_trusted_scope",
       ],
       limits: [
         "same_cluster_isolated_databases",

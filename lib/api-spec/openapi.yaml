@@ -25,6 +25,271 @@ tags:
   - name: analytics
     description: Product analytics operations
 paths:
+  /knowledge-control/{scopeKind}/commands:
+    post:
+      operationId: executeKnowledgeCommand
+      tags:
+      - knowledge-control
+      summary: Mutate durable knowledge authority
+      description: 'Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.'
+      parameters:
+      - name: scopeKind
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - global
+          - tenant
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 128
+        description: Retry an uncertain outcome only with the same key and payload.
+      responses:
+        '200':
+          description: Authorized bounded result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeCommandResult'
+        '400':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '401':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '403':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '404':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '409':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '413':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
+        '429':
+          description: Existing shared API rate limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string}
+                required: [error]
+                additionalProperties: false
+        '503':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeControlCommand'
+  /knowledge-control/{scopeKind}/scope:
+    get:
+      operationId: getKnowledgeScope
+      tags:
+      - knowledge-control
+      summary: Read authorized knowledge scope configuration
+      description: 'Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.'
+      parameters:
+      - name: scopeKind
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - global
+          - tenant
+      responses:
+        '200':
+          description: Authorized bounded result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeScopeResult'
+        '400':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '401':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '403':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '404':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '409':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '413':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
+        '429':
+          description: Existing shared API rate limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string}
+                required: [error]
+                additionalProperties: false
+        '503':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+  /knowledge-control/{scopeKind}/metadata:
+    get:
+      operationId: getKnowledgeMetadata
+      tags:
+      - knowledge-control
+      summary: Read authorized bounded knowledge metadata
+      description: 'Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.'
+      parameters:
+      - name: scopeKind
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - global
+          - tenant
+      - name: filter
+        in: query
+        required: true
+        style: form
+        explode: true
+        description: Exploded discriminated query object; the wire remains kind, domain, versionId (approvals only), limit and cursor.
+        schema:
+          $ref: '#/components/schemas/KnowledgeMetadataQuery'
+      responses:
+        '200':
+          description: Authorized bounded result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeMetadataResult'
+        '400':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '401':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '403':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '404':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '409':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '413':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
+        '426':
+          description: Existing enforced iOS version/API compatibility gate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeClientUpgradeError'
+        '429':
+          description: Existing shared API rate limit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string}
+                required: [error]
+                additionalProperties: false
+        '503':
+          description: Bounded error code; no request or database details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeControlError'
   /healthz:
     get:
       operationId: healthCheck
@@ -419,6 +684,1206 @@ components:
       description: Error response
       content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
   schemas:
+    KnowledgeControlCommand:
+      oneOf:
+      - type: object
+        properties:
+          operation:
+            type: string
+            enum:
+            - REGISTER
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          source:
+            type: object
+            properties:
+              id:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              metadataRevision:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+                exclusiveMinimum: 0
+              publisher:
+                type: string
+                minLength: 1
+                maxLength: 200
+              title:
+                type: string
+                minLength: 1
+                maxLength: 300
+              domain:
+                type: string
+                enum:
+                - STATUTE
+                - REGULATION
+                - STATE_LAW
+                - MEDICARE_NATIONAL
+                - MAC_COVERAGE
+                - CMS_MANUAL
+                - CMS_PAYMENT
+                - OFFICIAL_CODING
+                - DRUG_TERMINOLOGY
+                - DRUG_LABEL
+                - PHARMACOLOGY
+                - CLINICAL_EVIDENCE
+                - CLINICAL_PROTOCOL
+                - PATIENT_EVIDENCE
+                - DETERMINISTIC_DERIVATION
+                - MODEL_INFERENCE
+                - SPARTAN_WORKFLOW
+                - QUALITY_REPORTING
+                - COMPLIANCE
+              claimTypes:
+                type: array
+                items:
+                  type: string
+                  enum:
+                  - LEGAL_REQUIREMENT
+                  - MEDICARE_COVERAGE_REQUIREMENT
+                  - MEDICARE_PAYMENT_RULE
+                  - MEDICARE_CLAIMS_RULE
+                  - CODING_RULE
+                  - CODE_DEFINITION
+                  - DRUG_IDENTITY
+                  - DRUG_LABEL_FACT
+                  - DRUG_INTERACTION_FACT
+                  - CLINICAL_RESEARCH_EVIDENCE
+                  - CLINICAL_PROTOCOL_GUIDANCE
+                  - PATIENT_SOURCE_FACT
+                  - DERIVED_PATIENT_FACT
+                  - CLINICAL_INFERENCE
+                  - WORKFLOW_GUIDANCE
+                  - QUALITY_REPORTING_RULE
+                  - COMPLIANCE_GUIDANCE
+                minItems: 1
+                maxItems: 100
+              officialUrl:
+                type: string
+                format: uri
+                maxLength: 2000
+              educationalOnly:
+                type: boolean
+            required:
+            - id
+            - metadataRevision
+            - publisher
+            - title
+            - domain
+            - claimTypes
+            - officialUrl
+            - educationalOnly
+            additionalProperties: false
+          version:
+            type: object
+            properties:
+              id:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              sourceId:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              sourceMetadataRevision:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+                exclusiveMinimum: 0
+              documentId:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              upstreamEdition:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              artifactRevision:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+                exclusiveMinimum: 0
+              rawHash:
+                type: string
+                pattern: ^[a-f0-9]{64}$
+              normalizedHash:
+                type: string
+                pattern: ^[a-f0-9]{64}$
+              parserId:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              parserVersion:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+              sourceUrl:
+                type: string
+                format: uri
+                maxLength: 2000
+              publishedAt:
+                type: string
+                format: date-time
+              retrievedAt:
+                type: string
+                format: date-time
+              effectiveFrom:
+                type: string
+                pattern: ^\d{4}-\d{2}-\d{2}$
+              effectiveTo:
+                anyOf:
+                - type: string
+                  pattern: ^\d{4}-\d{2}-\d{2}$
+                - type: 'null'
+              applicability:
+                type: object
+                properties:
+                  payers:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                      - TRADITIONAL_MEDICARE
+                      - MEDICAID
+                      - COMMERCIAL
+                      - OTHER
+                    minItems: 1
+                    maxItems: 100
+                  jurisdictions:
+                    type: array
+                    items:
+                      type: string
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                    minItems: 1
+                    maxItems: 100
+                  macs:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  providerTypes:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  settings:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  benefitPeriods:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  codeEditions:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  products:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                  populations:
+                    anyOf:
+                    - type: array
+                      items:
+                        type: string
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                      minItems: 1
+                      maxItems: 100
+                    - type: 'null'
+                required:
+                - payers
+                - jurisdictions
+                - macs
+                - providerTypes
+                - settings
+                - benefitPeriods
+                - codeEditions
+                - products
+                - populations
+                additionalProperties: false
+              legacyCoverageSnapshotId:
+                anyOf:
+                - type: string
+                  format: uuid
+                - type: 'null'
+              rightsRevisionId:
+                type: string
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+            required:
+            - id
+            - sourceId
+            - sourceMetadataRevision
+            - documentId
+            - upstreamEdition
+            - artifactRevision
+            - rawHash
+            - normalizedHash
+            - parserId
+            - parserVersion
+            - sourceUrl
+            - publishedAt
+            - retrievedAt
+            - effectiveFrom
+            - effectiveTo
+            - applicability
+            - legacyCoverageSnapshotId
+            - rightsRevisionId
+            additionalProperties: false
+        required:
+        - operation
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - source
+        - version
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - SUBMIT
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - APPROVE
+          reviewDueAt:
+            anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - reviewDueAt
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - REAPPROVE
+          reviewDueAt:
+            anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - reviewDueAt
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - REJECT_REVIEW
+          reviewDueAt:
+            anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - reviewDueAt
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - ACTIVATE
+          approvalId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          serviceFrom:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          serviceTo:
+            anyOf:
+            - type: string
+              pattern: ^\d{4}-\d{2}-\d{2}$
+            - type: 'null'
+          applicability:
+            type: object
+            properties:
+              payers:
+                type: array
+                items:
+                  type: string
+                  enum:
+                  - TRADITIONAL_MEDICARE
+                  - MEDICAID
+                  - COMMERCIAL
+                  - OTHER
+                minItems: 1
+                maxItems: 100
+              jurisdictions:
+                type: array
+                items:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                minItems: 1
+                maxItems: 100
+              macs:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              providerTypes:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              settings:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              benefitPeriods:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              codeEditions:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              products:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+              populations:
+                anyOf:
+                - type: array
+                  items:
+                    type: string
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                  minItems: 1
+                  maxItems: 100
+                - type: 'null'
+            required:
+            - payers
+            - jurisdictions
+            - macs
+            - providerTypes
+            - settings
+            - benefitPeriods
+            - codeEditions
+            - products
+            - populations
+            additionalProperties: false
+          enabledUses:
+            type: array
+            items:
+              type: string
+              enum:
+              - INTERNAL_STORAGE
+              - MODEL_INPUT
+              - PROMPT_USE
+              - CUSTOMER_DISPLAY
+              - DERIVED_OUTPUT
+              - REDISTRIBUTION
+            minItems: 1
+            maxItems: 100
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - approvalId
+        - serviceFrom
+        - serviceTo
+        - applicability
+        - enabledUses
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - SUPERSEDE
+          assignmentId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          approvalId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          cutover:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - assignmentId
+        - approvalId
+        - cutover
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - ROLLBACK
+          assignmentId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          approvalId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          cutover:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - assignmentId
+        - approvalId
+        - cutover
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - REFRESH_APPROVAL
+          assignmentId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          approvalId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - assignmentId
+        - approvalId
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - REVOKE
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - RECORD_HEALTH
+          health:
+            type: object
+            properties:
+              state:
+                type: string
+                enum:
+                - NOT_CHECKED
+                - CURRENT
+                - STALE_ALLOWED_WITH_WARNING
+                - STALE_BLOCKED
+                - UPSTREAM_UNAVAILABLE
+                - REVOKED
+              checkedAt:
+                anyOf:
+                - type: string
+                  format: date-time
+                - type: 'null'
+              lastValidatedAt:
+                anyOf:
+                - type: string
+                  format: date-time
+                - type: 'null'
+              warningAt:
+                anyOf:
+                - type: string
+                  format: date-time
+                - type: 'null'
+              hardExpiresAt:
+                anyOf:
+                - type: string
+                  format: date-time
+                - type: 'null'
+              lkg:
+                anyOf:
+                - type: object
+                  properties:
+                    id:
+                      type: string
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                    reviewManifestDigest:
+                      type: string
+                      pattern: ^[a-f0-9]{64}$
+                    reviewerMemberId:
+                      type: integer
+                      minimum: -9007199254740991
+                      maximum: 9007199254740991
+                      exclusiveMinimum: 0
+                    healthGrantId:
+                      type: string
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                    reviewGrantId:
+                      type: string
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                    qualificationId:
+                      type: string
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+                    approvedAt:
+                      type: string
+                      format: date-time
+                    until:
+                      type: string
+                      format: date-time
+                  required:
+                  - id
+                  - reviewManifestDigest
+                  - reviewerMemberId
+                  - healthGrantId
+                  - reviewGrantId
+                  - qualificationId
+                  - approvedAt
+                  - until
+                  additionalProperties: false
+                - type: 'null'
+            required:
+            - state
+            - checkedAt
+            - lastValidatedAt
+            - warningAt
+            - hardExpiresAt
+            - lkg
+            additionalProperties: false
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - health
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - APPROVE_LKG
+          until:
+            type: string
+            format: date-time
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - until
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          versionId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          operation:
+            type: string
+            enum:
+            - REVOKE_RIGHTS
+          expectedRightsRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - versionId
+        - operation
+        - expectedRightsRevision
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          operation:
+            type: string
+            enum:
+            - REVOKE_GRANT
+          credentialId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          expectedCredentialRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - operation
+        - credentialId
+        - expectedCredentialRevision
+        additionalProperties: false
+      - type: object
+        properties:
+          expectedScopeRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          expectedVersionRevisions:
+            type: object
+            additionalProperties:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            maxProperties: 2000
+          operation:
+            type: string
+            enum:
+            - REVOKE_QUALIFICATION
+          credentialId:
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+          expectedCredentialRevision:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+        required:
+        - expectedScopeRevision
+        - expectedVersionRevisions
+        - operation
+        - credentialId
+        - expectedCredentialRevision
+        additionalProperties: false
+    KnowledgeControlError:
+      type: object
+      properties:
+        code:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{0,79}$
+        retry:
+          type: string
+          enum: [SAME_KEY_AND_PAYLOAD]
+      required:
+      - code
+      additionalProperties: false
+    KnowledgeCommandResult:
+      type: object
+      properties:
+        scopeRevision: &id002
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        versionIds:
+          type: array
+          maxItems: 2000
+          items: &id001
+            type: string
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+        assignmentIds:
+          type: array
+          maxItems: 4000
+          items: *id001
+        eventIds:
+          type: array
+          maxItems: 1
+          items: *id001
+      required:
+      - scopeRevision
+      - versionIds
+      - assignmentIds
+      - eventIds
+      additionalProperties: false
+    KnowledgeScopeResult:
+      type: object
+      properties:
+        scope:
+          type: object
+          properties:
+            id: *id001
+            kind:
+              type: string
+              enum:
+              - GLOBAL
+              - TENANT
+            organizationId:
+              anyOf:
+              - type: integer
+                minimum: 1
+              - type: 'null'
+          required:
+          - id
+          - kind
+          - organizationId
+          additionalProperties: false
+        revision: *id002
+        configuration:
+          type: object
+          properties:
+            supportedPayers:
+              type: array
+              maxItems: 100
+              items:
+                type: string
+                enum:
+                - TRADITIONAL_MEDICARE
+                - MEDICAID
+                - COMMERCIAL
+                - OTHER
+            supportedJurisdictions:
+              type: array
+              maxItems: 100
+              items: *id001
+          required:
+          - supportedPayers
+          - supportedJurisdictions
+          additionalProperties: false
+        readableDomains:
+          type: array
+          maxItems: 19
+          items: *id001
+      required:
+      - scope
+      - revision
+      - configuration
+      - readableDomains
+      additionalProperties: false
+    KnowledgeSourcesMetadata:
+      type: object
+      properties:
+        id: *id001
+        metadata_revision: *id002
+        publisher:
+          type: string
+          maxLength: 200
+        title:
+          type: string
+          maxLength: 300
+        domain: *id001
+        claim_types:
+          type: array
+          maxItems: 100
+          items: *id001
+        official_url:
+          type: string
+          format: uri
+          maxLength: 2000
+        educational_only:
+          type: boolean
+      required:
+      - id
+      - metadata_revision
+      - publisher
+      - title
+      - domain
+      - claim_types
+      - official_url
+      - educational_only
+      additionalProperties: false
+    KnowledgeVersionsMetadata:
+      type: object
+      properties:
+        id: *id001
+        source_id: *id001
+        source_metadata_revision: *id002
+        document_id: *id001
+        upstream_edition: *id001
+        artifact_revision: *id002
+        state: *id001
+        revision: *id002
+        effective_from:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+        effective_to:
+          anyOf:
+          - type: string
+            pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+          - type: 'null'
+        rights_revision_id: *id001
+      required:
+      - id
+      - source_id
+      - source_metadata_revision
+      - document_id
+      - upstream_edition
+      - artifact_revision
+      - state
+      - revision
+      - effective_from
+      - effective_to
+      - rights_revision_id
+      additionalProperties: false
+    KnowledgeAssignmentsMetadata:
+      type: object
+      properties:
+        id: *id001
+        source_id: *id001
+        document_id: *id001
+        version_id: *id001
+        approval_id: *id001
+        review_manifest_digest: &id003
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        service_from:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+        service_to:
+          anyOf:
+          - type: string
+            pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+          - type: 'null'
+        enabled_uses:
+          type: array
+          maxItems: 100
+          items: *id001
+        revision: *id002
+        retired_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        predecessor_assignment_id:
+          anyOf:
+          - *id001
+          - type: 'null'
+      required:
+      - id
+      - source_id
+      - document_id
+      - version_id
+      - approval_id
+      - review_manifest_digest
+      - service_from
+      - service_to
+      - enabled_uses
+      - revision
+      - retired_at
+      - predecessor_assignment_id
+      additionalProperties: false
+    KnowledgeApprovalsMetadata:
+      type: object
+      properties:
+        id: *id001
+        version_id: *id001
+        review_manifest_digest: *id003
+        reviewed_at:
+          type: string
+          format: date-time
+        review_due_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - version_id
+      - review_manifest_digest
+      - reviewed_at
+      - review_due_at
+      additionalProperties: false
+    KnowledgeClientUpgradeError:
+      type: object
+      properties:
+        error: {type: string, enum: ['Client upgrade required']}
+        code: {type: string, enum: [CLIENT_UPGRADE_REQUIRED]}
+        reason: {type: string, enum: [invalid_version, below_min_ios, api_contract_too_old]}
+        minIosAppVersion: {type: string}
+        apiContractVersion: {type: integer}
+      required: [error, code, reason, minIosAppVersion, apiContractVersion]
+      additionalProperties: false
+    KnowledgeMetadataQuery:
+      oneOf:
+      - type: object
+        properties:
+          kind: {type: string, enum: [sources, versions, assignments]}
+          domain: &knowledgeQueryDomain
+            type: string
+            enum: [STATUTE, REGULATION, STATE_LAW, MEDICARE_NATIONAL, MAC_COVERAGE, CMS_MANUAL, CMS_PAYMENT, OFFICIAL_CODING, DRUG_TERMINOLOGY, DRUG_LABEL, PHARMACOLOGY, CLINICAL_EVIDENCE, CLINICAL_PROTOCOL, PATIENT_EVIDENCE, DETERMINISTIC_DERIVATION, MODEL_INFERENCE, SPARTAN_WORKFLOW, QUALITY_REPORTING, COMPLIANCE]
+          limit: &knowledgeQueryLimit {type: integer, minimum: 1, maximum: 100, default: 25}
+          cursor: &knowledgeQueryCursor {type: string, maxLength: 512}
+        required: [kind, domain]
+        additionalProperties: false
+      - type: object
+        properties:
+          kind: {type: string, enum: [approvals]}
+          domain: *knowledgeQueryDomain
+          versionId: *id001
+          limit: *knowledgeQueryLimit
+          cursor: *knowledgeQueryCursor
+        required: [kind, domain, versionId]
+        additionalProperties: false
+    KnowledgeMetadataResult:
+      type: object
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/KnowledgeSourcesMetadata'
+            - $ref: '#/components/schemas/KnowledgeVersionsMetadata'
+            - $ref: '#/components/schemas/KnowledgeAssignmentsMetadata'
+            - $ref: '#/components/schemas/KnowledgeApprovalsMetadata'
+        nextCursor:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+      required:
+      - items
+      - nextCursor
+      additionalProperties: false
     LoginRequest:
       type: object
       required: [email, password]

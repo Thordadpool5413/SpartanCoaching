@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import request from "supertest";
 import app from "../app";
+import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 import {
   GetMemberSyncResponse,
   PostMemberSyncResponse,
@@ -78,6 +79,55 @@ describe("OpenAPI registered route contract", () => {
     expect((await request(app).get("/api/auth/me")).status).toBe(401);
     expect((await request(app).get("/api/v1/member-sync")).status).toBe(401);
     expect((await request(app).post("/api/v1/member-work").send({})).status).toBe(401);
+  });
+
+  it("applies the existing iOS version and API contract gate to every early control surface", async () => {
+    vi.stubEnv("ENFORCE_MIN_IOS_VERSION", "true");
+    vi.stubEnv("MIN_IOS_APP_VERSION", "1.0.0");
+    vi.stubEnv("KNOWLEDGE_CONTROL_ENABLED", "true");
+    try {
+      for (const path of [
+        "/api/knowledge-control/tenant/scope",
+        "/api/knowledge-control/global/metadata",
+        "/api/knowledge-control/tenant/commands",
+      ]) {
+        for (const [version, contract] of [
+          ["0.9.0", String(API_CONTRACT_VERSION)],
+          ["1.0.0", "0"],
+        ]) {
+          const call = path.endsWith("commands")
+            ? request(app).post(path).send({})
+            : request(app).get(path);
+          const response = await call
+            .set("Authorization", "Bearer synthetic-native-session")
+            .set("x-client-platform", "ios")
+            .set("x-client-version", version)
+            .set("x-client-api-contract", contract);
+          expect(response.status).toBe(426);
+          expect(response.body.code).toBe("CLIENT_UPGRADE_REQUIRED");
+          expect(response.headers["cache-control"]).toContain("no-store");
+        }
+      }
+      expect(
+        (
+          await request(app)
+            .get("/api/knowledge-control/tenant/scope")
+            .set("x-client-platform", "ios")
+            .set("x-client-version", "1.0.0")
+            .set("x-client-api-contract", String(API_CONTRACT_VERSION))
+        ).status,
+      ).toBe(401);
+      expect(
+        (
+          await request(app)
+            .get("/api/healthz")
+            .set("x-client-platform", "ios")
+            .set("x-client-version", "0.0.0")
+        ).status,
+      ).toBe(200);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("validates authenticated in-memory success fixtures with generated schemas", () => {
