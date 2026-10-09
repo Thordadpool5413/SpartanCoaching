@@ -107,6 +107,11 @@ app.use(applySecurityHeaders);
 app.use("/api/knowledge-control", (_req,res,next)=>{res.setHeader("Cache-Control","no-store");next();});
 app.use(requireTrustedMutationOrigin);
 app.use("/api/knowledge-control", globalApiLimit, knowledgeRouter(pool));
+app.set("apiRouteManifest", [
+  "POST /api/knowledge-control/:scopeKind/commands",
+  "GET /api/knowledge-control/:scopeKind/scope",
+  "GET /api/knowledge-control/:scopeKind/metadata",
+]);
 
 app.post(
   "/api/billing/webhook",

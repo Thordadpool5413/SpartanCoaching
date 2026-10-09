@@ -279,6 +279,17 @@ export async function projectCommand(
       [scopeId, rightIds],
     )
   ).rows;
+  if (
+    command.operation === "REGISTER" &&
+    !seed &&
+    overlays.some(
+      (r) =>
+        r.rights_revision_id ===
+          command.version.rightsOverlay.rightsRevisionId &&
+        r.revoked_at !== null,
+    )
+  )
+    throw new Error("KNOWLEDGE_LICENSE_DENIED");
   const lockedHealth = (
     await c.query<Row>(
       'SELECT h.* FROM knowledge_health_observations h JOIN knowledge_versions v ON v.scope_id=h.scope_id AND v.version_id=h.version_id AND v.current_health_revision=h.version_revision WHERE h.scope_id=$1 AND h.version_id=ANY($2::text[]) ORDER BY h.version_id COLLATE "C" FOR UPDATE OF h',

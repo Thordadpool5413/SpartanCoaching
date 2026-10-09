@@ -6,6 +6,7 @@ const zodApi = resolve(root, "lib/api-zod/src/generated/api.ts");
 let source = readFileSync(zodApi, "utf8")
   .replaceAll("zod.uuid()", "zod.string().uuid()")
   .replaceAll("zod.email()", "zod.string().email()")
+  .replaceAll("zod.url()", "zod.string().url()")
   .replaceAll("zod.looseObject(", "looseObject(")
   .replace(/\n{3,}/g, "\n\n")
   .trimEnd();

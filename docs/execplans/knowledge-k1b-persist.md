@@ -57,12 +57,74 @@ mandatory CI jobs will run against PostgreSQL 16. No production database is used
 
 ## Evidence ledger
 
-The schema, adapter, control plane, outbox and recovery extensions are drafted.
-Root typecheck passed. Focused K1A/control/auth/session/request-security tests:
-5 files, 674 tests passed. Database integration is not yet verified. No commits,
-PR, migration application, merge, activation or completion claim exists yet.
-Every test result, concurrency scenario, P02/P03 result, commit, PR/head/run,
-merge SHA and exact-main result must be added here before declaring completion.
+The first reviewed implementation commit is
+`7c0125771f6520d522303abb78096baf86c732c0` on draft PR #191. Native push lacks
+credentials; GitHub connector publication produced the exact same reviewed tree
+(`a6b7566073291b89bd5a5ab31cfe18abd477fe39`). Local branch was aligned to that
+commit with all work preserved. No merge or production application occurred.
+
+First PR CI: `37966405170`; migration equivalence (P02), secret scan and dependency
+audit passed. API container CI `37966405172` passed. API and P03 exposed an invalid
+synthetic refresh fixture: it reused the current publication approval. K1A
+correctly rejected it. The fixture now creates a distinct reapproval; regression
+commands use that approval. New current-head CI is required after these repairs.
+No architecture was changed.
+
+Local evidence so far:
+
+| Command                                           | Actual result                                                                                       |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                  | Passed; lockfile unchanged                                                                          |
+| `pnpm run typecheck`                              | Passed, including generated K1B contracts                                                           |
+| Focused K1A/auth/session/request-security         | 5 files / 674 passed                                                                                |
+| `pnpm --filter @workspace/api-server test`        | 54 passed files, 6 skipped; 985 passed, 29 skipped (PostgreSQL unavailable)                         |
+| Focused control/deadline worker tests             | 2 files; 8 passed, 2 PostgreSQL skipped                                                             |
+| `pnpm --filter @workspace/db test`                | 45 passed, 9 PostgreSQL skipped                                                                     |
+| `pnpm generate:api`                               | Passed after extending existing Zod 3 normalization for generated URL validators                    |
+| Registered OpenAPI route contract                 | 3 passed                                                                                            |
+| `pnpm --filter @workspace/spartan-ai-tools test`  | 94 passed                                                                                           |
+| `pnpm --filter @workspace/field-kit-catalog test` | 97 passed                                                                                           |
+| `pnpm --filter @workspace/spartan-coaching test`  | 328 passed                                                                                          |
+| Mobile Jest `--runInBand`                         | 60 suites / 298 passed                                                                              |
+| Existing forge / dependency / attestation tests   | Passed; existing approved audit disposition `MUTED_FINDINGS`                                        |
+| `pnpm run build` with synthetic CI domain         | API/web builds passed; overall mobile build blocked by host `uv_interface_addresses` restriction    |
+| `pnpm run release-gate`                           | Automated suites passed; existing owner-only live/device checks remain unverified                   |
+| `pnpm run test:e2e`                               | Failed because matching Playwright binaries were absent; workspace browser installation in progress |
+
+## Architecture implementation matrix
+
+| Approved requirement                                                                | Implementation / regression evidence                                                                                                                                           |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 18 durable authority/history tables                                                 | 0031, schema/knowledge.ts, migration inventory; schema integration                                                                                                             |
+| Scope-qualified FK / safe revisions / immutable history                             | SQL-owned checks, deferred audit/history guards, non-owner privileges; schema integration                                                                                      |
+| Source revisions / artifact identity / revision-qualified rights                    | SQL PK/semantic UNIQUE, codec + K1A hydration; commands and parity integration                                                                                                 |
+| Credentials / ancestry / qualification / health / LKG / approval / publication pins | Bounded recursive projection, immutable histories and delta CAS; parity/all-human-command integration                                                                          |
+| Server Actor and authority                                                          | Existing cookie-first token extraction, locked canonical identities, grant/qualification predicates; auth/routes/identity/concurrency tests                                    |
+| Strict control surface                                                              | Three disabled-by-default knowledge-control routes, duplicate JSON rejection, bounded metadata/cursor, no-store, existing API rate limit; generated OpenAPI + route tests      |
+| One-scope / ordered locks / five-second budget                                      | Same checked-out canonical-pool connection, READ COMMITTED, remaining-time SQL, scope→identity→artifact→credentials→rights→health; deadline/concurrency integration            |
+| Fresh decision / precommit time checks                                              | Refreshed locked session/member/org eligibility; pure worker reevaluation and exact witness comparison; session/selected-grant expiry tests                                    |
+| Idempotency and uncertain COMMIT                                                    | Durable immutable receipt, current authority before fingerprint/replay, no automatic retry; idempotency + confirmed-abort/lost-response tests                                  |
+| Atomic audit/outbox                                                                 | Canonical event v3 body/hash, scoped direct references, same transaction with receipt; commands/outbox integration                                                             |
+| Lease/retry/consumer/expiry                                                         | SKIP LOCKED, token CAS, attempt cap 10, durable consumer dedup, one expiry per transaction; outbox tests and P03                                                               |
+| Bounded observability                                                               | Fixed numeric counters and capped samples, sanitized reserved paths, no identities/content/keys/tokens; sentinel regression                                                    |
+| P02                                                                                 | Independent Drizzle + knowledge-owned declaration compared across all existing catalog categories; first CI passed, changed schema awaits fresh CI                             |
+| P03                                                                                 | Complete synthetic GLOBAL + two tenants, all histories/receipts/outbox states; real dump/restore plus replay/consumer/lease/isolation checks; repaired fixture awaits fresh CI |
+
+Required K1B regressions run through the existing mandatory API test command:
+schema, parity, commands, concurrency (14 both-order races), idempotency, deadline,
+outbox, control auth/routes and knowledgeIdentityLocking integration. Enabled
+PostgreSQL execution refuses missing/non-loopback infrastructure rather than
+silently skipping. Scope capacity uses full-scope counts, while writes apply only
+the projected delta. No K1A implementation files or historical evidence changed.
+
+## Outstanding completion evidence
+
+Re-run fresh-head PostgreSQL/API/P02/P03 and all mandatory CI after committed
+repairs. Review the complete final diff and all generated contracts, refresh main,
+verify ancestry/intervening work, then merge only through authorized normal PR
+flow and verify exact post-merge main CI. Current-head green and final completion
+are not claimed yet. Local real PostgreSQL and complete mobile build remain
+unverified due to the stated host restrictions.
 
 ## Stop conditions and owner actions
 

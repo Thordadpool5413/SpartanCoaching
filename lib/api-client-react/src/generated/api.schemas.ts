@@ -11,6 +11,527 @@
  *
  * OpenAPI spec version: 0.1.0
  */
+export type KnowledgeControlCommand = {
+  operation: 'REGISTER';
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  source: {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     * @exclusiveMinimum 0
+     */
+  metadataRevision: number;
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  publisher: string;
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  title: string;
+  domain: 'STATUTE' | 'REGULATION' | 'STATE_LAW' | 'MEDICARE_NATIONAL' | 'MAC_COVERAGE' | 'CMS_MANUAL' | 'CMS_PAYMENT' | 'OFFICIAL_CODING' | 'DRUG_TERMINOLOGY' | 'DRUG_LABEL' | 'PHARMACOLOGY' | 'CLINICAL_EVIDENCE' | 'CLINICAL_PROTOCOL' | 'PATIENT_EVIDENCE' | 'DETERMINISTIC_DERIVATION' | 'MODEL_INFERENCE' | 'SPARTAN_WORKFLOW' | 'QUALITY_REPORTING' | 'COMPLIANCE';
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  claimTypes: ('LEGAL_REQUIREMENT' | 'MEDICARE_COVERAGE_REQUIREMENT' | 'MEDICARE_PAYMENT_RULE' | 'MEDICARE_CLAIMS_RULE' | 'CODING_RULE' | 'CODE_DEFINITION' | 'DRUG_IDENTITY' | 'DRUG_LABEL_FACT' | 'DRUG_INTERACTION_FACT' | 'CLINICAL_RESEARCH_EVIDENCE' | 'CLINICAL_PROTOCOL_GUIDANCE' | 'PATIENT_SOURCE_FACT' | 'DERIVED_PATIENT_FACT' | 'CLINICAL_INFERENCE' | 'WORKFLOW_GUIDANCE' | 'QUALITY_REPORTING_RULE' | 'COMPLIANCE_GUIDANCE')[];
+  /** @maxLength 2000 */
+  officialUrl: string;
+  educationalOnly: boolean;
+};
+  version: {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  sourceId: string;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     * @exclusiveMinimum 0
+     */
+  sourceMetadataRevision: number;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  documentId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  upstreamEdition: string;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     * @exclusiveMinimum 0
+     */
+  artifactRevision: number;
+  /** @pattern ^[a-f0-9]{64}$ */
+  rawHash: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  normalizedHash: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  parserId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  parserVersion: string;
+  /** @maxLength 2000 */
+  sourceUrl: string;
+  publishedAt: string;
+  retrievedAt: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  applicability: {
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  payers: ('TRADITIONAL_MEDICARE' | 'MEDICAID' | 'COMMERCIAL' | 'OTHER')[];
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  jurisdictions: string[];
+  macs: string[] | null;
+  providerTypes: string[] | null;
+  settings: string[] | null;
+  benefitPeriods: string[] | null;
+  codeEditions: string[] | null;
+  products: string[] | null;
+  populations: string[] | null;
+};
+  legacyCoverageSnapshotId: string | null;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  rightsRevisionId: string;
+};
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'SUBMIT';
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'APPROVE';
+  reviewDueAt: string | null;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'REAPPROVE';
+  reviewDueAt: string | null;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'REJECT_REVIEW';
+  reviewDueAt: string | null;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'ACTIVATE';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  approvalId: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  serviceFrom: string;
+  serviceTo: string | null;
+  applicability: {
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  payers: ('TRADITIONAL_MEDICARE' | 'MEDICAID' | 'COMMERCIAL' | 'OTHER')[];
+  /**
+     * @minItems 1
+     * @maxItems 100
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  jurisdictions: string[];
+  macs: string[] | null;
+  providerTypes: string[] | null;
+  settings: string[] | null;
+  benefitPeriods: string[] | null;
+  codeEditions: string[] | null;
+  products: string[] | null;
+  populations: string[] | null;
+};
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  enabledUses: ('INTERNAL_STORAGE' | 'MODEL_INPUT' | 'PROMPT_USE' | 'CUSTOMER_DISPLAY' | 'DERIVED_OUTPUT' | 'REDISTRIBUTION')[];
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'SUPERSEDE';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  assignmentId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  approvalId: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  cutover: string;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'ROLLBACK';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  assignmentId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  approvalId: string;
+  /** @pattern ^\d{4}-\d{2}-\d{2}$ */
+  cutover: string;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'REFRESH_APPROVAL';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  assignmentId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  approvalId: string;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'REVOKE';
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'RECORD_HEALTH';
+  health: {
+  state: 'NOT_CHECKED' | 'CURRENT' | 'STALE_ALLOWED_WITH_WARNING' | 'STALE_BLOCKED' | 'UPSTREAM_UNAVAILABLE' | 'REVOKED';
+  checkedAt: string | null;
+  lastValidatedAt: string | null;
+  warningAt: string | null;
+  hardExpiresAt: string | null;
+  lkg: {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  reviewManifestDigest: string;
+  /**
+     * @minimum -9007199254740991
+     * @maximum 9007199254740991
+     * @exclusiveMinimum 0
+     */
+  reviewerMemberId: number;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  healthGrantId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  reviewGrantId: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  qualificationId: string;
+  approvedAt: string;
+  until: string;
+} | null;
+};
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'APPROVE_LKG';
+  until: string;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  versionId: string;
+  operation: 'REVOKE_RIGHTS';
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedRightsRevision: number;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  operation: 'REVOKE_GRANT';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  credentialId: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedCredentialRevision: number;
+} | {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedScopeRevision: number;
+  expectedVersionRevisions: {[key: string]: number};
+  operation: 'REVOKE_QUALIFICATION';
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  credentialId: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  expectedCredentialRevision: number;
+};
+
+export type KnowledgeControlErrorRetry = typeof KnowledgeControlErrorRetry[keyof typeof KnowledgeControlErrorRetry];
+
+
+export const KnowledgeControlErrorRetry = {
+  SAME_KEY_AND_PAYLOAD: 'SAME_KEY_AND_PAYLOAD',
+} as const;
+
+export interface KnowledgeControlError {
+  /** @pattern ^[A-Z][A-Z0-9_]{0,79}$ */
+  code: string;
+  retry?: KnowledgeControlErrorRetry;
+}
+
+export interface KnowledgeCommandResult {
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  scopeRevision: number;
+  /**
+     * @maxItems 2000
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  versionIds: string[];
+  /**
+     * @maxItems 4000
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  assignmentIds: string[];
+  /**
+     * @maxItems 1
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  eventIds: string[];
+}
+
+export type KnowledgeScopeResultScopeKind = typeof KnowledgeScopeResultScopeKind[keyof typeof KnowledgeScopeResultScopeKind];
+
+
+export const KnowledgeScopeResultScopeKind = {
+  GLOBAL: 'GLOBAL',
+  TENANT: 'TENANT',
+} as const;
+
+export type KnowledgeScopeResultScope = {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  kind: KnowledgeScopeResultScopeKind;
+  organizationId: number | null;
+};
+
+export type KnowledgeScopeResultConfigurationSupportedPayersItem = typeof KnowledgeScopeResultConfigurationSupportedPayersItem[keyof typeof KnowledgeScopeResultConfigurationSupportedPayersItem];
+
+
+export const KnowledgeScopeResultConfigurationSupportedPayersItem = {
+  TRADITIONAL_MEDICARE: 'TRADITIONAL_MEDICARE',
+  MEDICAID: 'MEDICAID',
+  COMMERCIAL: 'COMMERCIAL',
+  OTHER: 'OTHER',
+} as const;
+
+export type KnowledgeScopeResultConfiguration = {
+  /** @maxItems 100 */
+  supportedPayers: KnowledgeScopeResultConfigurationSupportedPayersItem[];
+  /**
+     * @maxItems 100
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  supportedJurisdictions: string[];
+};
+
+export interface KnowledgeScopeResult {
+  scope: KnowledgeScopeResultScope;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  revision: number;
+  configuration: KnowledgeScopeResultConfiguration;
+  /**
+     * @maxItems 19
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  readableDomains: string[];
+}
+
+export interface KnowledgeSourcesMetadata {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  metadata_revision: number;
+  /** @maxLength 200 */
+  publisher: string;
+  /** @maxLength 300 */
+  title: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  domain: string;
+  /**
+     * @maxItems 100
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  claim_types: string[];
+  /** @maxLength 2000 */
+  official_url: string;
+  educational_only: boolean;
+}
+
+export interface KnowledgeVersionsMetadata {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  source_id: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  source_metadata_revision: number;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  document_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  upstream_edition: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  artifact_revision: number;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  state: string;
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  revision: number;
+  /** @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ */
+  effective_from: string;
+  effective_to: string | null;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  rights_revision_id: string;
+}
+
+export interface KnowledgeAssignmentsMetadata {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  source_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  document_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  version_id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  approval_id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  review_manifest_digest: string;
+  /** @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ */
+  service_from: string;
+  service_to: string | null;
+  /**
+     * @maxItems 100
+     * @items.pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+     */
+  enabled_uses: string[];
+  /**
+     * @minimum 0
+     * @maximum 9007199254740991
+     */
+  revision: number;
+  retired_at: string | null;
+  predecessor_assignment_id: string | null;
+}
+
+export interface KnowledgeApprovalsMetadata {
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  id: string;
+  /** @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$ */
+  version_id: string;
+  /** @pattern ^[a-f0-9]{64}$ */
+  review_manifest_digest: string;
+  reviewed_at: string;
+  review_due_at: string;
+}
+
+export interface KnowledgeMetadataResult {
+  /** @maxItems 100 */
+  items: (KnowledgeSourcesMetadata | KnowledgeVersionsMetadata | KnowledgeAssignmentsMetadata | KnowledgeApprovalsMetadata)[];
+  nextCursor: string | null;
+}
+
 export interface LoginRequest {
   email: string;
   /** @minLength 1 */
@@ -579,6 +1100,49 @@ export interface WorkspaceNextMoveResponse {
  * Error response
  */
 export type ErrorResponse = ErrorEnvelope;
+
+export type ExecuteKnowledgeCommand429 = {
+  error: string;
+};
+
+export type GetKnowledgeScope429 = {
+  error: string;
+};
+
+export type GetKnowledgeMetadataParams = {
+kind: GetKnowledgeMetadataKind;
+/**
+ * @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+ */
+domain: string;
+/**
+ * @pattern ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+ */
+versionId?: string;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * @maxLength 512
+ */
+cursor?: string;
+};
+
+export type GetKnowledgeMetadataKind = typeof GetKnowledgeMetadataKind[keyof typeof GetKnowledgeMetadataKind];
+
+
+export const GetKnowledgeMetadataKind = {
+  sources: 'sources',
+  versions: 'versions',
+  assignments: 'assignments',
+  approvals: 'approvals',
+} as const;
+
+export type GetKnowledgeMetadata429 = {
+  error: string;
+};
 
 export type CreateCoachConversationBody = {
   /**

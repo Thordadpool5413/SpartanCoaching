@@ -5,6 +5,8 @@ import { preliminaryAuth } from "../control/auth";
 import { projectCommand } from "./projection";
 import { canonicalDigest } from "../foundation/canonical";
 import { transitionKnowledge } from "../foundation/lifecycle";
+import { resolvePersistedKnowledge } from "./resolution";
+import { createKnowledgeRegistry } from "../foundation/resolver";
 databaseSuite("K1B SQL projection and K1A parity", () => {
   const db = databaseFixture();
   it("round-trips source, artifact, rights, credentials, review, health/LKG and publication", async () => {
@@ -67,5 +69,35 @@ databaseSuite("K1B SQL projection and K1A parity", () => {
     } finally {
       await c.close();
     }
+  });
+  it("internal resolver matches the canonical GLOBAL and exact TENANT decision", async () => {
+    const context = {
+      claimType: "MEDICARE_COVERAGE_REQUIREMENT",
+      payer: "TRADITIONAL_MEDICARE",
+      jurisdiction: "US-FL",
+      mac: "SYNTHETIC-MAC",
+      serviceDate: "2026-10-09",
+      purpose: "INTERNAL_STORAGE",
+    };
+    const actor = {
+      kind: "HUMAN",
+      memberId: db.fixture.subjects[0],
+      organizationId: db.fixture.organizationId,
+      membershipActive: true,
+      organizationActive: true,
+      sessionVerified: true,
+      synthetic: true,
+    };
+    const persisted = await resolvePersistedKnowledge(
+      db.pool,
+      db.fixture.tokens.get(actor.memberId)!,
+      context,
+      true,
+    );
+    const canonical = createKnowledgeRegistry({
+      contractVersion: "knowledge-foundation-v3",
+      partitions: [db.global.state, db.fixture.state],
+    }).resolve(context, actor, new Date().toISOString());
+    expect(persisted).toEqual(canonical);
   });
 });

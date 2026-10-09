@@ -49,6 +49,10 @@ import type {
   ConversationsEnvelope,
   CreateCoachConversationBody,
   ErrorResponse,
+  ExecuteKnowledgeCommand429,
+  GetKnowledgeMetadata429,
+  GetKnowledgeMetadataParams,
+  GetKnowledgeScope429,
   GetMedicareIntelligence200,
   GetMedicareIntelligenceParams,
   GetMemberSyncParams,
@@ -58,6 +62,11 @@ import type {
   HealthStatus,
   ItemEnvelope,
   ItemsEnvelope,
+  KnowledgeCommandResult,
+  KnowledgeControlCommand,
+  KnowledgeControlError,
+  KnowledgeMetadataResult,
+  KnowledgeScopeResult,
   ListProviderResourcesParams,
   ListResourceWorkParams,
   ListSalesWorkflowAccounts200,
@@ -111,6 +120,247 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getExecuteKnowledgeCommandUrl = (scopeKind: 'global' | 'tenant',) => {
+
+
+
+
+  return `/api/knowledge-control/${scopeKind}/commands`
+}
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Mutate durable knowledge authority
+ */
+export const executeKnowledgeCommand = async (scopeKind: 'global' | 'tenant',
+    knowledgeControlCommand: KnowledgeControlCommand, options?: RequestInit): Promise<KnowledgeCommandResult> => {
+
+  return customFetch<KnowledgeCommandResult>(getExecuteKnowledgeCommandUrl(scopeKind),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(knowledgeControlCommand)
+  }
+);}
+
+
+
+
+
+export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext> => {
+
+const mutationKey = ['executeKnowledgeCommand'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof executeKnowledgeCommand>>, {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}> = (props) => {
+          const {scopeKind,data} = props ?? {};
+
+          return  executeKnowledgeCommand(scopeKind,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExecuteKnowledgeCommandMutationResult = NonNullable<Awaited<ReturnType<typeof executeKnowledgeCommand>>>
+    export type ExecuteKnowledgeCommandMutationBody = BodyType<KnowledgeControlCommand>
+    export type ExecuteKnowledgeCommandMutationError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>
+
+    /**
+ * @summary Mutate durable knowledge authority
+ */
+export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | ExecuteKnowledgeCommand429>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof executeKnowledgeCommand>>,
+        TError,
+        {scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>},
+        TContext
+      > => {
+      return useMutation(getExecuteKnowledgeCommandMutationOptions(options));
+    }
+
+export const getGetKnowledgeScopeUrl = (scopeKind: 'global' | 'tenant',) => {
+
+
+
+
+  return `/api/knowledge-control/${scopeKind}/scope`
+}
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Read authorized knowledge scope configuration
+ */
+export const getKnowledgeScope = async (scopeKind: 'global' | 'tenant', options?: RequestInit): Promise<KnowledgeScopeResult> => {
+
+  return customFetch<KnowledgeScopeResult>(getGetKnowledgeScopeUrl(scopeKind),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetKnowledgeScopeQueryKey = (scopeKind: 'global' | 'tenant',) => {
+    return [
+    `/api/knowledge-control/${scopeKind}/scope`
+    ] as const;
+    }
+
+
+export const getGetKnowledgeScopeQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>>(scopeKind: 'global' | 'tenant', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetKnowledgeScopeQueryKey(scopeKind);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getKnowledgeScope>>> = ({ signal }) => getKnowledgeScope(scopeKind, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: scopeKind !== null && scopeKind !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetKnowledgeScopeQueryResult = NonNullable<Awaited<ReturnType<typeof getKnowledgeScope>>>
+export type GetKnowledgeScopeQueryError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>
+
+
+/**
+ * @summary Read authorized knowledge scope configuration
+ */
+
+export function useGetKnowledgeScope<TData = Awaited<ReturnType<typeof getKnowledgeScope>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeScope429>>(
+ scopeKind: 'global' | 'tenant', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeScope>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetKnowledgeScopeQueryOptions(scopeKind,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetKnowledgeMetadataUrl = (scopeKind: 'global' | 'tenant',
+    params: GetKnowledgeMetadataParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/knowledge-control/${scopeKind}/metadata?${stringifiedParams}` : `/api/knowledge-control/${scopeKind}/metadata`
+}
+
+/**
+ * Disabled by default. Cookie-first or native Bearer session authentication is enforced by the server. Tenant scope and knowledge authority are derived server-side; product roles do not grant knowledge authority. Sensitive responses use Cache-Control: no-store. No source-content retrieval or ingestion.
+ * @summary Read authorized bounded knowledge metadata
+ */
+export const getKnowledgeMetadata = async (scopeKind: 'global' | 'tenant',
+    params: GetKnowledgeMetadataParams, options?: RequestInit): Promise<KnowledgeMetadataResult> => {
+
+  return customFetch<KnowledgeMetadataResult>(getGetKnowledgeMetadataUrl(scopeKind,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetKnowledgeMetadataQueryKey = (scopeKind: 'global' | 'tenant',
+    params?: GetKnowledgeMetadataParams,) => {
+    return [
+    `/api/knowledge-control/${scopeKind}/metadata`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetKnowledgeMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>>(scopeKind: 'global' | 'tenant',
+    params: GetKnowledgeMetadataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetKnowledgeMetadataQueryKey(scopeKind,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getKnowledgeMetadata>>> = ({ signal }) => getKnowledgeMetadata(scopeKind,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: scopeKind !== null && scopeKind !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetKnowledgeMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getKnowledgeMetadata>>>
+export type GetKnowledgeMetadataQueryError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>
+
+
+/**
+ * @summary Read authorized bounded knowledge metadata
+ */
+
+export function useGetKnowledgeMetadata<TData = Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError = ErrorType<KnowledgeControlError | GetKnowledgeMetadata429>>(
+ scopeKind: 'global' | 'tenant',
+    params: GetKnowledgeMetadataParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getKnowledgeMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetKnowledgeMetadataQueryOptions(scopeKind,params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getHealthCheckUrl = () => {
 

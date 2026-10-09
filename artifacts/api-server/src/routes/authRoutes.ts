@@ -2244,6 +2244,7 @@ export function registerAuthRoutes(app: Express): void {
           "Account deleted. Sign-in credentials and private Coach content were removed. Any active App Store or web subscription must still be canceled with its billing provider.",
       });
     } catch (err) {
+      if(err instanceof Error&&err.message==='IDENTITY_CHANGED_RETRY')return res.status(409).json({code:'IDENTITY_CHANGED_RETRY'});
       console.error("delete-account error:", err);
       return res.status(500).json({ error: "Unable to delete account" });
     }

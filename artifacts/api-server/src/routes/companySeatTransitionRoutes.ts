@@ -136,10 +136,18 @@ export function registerCompanySeatTransitionRoutes(app: Express): void {
           const memberId = existing.id;
 
           await tx.execute(sql`SELECT id FROM client_organizations WHERE id IN (${sourceOrganizationId},${companyOrganizationId}) ORDER BY id FOR UPDATE`);
-          const locked = await tx.execute(sql`SELECT id,organization_id FROM client_members WHERE id=${memberId} FOR UPDATE`);
-          if (locked.rows.length !== 1 || Number(locked.rows[0].organization_id) !== sourceOrganizationId)
+          const locked = await tx.execute(sql`SELECT * FROM client_members WHERE id IN (${memberId},${req.clientMemberId}) ORDER BY id FOR UPDATE`);
+          const currentMember=locked.rows.find(m=>Number(m.id)===memberId);
+          const currentAdmin=locked.rows.find(m=>Number(m.id)===req.clientMemberId);
+          if (!currentMember || Number(currentMember.organization_id) !== sourceOrganizationId || currentMember.role==='platform_admin' || !currentAdmin || Number(currentAdmin.organization_id)!==companyOrganizationId || currentAdmin.status!=='active' || !['org_admin','platform_admin'].includes(String(currentAdmin.role)))
             throw new Error("IDENTITY_CHANGED_RETRY");
-          await tx.execute(sql`SELECT id FROM client_sessions WHERE member_id=${memberId} ORDER BY id FOR UPDATE`);
+          const sessions=await tx.execute(sql`SELECT id,member_id,expires_at FROM client_sessions WHERE member_id IN (${memberId},${req.clientMemberId}) ORDER BY id FOR UPDATE`);
+          if(!sessions.rows.some(s=>Number(s.id)===req.sessionId&&Number(s.member_id)===req.clientMemberId&&new Date(String(s.expires_at)).getTime()>Date.now()))throw new Error("IDENTITY_CHANGED_RETRY");
+          const [currentCompany]=await tx.select().from(clientOrganizations).where(eq(clientOrganizations.id,companyOrganizationId));
+          const [currentSource]=await tx.select().from(clientOrganizations).where(eq(clientOrganizations.id,sourceOrganizationId));
+          if(!currentCompany||currentCompany.status!=='active'||![COMPANY_STANDARD_PLAN,COMPANY_ELITE_PLAN].includes(currentCompany.billingPlan as typeof COMPANY_STANDARD_PLAN)||currentSource?.type!=='personal')throw new Error("IDENTITY_CHANGED_RETRY");
+          const [currentCount]=await tx.select({count:sql<number>`count(*)::int`}).from(clientMembers).where(and(eq(clientMembers.organizationId,companyOrganizationId),ne(clientMembers.status,'disabled')));
+          if(seatLimitReached(currentCount?.count??0,resolveSeatCap({seatLimit:currentCompany.seatLimit,billableSeats:currentCompany.billableSeats})))throw new Error("SEAT_LIMIT_REACHED");
 
           // Private member work follows the same identity. Clinical permissions
           // and clinical cases intentionally do not transfer between tenants.
@@ -210,6 +218,7 @@ export function registerCompanySeatTransitionRoutes(app: Express): void {
           message: "Company access is active on the same Spartan account. Existing private workspace history and preferences were preserved. Any previous individual Apple subscription remains private to the member and can be managed from the member's Account screen.",
         });
       } catch (error) {
+        if(error instanceof Error&&['IDENTITY_CHANGED_RETRY','SEAT_LIMIT_REACHED'].includes(error.message)){res.status(409).json({code:error.message});return;}
         next(error);
       }
     },

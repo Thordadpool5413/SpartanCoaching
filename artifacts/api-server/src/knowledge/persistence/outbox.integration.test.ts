@@ -1,6 +1,8 @@
 import { it, expect } from "vitest";
 import { databaseSuite, databaseFixture } from "./testing.test";
 import { claimOutbox, completeOutbox, consumeEvent } from "./outbox";
+import { persistDueExpiry } from "./expiry";
+import { executeCommand } from "./commands";
 databaseSuite(
   "K1B PostgreSQL outbox lease CAS, retries and consumer atomicity",
   () => {
@@ -85,6 +87,64 @@ databaseSuite(
       expect(row.attempts).toBe(10);
       expect(row.dead_lettered_at).not.toBeNull();
       expect(row.last_error_code).toBe("ATTEMPTS_EXHAUSTED");
+    });
+    it("persists each already-due expiry condition once, without human receipts or revision mutation", async () => {
+      const v = db.fixture.state.versions[0];
+      await executeCommand(
+        db.pool,
+        db.fixture.tokens.get(db.fixture.subjects[0])!,
+        "tenant",
+        {
+          operation: "RECORD_HEALTH",
+          versionId: v.id,
+          expectedScopeRevision: db.fixture.state.revision,
+          expectedVersionRevisions: { [v.id]: v.revision },
+          health: {
+            state: "STALE_BLOCKED",
+            checkedAt: new Date().toISOString(),
+            lastValidatedAt: "2020-01-03T00:00:00.000Z",
+            warningAt: "2021-01-01T00:00:00.000Z",
+            hardExpiresAt: "2022-01-01T00:00:00.000Z",
+            lkg: null,
+          },
+        },
+        "synthetic-expiry-health",
+        { synthetic: true },
+      );
+      const before = (
+        await db.owner.query(
+          "SELECT revision,(SELECT count(*) FROM knowledge_command_receipts WHERE scope_id=$1) AS receipts FROM knowledge_scopes WHERE scope_id=$1",
+          [db.fixture.scopeId],
+        )
+      ).rows[0];
+      const target = {
+        scopeId: db.fixture.scopeId,
+        aggregateKind: "VERSION",
+        aggregateId: v.id,
+      };
+      const a = await persistDueExpiry(db.pool, target),
+        b = await persistDueExpiry(db.pool, target);
+      expect(a.eventId).not.toBeNull();
+      expect(b.eventId).not.toBe(a.eventId);
+      await persistDueExpiry(db.pool, target);
+      expect(
+        (
+          await db.owner.query(
+            "SELECT revision,(SELECT count(*) FROM knowledge_command_receipts WHERE scope_id=$1) AS receipts FROM knowledge_scopes WHERE scope_id=$1",
+            [db.fixture.scopeId],
+          )
+        ).rows[0],
+      ).toEqual(before);
+      const rows = (
+        await db.owner.query(
+          "SELECT e.expiry_kind,o.event_id FROM knowledge_audit_events e JOIN knowledge_outbox o USING(event_id) WHERE e.scope_id=$1 AND e.operation='EVALUATE_EXPIRY'",
+          [db.fixture.scopeId],
+        )
+      ).rows;
+      expect(rows.map((r) => r.expiry_kind).sort()).toEqual([
+        "HEALTH_HARD_END",
+        "HEALTH_WARNING",
+      ]);
     });
   },
 );

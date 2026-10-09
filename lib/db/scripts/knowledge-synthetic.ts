@@ -80,30 +80,28 @@ export async function seedKnowledge(
         member_id: memberId,
         recorded_at: syntheticStart,
       });
-    const grants = subjects
-      .slice(0, 4)
-      .map((subjectMemberId) =>
-        parseContract(grantSchema, {
-          id: `synthetic-grant-${subjectMemberId}`,
-          scopeId: scope.id,
-          subjectMemberId,
-          createdAt: syntheticStart,
-          issuance: {
-            kind: "SYNTHETIC_SEED",
-            reference: "synthetic-provisioning",
-          },
-          domains: ["MAC_COVERAGE"],
-          capabilities: sortedSet(capabilities),
-          effectiveFrom: syntheticStart,
-          expiresAt: syntheticEnd,
-          grantedByMemberId: base + 98,
-          verifiedByMemberId: base + 99,
-          verificationRef: "synthetic-verification",
-          verifiedAt: syntheticStart,
-          revision: 1,
-          revokedAt: null,
-        }),
-      );
+    const grants = subjects.slice(0, 4).map((subjectMemberId) =>
+      parseContract(grantSchema, {
+        id: `synthetic-grant-${subjectMemberId}`,
+        scopeId: scope.id,
+        subjectMemberId,
+        createdAt: syntheticStart,
+        issuance: {
+          kind: "SYNTHETIC_SEED",
+          reference: "synthetic-provisioning",
+        },
+        domains: ["MAC_COVERAGE"],
+        capabilities: sortedSet(capabilities),
+        effectiveFrom: syntheticStart,
+        expiresAt: syntheticEnd,
+        grantedByMemberId: base + 98,
+        verifiedByMemberId: base + 99,
+        verificationRef: "synthetic-verification",
+        verifiedAt: syntheticStart,
+        revision: 1,
+        revokedAt: null,
+      }),
+    );
     grants.push(
       parseContract(grantSchema, {
         ...grants[2],
@@ -147,25 +145,23 @@ export async function seedKnowledge(
         revision: 1,
         revoked_at: null,
       });
-    const qualifications = subjects
-      .slice(0, 4)
-      .map((subjectMemberId) => ({
-        id: `synthetic-qualification-${subjectMemberId}`,
-        scopeId: scope.id,
-        subjectMemberId,
-        class: "COMPLIANCE_REVIEWER",
-        domains: ["MAC_COVERAGE"],
-        jurisdictions: ["US-FL"],
-        verifiedByMemberId: base + 99,
-        verificationMethod: "SYNTHETIC_TEST",
-        verificationRef: "synthetic-verification",
-        verifiedAt: syntheticStart,
-        effectiveFrom: syntheticStart,
-        expiresAt: syntheticEnd,
-        reviewDueAt: syntheticEnd,
-        revision: 1,
-        revokedAt: null,
-      }));
+    const qualifications = subjects.slice(0, 4).map((subjectMemberId) => ({
+      id: `synthetic-qualification-${subjectMemberId}`,
+      scopeId: scope.id,
+      subjectMemberId,
+      class: "COMPLIANCE_REVIEWER",
+      domains: ["MAC_COVERAGE"],
+      jurisdictions: ["US-FL"],
+      verifiedByMemberId: base + 99,
+      verificationMethod: "SYNTHETIC_TEST",
+      verificationRef: "synthetic-verification",
+      verifiedAt: syntheticStart,
+      effectiveFrom: syntheticStart,
+      expiresAt: syntheticEnd,
+      reviewDueAt: syntheticEnd,
+      revision: 1,
+      revokedAt: null,
+    }));
     for (const q of qualifications)
       await put("knowledge_qualifications", {
         scope_id: q.scopeId,
@@ -428,6 +424,15 @@ export async function seedKnowledge(
         until: "2089-01-01T00:00:00.000Z",
       },
       base + 4,
+    );
+    // Preserve the original publication pin while preparing a distinct refresh approval.
+    await apply(
+      {
+        operation: "REAPPROVE",
+        versionId: version.id,
+        reviewDueAt: syntheticEnd,
+      },
+      base + 2,
     );
     return {
       state,

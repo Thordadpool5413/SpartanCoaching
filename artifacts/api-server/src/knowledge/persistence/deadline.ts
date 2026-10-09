@@ -1,6 +1,7 @@
 import { performance } from "node:perf_hooks";
 import type { Pool, PoolClient, QueryResultRow } from "pg";
 import { storageTypes } from "./codec";
+import { recordKnowledgeMetric } from "../../observability/knowledgeMetrics";
 
 export class KnowledgeUnavailable extends Error {
   constructor(
@@ -14,7 +15,10 @@ export class CommandDeadline {
   readonly expires = performance.now() + 5000;
   remaining(): number {
     const r = Math.floor(this.expires - performance.now());
-    if (r < 2) throw new KnowledgeUnavailable("COMMAND_IN_PROGRESS");
+    if (r < 2) {
+      recordKnowledgeMetric("deadline");
+      throw new KnowledgeUnavailable("COMMAND_IN_PROGRESS");
+    }
     return r;
   }
   async bound<T>(
@@ -61,10 +65,16 @@ export class CommandConnection {
   ) {
     if (this.released) throw new KnowledgeUnavailable("COMMAND_UNAVAILABLE");
     this.deadline.remaining();
-    return this.deadline.bound(
-      this.client.query<T>({ text: sql, values, types: storageTypes }),
-      this.destroy,
-    );
+    const start = performance.now();
+    try {
+      return await this.deadline.bound(
+        this.client.query<T>({ text: sql, values, types: storageTypes }),
+        this.destroy,
+      );
+    } finally {
+      if (sql.includes("FOR UPDATE"))
+        recordKnowledgeMetric("lock_wait_ms", performance.now() - start);
+    }
   }
   async begin(readonly = false) {
     await this.raw(
@@ -104,7 +114,19 @@ export class CommandConnection {
     try {
       await this.raw("COMMIT");
       this.transaction = false;
-    } catch {
+    } catch (error) {
+      // A PostgreSQL ErrorResponse confirms failure; a lost transport response does not.
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        /^[0-9A-Z]{5}$/.test(String(error.code))
+      ) {
+        this.commitDispatched = false;
+        if (contention(error))
+          throw new KnowledgeUnavailable("COMMAND_IN_PROGRESS");
+        throw error;
+      }
       this.destroy();
       throw new KnowledgeUnavailable("COMMAND_OUTCOME_UNKNOWN");
     }
@@ -141,6 +163,7 @@ export async function acquire(
   deadline: CommandDeadline,
 ): Promise<CommandConnection> {
   let abandoned = false;
+  const start = performance.now();
   const pending = pool.connect().then((client) => {
     if (abandoned) {
       client.release();
@@ -159,6 +182,8 @@ export async function acquire(
     abandoned = true;
     if (e instanceof KnowledgeUnavailable) throw e;
     throw new KnowledgeUnavailable("COMMAND_UNAVAILABLE");
+  } finally {
+    recordKnowledgeMetric("pool_wait_ms", performance.now() - start);
   }
 }
 export const contention = (e: unknown) =>
@@ -166,3 +191,19 @@ export const contention = (e: unknown) =>
   typeof e === "object" &&
   "code" in e &&
   ["55P03", "57014", "40P01", "40001"].includes(String(e.code));
+export const infrastructureFailure = (e: unknown) =>
+  !!e &&
+  typeof e === "object" &&
+  "code" in e &&
+  [
+    "ECONNREFUSED",
+    "ECONNRESET",
+    "EPIPE",
+    "ETIMEDOUT",
+    "57P01",
+    "57P02",
+    "57P03",
+    "08000",
+    "08003",
+    "08006",
+  ].includes(String(e.code));

@@ -6,6 +6,10 @@ import type { Pool } from "pg";
 import { knowledgeRouter, sanitizedKnowledgePath } from "./routes";
 import { requireTrustedMutationOrigin } from "../../security/requestSecurity";
 import { strictJson, wireCommandSchema } from "./contracts";
+import {
+  recordKnowledgeMetric,
+  knowledgeMetricsSnapshot,
+} from "../../observability/knowledgeMetrics";
 const make = (enabled: boolean) => {
   const app = express();
   app.use(cookieParser());
@@ -93,4 +97,11 @@ it("redacts every case variant and arbitrary reserved path label and sets no-sto
   );
   expect(response.headers["cache-control"]).toContain("no-store");
   expect(JSON.stringify(response.body)).not.toContain("synthetic-password");
+});
+it("telemetry retains only fixed metric names and bounded numeric samples", () => {
+  for (let i = 0; i < 1000; i++) recordKnowledgeMetric("command_ms", i);
+  recordKnowledgeMetric("PHI_SENTINEL" as "command_ms", 1);
+  const snapshot = knowledgeMetricsSnapshot();
+  expect(snapshot.command_ms.sampleCount).toBe(500);
+  expect(JSON.stringify(snapshot)).not.toContain("PHI_SENTINEL");
 });

@@ -42,7 +42,7 @@ export async function evaluate<T>(
       },
     );
   } finally {
-    if (worker) void worker.terminate();
+    if (worker) await worker.terminate();
     active--;
   }
 }

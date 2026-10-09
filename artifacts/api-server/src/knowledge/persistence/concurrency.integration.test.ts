@@ -104,7 +104,7 @@ databaseSuite(
             operation: "REFRESH_APPROVAL",
             versionId: v.id,
             assignmentId: a.id,
-            approvalId: a.approvalId,
+            approvalId: v.approvals.at(-1)!.id,
             expectedScopeRevision: f.state.revision,
             expectedVersionRevisions: { [v.id]: v.revision },
           };

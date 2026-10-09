@@ -14,7 +14,7 @@ const after = files.map((file) => readFileSync(file, "utf8"));
 assert.deepEqual(after, before, "API codegen normalization is not idempotent");
 
 const generated = after[0];
-assert.doesNotMatch(generated, /zod\.(uuid|email|looseObject)\(/, "Zod 4-only API emitted");
+assert.doesNotMatch(generated, /zod\.(uuid|email|url|looseObject)\(/, "Zod 4-only API emitted");
 const zodExports = after[1].split("\n").filter(Boolean);
 assert.equal(new Set(zodExports).size, zodExports.length, "duplicate API barrel exports");
 assert.doesNotMatch(after[0], /\n\n\n+/, "blank accumulation in generated API");

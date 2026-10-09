@@ -18,6 +18,7 @@ import {
   CommandDeadline,
   acquire,
   contention,
+  infrastructureFailure,
   KnowledgeUnavailable,
 } from "./deadline";
 import { projectCommand } from "./projection";
@@ -25,6 +26,7 @@ import { evaluate } from "./evaluation";
 import { insert, persistDelta } from "./writes";
 import { number, timestamp, type Row } from "./codec";
 import type { z } from "zod";
+import { recordKnowledgeMetric } from "../../observability/knowledgeMetrics";
 
 export function receiptFromRow(row: Row) {
   return parseContract(receiptSchema, {
@@ -51,6 +53,7 @@ export async function executeCommand(
   options: { synthetic?: boolean; deadline?: CommandDeadline } = {},
 ) {
   if (!token) throw new Error("UNAUTHENTICATED");
+  const started = performance.now();
   const deadline = options.deadline ?? new CommandDeadline(),
     c = await acquire(pool, deadline);
   try {
@@ -111,6 +114,7 @@ export async function executeCommand(
       if (existing.fingerprint !== fingerprint)
         throw new Error("IDEMPOTENCY_CONFLICT");
       const receipt = receiptFromRow(existing);
+      recordKnowledgeMetric("replay");
       await c.finishRead();
       return receipt.response;
     }
@@ -226,9 +230,18 @@ export async function executeCommand(
     await c.commit();
     return receipt.response;
   } catch (e) {
+    const code = e instanceof Error ? e.message : "";
+    if (["KNOWLEDGE_REVISION_CONFLICT", "IDEMPOTENCY_CONFLICT"].includes(code))
+      recordKnowledgeMetric("conflict");
+    if (code === "COMMAND_OUTCOME_UNKNOWN")
+      recordKnowledgeMetric("outcome_unknown");
+    if (code === "COMMAND_UNAVAILABLE") recordKnowledgeMetric("unavailable");
     if (contention(e)) throw new KnowledgeUnavailable("COMMAND_IN_PROGRESS");
+    if (infrastructureFailure(e))
+      throw new KnowledgeUnavailable("COMMAND_UNAVAILABLE");
     throw e;
   } finally {
+    recordKnowledgeMetric("command_ms", performance.now() - started);
     await c.close();
   }
 }

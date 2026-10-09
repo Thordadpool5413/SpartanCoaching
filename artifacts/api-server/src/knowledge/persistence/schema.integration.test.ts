@@ -1,5 +1,7 @@
 import { it, expect } from "vitest";
 import { databaseSuite, databaseFixture } from "./testing.test";
+import { acquire, CommandDeadline } from "./deadline";
+import { timestamp, date, sqlTimestamp, sqlDate } from "./codec";
 databaseSuite(
   "K1B PostgreSQL schema, scope FKs and append-only privileges",
   () => {
@@ -84,6 +86,74 @@ databaseSuite(
       const role = (await db.pool.query("SELECT current_user AS role")).rows[0]
         .role;
       expect(role).toBe(db.role);
+    });
+    it("closed witness SQL guard rejects malformed values, duplicates and unsafe capabilities", async () => {
+      const witnesses = (
+        await db.owner.query(
+          "SELECT authorization_witnesses FROM knowledge_audit_events WHERE actor_kind='HUMAN' AND jsonb_array_length(authorization_witnesses)>0 LIMIT 1",
+        )
+      ).rows[0].authorization_witnesses;
+      for (const change of [
+        { actorMemberId: 1.5 },
+        { grantRevision: 0.5 },
+        { scopeId: null },
+        { domain: "INVALID" },
+        { capability: "administrator" },
+        { qualificationId: "bad space", qualificationRevision: 1 },
+        {
+          attestationId: "synthetic",
+          attestedAt: "2026-99-99T00:00:00.000Z",
+          witnessType: "REVIEW_ATTESTATION",
+          capability: "knowledge.review",
+          qualificationId: "synthetic",
+          qualificationRevision: 1,
+        },
+      ]) {
+        expect(
+          (
+            await db.owner.query(
+              "SELECT knowledge_valid_witnesses($1::jsonb) AS valid",
+              [JSON.stringify([{ ...witnesses[0], ...change }])],
+            )
+          ).rows[0].valid,
+        ).toBe(false);
+      }
+      expect(
+        (
+          await db.owner.query(
+            "SELECT knowledge_valid_witnesses($1::jsonb) AS valid",
+            [JSON.stringify([witnesses[0], witnesses[0]])],
+          )
+        ).rows[0].valid,
+      ).toBe(false);
+      expect(
+        (
+          await db.owner.query(
+            "SELECT knowledge_valid_witnesses($1::jsonb) AS valid",
+            [JSON.stringify(witnesses)],
+          )
+        ).rows[0].valid,
+      ).toBe(true);
+    });
+    it("PostgreSQL codecs preserve UTC year zero, early years and date-only values", async () => {
+      const c = await acquire(db.pool, new CommandDeadline());
+      try {
+        for (const year of ["0000", "0001", "0099", "9999"]) {
+          const value = `${year}-01-02T03:04:05.006Z`,
+            day = `${year}-01-02`;
+          const row = (
+            await c.raw(
+              "SELECT $1::timestamptz AS stamp,$2::date AS day,knowledge_iso($1::timestamptz) AS canonical",
+              [sqlTimestamp(value), sqlDate(day)],
+            )
+          ).rows[0];
+          expect(timestamp(row.stamp)).toBe(value);
+          expect(date(row.day)).toBe(day);
+          expect(row.canonical).toBe(value);
+        }
+      } finally {
+        await c.close();
+      }
     });
   },
 );

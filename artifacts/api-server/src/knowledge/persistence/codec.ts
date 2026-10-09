@@ -33,6 +33,11 @@ export const timestamp = (v: unknown): string => {
       throw new Error("KNOWLEDGE_STORAGE_INVALID");
     input = `0000-${input.slice(5, -3)}`;
   }
+  // PostgreSQL emits a space and short UTC offset. V8's legacy parser maps
+  // years 0000–0099 into 1900/2000; always use the ISO parser instead.
+  input = input
+    .replace(/^(\d{4}-\d{2}-\d{2}) /, "$1T")
+    .replace(/([+-]\d{2})$/, "$1:00");
   return parseContract(stamp, new Date(input).toISOString());
 };
 export const date = (v: unknown): string =>

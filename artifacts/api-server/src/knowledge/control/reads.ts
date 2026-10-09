@@ -16,6 +16,7 @@ import {
   acquire,
   CommandDeadline,
   contention,
+  infrastructureFailure,
   KnowledgeUnavailable,
 } from "../persistence/deadline";
 import { assertNonOwner } from "../persistence/commands";
@@ -26,6 +27,7 @@ import {
   scopeFromRow,
   grantFromRow,
   timestamp,
+  date,
 } from "../persistence/codec";
 const querySchema = z
   .object({
@@ -151,7 +153,17 @@ export async function readKnowledge(
     if (q.cursor) {
       try {
         const bytes = Buffer.from(q.cursor, "base64url").toString("utf8");
-        cursor = parseContract(cursorSchema, JSON.parse(bytes));
+        const values = JSON.parse(bytes);
+        if (!Array.isArray(values) || values.length !== 6)
+          throw new Error("KNOWLEDGE_CONTRACT_INVALID");
+        cursor = parseContract(cursorSchema, {
+          scopeId: values[0],
+          kind: values[1],
+          domain: values[2],
+          versionId: values[3],
+          last: values[4],
+          revision: values[5],
+        });
       } catch {
         throw new Error("KNOWLEDGE_CONTRACT_INVALID");
       }
@@ -188,21 +200,49 @@ export async function readKnowledge(
     const next =
       more && last
         ? Buffer.from(
-            canonicalBytes({
+            canonicalBytes([
               scopeId,
-              kind: q.kind,
-              domain: q.domain,
-              versionId: q.versionId ?? null,
-              last: last.id,
-              revision:
-                q.kind === "sources" ? number(last.metadata_revision) : null,
-            }),
+              q.kind,
+              q.domain,
+              q.versionId ?? null,
+              last.id,
+              q.kind === "sources" ? number(last.metadata_revision) : null,
+            ]),
           ).toString("base64url")
         : null;
     await c.finishRead();
-    return { items, nextCursor: next };
+    if (next && next.length > 512) throw new Error("KNOWLEDGE_INTERNAL_ERROR");
+    const serialized = items.map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key,
+          value == null
+            ? null
+            : [
+                  "metadata_revision",
+                  "source_metadata_revision",
+                  "artifact_revision",
+                  "revision",
+                ].includes(key)
+              ? number(value)
+              : [
+                    "effective_from",
+                    "effective_to",
+                    "service_from",
+                    "service_to",
+                  ].includes(key)
+                ? date(value)
+                : key.endsWith("_at")
+                  ? timestamp(value)
+                  : value,
+        ]),
+      ),
+    );
+    return { items: serialized, nextCursor: next };
   } catch (e) {
     if (contention(e)) throw new KnowledgeUnavailable("COMMAND_IN_PROGRESS");
+    if (infrastructureFailure(e))
+      throw new KnowledgeUnavailable("COMMAND_UNAVAILABLE");
     throw e;
   } finally {
     await c.close();

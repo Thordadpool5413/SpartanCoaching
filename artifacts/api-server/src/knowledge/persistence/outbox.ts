@@ -8,7 +8,8 @@ import {
 import { retryDelaySeconds } from "../foundation/future";
 import { acquire, CommandDeadline, type CommandConnection } from "./deadline";
 import { assertNonOwner } from "./commands";
-import { number, text, type Row } from "./codec";
+import { number, text, timestamp, type Row } from "./codec";
+import { recordKnowledgeMetric } from "../../observability/knowledgeMetrics";
 
 export interface Delivery {
   eventId: string;
@@ -28,11 +29,13 @@ export async function claimOutbox(
   try {
     await assertNonOwner(c);
     await c.begin();
-    await c.query(
+    const exhausted = await c.query(
       `WITH exhausted AS (SELECT event_id FROM knowledge_outbox WHERE attempts=10 AND delivered_at IS NULL AND dead_lettered_at IS NULL AND (lease_expires_at IS NULL OR lease_expires_at<=clock_timestamp()) ORDER BY event_id COLLATE "C" LIMIT $1 FOR UPDATE SKIP LOCKED)
       UPDATE knowledge_outbox o SET dead_lettered_at=clock_timestamp(),last_error_code='ATTEMPTS_EXHAUSTED',lease_token=NULL,lease_expires_at=NULL FROM exhausted e WHERE o.event_id=e.event_id`,
       [limit],
     );
+    if (exhausted.rowCount)
+      recordKnowledgeMetric("outbox_dead_letter", exhausted.rowCount);
     const rows = (
       await c.query<Row>(
         `WITH due AS (SELECT event_id FROM knowledge_outbox WHERE attempts<10 AND available_at<=clock_timestamp() AND delivered_at IS NULL AND dead_lettered_at IS NULL AND (lease_expires_at IS NULL OR lease_expires_at<=clock_timestamp()) ORDER BY available_at,event_id COLLATE "C" LIMIT $1 FOR UPDATE SKIP LOCKED),
@@ -42,6 +45,10 @@ export async function claimOutbox(
       )
     ).rows;
     const delivered: Delivery[] = rows.map((row) => {
+      recordKnowledgeMetric(
+        "outbox_lag_ms",
+        Math.max(0, Date.now() - Date.parse(timestamp(row.available_at))),
+      );
       const body = text(row.canonical_body),
         event = parseContract(eventSchema, JSON.parse(body));
       if (
@@ -59,6 +66,8 @@ export async function claimOutbox(
       };
     });
     await c.commit();
+    if (delivered.length)
+      recordKnowledgeMetric("outbox_claim", delivered.length);
     return delivered;
   } finally {
     await c.close();
@@ -93,6 +102,11 @@ export async function completeOutbox(
       ],
     );
     await c.commit();
+    if (!result.rowCount) recordKnowledgeMetric("outbox_stale_lease");
+    else if (!success)
+      recordKnowledgeMetric(
+        delivery.attempt === 10 ? "outbox_dead_letter" : "outbox_retry",
+      );
     return result.rowCount === 1;
   } finally {
     await c.close();
