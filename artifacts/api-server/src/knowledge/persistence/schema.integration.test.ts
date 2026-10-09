@@ -69,6 +69,31 @@ databaseSuite(
         client.release();
       }
     });
+    it("metadata revisions cannot bypass the database artifact identity uniqueness", async () => {
+      await db.owner.query(
+        "INSERT INTO knowledge_source_revisions SELECT (jsonb_populate_record(NULL::knowledge_source_revisions,to_jsonb(s)||jsonb_build_object('metadata_revision',2,'title','Synthetic alternate metadata'))).* FROM knowledge_source_revisions s WHERE scope_id=$1 AND source_id=$2 AND metadata_revision=1",
+        [db.fixture.scopeId, db.fixture.state.sources[0].id],
+      );
+      await expect(
+        db.owner.query(
+          "INSERT INTO knowledge_versions SELECT (jsonb_populate_record(NULL::knowledge_versions,to_jsonb(v)||jsonb_build_object('version_id','synthetic-duplicate-artifact','source_metadata_revision',2))).* FROM knowledge_versions v WHERE scope_id=$1 AND version_id=$2",
+          [db.fixture.scopeId, db.fixture.versionId],
+        ),
+      ).rejects.toMatchObject({
+        code: "23505",
+        constraint: "uq_versions_artifact",
+      });
+      expect(
+        Number(
+          (
+            await db.owner.query(
+              "SELECT count(*) AS n FROM knowledge_versions WHERE scope_id=$1",
+              [db.fixture.scopeId],
+            )
+          ).rows[0].n,
+        ),
+      ).toBe(1);
+    });
     it("non-owner cannot delete history, mutate audit or assume ownership", async () => {
       await expect(
         db.pool.query("DELETE FROM knowledge_audit_events"),
