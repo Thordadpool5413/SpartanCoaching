@@ -32,7 +32,8 @@ PHI. No production secrets, configuration, IAM, bucket or account changes.
 - [x] Verify extraction and structured calls retain store:false; preserve storage,
       purge, content-free audit and human review with runtime regressions.
 - [x] Run focused tests, complete relevant local gates and review full diff.
-- [ ] Publish one PR, fix bounded review/CI defects on that branch, require fresh head.
+- [x] Publish one bounded PR with reviewed code, regressions and local evidence.
+- [ ] Fix any bounded review/CI defects; require fresh final-head verification.
 - [ ] Refresh main, merge normally, inspect exact-main jobs and internal summaries.
 
 ## Findings and implementation evidence
@@ -126,6 +127,12 @@ No patient persistence, Firebase application code, PHI fixtures or external clin
 integration. Historical K1A/K1B documents and completion evidence are preserved.
 
 ### Publication and completion companion
+
+Repair [PR #193](https://github.com/Thordadpool5413/SpartanCoaching/pull/193) was
+created from implementation commit `4c98d32af82afa27fcbc9136bbfebe0e4e9c7257`.
+Its tree was verified equal to the reviewed local staged Git tree
+`b6f3b6963f8bb727ae4bfe3cd288960bbf864df2`. A scoped evidence update links this plan
+to that PR; all requirements apply to the final current head after this update.
 
 The repair PR description is the durable completion companion for the commit and
 PR URL, final head, all current-head jobs and internal test summaries, review-thread
