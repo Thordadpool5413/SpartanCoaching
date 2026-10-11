@@ -28,7 +28,7 @@ parentPort?.on(
       const code =
         e instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(e.message)
           ? e.message
-          : "KNOWLEDGE_CONTRACT_INVALID";
+          : "KNOWLEDGE_INTERNAL_ERROR";
       parentPort!.postMessage({ ok: false, code });
     }
   },

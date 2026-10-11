@@ -194,6 +194,60 @@ fresh-head mandatory CI; this older green run is not final completion evidence.
 The complete 81-file inventory and final diff were reviewed; protected CI,
 dependency/lockfile, K1A foundation and web/mobile product paths remain unchanged.
 
+## Bounded post-merge K1B completion repair
+
+PR #191 was merged at `2c77fef816f005c5b4f7ec79c8c0a156f907fbdb`, with
+final head `621c22eae66de96915f8eab3c2c1796ad6ca561b` and implementation
+tree `9017d4354bf4e5606e27b6b6d3c9dc43c8d6b642`. Final PR CI
+`37979331303` passed all seven mandatory jobs, and container `37979331302`
+passed. PostgreSQL-enabled API: 60 files / 1,052 passed; release PostgreSQL:
+11 files / 81 passed. P02: 54 passed. P03: zero catalog differences,
+32 migrations / 12 categories, dump 492 ms / restore 1,361 ms / recovery
+1,710 ms, cleanup verified. The original seven review findings are resolved
+with committed regressions and exact-head CI evidence.
+
+On resumption, exact main was refreshed at that merge SHA. Exact-main CI
+`37980009382` reported all seven jobs successful. Full API passed, but log
+inspection found the release PostgreSQL suite had 80 passed / 1 failed:
+`commands.integration.test.ts:269`, RECORD_HEALTH fixture contract rejection.
+This internal test failure is not counted as successful K1B verification.
+The existing release-gate policy was not changed or weakened.
+
+Bounded follow-up branch: `fix/k1b-postmerge-contracts`, based on that exact
+main. Migration remains 0031; no schema, dependency, CI policy or product changes.
+The previous transient checkout expired; a fresh native clone restored the
+committed implementation, then main was fetched/pulled before branching.
+
+| Finding / evidence | Small approved implementation correction | Existing mandatory regression |
+| --- | --- | --- |
+| PR #191 4233823236 | OpenAPI omitted the canonical receiptKey alphabet. Add the identical pattern and regenerate existing clients/Zod. No server policy change. | control/routes.test.ts compares generated header acceptance with canonical receiptKey at bounds and for spaces, slashes, Unicode and newlines. |
+| PR #191 4233823244 | Existing cookie-origin middleware returns a closed `{error,code}` shape. Document that distinct bounded 403 variant alongside KnowledgeControlError; retain request-security semantics. | Assembled registered-path test checks the documented variants and exact actual cookie-first missing/untrusted Origin response, including no-store. |
+| PR #191 4233823249 | Worker fallback classified ordinary runtime exceptions as caller contract errors. Unknown exceptions now return sanitized KNOWLEDGE_INTERNAL_ERROR; domain codes are preserved. | deadline.integration.test.ts invokes the actual worker message handler with both evaluator runtime failures and a known revision conflict; verifies no sentinel leakage. |
+| Exact-main release PostgreSQL failure | Two Date samples can cross a millisecond and put lastValidatedAt after checkedAt. The synthetic health command uses one observation timestamp. No health validation is loosened. | commands.integration.test.ts forces an advancing clock, proves the previous split-clock health is invalid, and validates the shared fixture used by the all-15-operation PostgreSQL round trip. |
+| Cold-worker local unhandled rejection | Remaining-budget failure could occur after action dispatch and before watchdog installation. Observe the pending rejection and invoke existing cancellation before returning the same deadline error. No budget extension or policy change. | Existing real-worker expiry test exposed it; a deterministic expired-budget cancellation regression verifies cleanup and absence of unhandled rejection. |
+
+The three review defects were reproduced before fixes; the split-clock fixture
+was separately reproduced under a deterministic advancing clock. The first
+follow-up focused run had 31 tests pass but one unhandled worker rejection; it
+was not counted as success. After cancellation repair, all four focused files
+passed: 32 passed / 7 PostgreSQL skipped, no unhandled errors. Final full API:
+55 passed files / 5 skipped, 1,007 passed / 49 PostgreSQL skipped. Root
+typecheck, API build, generation and normalization passed. Forge 2, dependency
+regressions 8 and audit rejection cases 39 passed. The host-default pnpm 11
+full audit was rejected with MUTED_FINDINGS; this is a failure, not an approved
+disposition. Using the unchanged repository-pinned pnpm 10.26.1, full audit
+passed with verified source mitigation for the three already-attested high
+advisories (raw counts: low 1 / moderate 24 / high 3 / critical 0; existing
+policy expires 2026-11-01). No policy was relaxed. Fresh mandatory
+PostgreSQL/P02/P03/security/browser CI must pass on the repair head before
+the normal authorized merge. Exact resulting
+main and all internal database test results must then be verified.
+
+The durable completion ledger will also link the bounded follow-up PR and its
+final-head CI, merge SHA, exact-main CI, all job results and any remaining limits.
+No architecture blocker, K2, ingestion, PHI, FHIR, clinical AI or production
+activation was introduced.
+
 This plan's durable completion ledger is [PR #191](https://github.com/Thordadpool5413/SpartanCoaching/pull/191).
 Its final-head CI, merge SHA and exact post-merge main CI/job results are recorded
 in the PR description after GitHub allocates them. Follow that record to determine
@@ -207,17 +261,17 @@ Local evidence so far:
 | `pnpm install --frozen-lockfile`                  | Passed; lockfile unchanged                                                                          |
 | `pnpm run typecheck`                              | Passed, including generated K1B contracts                                                           |
 | Focused K1A/auth/session/request-security         | 5 files / 674 passed                                                                                |
-| `pnpm --filter @workspace/api-server test`        | Latest completed local run: 54 passed files, 6 skipped; 1,003 passed, 49 skipped (PostgreSQL unavailable) |
+| `pnpm --filter @workspace/api-server test`        | Latest completed local run: 55 passed files, 5 skipped; 1,007 passed, 49 skipped (PostgreSQL unavailable) |
 | Final focused foundation/auth/request-security/control/deadline | 6 files; 678 passed, 2 PostgreSQL skipped                                                        |
 | Focused control/deadline worker tests             | 2 files; 8 passed, 2 PostgreSQL skipped                                                             |
 | `pnpm --filter @workspace/db test`                | 45 passed, 9 PostgreSQL skipped                                                                     |
 | `pnpm generate:api`                               | Passed after extending existing Zod 3 normalization for generated URL validators                    |
-| Registered OpenAPI route contract                 | 4 passed                                                                                            |
+| Registered OpenAPI route contract                 | 5 passed                                                                                            |
 | `pnpm --filter @workspace/spartan-ai-tools test`  | 94 passed                                                                                           |
 | `pnpm --filter @workspace/field-kit-catalog test` | 97 passed                                                                                           |
 | `pnpm --filter @workspace/spartan-coaching test`  | 328 passed                                                                                          |
 | Mobile Jest `--runInBand`                         | 60 suites / 298 passed                                                                              |
-| Existing forge / dependency / attestation tests   | Passed; existing approved audit disposition `MUTED_FINDINGS`                                        |
+| Existing forge / dependency / attestation tests   | Tests passed; pnpm 11 full audit failed `MUTED_FINDINGS`; pinned pnpm 10.26.1 full audit passed with existing verified mitigation                                        |
 | `pnpm run build` with synthetic CI domain         | API/web builds passed; overall mobile build blocked by host `uv_interface_addresses` restriction    |
 | `pnpm run release-gate`                           | Automated suites passed; existing owner-only live/device checks remain unverified                   |
 | `pnpm run test:e2e`                               | Failed because matching Playwright binaries were absent; attempted installation also failed on a stale download lock |
@@ -336,6 +390,9 @@ lib/api-zod/src/generated/types/knowledgeControlError.ts
 lib/api-zod/src/generated/types/knowledgeControlErrorRetry.ts
 lib/api-zod/src/generated/types/knowledgeMetadataQuery.ts
 lib/api-zod/src/generated/types/knowledgeMetadataResult.ts
+lib/api-zod/src/generated/types/knowledgeOriginError.ts
+lib/api-zod/src/generated/types/knowledgeOriginErrorCode.ts
+lib/api-zod/src/generated/types/knowledgeOriginErrorError.ts
 lib/api-zod/src/generated/types/knowledgeScopeResult.ts
 lib/api-zod/src/generated/types/knowledgeScopeResultConfiguration.ts
 lib/api-zod/src/generated/types/knowledgeScopeResultConfigurationSupportedPayersItem.ts

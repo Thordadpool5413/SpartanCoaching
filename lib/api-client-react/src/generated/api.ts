@@ -68,6 +68,7 @@ import type {
   KnowledgeControlCommand,
   KnowledgeControlError,
   KnowledgeMetadataResult,
+  KnowledgeOriginError,
   KnowledgeScopeResult,
   ListProviderResourcesParams,
   ListResourceWorkParams,
@@ -153,7 +154,7 @@ export const executeKnowledgeCommand = async (scopeKind: 'global' | 'tenant',
 
 
 
-export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
+export const getExecuteKnowledgeCommandMutationOptions = <TError = ErrorType<KnowledgeControlError | KnowledgeOriginError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext> => {
 
@@ -182,12 +183,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type ExecuteKnowledgeCommandMutationResult = NonNullable<Awaited<ReturnType<typeof executeKnowledgeCommand>>>
     export type ExecuteKnowledgeCommandMutationBody = BodyType<KnowledgeControlCommand>
-    export type ExecuteKnowledgeCommandMutationError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>
+    export type ExecuteKnowledgeCommandMutationError = ErrorType<KnowledgeControlError | KnowledgeOriginError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>
 
     /**
  * @summary Mutate durable knowledge authority
  */
-export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
+export const useExecuteKnowledgeCommand = <TError = ErrorType<KnowledgeControlError | KnowledgeOriginError | KnowledgeClientUpgradeError | ExecuteKnowledgeCommand429>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof executeKnowledgeCommand>>, TError,{scopeKind: 'global' | 'tenant';data: BodyType<KnowledgeControlCommand>;headers: ExecuteKnowledgeCommandHeaders}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof executeKnowledgeCommand>>,

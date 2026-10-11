@@ -342,6 +342,25 @@ export type KnowledgeControlCommand = {
   expectedCredentialRevision: number;
 };
 
+export type KnowledgeOriginErrorError = typeof KnowledgeOriginErrorError[keyof typeof KnowledgeOriginErrorError];
+
+
+export const KnowledgeOriginErrorError = {
+  Request_origin_is_not_allowed: 'Request origin is not allowed',
+} as const;
+
+export type KnowledgeOriginErrorCode = typeof KnowledgeOriginErrorCode[keyof typeof KnowledgeOriginErrorCode];
+
+
+export const KnowledgeOriginErrorCode = {
+  CSRF_ORIGIN_REJECTED: 'CSRF_ORIGIN_REJECTED',
+} as const;
+
+export interface KnowledgeOriginError {
+  error: KnowledgeOriginErrorError;
+  code: KnowledgeOriginErrorCode;
+}
+
 export type KnowledgeControlErrorRetry = typeof KnowledgeControlErrorRetry[keyof typeof KnowledgeControlErrorRetry];
 
 
@@ -1162,6 +1181,7 @@ export type ExecuteKnowledgeCommandHeaders = {
  * Retry an uncertain outcome only with the same key and payload.
  * @minLength 16
  * @maxLength 128
+ * @pattern ^[A-Za-z0-9._:-]+$
  */
 'Idempotency-Key': string;
 };

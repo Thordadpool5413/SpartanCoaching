@@ -48,6 +48,7 @@ paths:
           type: string
           minLength: 16
           maxLength: 128
+          pattern: '^[A-Za-z0-9._:-]+$'
         description: Retry an uncertain outcome only with the same key and payload.
       responses:
         '200':
@@ -69,11 +70,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/KnowledgeControlError'
         '403':
-          description: Bounded error code; no request or database details
+          description: Bounded knowledge authorization failure or existing cookie-origin rejection
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/KnowledgeControlError'
+                oneOf:
+                - $ref: '#/components/schemas/KnowledgeControlError'
+                - $ref: '#/components/schemas/KnowledgeOriginError'
         '404':
           description: Bounded error code; no request or database details
           content:
@@ -1608,6 +1611,13 @@ components:
         - credentialId
         - expectedCredentialRevision
         additionalProperties: false
+    KnowledgeOriginError:
+      type: object
+      properties:
+        error: {type: string, enum: ['Request origin is not allowed']}
+        code: {type: string, enum: [CSRF_ORIGIN_REJECTED]}
+      required: [error, code]
+      additionalProperties: false
     KnowledgeControlError:
       type: object
       properties:

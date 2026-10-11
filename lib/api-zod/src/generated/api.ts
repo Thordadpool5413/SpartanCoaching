@@ -28,8 +28,10 @@ export const ExecuteKnowledgeCommandParams = zod.object({
 export const executeKnowledgeCommandHeaderIdempotencyKeyMin = 16;
 export const executeKnowledgeCommandHeaderIdempotencyKeyMax = 128;
 
+export const executeKnowledgeCommandHeaderIdempotencyKeyRegExp = new RegExp('^[A-Za-z0-9._:-]+$');
+
 export const ExecuteKnowledgeCommandHeader = zod.object({
-  "Idempotency-Key": zod.string().min(executeKnowledgeCommandHeaderIdempotencyKeyMin).max(executeKnowledgeCommandHeaderIdempotencyKeyMax).describe('Retry an uncertain outcome only with the same key and payload.')
+  "Idempotency-Key": zod.string().min(executeKnowledgeCommandHeaderIdempotencyKeyMin).max(executeKnowledgeCommandHeaderIdempotencyKeyMax).regex(executeKnowledgeCommandHeaderIdempotencyKeyRegExp).describe('Retry an uncertain outcome only with the same key and payload.')
 })
 
 export const executeKnowledgeCommandBodyOneExpectedScopeRevisionMin = 0;
