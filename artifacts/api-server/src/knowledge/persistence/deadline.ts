@@ -25,7 +25,19 @@ export class CommandDeadline {
     action: Promise<T>,
     onTimeout: () => void = () => {},
   ): Promise<T> {
-    const r = this.remaining();
+    let r: number;
+    try {
+      r = this.remaining();
+    } catch (error) {
+      // The promise may already represent dispatched work. Observe cancellation
+      // even when the budget expires before the watchdog can be installed.
+      void action.catch(() => {});
+      try {
+        onTimeout();
+      } finally {
+        throw error;
+      }
+    }
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       return await Promise.race([

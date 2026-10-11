@@ -1,4 +1,4 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { databaseSuite, databaseFixture } from "./testing.test";
 import { executeCommand } from "./commands";
 import { randomUUID } from "node:crypto";
@@ -8,7 +8,17 @@ import { preliminaryAuth } from "../control/auth";
 import { projectCommand } from "./projection";
 import { transitionKnowledge } from "../foundation/lifecycle";
 import { persistDelta } from "./writes";
+import { healthSchema, type KnowledgeVersion } from "../foundation/contracts";
 import type { Pool, PoolClient } from "pg";
+const currentHealthFixture = (health: KnowledgeVersion["health"]) => {
+  const observedAt = new Date().toISOString();
+  return {
+    ...health,
+    lkg: null,
+    checkedAt: observedAt,
+    lastValidatedAt: observedAt,
+  };
+};
 databaseSuite("K1B command atomicity and revision semantics", () => {
   const db = databaseFixture();
   it("stale scope and version CAS leave audit, outbox and receipts unchanged", async () => {
@@ -269,12 +279,7 @@ databaseSuite("K1B command atomicity and revision semantics", () => {
       await call({
         operation: "RECORD_HEALTH",
         versionId: id,
-        health: {
-          ...original.health,
-          lkg: null,
-          checkedAt: new Date().toISOString(),
-          lastValidatedAt: new Date().toISOString(),
-        },
+        health: currentHealthFixture(original.health),
       });
       await call(
         {
@@ -519,4 +524,32 @@ databaseSuite("K1B command atomicity and revision semantics", () => {
         ),
       ).toBe(0);
     }, 10000);
+});
+
+it("synthetic health command fixture is valid across an advancing millisecond clock", async () => {
+  const f = await seedKnowledge({
+    query: async () => ({ rows: [], rowCount: 1 }),
+  } as unknown as PoolClient);
+  const earlier = "2026-10-11T00:00:00.000Z",
+    later = "2026-10-11T00:00:00.001Z";
+  expect(
+    healthSchema.safeParse({
+      ...f.state.versions[0].health,
+      lkg: null,
+      checkedAt: earlier,
+      lastValidatedAt: later,
+    }).success,
+  ).toBe(false);
+  const clock = vi
+    .spyOn(Date.prototype, "toISOString")
+    .mockReturnValueOnce(earlier)
+    .mockReturnValueOnce(later);
+  let health!: ReturnType<typeof currentHealthFixture>;
+  try {
+    health = currentHealthFixture(f.state.versions[0].health);
+  } finally {
+    clock.mockRestore();
+  }
+  expect(healthSchema.safeParse(health).success).toBe(true);
+  expect(health.lastValidatedAt).toBe(health.checkedAt);
 });

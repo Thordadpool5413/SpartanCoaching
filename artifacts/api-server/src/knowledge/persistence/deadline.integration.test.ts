@@ -125,3 +125,67 @@ it("real pure workers admit two evaluations, reject queued work, terminate and r
   await expect(evaluate(input, short)).rejects.toThrow("COMMAND_IN_PROGRESS");
   expect(await evaluate(input, new CommandDeadline())).toEqual([]);
 });
+
+it("worker boundary preserves domain failures and sanitizes runtime defects as internal errors", async () => {
+  let dispatch!: (input: { task: "transition" | "expiry" }) => void;
+  const postMessage = vi.fn();
+  const failed = vi.fn(() => {
+    throw new TypeError("PHI_SENTINEL synthetic evaluator content");
+  });
+  vi.doMock("node:worker_threads", () => ({
+    parentPort: {
+      on: (_event: string, listener: typeof dispatch) => {
+        dispatch = listener;
+      },
+      postMessage,
+    },
+  }));
+  vi.doMock("../foundation/lifecycle", () => ({
+    transitionKnowledge: failed,
+    evaluateExpiryIntents: failed,
+  }));
+  try {
+    await import("./evaluation.worker");
+    for (const task of ["transition", "expiry"] as const) {
+      dispatch({ task });
+      expect(postMessage).toHaveBeenLastCalledWith({
+        ok: false,
+        code: "KNOWLEDGE_INTERNAL_ERROR",
+      });
+    }
+    failed.mockImplementation(() => {
+      throw new Error("KNOWLEDGE_REVISION_CONFLICT");
+    });
+    dispatch({ task: "transition" });
+    expect(postMessage).toHaveBeenLastCalledWith({
+      ok: false,
+      code: "KNOWLEDGE_REVISION_CONFLICT",
+    });
+    expect(JSON.stringify(postMessage.mock.calls)).not.toContain(
+      "PHI_SENTINEL",
+    );
+  } finally {
+    vi.doUnmock("node:worker_threads");
+    vi.doUnmock("../foundation/lifecycle");
+    vi.resetModules();
+  }
+});
+
+it("expired budget cancels and observes an already-dispatched action without an unhandled rejection", async () => {
+  const deadline = new CommandDeadline();
+  Object.defineProperty(deadline, "expires", { value: 0 });
+  let rejectAction!: (error: Error) => void;
+  const action = new Promise<never>((_resolve, reject) => {
+    rejectAction = reject;
+  });
+  const cancel = vi.fn(() => {
+    queueMicrotask(() =>
+      rejectAction(new Error("synthetic late cancellation")),
+    );
+  });
+  await expect(deadline.bound(action, cancel)).rejects.toThrow(
+    "COMMAND_IN_PROGRESS",
+  );
+  expect(cancel).toHaveBeenCalledOnce();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+});

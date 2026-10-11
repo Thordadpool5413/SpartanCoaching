@@ -11,6 +11,8 @@ import {
   CreateMemberWorkResponse,
 } from "@workspace/api-zod";
 
+import type { KnowledgeOriginError } from "../../../../lib/api-client-react/src/generated/api.schemas";
+
 const root = join(import.meta.dirname, "../../../../");
 const spec = readFileSync(join(root, "lib/api-spec/openapi.yaml"), "utf8");
 type Layer = {
@@ -127,6 +129,32 @@ describe("OpenAPI registered route contract", () => {
       ).toBe(200);
     } finally {
       vi.unstubAllEnvs();
+    }
+  });
+
+  it("documents the exact closed cookie-origin rejection alongside knowledge authorization failures", async () => {
+    const commandSpec = spec
+      .split("operationId: executeKnowledgeCommand")[1]
+      .split("operationId: getKnowledgeScope")[0];
+    const forbidden = commandSpec.split("'403':")[1].split("'404':")[0];
+    expect(forbidden).toContain("oneOf:");
+    expect(forbidden).toContain("#/components/schemas/KnowledgeControlError");
+    expect(forbidden).toContain("#/components/schemas/KnowledgeOriginError");
+    const expected: KnowledgeOriginError = {
+      error: "Request origin is not allowed",
+      code: "CSRF_ORIGIN_REJECTED",
+    };
+    for (const origin of [null, "https://synthetic-untrusted.example.invalid"]) {
+      const call = request(app)
+        .post("/api/knowledge-control/tenant/commands")
+        .set("Cookie", "spartan_session=synthetic-cookie")
+        .set("Authorization", "Bearer synthetic-native-session")
+        .send({});
+      if (origin) call.set("Origin", origin);
+      const response = await call;
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual(expected);
+      expect(response.headers["cache-control"]).toContain("no-store");
     }
   });
 

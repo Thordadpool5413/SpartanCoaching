@@ -17,8 +17,12 @@ import {
   getExecuteKnowledgeCommandMutationOptions,
   getGetKnowledgeMetadataUrl,
 } from "../../../../../lib/api-client-react/src/generated/api";
-import { GetKnowledgeMetadataQueryParams } from "@workspace/api-zod";
+import {
+  ExecuteKnowledgeCommandHeader,
+  GetKnowledgeMetadataQueryParams,
+} from "@workspace/api-zod";
 import { requireTrustedMutationOrigin } from "../../security/requestSecurity";
+import { receiptKey } from "../foundation/future";
 import { strictJson, wireCommandSchema } from "./contracts";
 import {
   recordKnowledgeMetric,
@@ -355,5 +359,30 @@ it("body upload time is outside the single command budget, which starts before p
     await new Promise<void>((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve())),
     );
+  }
+});
+
+it("generated idempotency header agrees with the canonical receipt key alphabet and bounds", () => {
+  for (const key of [
+    "synthetic-key_01:A.B",
+    "a".repeat(16),
+    "a".repeat(128),
+    "a".repeat(15),
+    "a".repeat(129),
+    "synthetic key with spaces",
+    "synthetic/key/with/slashes",
+    "synthetic-key-é-123",
+    "synthetic-key\n1234",
+  ]) {
+    let accepted = true;
+    try {
+      receiptKey("tenant:7000", 7000, "REVOKE", key);
+    } catch {
+      accepted = false;
+    }
+    expect(
+      ExecuteKnowledgeCommandHeader.safeParse({ "Idempotency-Key": key })
+        .success,
+    ).toBe(accepted);
   }
 });
