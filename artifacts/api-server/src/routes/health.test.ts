@@ -32,6 +32,8 @@ import {
   recordBillingEmailFailure,
 } from "../billing/billingEmailMetrics";
 import { db } from "../db";
+import { syntheticPhiEnvironment } from "../../../../lib/spartan-ai-tools/src/clinical-runtime.test-fixtures";
+import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
 
 function buildApp() {
   const app = express();
@@ -256,5 +258,36 @@ describe("GET /healthz/ops-readiness — DR / incident / support", () => {
     expect(res.body.statusTemplates).toHaveProperty("investigating");
     expect(res.body.restoreDrill.command).toMatch(/backup-restore-drill/);
     expect(JSON.stringify(res.body)).not.toMatch(/sk_live|postgres:\/\/|passwordHash/i);
+  });
+});
+
+
+describe("clinical health readiness", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  function configure(env: NodeJS.ProcessEnv) {
+    for (const name of [...Object.keys(syntheticPhiEnvironment), "OPENAI_MODIFIED_RETENTION_CONFIRMED"]) vi.stubEnv(name, env[name]);
+  }
+  it.each(["/healthz/clinical", "/admin/clinical-runtime-health"])("reports actual PHI readiness on %s", async (path) => {
+    configure(syntheticPhiEnvironment);
+    const res = await request(buildApp()).get(path);
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ ready: true, operationMode: "phi", missingControls: [], patientDataAccepted: true, patientDocumentsAccepted: true });
+    for (const value of [syntheticPhiEnvironment.OPENAI_API_KEY, syntheticPhiEnvironment.CLINICAL_FILE_SCANNER_TOKEN, syntheticPhiEnvironment.DATABASE_URL]) expect(JSON.stringify(res.body)).not.toContain(value);
+  });
+  it.each(Object.keys(syntheticPhiEnvironment))("reports requested PHI as unavailable when %s is absent", async (name) => {
+    const env: NodeJS.ProcessEnv = { ...syntheticPhiEnvironment };
+    delete env[name];
+    configure(env);
+    const expected = clinicalRuntimeReadiness(env);
+    const res = await request(buildApp()).get("/healthz/clinical");
+    expect(res.status).toBe(503);
+    expect(res.body).toMatchObject({ ...expected, ok: false, ready: false, patientDataAccepted: false, patientDocumentsAccepted: false });
+    expect(res.body.missingControls).toContain(name);
+  });
+  it("reports ordinary deidentified education as ready without accepting records", async () => {
+    configure({});
+    const res = await request(buildApp()).get("/healthz/clinical");
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ ready: true, operationMode: "deidentified", missingControls: [], patientDataAccepted: false, patientDocumentsAccepted: false });
   });
 });

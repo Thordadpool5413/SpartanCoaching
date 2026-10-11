@@ -75,13 +75,19 @@ hard metrics or named testimonials.
 
 ## Clinical / AI tools (PHI production)
 
-When BAAs are signed and you want live PHI mode (auto when the five confirmation
-flags are `true`; see `docs/ai-tools-production-runbook.md`):
+Production activation remains an owner-only operation. The owner confirms the
+OpenAI BAA/ZDR project, covered Google project and Cloud Storage for Firebase/GCS,
+and selection of a covered scanner. Repository configuration checks are separate
+from covered staging/device/deletion verification.
 
-- [ ] Set: `HIPAA_PHI_ENABLED`, `OPENAI_BAA_CONFIRMED`, `OPENAI_MODIFIED_RETENTION_CONFIRMED`, `GOOGLE_CLOUD_BAA_CONFIRMED`, `PHI_STORAGE_BAA_CONFIRMED` all to `true`.
-- [ ] Set runtime: `AI_TOOL_ENCRYPTION_KEY`, `CLINICAL_EPHEMERAL_GCS_BUCKET`, `CLINICAL_FILE_SCANNER_URL` (+ recommended scanner token / `CLINICAL_GCS_BUCKET`).
-- [ ] Offline check: `node scripts/verify-clinical-production-env.mjs --require-phi` (exit 0).
-- [ ] Live check after deploy: `GET /api/admin/clinical-runtime-health` or `GET /api/healthz/clinical` returns `ok:true`, `operationMode:"phi"`, `ready:true`.
-- [ ] Or full smoke: `node scripts/smoke-health.mjs https://YOUR_HOST` (includes clinical runtime).
-- [ ] Apply DB migrations including `0002_ephemeral_clinical_tools.sql` / `pnpm --filter @workspace/db run push`.
-- [ ] Optional: replace educational coverage baseline via `/api/clinical/coverage/sync` with a live CMS MCD snapshot.
+- [ ] Follow the canonical contract in `lib/spartan-ai-tools/src/clinical-runtime-contract.js` and the [production runbook](ai-tools-production-runbook.md); no auto-PHI mode.
+- [ ] Explicit activation: `HIPAA_PHI_ENABLED=true`, `CLINICAL_OPERATION_MODE=phi`, `CLINICAL_PATIENT_REVIEW_ENABLED=true`.
+- [ ] OpenAI: `OPENAI_BAA_CONFIRMED=true`, `OPENAI_RETENTION_MODE=zdr`, `OPENAI_HIPAA_RETENTION_CONFIRMED=true`, usable `OPENAI_API_KEY`. The old Modified Retention flag is insufficient.
+- [ ] Google/storage/scanner: `GOOGLE_CLOUD_BAA_CONFIRMED=true`, `PHI_STORAGE_BAA_CONFIRMED=true`, `CLINICAL_SCANNER_BAA_CONFIRMED=true`.
+- [ ] Runtime: `DATABASE_URL`, `AI_TOOL_ENCRYPTION_KEY`, `CLINICAL_EPHEMERAL_GCS_BUCKET`, `CLINICAL_FILE_SCANNER_URL`, required `CLINICAL_FILE_SCANNER_TOKEN`.
+- [ ] Offline: `node scripts/verify-clinical-production-env.mjs --require-phi` exits 0; missing any required control must fail.
+- [ ] Health: `/api/healthz/clinical` and its alias report actual readiness and missing control names, with patient acceptance false when unavailable.
+- [ ] Verify explicit tenant `canReview`, active membership, feature entitlement and recent MFA. Platform/clinical admin alone must be denied patient review.
+- [ ] Verify ephemeral bucket protections, authenticated scanner, `store:false`, synthetic finalize/cancel/failure purge and covered deployment leak checks.
+- [ ] Use canonical numbered SQL migrations for separately authorized deployment; never Drizzle push. This correction adds no migration.
+- [ ] Independently verify the existing current CMS MCD snapshot required by patient review; an educational seed is not valid patient-review evidence.

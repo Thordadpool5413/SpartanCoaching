@@ -75,7 +75,7 @@ export async function runEphemeralClinicalSweep() {
       failed += 1;
       console.error("[clinical-ephemeral] expiry purge failed", {
         sessionId: session.id,
-        error: error instanceof Error ? error.message : "unknown",
+        code: "EPHEMERAL_PURGE_FAILED",
       });
     }
   }

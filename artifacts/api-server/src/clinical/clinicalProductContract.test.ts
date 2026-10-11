@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 const routes = fs.readFileSync(path.resolve(import.meta.dirname, "../routes/aiToolRoutes.ts"), "utf8");
 const access = fs.readFileSync(path.resolve(import.meta.dirname, "access.ts"), "utf8");
 const runtime = fs.readFileSync(
-  path.resolve(import.meta.dirname, "../../../../lib/spartan-ai-tools/src/clinical-runtime.ts"),
+  path.resolve(import.meta.dirname, "../../../../lib/spartan-ai-tools/src/clinical-runtime-contract.js"),
   "utf8",
 );
 const patientRoutes = fs.readFileSync(path.resolve(import.meta.dirname, "../routes/patientReviewRoutes.ts"), "utf8");
@@ -17,7 +17,7 @@ const native = fs.readFileSync(
 describe("deidentified Elite clinical product contract", () => {
   it("keeps patient records behind a distinct, fully confirmed runtime", () => {
     expect(access).toContain("resolveClinicalOperationMode(environment)");
-    expect(runtime).toContain('CLINICAL_PATIENT_REVIEW_ENABLED === "true"');
+    expect(runtime).toContain('name: "CLINICAL_PATIENT_REVIEW_ENABLED", expected: "true"');
     expect(patientRoutes).toContain("requireClinicalReview, coveredReviewer");
     expect(patientRoutes).toContain("CLINICAL_MFA_REQUIRED");
     expect(patientRoutes).toContain("purgeEphemeralClinicalSession");

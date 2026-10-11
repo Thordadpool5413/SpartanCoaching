@@ -311,3 +311,27 @@ describe("Spartan AI tool runner boundaries", () => {
     ).rejects.toMatchObject({ code: "UNSAFE_INPUT", status: 400 });
   });
 });
+
+describe("structured patient-review OpenAI retention and safe errors", () => {
+  it("keeps store:false on every clinical analysis attempt without logging record/output content", async () => {
+    const parse = vi.fn().mockResolvedValue({ output_parsed: null });
+    const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      await expect(
+        runSpartanAiTool(
+          "medical-record-lcd-verifier",
+          { recordText: "SYNTHETIC_PHI_PATH_SENTINEL" },
+          { client: { responses: { parse } } as never },
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_MODEL_OUTPUT", status: 502 });
+      expect(parse).toHaveBeenCalledTimes(2);
+      for (const [payload] of parse.mock.calls)
+        expect(payload.store).toBe(false);
+      expect(JSON.stringify(log.mock.calls)).not.toContain(
+        "SYNTHETIC_PHI_PATH_SENTINEL",
+      );
+    } finally {
+      log.mockRestore();
+    }
+  });
+});

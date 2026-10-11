@@ -40,7 +40,23 @@ export async function resolveClinicalAccess(
   request: AuthedRequest,
 ): Promise<ClinicalAccess | null> {
   const member = request.fieldKit?.member;
-  if (!member || !request.clientMemberId) return null;
+  const organization = request.fieldKit?.org;
+  if (
+    !member ||
+    !organization ||
+    !request.clientMemberId ||
+    !request.fieldKit?.allowed ||
+    member.id !== request.clientMemberId ||
+    member.organizationId !== organization.id ||
+    member.status !== "active" ||
+    (organization.status !== "active" &&
+      !(
+        organization.status === "trial" &&
+        (!organization.trialEndsAt ||
+          organization.trialEndsAt.getTime() > Date.now())
+      ))
+  )
+    return null;
 
   const [permission] = await db
     .select()
@@ -55,6 +71,8 @@ export async function resolveClinicalAccess(
 
   const activePermission =
     permission &&
+    permission.organizationId === organization.id &&
+    permission.memberId === member.id &&
     !permission.revokedAt &&
     (permission.canUse || permission.canReview || permission.canAdmin)
       ? permission
@@ -66,11 +84,10 @@ export async function resolveClinicalAccess(
   });
   const explicitUse = Boolean(activePermission?.canUse);
   const canUse = canUseDeidentifiedClinical(tier, explicitUse, member.role);
-  if (!canUse) return null;
   return {
     canUse,
     canReview: Boolean(activePermission?.canReview),
-    canAdmin: member.role === "platform_admin" || Boolean(activePermission?.canAdmin),
+    canAdmin: Boolean(activePermission?.canAdmin),
   };
 }
 
@@ -94,30 +111,44 @@ export async function requireClinicalUse(
   }
 }
 
-export function requireClinicalReview(
+export async function requireClinicalReview(
   request: AuthedRequest,
   response: Response,
   next: NextFunction,
 ) {
-  if (!request.clinicalAccess?.canReview && !request.clinicalAccess?.canAdmin) {
-    return response.status(403).json({
-      error: "Clinical reviewer access is required.",
-      code: "CLINICAL_REVIEW_REQUIRED",
-    });
+  try {
+    // Review is its own explicit permission, independent of deidentified use or
+    // clinical administration. Resolve current server-side tenant authority.
+    const access = await resolveClinicalAccess(request);
+    if (!access?.canReview) {
+      return response.status(403).json({
+        error: "Clinical reviewer access is required.",
+        code: "CLINICAL_REVIEW_REQUIRED",
+      });
+    }
+    request.clinicalAccess = access;
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }
 
-export function requireClinicalAdmin(
+export async function requireClinicalAdmin(
   request: AuthedRequest,
   response: Response,
   next: NextFunction,
 ) {
-  if (!request.clinicalAccess?.canAdmin) {
-    return response.status(403).json({
-      error: "Clinical administrator access is required.",
-      code: "CLINICAL_ADMIN_REQUIRED",
-    });
+  try {
+    const access = await resolveClinicalAccess(request);
+    if (!access?.canAdmin) {
+      return response.status(403).json({
+        error: "Clinical administrator access is required.",
+        code: "CLINICAL_ADMIN_REQUIRED",
+      });
+    }
+    request.clinicalAccess = access;
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }

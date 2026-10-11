@@ -1,7 +1,11 @@
 # Execution plans
 
-Active knowledge packet: `docs/execplans/knowledge-k1b-persist.md`.
-The owner-approved K1B-PERSIST implementation packet is recorded in the active
+Active bounded implementation: `docs/execplans/phi-readiness-boundaries.md`.
+The owner-provided PHI-readiness correction packet governs this work. K1A and
+K1B are complete; do not reopen them or start K2. No production PHI activation.
+
+Completed knowledge packet: `docs/execplans/knowledge-k1b-persist.md`.
+The owner-approved K1B-PERSIST implementation packet is recorded in the completed
 plan's scope and implementation checklist. K1A completion history remains at
 `docs/execplans/knowledge-k1a-correct.md`.
 Approved correction decisions and implementation packet:

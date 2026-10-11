@@ -40,6 +40,7 @@ import {
   clinicalOperationMode,
   isPhiClinicalMode,
   requireClinicalReview,
+  requireClinicalAdmin,
   requireClinicalUse,
   resolveClinicalAccess,
 } from "../clinical/access";
@@ -617,12 +618,12 @@ export function registerAiToolRoutes(app: Express): void {
           // Existing clinical tool endpoints remain deidentified in both modes.
           // Patient data is accepted only by the separately protected review route.
           deidentifiedOnly: true,
-          patientDataAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
-          patientDocumentsAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
+          patientDataAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
+          patientDocumentsAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
           approvalRequired: true,
           requiresMfa: clinicalOperationMode() === "phi",
           requiresCoverageSnapshot: clinicalOperationMode() === "phi",
-          allowsDocumentUpload: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
+          allowsDocumentUpload: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
           runtimeReady: clinicalReadiness.ready,
           missingControls: clinicalReadiness.missingControls,
         },
@@ -2056,7 +2057,7 @@ export function registerAiToolRoutes(app: Express): void {
   app.put(
     "/api/clinical/permissions/:memberId",
     requireElite,
-    requireOrgAdmin,
+    requireClinicalAdmin,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2090,8 +2091,7 @@ export function registerAiToolRoutes(app: Express): void {
         const canUse = request.body?.canUse === true;
         const canReview = request.body?.canReview === true;
         const requestedAdmin = request.body?.canAdmin === true;
-        const canAdmin =
-          context.member.role === "platform_admin" ? requestedAdmin : false;
+        const canAdmin = requestedAdmin;
         const [permission] = await db
           .insert(clinicalPermissions)
           .values({

@@ -7,6 +7,27 @@ import {
   validateClinicalUpload,
 } from "./storage";
 
+const gcs = vi.hoisted(() => ({
+  metadata: {} as Record<string, unknown>,
+  exists: vi.fn(async () => [false]),
+  delete: vi.fn(async () => undefined),
+  save: vi.fn(async () => undefined),
+}));
+vi.mock("@google-cloud/storage", () => ({
+  Storage: class {
+    bucket() {
+      return {
+        getMetadata: async () => [gcs.metadata],
+        file: () => ({
+          exists: gcs.exists,
+          delete: gcs.delete,
+          save: gcs.save,
+        }),
+      };
+    }
+  },
+}));
+
 afterEach(() => {
   vi.unstubAllGlobals();
   delete process.env.CLINICAL_FILE_SCANNER_URL;
@@ -17,15 +38,18 @@ afterEach(() => {
 });
 
 describe("clinical upload boundaries", () => {
-  it.each(["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png", "text/plain"])(
-    "accepts the supported content type %s",
-    (contentType) => {
-      expect(() => validateClinicalUpload(contentType, 1)).not.toThrow();
-      expect(() =>
-        validateClinicalUpload(contentType, 25 * 1024 * 1024),
-      ).not.toThrow();
-    },
-  );
+  it.each([
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg",
+    "image/png",
+    "text/plain",
+  ])("accepts the supported content type %s", (contentType) => {
+    expect(() => validateClinicalUpload(contentType, 1)).not.toThrow();
+    expect(() =>
+      validateClinicalUpload(contentType, 25 * 1024 * 1024),
+    ).not.toThrow();
+  });
 
   it.each([
     "application/octet-stream",
@@ -139,5 +163,122 @@ describe("clinical malware scanning", () => {
         }),
       }),
     );
+  });
+});
+
+describe("authenticated covered scanning", () => {
+  it.each([undefined, "   "])(
+    "fails closed before sending a PHI scan without an authenticated token",
+    async (token) => {
+      process.env.HIPAA_PHI_ENABLED = "true";
+      process.env.CLINICAL_EPHEMERAL_GCS_BUCKET = "synthetic-ephemeral";
+      process.env.CLINICAL_FILE_SCANNER_URL =
+        "https://scanner.example.invalid/scan";
+      if (token === undefined) delete process.env.CLINICAL_FILE_SCANNER_TOKEN;
+      else process.env.CLINICAL_FILE_SCANNER_TOKEN = token;
+      const fetch = vi.fn();
+      vi.stubGlobal("fetch", fetch);
+      await expect(scanEphemeralClinicalObject("opaque-key")).rejects.toThrow(
+        /CLINICAL_FILE_SCANNER_TOKEN is required/,
+      );
+      expect(fetch).not.toHaveBeenCalled();
+    },
+  );
+  it("sends authenticated scanner requests without document bytes or names", async () => {
+    process.env.HIPAA_PHI_ENABLED = "true";
+    process.env.CLINICAL_EPHEMERAL_GCS_BUCKET = "synthetic-ephemeral";
+    process.env.CLINICAL_FILE_SCANNER_URL =
+      "https://scanner.example.invalid/scan";
+    process.env.CLINICAL_FILE_SCANNER_TOKEN = "synthetic-scan-token";
+    const fetch = vi.fn(
+      async () => new Response(JSON.stringify({ safe: true }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    expect(await scanEphemeralClinicalObject("opaque-key")).toBe("safe");
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer synthetic-scan-token",
+        },
+        body: JSON.stringify({
+          bucket: "synthetic-ephemeral",
+          objectKey: "opaque-key",
+        }),
+      }),
+    );
+  });
+});
+
+describe("ephemeral bucket and verified deletion", () => {
+  const safe = {
+    iamConfiguration: {
+      publicAccessPrevention: "enforced",
+      uniformBucketLevelAccess: { enabled: true },
+    },
+  };
+  async function freshStorage(metadata: Record<string, unknown>) {
+    vi.resetModules();
+    process.env.HIPAA_PHI_ENABLED = "true";
+    process.env.CLINICAL_EPHEMERAL_GCS_BUCKET = "synthetic-ephemeral";
+    gcs.metadata = metadata;
+    return import("./storage");
+  }
+  it.each([
+    { ...safe, versioning: { enabled: true } },
+    { ...safe, softDeletePolicy: { retentionDurationSeconds: "604800" } },
+    { ...safe, retentionPolicy: { retentionPeriod: "1" } },
+    { ...safe, retentionPolicy: { isLocked: true } },
+    {
+      iamConfiguration: {
+        publicAccessPrevention: "inherited",
+        uniformBucketLevelAccess: { enabled: true },
+      },
+    },
+    {
+      iamConfiguration: {
+        publicAccessPrevention: "enforced",
+        uniformBucketLevelAccess: { enabled: false },
+      },
+    },
+    {},
+  ])(
+    "fails closed for incompatible ephemeral bucket policy %j",
+    async (metadata) => {
+      const storage = await freshStorage(metadata);
+      await expect(
+        storage.assertEphemeralBucketConfiguration(),
+      ).rejects.toThrow(/Ephemeral clinical bucket/);
+    },
+  );
+  it("permits only the compatible ephemeral policy and requires post-delete absence", async () => {
+    const storage = await freshStorage(safe);
+    await expect(
+      storage.assertEphemeralBucketConfiguration(),
+    ).resolves.toBeUndefined();
+    gcs.exists.mockResolvedValue([true]);
+    await expect(
+      storage.deleteEphemeralClinicalObject("opaque-key"),
+    ).rejects.toThrow(/deletion could not be verified/);
+    gcs.exists.mockResolvedValue([false]);
+    await expect(
+      storage.deleteEphemeralClinicalObject("opaque-key"),
+    ).resolves.toBeUndefined();
+    expect(gcs.delete).toHaveBeenCalledWith({ ignoreNotFound: true });
+  });
+  it("stores uploads only through server GCS with no-store metadata", async () => {
+    const storage = await freshStorage(safe);
+    const bytes = Buffer.from("Synthetic fixture, no patient content");
+    await storage.saveEphemeralClinicalObject(
+      "opaque-key",
+      bytes,
+      "text/plain",
+    );
+    expect(gcs.save).toHaveBeenCalledWith(bytes, {
+      resumable: false,
+      contentType: "text/plain",
+      metadata: { cacheControl: "no-store" },
+    });
   });
 });
