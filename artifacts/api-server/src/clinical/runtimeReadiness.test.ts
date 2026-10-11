@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { encryptPhi } from "../security/phiEncryption";
 import {
   clinicalBaasConfirmed,
   clinicalRuntimeReadiness,
@@ -31,6 +32,60 @@ function verify(environment: NodeJS.ProcessEnv, requirePhi = true) {
 }
 
 describe("canonical clinical runtime and offline verifier", () => {
+  it.each([
+    { label: "too short", key: "x" },
+    { label: "31-byte hex", key: "01".repeat(31) },
+    { label: "33-byte hex", key: "01".repeat(33) },
+    { label: "31-byte base64", key: Buffer.alloc(31, 7).toString("base64") },
+    { label: "33-byte base64", key: Buffer.alloc(33, 7).toString("base64") },
+  ])(
+    "rejects $label encryption keys consistently with the existing decoder",
+    ({ key }) => {
+      const env = { ...syntheticPhiEnvironment, AI_TOOL_ENCRYPTION_KEY: key };
+      expect(clinicalRuntimeReadiness(env)).toMatchObject({
+        operationMode: "deidentified",
+        ready: false,
+        missingControls: ["AI_TOOL_ENCRYPTION_KEY"],
+      });
+      expect(verify(env).result.status).toBe(1);
+      vi.stubEnv("AI_TOOL_ENCRYPTION_KEY", key);
+      try {
+        expect(() =>
+          encryptPhi({ fixture: "synthetic" }, "synthetic-tenant"),
+        ).toThrow(/exactly 32 bytes/);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
+  it.each([
+    { label: "64-character hex", key: "01".repeat(32) },
+    { label: "padded base64", key: Buffer.alloc(32, 7).toString("base64") },
+    {
+      label: "unpadded base64",
+      key: Buffer.alloc(32, 7).toString("base64").replace(/=+$/, ""),
+    },
+    { label: "base64url", key: Buffer.alloc(32, 255).toString("base64url") },
+    {
+      label: "whitespace-wrapped base64",
+      key: `  ${Buffer.alloc(32, 7).toString("base64")}\n`,
+    },
+  ])(
+    "accepts supported $label keys consistently with the existing decoder",
+    ({ key }) => {
+      const env = { ...syntheticPhiEnvironment, AI_TOOL_ENCRYPTION_KEY: key };
+      expect(clinicalRuntimeReadiness(env).ready).toBe(true);
+      expect(verify(env).result.status).toBe(0);
+      vi.stubEnv("AI_TOOL_ENCRYPTION_KEY", key);
+      try {
+        expect(() =>
+          encryptPhi({ fixture: "synthetic" }, "synthetic-tenant"),
+        ).not.toThrow();
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
   it("keeps unrequested deidentified education ready", () => {
     expect(clinicalRuntimeReadiness({})).toEqual({
       operationMode: "deidentified",

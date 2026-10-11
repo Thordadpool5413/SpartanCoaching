@@ -10,6 +10,7 @@ export const PHI_READINESS_REQUIREMENTS: readonly Readonly<{
   expected?: string;
   confirmation?: boolean;
   usableOpenAiKey?: boolean;
+  encryptionKey?: boolean;
 }>[];
 export const PHI_CONFIRMATION_GATES: readonly string[];
 export function clinicalBaasConfirmed(environment?: NodeJS.ProcessEnv): boolean;

@@ -16,6 +16,8 @@ clinical permission. `canAdmin` manages clinical settings without granting patie
 viewing. The permission writer itself requires explicit tenant `canAdmin`; platform
 and organization roles cannot grant themselves clinical authority. Explicit
 clinical administrators retain permission management without `canReview`.
+Self-targeted privilege additions are denied; another authorized tenant clinical
+administrator must grant additional authority. Self-reduction remains allowed.
 Ordinary deidentified tool access remains a separate entitlement.
 
 ## One readiness contract
@@ -28,6 +30,8 @@ from BAA confirmations. PHI requires explicit activation, vendor confirmations,
 OpenAI key, database/encryption configuration, a dedicated ephemeral bucket and an
 authenticated covered scanner. The deprecated
 `OPENAI_MODIFIED_RETENTION_CONFIRMED` input cannot prove ZDR.
+The encryption key must decode to exactly 32 bytes using the existing hex/base64
+formats; a nonempty malformed key does not establish readiness.
 
 If PHI is requested but any required control is absent, the runtime remains
 `deidentified`, reports `ready=false` and names the missing controls. Patient data

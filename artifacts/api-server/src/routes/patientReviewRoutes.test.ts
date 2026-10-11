@@ -487,6 +487,32 @@ describe("temporary review and human decision support", () => {
 });
 
 describe("clinical permission administration boundary", () => {
+  it("rejects a clinical administrator adding their own review authority", async () => {
+    permit({ canAdmin: true, canReview: false });
+    state.rows.client_members = [{ id: 7, organizationId: 42 }];
+    const res = await request(app(true))
+      .put("/api/clinical/permissions/7")
+      .send({ canUse: true, canAdmin: true, canReview: true });
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe("CLINICAL_SELF_GRANT_DENIED");
+    expect(state.writes).toEqual([]);
+    expect(
+      (await request(app()).post(PATH).send({ coverageSnapshotId: POLICY }))
+        .status,
+    ).toBe(403);
+  });
+  it("permits self-reduction by an already authorized clinical reviewer/admin", async () => {
+    permit({ canAdmin: true, canReview: true });
+    state.rows.client_members = [{ id: 7, organizationId: 42 }];
+    expect(
+      (
+        await request(app(true))
+          .put("/api/clinical/permissions/7")
+          .send({ canAdmin: true, canReview: false })
+      ).status,
+    ).toBe(200);
+    expect(state.writes[0]).toMatchObject({ memberId: 7, canReview: false });
+  });
   it.each(["platform_admin", "org_admin"])(
     "denies %s granting clinical authority without an explicit clinical-admin grant",
     async (role) => {

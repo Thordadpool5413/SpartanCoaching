@@ -23,6 +23,8 @@ roles nor `canAdmin` confer patient review. Ordinary clinical tools stay deident
 The permission-management endpoint requires an explicit tenant `canAdmin` grant;
 platform or organization roles alone cannot create clinical authority. An authorized
 clinical administrator can manage permissions without patient-review permission.
+Self-targeted privilege additions are rejected; an independent authorized tenant
+clinical administrator must grant additional authority. Self-reduction is allowed.
 
 Clinical outputs are decision support. They are not diagnoses, coverage determinations,
 or autonomous eligibility decisions.

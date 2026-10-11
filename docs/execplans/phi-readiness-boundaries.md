@@ -102,6 +102,26 @@ existing CI `EXPO_PUBLIC_DOMAIN` input; the correct CI environment passed. Initi
 browser run lacked the pinned browser executable; installed matching browsers and
 reran unchanged tests. Historical failures are recorded, not hidden.
 
+### PR #193 bounded review corrections
+
+Both posted findings were reproduced before their fixes: the filtered regression
+run had 7 failing tests / 5 passing supported-key cases (112 unrelated tests
+skipped by the filter). Review discussion disposition:
+
+| Finding | Root cause and smallest fix | Committed regression evidence |
+| --- | --- | --- |
+| `4243154435` | Explicit administration could still update the actor's own permission row to add review. The permission writer now denies self-targeted capability additions with `CLINICAL_SELF_GRANT_DENIED`; another authorized tenant clinical admin must grant additional authority. Existing self-reduction and other-member administration remain. | Actual endpoint self-review escalation is 403 without writes and patient review remains denied. Self-reduction succeeds; previously added other-member admin and role-only/foreign/revoked regressions remain. |
+| `4243154436` | Readiness checked encryption-key presence but the existing crypto decoder requires 32 bytes. The canonical control now validates the existing hex/base64 decoded length without a Node dependency in shared client-compatible code. Actual server crypto remains unchanged. | Five malformed-key cases fail both canonical readiness and real offline CLI and also fail actual `encryptPhi`; five supported hex/base64/base64url/whitespace forms pass all three. Real health rejects a malformed key with HTTP 503 and false patient acceptance. |
+
+Post-fix focused verification: the seven clinical files now pass 180 tests; adding
+the existing PHI encryption suite yields 8 files / 182 passing tests. The unchanged
+shared suite passes 112 and mobile passes 60 suites / 298. Full API rerun passes
+59 files / 1,149 tests with 49 local PostgreSQL skips (total 1,198). Root build
+rerun, including typecheck and both native bundles, passes. Final current-head CI
+is recorded in the completion companion after completion; earlier CI is historical.
+Both findings remain in scope under the approved authorization/readiness packet;
+no architecture, encryption algorithm, dependency or database change was introduced.
+
 ### Changed files (bounded inventory)
 
 - Governing evidence: `.agent/PLANS.md`, `docs/execplans/phi-readiness-boundaries.md`.

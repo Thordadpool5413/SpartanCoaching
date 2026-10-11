@@ -267,6 +267,12 @@ describe("clinical health readiness", () => {
   function configure(env: NodeJS.ProcessEnv) {
     for (const name of [...Object.keys(syntheticPhiEnvironment), "OPENAI_MODIFIED_RETENTION_CONFIRMED"]) vi.stubEnv(name, env[name]);
   }
+  it("does not declare PHI ready for a malformed encryption key", async () => {
+    configure({ ...syntheticPhiEnvironment, AI_TOOL_ENCRYPTION_KEY: "x" });
+    const res = await request(buildApp()).get("/healthz/clinical");
+    expect(res.status).toBe(503);
+    expect(res.body).toMatchObject({ ready: false, missingControls: ["AI_TOOL_ENCRYPTION_KEY"], patientDataAccepted: false, patientDocumentsAccepted: false });
+  });
   it.each(["/healthz/clinical", "/admin/clinical-runtime-health"])("reports actual PHI readiness on %s", async (path) => {
     configure(syntheticPhiEnvironment);
     const res = await request(buildApp()).get(path);

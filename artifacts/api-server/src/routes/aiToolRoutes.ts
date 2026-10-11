@@ -2092,6 +2092,18 @@ export function registerAiToolRoutes(app: Express): void {
         const canReview = request.body?.canReview === true;
         const requestedAdmin = request.body?.canAdmin === true;
         const canAdmin = requestedAdmin;
+        if (
+          targetMemberId === context.memberId &&
+          ((canUse && !authed.clinicalAccess?.canUse) ||
+            (canReview && !authed.clinicalAccess?.canReview) ||
+            (canAdmin && !authed.clinicalAccess?.canAdmin))
+        ) {
+          throw new SpartanAiToolError(
+            "CLINICAL_SELF_GRANT_DENIED",
+            403,
+            "An independent clinical administrator must grant additional permissions.",
+          );
+        }
         const [permission] = await db
           .insert(clinicalPermissions)
           .values({
