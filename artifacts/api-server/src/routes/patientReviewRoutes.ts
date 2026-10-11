@@ -3,10 +3,10 @@ import express, { type Express, type Request, type Response } from "express";
 import { and, eq, gt } from "drizzle-orm";
 import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
 import { runSpartanAiTool, SpartanAiToolError } from "@workspace/spartan-ai-tools/server";
-import { clinicalAuditEvents, clinicalEphemeralObjects, clinicalEphemeralSessions, clientSessions, coverageSnapshots } from "@workspace/db";
+import { clinicalAuditEvents, clinicalEphemeralObjects, clinicalEphemeralSessions, coverageSnapshots } from "@workspace/db";
 import { db } from "../db";
 import { requireElite, type AuthedRequest } from "../auth/middleware";
-import { requireClinicalReview } from "../clinical/access";
+import { hasRecentClinicalMfa, requireClinicalReview } from "../clinical/access";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
 import { assertEphemeralBucketConfiguration, createEphemeralClinicalObjectKey, deleteEphemeralClinicalObject, downloadEphemeralClinicalObject, saveEphemeralClinicalObject, scanEphemeralClinicalObject, validateClinicalUpload } from "../clinical/storage";
 import { assertClinicalFileSignature, extractPatientDocument } from "../clinical/patientExtraction";
@@ -40,10 +40,7 @@ async function coveredReviewer(request: Request, response: Response, next: (erro
       throw new SpartanAiToolError("PATIENT_REVIEW_UNAVAILABLE", 503, "Patient review is unavailable until the covered clinical services are configured.");
     }
     const authed = request as AuthedRequest;
-    if (!authed.sessionId) throw new SpartanAiToolError("CLINICAL_MFA_REQUIRED", 403, "Sign in and verify a recent clinical security code.");
-    const [session] = await db.select({ verified: clientSessions.mfaVerifiedAt }).from(clientSessions).where(and(eq(clientSessions.id, authed.sessionId), eq(clientSessions.memberId, authed.clientMemberId!), gt(clientSessions.expiresAt, new Date()))).limit(1);
-    const age = session?.verified ? Date.now() - session.verified.getTime() : NaN;
-    if (!Number.isFinite(age) || age < 0 || age > 15 * 60_000) {
+    if (!(await hasRecentClinicalMfa(authed))) {
       throw new SpartanAiToolError("CLINICAL_MFA_REQUIRED", 403, "Verify a clinical security code before uploading records.");
     }
     next();

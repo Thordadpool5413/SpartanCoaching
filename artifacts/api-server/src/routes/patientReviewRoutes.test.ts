@@ -31,6 +31,16 @@ vi.mock("drizzle-orm", async (importOriginal) => ({
   lte: (column: any, value: any) => ({ kind: "lte", column, value }),
 }));
 vi.mock("../db", () => ({ db: fakeDb() }));
+vi.mock("../resend", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../resend")>()),
+  sendClinicalMfaCode: vi.fn(async () => true),
+}));
+vi.mock("../clinical/coverageBootstrap", () => ({
+  loadLatestCoverageSnapshot: vi.fn(
+    async () => state.rows.coverage_snapshots[0],
+  ),
+  isEducationalBaselineSnapshot: () => false,
+}));
 vi.mock("../rateLimits", () => {
   const pass = (_req: unknown, _res: unknown, next: () => void) => next();
   return { heavyAiLimit: pass, standardAiLimit: pass, globalDailyAiCap: pass };
@@ -84,10 +94,10 @@ function rows(table: any) {
 function fakeDb(): any {
   const db = {
     select: (selection?: Row) => ({
-      from: (table: any) => ({
-        where: (predicate: Predicate) => {
+      from: (table: any) => {
+        const query = (predicate?: Predicate) => {
           const result = rows(table)
-            .filter((row) => matches(table, row, predicate))
+            .filter((row) => !predicate || matches(table, row, predicate))
             .map((row) =>
               selection
                 ? Object.fromEntries(
@@ -104,8 +114,9 @@ function fakeDb(): any {
             then: (resolve: any, reject: any) =>
               Promise.resolve(result).then(resolve, reject),
           };
-        },
-      }),
+        };
+        return { where: query, orderBy: () => query() };
+      },
     }),
     insert: (table: any) => ({
       values: (values: Row) => {
@@ -487,6 +498,44 @@ describe("temporary review and human decision support", () => {
 });
 
 describe("clinical permission administration boundary", () => {
+  it.each([
+    "missing",
+    "expired",
+    "future",
+    "invalid",
+    "absent_session",
+    "foreign_session",
+    "expired_session",
+  ])(
+    "denies permission changes without actor-bound recent MFA: %s",
+    async (variant) => {
+      permit({ canAdmin: true, canReview: false });
+      state.rows.client_members = [{ id: 8, organizationId: 42 }];
+      if (variant === "missing")
+        state.rows.client_sessions[0].mfaVerifiedAt = null;
+      if (variant === "expired")
+        state.rows.client_sessions[0].mfaVerifiedAt = new Date(
+          Date.now() - 16 * 60_000,
+        );
+      if (variant === "future")
+        state.rows.client_sessions[0].mfaVerifiedAt = new Date(
+          Date.now() + 60_000,
+        );
+      if (variant === "invalid")
+        state.rows.client_sessions[0].mfaVerifiedAt = new Date(NaN);
+      if (variant === "absent_session") state.context.sessionId = undefined;
+      if (variant === "foreign_session")
+        state.rows.client_sessions[0].memberId = 99;
+      if (variant === "expired_session")
+        state.rows.client_sessions[0].expiresAt = new Date(0);
+      const res = await request(app(true))
+        .put("/api/clinical/permissions/8")
+        .send({ canReview: true });
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe("CLINICAL_MFA_REQUIRED");
+      expect(state.writes).toEqual([]);
+    },
+  );
   it("rejects a clinical administrator adding their own review authority", async () => {
     permit({ canAdmin: true, canReview: false });
     state.rows.client_members = [{ id: 7, organizationId: 42 }];
@@ -564,5 +613,80 @@ describe("clinical permission administration boundary", () => {
       ).status,
     ).toBe(404);
     expect(state.writes).toEqual([]);
+  });
+});
+
+describe("clinical review and administration prerequisites", () => {
+  function company(values: Row) {
+    state.context.fieldKit.org.type = "company";
+    state.context.fieldKit.org.billingPlan = "corporate_contract_elite";
+    permit({ canUse: false, canReview: false, canAdmin: false, ...values });
+  }
+  it("allows a review-only company member to obtain the existing public coverage prerequisite", async () => {
+    company({ canReview: true });
+    const res = await request(app(true)).get(
+      "/api/clinical/coverage/snapshots",
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.snapshots[0].id).toBe(POLICY);
+  });
+  it.each(["canReview", "canAdmin"])(
+    "allows an explicit %s-only company member to request the existing MFA challenge",
+    async (capability) => {
+      company({ [capability]: true });
+      state.rows.client_sessions[0].mfaVerifiedAt = null;
+      const res = await request(app(true)).post("/api/clinical/mfa/request");
+      expect(res.status).toBe(201);
+      expect(state.rows.clinical_mfa_challenges[0]).toMatchObject({
+        organizationId: 42,
+        memberId: 7,
+      });
+      expect(
+        (await request(app()).post(PATH).send({ coverageSnapshotId: POLICY }))
+          .status,
+      ).toBe(403);
+    },
+  );
+  it.each(["absent", "revoked"])(
+    "denies company prerequisites with %s clinical authority",
+    async (variant) => {
+      company(
+        variant === "revoked"
+          ? { canReview: true, canAdmin: true, revokedAt: new Date() }
+          : {},
+      );
+      expect(
+        (await request(app(true)).get("/api/clinical/coverage/snapshots"))
+          .status,
+      ).toBe(403);
+      expect(
+        (await request(app(true)).post("/api/clinical/mfa/request")).status,
+      ).toBe(403);
+      expect(state.writes).toEqual([]);
+    },
+  );
+  it("preserves clinical administration step-up in deidentified configuration", async () => {
+    company({ canAdmin: true });
+    vi.stubEnv("CLINICAL_OPERATION_MODE", "deidentified");
+    state.rows.client_members = [{ id: 8, organizationId: 42 }];
+    state.rows.client_sessions[0].mfaVerifiedAt = null;
+    expect(
+      (await request(app(true)).post("/api/clinical/mfa/request")).status,
+    ).toBe(201);
+    expect(
+      (
+        await request(app(true))
+          .put("/api/clinical/permissions/8")
+          .send({ canReview: true })
+      ).status,
+    ).toBe(403);
+    state.rows.client_sessions[0].mfaVerifiedAt = new Date();
+    expect(
+      (
+        await request(app(true))
+          .put("/api/clinical/permissions/8")
+          .send({ canReview: true })
+      ).status,
+    ).toBe(200);
   });
 });

@@ -25,6 +25,9 @@ platform or organization roles alone cannot create clinical authority. An author
 clinical administrator can manage permissions without patient-review permission.
 Self-targeted privilege additions are rejected; an independent authorized tenant
 clinical administrator must grant additional authority. Self-reduction is allowed.
+Clinical permission changes also require recent server MFA. The existing coverage
+and MFA prerequisites accept explicit review/admin authority independently of
+ordinary deidentified tool use; they do not authorize patient records themselves.
 
 Clinical outputs are decision support. They are not diagnoses, coverage determinations,
 or autonomous eligibility decisions.

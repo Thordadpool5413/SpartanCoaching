@@ -1,6 +1,6 @@
 import type { NextFunction, Response } from "express";
-import { and, eq } from "drizzle-orm";
-import { clinicalPermissions } from "@workspace/db";
+import { and, eq, gt } from "drizzle-orm";
+import { clinicalPermissions, clientSessions } from "@workspace/db";
 import {
   canUseDeidentifiedClinical,
   resolveMembershipTier,
@@ -109,6 +109,47 @@ export async function requireClinicalUse(
   } catch (error) {
     next(error);
   }
+}
+
+/** Existing clinical preparation is public policy / MFA, never patient access. */
+export async function requireClinicalPrerequisite(
+  request: AuthedRequest,
+  response: Response,
+  next: NextFunction,
+) {
+  try {
+    const access = await resolveClinicalAccess(request);
+    if (!access || !(access.canUse || access.canReview || access.canAdmin)) {
+      return response.status(403).json({
+        error: "Clinical tool access has not been granted.",
+        code: "CLINICAL_ACCESS_REQUIRED",
+      });
+    }
+    request.clinicalAccess = access;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** One actor-bound recent step-up check for review and privilege changes. */
+export async function hasRecentClinicalMfa(
+  request: AuthedRequest,
+): Promise<boolean> {
+  if (!request.sessionId || !request.clientMemberId) return false;
+  const [session] = await db
+    .select({ verified: clientSessions.mfaVerifiedAt })
+    .from(clientSessions)
+    .where(
+      and(
+        eq(clientSessions.id, request.sessionId),
+        eq(clientSessions.memberId, request.clientMemberId),
+        gt(clientSessions.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
+  const age = session?.verified ? Date.now() - session.verified.getTime() : NaN;
+  return Number.isFinite(age) && age >= 0 && age <= 15 * 60_000;
 }
 
 export async function requireClinicalReview(

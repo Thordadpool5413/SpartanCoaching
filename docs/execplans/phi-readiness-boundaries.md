@@ -112,6 +112,8 @@ skipped by the filter). Review discussion disposition:
 | --- | --- | --- |
 | `4243154435` | Explicit administration could still update the actor's own permission row to add review. The permission writer now denies self-targeted capability additions with `CLINICAL_SELF_GRANT_DENIED`; another authorized tenant clinical admin must grant additional authority. Existing self-reduction and other-member administration remain. | Actual endpoint self-review escalation is 403 without writes and patient review remains denied. Self-reduction succeeds; previously added other-member admin and role-only/foreign/revoked regressions remain. |
 | `4243154436` | Readiness checked encryption-key presence but the existing crypto decoder requires 32 bytes. The canonical control now validates the existing hex/base64 decoded length without a Node dependency in shared client-compatible code. Actual server crypto remains unchanged. | Five malformed-key cases fail both canonical readiness and real offline CLI and also fail actual `encryptPhi`; five supported hex/base64/base64url/whitespace forms pass all three. Real health rejects a malformed key with HTTP 503 and false patient acceptance. |
+| `4243194096` | Existing public coverage/MFA prerequisites still required ordinary `canUse`, blocking review-only company members. A preparation guard accepts current use/review/admin capability for those existing nonpatient prerequisites; review authority is still independently required for sessions. | Actual public coverage and MFA endpoints allow review-only company members; admin-only members can obtain MFA for grant changes. Absent/revoked company authority is denied and obtaining a challenge does not authorize patient review. |
+| `4243194099` | Permission writes lacked the ADR-004 recent reauthentication requirement. Reuse one current actor-bound fifteen-minute session/MFA predicate across patient review, the existing dynamic clinical guard and privilege changes. The existing email challenge can be requested by explicit admins even in education mode. | Seven missing/stale/future/invalid/foreign/expired-session grant-write cases return 403 without writes; explicit admins may step up and manage other-member grants in deidentified configuration while patient review remains separately protected. |
 
 Post-fix focused verification: the seven clinical files now pass 180 tests; adding
 the existing PHI encryption suite yields 8 files / 182 passing tests. The unchanged
@@ -119,8 +121,24 @@ shared suite passes 112 and mobile passes 60 suites / 298. Full API rerun passes
 59 files / 1,149 tests with 49 local PostgreSQL skips (total 1,198). Root build
 rerun, including typecheck and both native bundles, passes. Final current-head CI
 is recorded in the completion companion after completion; earlier CI is historical.
-Both findings remain in scope under the approved authorization/readiness packet;
+All four findings remain in scope under the approved authorization/readiness packet;
 no architecture, encryption algorithm, dependency or database change was introduced.
+
+The second pair of findings was reproduced with 11 failing / 2 passing targeted
+tests (49 unrelated tests filtered out), then fixed in the same PR. Final focused
+verification passes 8 files / 195 tests (193 in the seven clinical files plus two
+existing encryption tests). Final local API rerun passes 59 files / 1,162 tests,
+with 49 PostgreSQL skips (total 1,211); root build/typecheck and both native bundles
+pass again. Final CI results are in the PR completion companion. The new
+prerequisite tests mock only public coverage bootstrap and email
+delivery; they exercise actual server authorization, actor-bound MFA and endpoints.
+
+Historical final-head attempt `38173963352` passed the full 1,198-test PostgreSQL
+API suite and every nonbrowser job but failed one unchanged desktop navigation
+focus assertion (50 passed / 1 failed / 1 existing skip). Failure/retry affected
+different navigation items. The exact unchanged failing test then passed eight
+local repetitions. No web/mobile product, browser test or CI policy was altered;
+the subsequent bounded API correction requires an entirely fresh current-head run.
 
 ### Changed files (bounded inventory)
 

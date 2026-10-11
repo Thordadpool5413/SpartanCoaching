@@ -18,6 +18,9 @@ and organization roles cannot grant themselves clinical authority. Explicit
 clinical administrators retain permission management without `canReview`.
 Self-targeted privilege additions are denied; another authorized tenant clinical
 administrator must grant additional authority. Self-reduction remains allowed.
+Permission changes require the same actor-bound recent server MFA as patient
+review. Review-only and admin-only members may use the existing public-policy/MFA
+prerequisites without gaining patient access or ordinary tool-use permission.
 Ordinary deidentified tool access remains a separate entitlement.
 
 ## One readiness contract

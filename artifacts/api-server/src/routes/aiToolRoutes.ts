@@ -41,6 +41,8 @@ import {
   isPhiClinicalMode,
   requireClinicalReview,
   requireClinicalAdmin,
+  requireClinicalPrerequisite,
+  hasRecentClinicalMfa,
   requireClinicalUse,
   resolveClinicalAccess,
 } from "../clinical/access";
@@ -314,15 +316,7 @@ async function requireDynamicClinicalAccess(
       "Authentication required.",
     );
   }
-  const [session] = await db
-    .select({ mfaVerifiedAt: clientSessions.mfaVerifiedAt })
-    .from(clientSessions)
-    .where(eq(clientSessions.id, request.sessionId))
-    .limit(1);
-  if (
-    !session?.mfaVerifiedAt ||
-    Date.now() - session.mfaVerifiedAt.getTime() > 15 * 60 * 1000
-  ) {
+  if (!(await hasRecentClinicalMfa(request))) {
     throw new SpartanAiToolError(
       "CLINICAL_MFA_REQUIRED",
       403,
@@ -1081,7 +1075,7 @@ export function registerAiToolRoutes(app: Express): void {
   app.get(
     "/api/clinical/coverage/snapshots",
     requireElite,
-    requireClinicalUse,
+    requireClinicalPrerequisite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1921,20 +1915,13 @@ export function registerAiToolRoutes(app: Express): void {
   app.post(
     "/api/clinical/mfa/request",
     requireElite,
+    requireClinicalPrerequisite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
       try {
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
-        const access = await resolveClinicalAccess(authed);
-        if (!access?.canUse) {
-          throw new SpartanAiToolError(
-            "CLINICAL_ACCESS_REQUIRED",
-            403,
-            "Clinical tool access has not been granted.",
-          );
-        }
         const code = randomInt(100000, 1000000).toString();
         const challengeToken = generateToken();
         const [challenge] = await db
@@ -2063,6 +2050,13 @@ export function registerAiToolRoutes(app: Express): void {
       try {
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
+        if (!(await hasRecentClinicalMfa(authed))) {
+          throw new SpartanAiToolError(
+            "CLINICAL_MFA_REQUIRED",
+            403,
+            "Clinical permission changes require a recent email verification code.",
+          );
+        }
         const targetMemberId = Number(request.params.memberId);
         if (!Number.isInteger(targetMemberId) || targetMemberId < 1) {
           throw new SpartanAiToolError(
