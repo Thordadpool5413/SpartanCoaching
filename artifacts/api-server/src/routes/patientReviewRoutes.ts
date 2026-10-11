@@ -3,10 +3,10 @@ import express, { type Express, type Request, type Response } from "express";
 import { and, eq, gt } from "drizzle-orm";
 import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
 import { runSpartanAiTool, SpartanAiToolError } from "@workspace/spartan-ai-tools/server";
-import { clinicalAuditEvents, clinicalEphemeralObjects, clinicalEphemeralSessions, clientSessions, coverageSnapshots } from "@workspace/db";
+import { clinicalAuditEvents, clinicalEphemeralObjects, clinicalEphemeralSessions, coverageSnapshots } from "@workspace/db";
 import { db } from "../db";
 import { requireElite, type AuthedRequest } from "../auth/middleware";
-import { clinicalOperationMode, requireClinicalReview, requireClinicalUse } from "../clinical/access";
+import { hasRecentClinicalMfa, requireClinicalReview } from "../clinical/access";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
 import { assertEphemeralBucketConfiguration, createEphemeralClinicalObjectKey, deleteEphemeralClinicalObject, downloadEphemeralClinicalObject, saveEphemeralClinicalObject, scanEphemeralClinicalObject, validateClinicalUpload } from "../clinical/storage";
 import { assertClinicalFileSignature, extractPatientDocument } from "../clinical/patientExtraction";
@@ -36,13 +36,11 @@ async function coveredReviewer(request: Request, response: Response, next: (erro
   noStore(response);
   try {
     const readiness = clinicalRuntimeReadiness();
-    if (clinicalOperationMode() !== "phi" || !readiness.ready) {
+    if (readiness.operationMode !== "phi" || !readiness.ready) {
       throw new SpartanAiToolError("PATIENT_REVIEW_UNAVAILABLE", 503, "Patient review is unavailable until the covered clinical services are configured.");
     }
     const authed = request as AuthedRequest;
-    if (!authed.sessionId) throw new SpartanAiToolError("CLINICAL_MFA_REQUIRED", 403, "Sign in and verify a recent clinical security code.");
-    const [session] = await db.select({ verified: clientSessions.mfaVerifiedAt }).from(clientSessions).where(eq(clientSessions.id, authed.sessionId)).limit(1);
-    if (!session?.verified || Date.now() - session.verified.getTime() > 15 * 60_000) {
+    if (!(await hasRecentClinicalMfa(authed))) {
       throw new SpartanAiToolError("CLINICAL_MFA_REQUIRED", 403, "Verify a clinical security code before uploading records.");
     }
     next();
@@ -72,7 +70,10 @@ async function ownedSession(request: AuthedRequest, open = true) {
 }
 
 export function registerPatientReviewRoutes(app: Express) {
-  const access = [requireElite, requireClinicalUse, requireClinicalReview, coveredReviewer];
+  const access = [
+    (_request: Request, response: Response, next: () => void) => { noStore(response); next(); },
+    requireElite, requireClinicalReview, coveredReviewer,
+  ];
 
   app.post(SESSION_PATH, ...access, standardAiLimit, async (request, response) => {
     try {

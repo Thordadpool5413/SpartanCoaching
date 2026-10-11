@@ -40,6 +40,9 @@ import {
   clinicalOperationMode,
   isPhiClinicalMode,
   requireClinicalReview,
+  requireClinicalAdmin,
+  requireClinicalPrerequisite,
+  hasRecentClinicalMfa,
   requireClinicalUse,
   resolveClinicalAccess,
 } from "../clinical/access";
@@ -313,15 +316,7 @@ async function requireDynamicClinicalAccess(
       "Authentication required.",
     );
   }
-  const [session] = await db
-    .select({ mfaVerifiedAt: clientSessions.mfaVerifiedAt })
-    .from(clientSessions)
-    .where(eq(clientSessions.id, request.sessionId))
-    .limit(1);
-  if (
-    !session?.mfaVerifiedAt ||
-    Date.now() - session.mfaVerifiedAt.getTime() > 15 * 60 * 1000
-  ) {
+  if (!(await hasRecentClinicalMfa(request))) {
     throw new SpartanAiToolError(
       "CLINICAL_MFA_REQUIRED",
       403,
@@ -617,12 +612,12 @@ export function registerAiToolRoutes(app: Express): void {
           // Existing clinical tool endpoints remain deidentified in both modes.
           // Patient data is accepted only by the separately protected review route.
           deidentifiedOnly: true,
-          patientDataAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
-          patientDocumentsAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
+          patientDataAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
+          patientDocumentsAccepted: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
           approvalRequired: true,
           requiresMfa: clinicalOperationMode() === "phi",
           requiresCoverageSnapshot: clinicalOperationMode() === "phi",
-          allowsDocumentUpload: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview || access?.canAdmin),
+          allowsDocumentUpload: clinicalOperationMode() === "phi" && clinicalReadiness.ready && Boolean(access?.canReview),
           runtimeReady: clinicalReadiness.ready,
           missingControls: clinicalReadiness.missingControls,
         },
@@ -1080,7 +1075,7 @@ export function registerAiToolRoutes(app: Express): void {
   app.get(
     "/api/clinical/coverage/snapshots",
     requireElite,
-    requireClinicalUse,
+    requireClinicalPrerequisite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1920,20 +1915,13 @@ export function registerAiToolRoutes(app: Express): void {
   app.post(
     "/api/clinical/mfa/request",
     requireElite,
+    requireClinicalPrerequisite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
       try {
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
-        const access = await resolveClinicalAccess(authed);
-        if (!access?.canUse) {
-          throw new SpartanAiToolError(
-            "CLINICAL_ACCESS_REQUIRED",
-            403,
-            "Clinical tool access has not been granted.",
-          );
-        }
         const code = randomInt(100000, 1000000).toString();
         const challengeToken = generateToken();
         const [challenge] = await db
@@ -2056,12 +2044,19 @@ export function registerAiToolRoutes(app: Express): void {
   app.put(
     "/api/clinical/permissions/:memberId",
     requireElite,
-    requireOrgAdmin,
+    requireClinicalAdmin,
     async (request, response) => {
       const id = requestId(request);
       try {
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
+        if (!(await hasRecentClinicalMfa(authed))) {
+          throw new SpartanAiToolError(
+            "CLINICAL_MFA_REQUIRED",
+            403,
+            "Clinical permission changes require a recent email verification code.",
+          );
+        }
         const targetMemberId = Number(request.params.memberId);
         if (!Number.isInteger(targetMemberId) || targetMemberId < 1) {
           throw new SpartanAiToolError(
@@ -2090,8 +2085,19 @@ export function registerAiToolRoutes(app: Express): void {
         const canUse = request.body?.canUse === true;
         const canReview = request.body?.canReview === true;
         const requestedAdmin = request.body?.canAdmin === true;
-        const canAdmin =
-          context.member.role === "platform_admin" ? requestedAdmin : false;
+        const canAdmin = requestedAdmin;
+        if (
+          targetMemberId === context.memberId &&
+          ((canUse && !authed.clinicalAccess?.canUse) ||
+            (canReview && !authed.clinicalAccess?.canReview) ||
+            (canAdmin && !authed.clinicalAccess?.canAdmin))
+        ) {
+          throw new SpartanAiToolError(
+            "CLINICAL_SELF_GRANT_DENIED",
+            403,
+            "An independent clinical administrator must grant additional permissions.",
+          );
+        }
         const [permission] = await db
           .insert(clinicalPermissions)
           .values({

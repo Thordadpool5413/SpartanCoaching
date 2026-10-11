@@ -64,26 +64,26 @@ async function clinicalRuntimeHealthResponse() {
       process.env.CMS_COVERAGE_API_TOKEN?.trim(),
     ),
     CLINICAL_GCS_BUCKET: Boolean(process.env.CLINICAL_GCS_BUCKET?.trim()),
-    CLINICAL_FILE_SCANNER_TOKEN: Boolean(
-      process.env.CLINICAL_FILE_SCANNER_TOKEN?.trim(),
-    ),
     OPENAI_MODEL: Boolean(process.env.OPENAI_MODEL?.trim()),
   };
   return {
-    ok: true as const,
-    status: "ok" as const,
+    ok: readiness.ready,
+    status: readiness.ready ? "ok" : "unavailable",
     operationMode: readiness.operationMode,
-    ready: true,
+    ready: readiness.ready,
+    baasConfirmed: readiness.baasConfirmed,
     patientDataAccepted: readiness.operationMode === "phi" && readiness.ready,
     patientDocumentsAccepted: readiness.operationMode === "phi" && readiness.ready,
     patientReviewPath: "/api/clinical/patient-review/sessions",
     approvalRequired: true,
-    missingControls: [] as string[],
+    missingControls: readiness.missingControls,
     usingEducationalBaseline: false,
     optionalPresent,
     hint: readiness.operationMode === "phi" && readiness.ready
       ? "Patient records are accepted only in the protected review workflow. Other clinical tools require deidentified inputs. A qualified reviewer must approve every output."
-      : "Ordinary clinical tools accept deidentified inputs only. A qualified reviewer must approve every output.",
+      : !readiness.ready
+        ? "Requested PHI configuration is incomplete. Patient records are not accepted; see missingControls. Ordinary tools require deidentified inputs."
+        : "Ordinary clinical tools accept deidentified inputs only. A qualified reviewer must approve every output.",
   };
 }
 

@@ -1,72 +1,82 @@
 # Clinical Security Controls
 
-Checked against `708b0522af3534a0066134d646f21f2a3cb8747c` on 2026-10-01. This document separates intended controls from verified runtime behavior; see [the operational contract](operational-contract.md).
+Updated for the bounded PHI-readiness correction from main
+`4e66375cfee6e6dc7a2f9e8c30691b1fdb34a442`. This describes repository behavior,
+not production activation or clinical certification. See the
+[operational contract](operational-contract.md) and
+[patient review boundary](patient-record-review.md).
 
-## Release blockers and scope
+## Explicit clinical authority
 
-PHI activation is not authorized. Environment confirmation flags are assertions, not evidence of executed agreements or effective vendor settings. The Google production boundary is the approved target; current Replit configuration is not proof of that deployment.
+Patient-record review requires an active organization/member relationship, the
+Elite feature entitlement, an explicit nonrevoked permission for that tenant and
+member with `canReview=true`, and server-verified MFA within fifteen minutes.
+Platform/application/organization roles and billing entitlements do not supply
+clinical permission. `canAdmin` manages clinical settings without granting patient
+viewing. The permission writer itself requires explicit tenant `canAdmin`; platform
+and organization roles cannot grant themselves clinical authority. Explicit
+clinical administrators retain permission management without `canReview`.
+Self-targeted privilege additions are denied; another authorized tenant clinical
+administrator must grant additional authority. Self-reduction remains allowed.
+Permission changes require the same actor-bound recent server MFA as patient
+review. Review-only and admin-only members may use the existing public-policy/MFA
+prerequisites without gaining patient access or ordinary tool-use permission.
+Ordinary deidentified tool access remains a separate entitlement.
 
-`artifacts/api-server/src/clinical/access.ts` currently derives `canAdmin` from platform_admin and permits review via `canReview || canAdmin`. This contradicts explicit clinical authorization. It is a P04 blocker, not acceptable support access. Clinical administration must not imply PHI viewing/reviewing.
+## One readiness contract
 
-The dedicated patient-review screen and legacy clinical screens differ. Do not infer biometric or inactive privacy coverage on the dedicated route from another screen. P13 must verify each surface and actual native build.
+`lib/spartan-ai-tools/src/clinical-runtime-contract.js` is the canonical
+configuration evaluator used by shared mode helpers, API readiness, clinical health
+and `scripts/verify-clinical-production-env.mjs`. There is no automatic PHI activation
+from BAA confirmations. PHI requires explicit activation, vendor confirmations,
+`OPENAI_RETENTION_MODE=zdr`, `OPENAI_HIPAA_RETENTION_CONFIRMED=true`, a usable
+OpenAI key, database/encryption configuration, a dedicated ephemeral bucket and an
+authenticated covered scanner. The deprecated
+`OPENAI_MODIFIED_RETENTION_CONFIRMED` input cannot prove ZDR.
+The encryption key must decode to exactly 32 bytes using the existing hex/base64
+formats; a nonempty malformed key does not establish readiness.
 
-## Existing modes and intended controls (not release certification)
+If PHI is requested but any required control is absent, the runtime remains
+`deidentified`, reports `ready=false` and names the missing controls. Patient data
+and documents are not accepted. Explicit `CLINICAL_OPERATION_MODE=deidentified`
+selects education; `--require-phi` still rejects that configuration. Health and
+offline checks expose control names/status only, never secret values. These checks
+verify configuration, not actual vendor account settings or live service operation.
 
-- **De-identified (default when BAAs are not confirmed, or forced with
-  `CLINICAL_OPERATION_MODE=deidentified`)**: All entitled members can
-  open the five clinical education tools without organization provisioning,
-  email MFA, a coverage-snapshot seed, or a clinical storage bucket. The user
-  must confirm that every input is de-identified. The API also rejects common
-  direct identifiers (email, phone, SSN, MRN, labeled date of birth, labeled
-  patient name, and postal address) before any OpenAI request. This screening is
-  a safety backstop rather than a certification that arbitrary text is
-  de-identified. Results are ephemeral, human review remains mandatory, and
-  document/photo upload is unavailable.
-- **PHI mode (`CLINICAL_OPERATION_MODE=phi`, or auto when all BAA confirmation
-  envs are `true`)**: Controlled PHI mode described below. It is only
-  **operational** after BAA, retention, storage, scanner, encryption, MFA,
-  evidence, deletion, and audit gates are configured and verified. Entitled
-  members receive operational `canUse` when the runtime is ready
-  (explicit permission rows and revokes still win). Coverage snapshots are
-  auto-selected; an educational baseline is seeded if none exist.
+## Temporary workflow and preserved controls
 
-- In PHI mode, explicit clinical authorization is tenant-scoped and independent of paid sales
-  membership. Clinical API access requires recent email MFA; mobile clinical screens
-  must also require device biometric or credential verification; dedicated-route enforcement remains a P13 gap.
-- Patient inputs, generated clinical results, extracted text, original filenames,
-  reviewer notes, and input hashes are never inserted into retained run or case
-  history. Clinical responses use `Cache-Control: no-store` and cannot be replayed.
-- The four text clinical tools execute synchronously in memory. The Medical Record
-  LCD Verifier uses a temporary session with random object tokens and a dedicated,
-  private GCS bucket. Its result is returned only after every object is deleted and
-  post-delete existence checks succeed.
-- Temporary sessions support PDF, JPEG, PNG, and text, with limits of 25 files,
-  25 MB per file, and 250 MB per session. Upload URLs expire after five minutes.
-  Malware scanning is fail-closed when PHI is enabled.
-- The temporary bucket must have public access prevention and uniform bucket-level
-  access enabled, with object versioning and retention policies disabled. An object
-  lifecycle rule is an additional infrastructure backstop. Application sessions
-  expire after 55 minutes. Current sweeping is scheduled by API-process timers in
-  `opsJobs.ts`; it is not independent of API uptime. Outages and orphaned objects
-  can delay deletion. There is no absolute deletion-time guarantee (P07/P08).
-- Failure, cancellation, and successful finalization all invoke the same verified
-  purge. Device camera and picker cache copies are removed after upload. The user's
-  original source document is never deleted.
-- Web clinical exports are generated from the current in-memory result and immediately
-  revoke the Blob URL. Native sharing uses the in-memory result and creates no
-  retained server export. All clinical results include a permanent educational
-  decision-support watermark.
-- Target requirement: every iOS clinical screen needs an opaque view on inactive
-  and local unlock on resume. Coverage of the dedicated patient-review route
-  remains unverified; do not advertise snapshot protection as complete.
-- CMS coverage snapshots remain retained because they contain public policy data.
-  Audit events retain only organization/user/tool identifiers, timestamps,
-  model/policy versions, outcome codes, object counts, and deletion confirmation.
-- Logs, analytics, crash reports, push notifications, filenames, and support tooling
-  must never receive PHI or model output.
+- Ordinary clinical tools accept deidentified input only, screen common direct
+  identifiers and require qualified human review. Screening is not a certification
+  that arbitrary text is deidentified.
+- Patient review accepts at most five PDF, DOCX, PNG, JPEG or TXT files, each at most
+  25 MiB, through the authenticated API. The server uses `@google-cloud/storage`
+  for the GCS bucket backing Cloud Storage for Firebase. No Firebase client SDK,
+  client credential or direct PHI upload path is introduced.
+- File signatures and the existing parser limits remain enforced. Malware scanning
+  requires a covered scanner URL and token in PHI mode; only explicit `safe:true`
+  passes. Scanner errors/unknown verdicts fail closed.
+- The dedicated temporary bucket must enforce public access prevention and uniform
+  bucket-level access, with versioning and soft delete disabled and no retention
+  policy that defeats deletion. The existing bucket-policy check remains required.
+- Both OpenAI extraction and structured analysis use `store:false`. The owner
+  confirms an executed API BAA and ZDR on the intended project. Configuration flags
+  and `store:false` do not independently establish effective provider coverage.
+- Finalization requires `confirmedHumanReview=true`. Outputs remain one-time drafts
+  with a clinician/compliance review watermark, without automatic diagnosis,
+  eligibility, prescribing, coding, billing, certification or EMR/FHIR writeback.
+- Source bytes/text, prompts, outputs, patient facts, original filenames and
+  patient-linked content hashes are not inserted into durable run/case history.
+  Existing opaque session/object metadata and content-free audit remain.
+- Successful finalization returns the draft only after verified object deletion.
+  Cancel and failure paths purge; failed cleanup retains metadata for retry and
+  returns a bounded error. Responses, including access failures, use no-store.
+- Sessions expire after 55 minutes; the existing sweep runs in the API process.
+  Outages/orphaned objects can delay deletion. There is no absolute deletion-time
+  guarantee. The user's original file is not deleted.
+- Patient review logs exclude source/model content and secrets. Cleanup failures
+  log an outcome code rather than raw storage/SDK error text.
 
-Immediate deletion reduces exposure but does not remove HIPAA obligations. Real-PHI
-activation requires the applicable BAA and ZDR or Modified Abuse Monitoring on the
-specific OpenAI API organization/project, HIPAA-eligible endpoints, covered hosting,
-storage and scanning services, a security risk assessment, and a successful
-production deletion and leak-scan drill.
+Existing parser isolation/total expansion/page-pixel budgets, independent orphan
+reconciliation, dedicated native inactive-cover/local-unlock and covered deployment
+leak/deletion drills remain separately recorded release evidence. This bounded
+correction does not claim those controls are verified or authorize real PHI.

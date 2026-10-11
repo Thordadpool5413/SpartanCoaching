@@ -212,12 +212,16 @@ async function scanObject(
     }
     return "safe";
   }
+  const scannerToken = process.env.CLINICAL_FILE_SCANNER_TOKEN?.trim();
+  if (process.env.HIPAA_PHI_ENABLED === "true" && !scannerToken) {
+    throw new Error("CLINICAL_FILE_SCANNER_TOKEN is required when PHI processing is enabled");
+  }
   const response = await fetch(scannerUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(process.env.CLINICAL_FILE_SCANNER_TOKEN
-        ? { Authorization: `Bearer ${process.env.CLINICAL_FILE_SCANNER_TOKEN}` }
+      ...(scannerToken
+        ? { Authorization: `Bearer ${scannerToken}` }
         : {}),
     },
     body: JSON.stringify({ bucket: selectedBucket, objectKey }),

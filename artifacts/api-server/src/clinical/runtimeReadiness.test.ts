@@ -1,100 +1,215 @@
-import { describe, expect, it } from "vitest";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it, vi } from "vitest";
+import { encryptPhi } from "../security/phiEncryption";
 import {
   clinicalBaasConfirmed,
   clinicalRuntimeReadiness,
   resolveClinicalOperationMode,
 } from "./runtimeReadiness";
+import { syntheticPhiEnvironment } from "../../../../lib/spartan-ai-tools/src/clinical-runtime.test-fixtures";
 
-const readyPhiEnvironment = {
-  CLINICAL_OPERATION_MODE: "phi",
-  HIPAA_PHI_ENABLED: "true",
-  OPENAI_BAA_CONFIRMED: "true",
-  OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
-  GOOGLE_CLOUD_BAA_CONFIRMED: "true",
-  PHI_STORAGE_BAA_CONFIRMED: "true",
-  CLINICAL_SCANNER_BAA_CONFIRMED: "true",
-  DATABASE_URL: "postgres://covered",
-  OPENAI_API_KEY: "configured",
-  AI_TOOL_ENCRYPTION_KEY: "configured",
-  CLINICAL_EPHEMERAL_GCS_BUCKET: "covered-ephemeral",
-  CLINICAL_FILE_SCANNER_URL: "https://scanner.internal",
-} satisfies NodeJS.ProcessEnv;
+const root = fileURLToPath(new URL("../../../../", import.meta.url));
+function verify(environment: NodeJS.ProcessEnv, requirePhi = true) {
+  const result = spawnSync(
+    process.execPath,
+    [
+      "scripts/verify-clinical-production-env.mjs",
+      ...(requirePhi ? ["--require-phi"] : []),
+    ],
+    {
+      cwd: root,
+      env: environment,
+      encoding: "utf8",
+      timeout: 5_000,
+    },
+  );
+  expect(result.error).toBeUndefined();
+  const report = JSON.parse(
+    result.stdout.slice(0, result.stdout.lastIndexOf("}") + 1),
+  );
+  return { result, report };
+}
 
-const baasOnlyEnvironment = {
-  HIPAA_PHI_ENABLED: "true",
-  OPENAI_BAA_CONFIRMED: "true",
-  OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
-  GOOGLE_CLOUD_BAA_CONFIRMED: "true",
-  PHI_STORAGE_BAA_CONFIRMED: "true",
-  CLINICAL_SCANNER_BAA_CONFIRMED: "true",
-} satisfies NodeJS.ProcessEnv;
-
-describe("clinical runtime readiness", () => {
-  it("keeps ephemeral de-identified education mode ready by default", () => {
+describe("canonical clinical runtime and offline verifier", () => {
+  it.each([
+    { label: "too short", key: "x" },
+    { label: "31-byte hex", key: "01".repeat(31) },
+    { label: "33-byte hex", key: "01".repeat(33) },
+    { label: "31-byte base64", key: Buffer.alloc(31, 7).toString("base64") },
+    { label: "33-byte base64", key: Buffer.alloc(33, 7).toString("base64") },
+  ])(
+    "rejects $label encryption keys consistently with the existing decoder",
+    ({ key }) => {
+      const env = { ...syntheticPhiEnvironment, AI_TOOL_ENCRYPTION_KEY: key };
+      expect(clinicalRuntimeReadiness(env)).toMatchObject({
+        operationMode: "deidentified",
+        ready: false,
+        missingControls: ["AI_TOOL_ENCRYPTION_KEY"],
+      });
+      expect(verify(env).result.status).toBe(1);
+      vi.stubEnv("AI_TOOL_ENCRYPTION_KEY", key);
+      try {
+        expect(() =>
+          encryptPhi({ fixture: "synthetic" }, "synthetic-tenant"),
+        ).toThrow(/exactly 32 bytes/);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
+  it.each([
+    { label: "64-character hex", key: "01".repeat(32) },
+    { label: "padded base64", key: Buffer.alloc(32, 7).toString("base64") },
+    {
+      label: "unpadded base64",
+      key: Buffer.alloc(32, 7).toString("base64").replace(/=+$/, ""),
+    },
+    { label: "base64url", key: Buffer.alloc(32, 255).toString("base64url") },
+    {
+      label: "whitespace-wrapped base64",
+      key: `  ${Buffer.alloc(32, 7).toString("base64")}\n`,
+    },
+  ])(
+    "accepts supported $label keys consistently with the existing decoder",
+    ({ key }) => {
+      const env = { ...syntheticPhiEnvironment, AI_TOOL_ENCRYPTION_KEY: key };
+      expect(clinicalRuntimeReadiness(env).ready).toBe(true);
+      expect(verify(env).result.status).toBe(0);
+      vi.stubEnv("AI_TOOL_ENCRYPTION_KEY", key);
+      try {
+        expect(() =>
+          encryptPhi({ fixture: "synthetic" }, "synthetic-tenant"),
+        ).not.toThrow();
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    },
+  );
+  it("keeps unrequested deidentified education ready", () => {
     expect(clinicalRuntimeReadiness({})).toEqual({
       operationMode: "deidentified",
       ready: true,
       missingControls: [],
       baasConfirmed: false,
     });
+    expect(verify({}, false).result.status).toBe(0);
+    expect(verify({}).result.status).toBe(1);
   });
 
-  it("keeps deidentified mode when legacy BAA flags are present", () => {
-    expect(resolveClinicalOperationMode(baasOnlyEnvironment)).toBe("deidentified");
-    expect(clinicalBaasConfirmed(baasOnlyEnvironment)).toBe(true);
-    const readiness = clinicalRuntimeReadiness(baasOnlyEnvironment);
-    expect(readiness.operationMode).toBe("deidentified");
-    expect(readiness.ready).toBe(true);
-    expect(readiness.missingControls).toEqual([]);
+  it("requires explicit activation even with confirmed vendor controls", () => {
+    const {
+      HIPAA_PHI_ENABLED,
+      CLINICAL_OPERATION_MODE,
+      CLINICAL_PATIENT_REVIEW_ENABLED,
+      ...vendors
+    } = syntheticPhiEnvironment;
+    expect(clinicalBaasConfirmed(vendors)).toBe(true);
+    expect(resolveClinicalOperationMode(vendors)).toBe("deidentified");
+    expect(clinicalRuntimeReadiness(vendors).ready).toBe(true);
+    expect(verify(vendors).result.status).toBe(1);
   });
 
-  it("allows explicit deidentified override even when BAAs are confirmed", () => {
-    expect(
-      resolveClinicalOperationMode({
-        ...baasOnlyEnvironment,
-        CLINICAL_OPERATION_MODE: "deidentified",
-      }),
-    ).toBe("deidentified");
-    expect(
-      clinicalRuntimeReadiness({
-        ...baasOnlyEnvironment,
-        CLINICAL_OPERATION_MODE: "deidentified",
-      }).ready,
-    ).toBe(true);
-  });
-
-  it("ignores an explicit legacy PHI request", () => {
-    const readiness = clinicalRuntimeReadiness({
-      CLINICAL_OPERATION_MODE: "phi",
-      OPENAI_API_KEY: "configured",
-    });
-    expect(readiness.operationMode).toBe("deidentified");
-    expect(readiness.ready).toBe(true);
-    expect(readiness.missingControls).toEqual([]);
-  });
-
-  it("remains deidentified when every legacy PHI dependency exists", () => {
-    expect(clinicalRuntimeReadiness(readyPhiEnvironment)).toEqual({
+  it("honors an explicit deidentified override without accepting patient records", () => {
+    const env = {
+      ...syntheticPhiEnvironment,
+      CLINICAL_OPERATION_MODE: "deidentified",
+    };
+    expect(clinicalRuntimeReadiness(env)).toMatchObject({
       operationMode: "deidentified",
+      ready: true,
+      missingControls: [],
+    });
+    expect(verify(env, false).result.status).toBe(0);
+    expect(verify(env).result.status).toBe(1);
+  });
+
+  it("reports fully configured ZDR PHI readiness without leaking values", () => {
+    const runtime = clinicalRuntimeReadiness(syntheticPhiEnvironment);
+    expect(runtime).toEqual({
+      operationMode: "phi",
       ready: true,
       missingControls: [],
       baasConfirmed: true,
     });
+    const { result, report } = verify(syntheticPhiEnvironment);
+    expect(result.status).toBe(0);
+    expect(report).toMatchObject(runtime);
+    for (const value of [
+      syntheticPhiEnvironment.OPENAI_API_KEY,
+      syntheticPhiEnvironment.CLINICAL_FILE_SCANNER_TOKEN,
+      syntheticPhiEnvironment.DATABASE_URL,
+      syntheticPhiEnvironment.AI_TOOL_ENCRYPTION_KEY,
+    ]) {
+      expect(result.stdout + result.stderr).not.toContain(value);
+    }
   });
 
-  it("does not expose legacy PHI readiness controls", () => {
-    const readiness = clinicalRuntimeReadiness({
-      ...readyPhiEnvironment,
-      OPENAI_API_KEY: "ci-placeholder-no-network-calls",
-    });
-    expect(readiness.operationMode).toBe("deidentified");
-    expect(readiness.missingControls).toEqual([]);
+  it.each(Object.keys(syntheticPhiEnvironment))(
+    "fails closed and agrees with the verifier when %s is absent",
+    (name) => {
+      const env: NodeJS.ProcessEnv = { ...syntheticPhiEnvironment };
+      delete env[name];
+      const runtime = clinicalRuntimeReadiness(env);
+      expect(runtime.operationMode).toBe("deidentified");
+      expect(runtime.ready).toBe(false);
+      expect(runtime.missingControls).toContain(name);
+      const { result, report } = verify(env);
+      expect(result.status).toBe(1);
+      expect(report).toMatchObject(runtime);
+      // A requested but incomplete PHI configuration also fails without the CLI flag.
+      expect(verify(env, false).result.status).toBe(1);
+    },
+  );
+
+  it.each(["modified", "unknown", "", "ZDR"])(
+    "does not treat retention mode %s as confirmed ZDR",
+    (mode) => {
+      const env = {
+        ...syntheticPhiEnvironment,
+        OPENAI_RETENTION_MODE: mode,
+        OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
+      };
+      const runtime = clinicalRuntimeReadiness(env);
+      expect(runtime.ready).toBe(false);
+      expect(runtime.missingControls).toContain("OPENAI_RETENTION_MODE");
+      expect(verify(env).report).toMatchObject(runtime);
+    },
+  );
+
+  it("never lets the deprecated Modified Retention flag prove ZDR", () => {
+    const env = {
+      ...syntheticPhiEnvironment,
+      OPENAI_RETENTION_MODE: undefined,
+      OPENAI_HIPAA_RETENTION_CONFIRMED: undefined,
+      OPENAI_MODIFIED_RETENTION_CONFIRMED: "true",
+    };
+    expect(clinicalRuntimeReadiness(env).ready).toBe(false);
+    expect(verify(env).result.status).toBe(1);
   });
 
-  it("requires covered storage, scanning, and an API key after explicit activation", () => {
-    const activated = { ...readyPhiEnvironment, CLINICAL_PATIENT_REVIEW_ENABLED: "true" };
-    expect(clinicalRuntimeReadiness(activated).ready).toBe(false);
-    expect(clinicalRuntimeReadiness(activated).missingControls).toContain("CLINICAL_FILE_SCANNER_TOKEN");
-    expect(clinicalRuntimeReadiness({ ...activated, CLINICAL_FILE_SCANNER_TOKEN: "configured" })).toMatchObject({ operationMode: "phi", ready: true });
+  it.each([
+    "OPENAI_BAA_CONFIRMED",
+    "OPENAI_HIPAA_RETENTION_CONFIRMED",
+    "GOOGLE_CLOUD_BAA_CONFIRMED",
+    "PHI_STORAGE_BAA_CONFIRMED",
+    "CLINICAL_SCANNER_BAA_CONFIRMED",
+    "HIPAA_PHI_ENABLED",
+    "CLINICAL_PATIENT_REVIEW_ENABLED",
+  ])("requires exact true for %s", (name) => {
+    const env = { ...syntheticPhiEnvironment, [name]: "false" };
+    expect(clinicalRuntimeReadiness(env).missingControls).toContain(name);
+    expect(verify(env).result.status).toBe(1);
   });
+
+  it.each(["ci-placeholder-no-network-calls", "your-api-key", "dummy", "   "])(
+    "rejects unusable OpenAI keys (%s) consistently",
+    (key) => {
+      const env = { ...syntheticPhiEnvironment, OPENAI_API_KEY: key };
+      expect(clinicalRuntimeReadiness(env).missingControls).toContain(
+        "OPENAI_API_KEY",
+      );
+      expect(verify(env).result.status).toBe(1);
+    },
+  );
 });
