@@ -28,7 +28,10 @@ tmp
 out-tsc
 **/*.tsbuildinfo
 
-attached_assets
+# Include only the photos required by the website build.
+attached_assets/*
+!attached_assets/nick-photo-cropped.jpg
+!attached_assets/nick-photo.jpg
 .migration-backup
 
 *.log
