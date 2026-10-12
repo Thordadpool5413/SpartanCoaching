@@ -107,3 +107,30 @@ three named GHSA/CVE/version/path identities only after artifact verification.
 Other high/critical findings, missing/duplicate approved findings, fixed upstream
 versions, expiry and malformed audit evidence remain blocking. Raw reports remain
 visible and retained; a source-mitigated decision is not a clean registry audit.
+
+## Dependency advisory repair and hash renewal — 2026-10-12
+
+CI run #919 (commit `96081b6`, PR #194) failed `patched-audit.test.mjs` on the
+pinned `pnpm-lock.yaml` hash and `patched-audit.mjs` on newly published advisories
+for `uuid` (GHSA-w5hq-g745-h8pq, fixed 11.1.1), `qs` (GHSA-x5fp-wj9c-mxmx and
+GHSA-4mjr-xmp4-gh2g, fixed 6.16.0), `ip-address` (GHSA-rpw4-54j3-4h4q,
+GHSA-2vr4-cq9g-pvrc, GHSA-j6r3-76f7-8jcv, GHSA-h3mg-xc3c-68pw, fixed 10.7.1) and
+`fast-copy` (GHSA-jggr-w7fw-pc2j, fixed 4.1.0).
+
+These were fixed by upgrading, not ignoring: pnpm overrides in
+`pnpm-workspace.yaml` now resolve `uuid@<11.1.1` to 11.1.1 (all consumers only
+call `uuid.v4()`), `qs` to 6.16.0, `ip-address` (replacing the prior
+`<=10.3.0` override) to 10.7.1 and `fast-copy` to 4.1.0. The lockfile was
+regenerated; the `tailwindcss-animate` entries from PR #194 are unchanged.
+
+Only the `pnpm-lock.yaml` and `pnpm-workspace.yaml` pins in
+`patches/forge-attestation.json` changed, to the reviewed, regression-tested
+files (lock `aa24cee5…0620`, workspace `7be2a1bd…b361`). The three patch files,
+patched package tree hashes, owner (Nicholas Lynch / repository owner), approval
+timestamp and **2026-11-01 00:00 UTC** expiry are unchanged. No advisory ignore
+was added and the approved scope remains node-forge, braces and
+http-cache-semantics. Verified locally after frozen install:
+`node scripts/forge-security.test.mjs`, `node scripts/security/dependency-regression.test.mjs`
+(8/8), `node scripts/security/patched-audit.test.mjs` (39/39) and
+`node scripts/security/patched-audit.mjs` (pass-with-verified-source-mitigation;
+no new high/critical findings). This hash renewal still requires owner review.
