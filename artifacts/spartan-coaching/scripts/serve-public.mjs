@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(scriptDir, "..", "dist", "public");
 const port = Number(process.env.PORT || 5000);
-const siteOrigin = "https://spartanhospicecoaching.com";
+const siteOrigin = process.env.SITE_ORIGIN || "https://spartanhospicecoaching.com";
 
 const routeManifest = JSON.parse(
   await readFile(path.join(publicDir, "seo-routes.json"), "utf8"),
@@ -138,6 +138,7 @@ async function sendStaticFile(res, filePath) {
 }
 
 async function handleRequest(req, res) {
+  if (process.env.DEV_NO_INDEX === "1") res.setHeader("X-Robots-Tag", "noindex, nofollow");
   if (!req.url || !["GET", "HEAD"].includes(req.method || "")) {
     res.writeHead(405, { Allow: "GET, HEAD" });
     res.end();
