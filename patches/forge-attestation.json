@@ -4,8 +4,8 @@
   "approvedAt": "2026-10-03T10:15:49Z",
   "expiresAt": "2026-11-01T00:00:00Z",
   "files": {
-    "pnpm-lock.yaml": "cdb968f492ca24d62322d309a34baeab7f95af70b4fcad63e686b27767352787",
-    "pnpm-workspace.yaml": "199d9e280d14d8b01f5ca32f9a6f66a564fbb70446ca363cc9b9a35ce9547dee",
+    "pnpm-lock.yaml": "aa24cee55fe8722ce8c46dfcec97deae5fbc4a4285c4162bc7f3ab66d3bc0620",
+    "pnpm-workspace.yaml": "7be2a1bd9be042f9ab5ea1b51cf23b4167eaec73961c155f46090cbdaf9bb361",
     "patches/node-forge@1.4.0.patch": "658552dd05ed354aeedf79fb965e34b6dd69fed27c696a0c748baeb0fa080204",
     "patches/braces@3.0.3.patch": "37f95f7d660c05bfd44d4b429ca49ceeede99dcff68389f81ee9b995a8ea24d2",
     "patches/http-cache-semantics@4.2.0.patch": "ea91cbabfa1f7991c05483aa9e5b35e17439e0ef02db41d09d6bb7a0e941f7f7"
