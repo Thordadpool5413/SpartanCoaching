@@ -174,7 +174,8 @@ async function handleRequest(req, res) {
   }
 
   const normalizedPath = canonicalPath(pathname);
-  const noindex = isNoIndexPath(normalizedPath) || !publicPaths.has(normalizedPath);
+  const noindex = process.env.DEV_NO_INDEX === "1" ||
+    isNoIndexPath(normalizedPath) || !publicPaths.has(normalizedPath);
   const canonical = `${siteOrigin}${normalizedPath}`;
   const html = injectRouteMetadata(
     await readFile(path.join(publicDir, "index.html"), "utf8"),

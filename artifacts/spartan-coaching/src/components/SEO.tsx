@@ -39,9 +39,11 @@ export function SEO({ title, description, keywords, ogImage, canonical, noIndex 
   // staging alias, or an alternate host.
   const origin = SITE_ORIGIN;
 
-  const seoCanonical = canonical || `${origin}${cleanPath === '/' ? '' : cleanPath}`;
+  const seoCanonical = canonical || `${origin}${cleanPath}`;
   const fullOgImageUrl = absoluteUrl(seoOgImage, origin) || `${origin}${DEFAULT_OG_IMAGE}`;
-  const shouldNoIndex = noIndex === true || defaultConfig.noIndex === true || isNoIndexPath(cleanPath);
+  const isDevHost = typeof window !== "undefined" &&
+    window.location.hostname === "app-dev.spartanhospicecoaching.com";
+  const shouldNoIndex = isDevHost || noIndex === true || defaultConfig.noIndex === true || isNoIndexPath(cleanPath);
 
   return (
     <Helmet>

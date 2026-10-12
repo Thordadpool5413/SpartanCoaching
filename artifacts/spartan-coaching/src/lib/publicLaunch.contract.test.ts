@@ -25,6 +25,24 @@ function readSource(relativePath: string) {
 }
 
 describe("public launch contract", () => {
+  it("keeps the DEV Cloud Run canonical and indexing safeguards aligned", () => {
+    const dockerfile = fs.readFileSync(
+      path.resolve(siteRoot, "../../Dockerfile.web"),
+      "utf8",
+    );
+    const settings = dockerfile.split(/\r?\n/);
+
+    expect(settings).toContain(`ENV SITE_ORIGIN=${SITE_ORIGIN}`);
+    expect(settings).toContain("ENV DEV_NO_INDEX=1");
+
+    const server = fs.readFileSync(
+      path.join(siteRoot, "scripts", "serve-public.mjs"),
+      "utf8",
+    );
+    expect(server).toContain("process.env.SITE_ORIGIN");
+    expect(server).toContain('process.env.DEV_NO_INDEX === "1"');
+  });
+
   it("uses one canonical host in robots and the sitemap", () => {
     const robots = readPublic("robots.txt");
     const sitemap = readPublic("sitemap.xml");
