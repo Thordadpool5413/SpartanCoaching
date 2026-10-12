@@ -11,7 +11,7 @@ FROM node:24-bookworm-slim AS runtime
 
 ENV NODE_ENV=production
 ENV PORT=8080
-ENV SITE_ORIGIN=https://app-dev.spartanhospicecoaching.com
+ENV SITE_ORIGIN=https://spartanhospicecoaching.com
 ENV DEV_NO_INDEX=1
 
 WORKDIR /app
