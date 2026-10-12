@@ -1,0 +1,25 @@
+FROM node:24-bookworm-slim AS build
+
+WORKDIR /workspace
+RUN npm install --global pnpm@10.26.1
+
+COPY . .
+RUN pnpm install --frozen-lockfile --filter @workspace/spartan-coaching...
+RUN pnpm --filter @workspace/spartan-coaching run build
+
+FROM node:24-bookworm-slim AS runtime
+
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV SITE_ORIGIN=https://app-dev.spartanhospicecoaching.com
+ENV DEV_NO_INDEX=1
+
+WORKDIR /app
+
+COPY --from=build --chown=node:node /workspace/artifacts/spartan-coaching/dist/public ./dist/public
+COPY --from=build --chown=node:node /workspace/artifacts/spartan-coaching/scripts/serve-public.mjs ./scripts/serve-public.mjs
+
+USER node
+EXPOSE 8080
+
+CMD ["node", "./scripts/serve-public.mjs"]
