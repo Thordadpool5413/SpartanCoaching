@@ -95,6 +95,9 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 - [ ] Voice recording and transcription work in the preview build
 - [ ] Raw conversation privacy and 90 day expiration are visible
 - [ ] Saving a commitment updates Home and My Work
+- [ ] With the same synthetic Elite test account, create a conversation on the website; return to the iPhone Coach tab and confirm the new history entry appears without app restart
+- [ ] Create a second conversation on iPhone; return to the browser Coach tab and confirm history refreshes after focus without losing an unsent draft
+- [ ] Switch between two authorized synthetic test accounts on iPhone; confirm the first account's private conversation titles and messages are not displayed for the second
 
 ## Explore
 
