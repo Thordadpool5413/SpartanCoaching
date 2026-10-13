@@ -21,7 +21,7 @@ jest.mock("@/lib/coachApi", () => ({
   saveCoachPreferences: jest.fn(),
 }));
 jest.mock("@/lib/AuthContext", () => ({
-  useAuth: () => ({ canUseFieldKit: true, canUseElite: true, isAuthenticated: true, user: { member: { name: "Test User" } } }),
+  useAuth: () => ({ canUseFieldKit: true, canUseElite: true, isAuthenticated: true, user: { member: { id: 1, name: "Test User" } } }),
 }));
 jest.mock("@/hooks/useColors", () => ({
   useColors: () => ({
@@ -77,7 +77,13 @@ jest.mock("../components/tools/ToolShell", () => ({
         React.createElement(Text, null, "Research")));
   },
 }));
-jest.mock("expo-router", () => ({ router: { push: jest.fn() } }));
+jest.mock("expo-router", () => {
+  const React = require("react");
+  return {
+    router: { push: jest.fn() },
+    useFocusEffect: (callback: () => void | (() => void)) => React.useEffect(callback, [callback]),
+  };
+});
 
 describe("rendered native recovery", () => {
   afterEach(() => jest.clearAllMocks());

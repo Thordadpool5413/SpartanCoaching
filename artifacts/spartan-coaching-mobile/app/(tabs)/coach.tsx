@@ -8,8 +8,8 @@ import {
   useAudioRecorderState,
 } from "expo-audio";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -98,19 +98,53 @@ export default function CoachScreen() {
   const [landingPrompt, setLandingPrompt] = useState("");
   const [historyError, setHistoryError] = useState(false);
 
+  const memberId = user?.member?.id ?? null;
+  const accountAccessKey = `${memberId ?? "signed-out"}:${canUseElite ? "elite" : "locked"}`;
+  const previousAccountAccessKey = useRef(accountAccessKey);
+
+  // Expo tab screens can remain mounted after a different member signs in.
+  // Clear private Coach state before showing a newly authorized account's history.
   useEffect(() => {
-    if (!canUseElite) return;
+    if (previousAccountAccessKey.current === accountAccessKey) return;
+    previousAccountAccessKey.current = accountAccessKey;
+    setConversations([]);
+    setMessages([]);
+    setConversationId(null);
+    setFeedback(null);
+    setFollowUp("");
+    setSituation("");
+    setIntention("");
+    setRehearsal("");
+    setCommitment("");
+    setLandingPrompt("");
+    setStep("prepare");
+    setLandingVisible(true);
+    setHistoryOpen(false);
+    setSettingsOpen(false);
     setHistoryError(false);
-    void Promise.all([listCoachConversations(), getCoachPreferences()])
-      .then(([items, saved]) => {
-        setConversations(items);
-        setPreference(saved);
-        setHistoryError(false);
-      })
-      .catch(() => {
-        setHistoryError(true);
-      });
-  }, [canUseElite]);
+    setPreference(defaultPreference);
+  }, [accountAccessKey]);
+
+  // A website change must appear when the iPhone user returns to Coach.
+  // In-flight requests from a previous tab focus/account cannot overwrite it.
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      if (!canUseElite || memberId == null) return () => { active = false; };
+      setHistoryError(false);
+      void Promise.all([listCoachConversations(), getCoachPreferences()])
+        .then(([items, saved]) => {
+          if (!active) return;
+          setConversations(items);
+          setPreference(saved);
+          setHistoryError(false);
+        })
+        .catch(() => {
+          if (active) setHistoryError(true);
+        });
+      return () => { active = false; };
+    }, [canUseElite, memberId]),
+  );
 
   useEffect(() => {
     void consumeCoachHandoff().then((handoff) => {

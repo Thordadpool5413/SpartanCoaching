@@ -1,6 +1,6 @@
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Coach from "./Coach";
 
 vi.mock("wouter", () => ({
@@ -56,6 +56,21 @@ describe("Spartan Coach live response rendering", () => {
     fetchMock.mockReset();
     vi.unstubAllGlobals();
     delete (HTMLElement.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
+  it("revalidates history on browser focus without destroying an unsent draft", async () => {
+    render(<Coach />);
+    const input = await screen.findByLabelText("Message Spartan Coach");
+    fireEvent.change(input, { target: { value: "Keep this unsent question" } });
+    const historyRequests = () => fetchMock.mock.calls.filter(
+      ([path]) => path === "/api/v1/coach/conversations",
+    ).length;
+    const beforeFocus = historyRequests();
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    await waitFor(() => expect(historyRequests()).toBeGreaterThan(beforeFocus));
+    expect((input as HTMLTextAreaElement).value).toBe("Keep this unsent question");
   });
 
   it("keeps the route mounted when an optimistic message is replaced by the AI response", async () => {

@@ -74,6 +74,22 @@ export default function Coach() {
       .finally(() => setLoading(false));
   }, []);
 
+  // The iPhone can update a conversation while this browser tab is in the
+  // background. Revalidate server-backed history when the tab regains focus.
+  // Never replace the active draft or an in-flight Coach response.
+  useEffect(() => {
+    const revalidateHistory = () => {
+      if (sending || document.visibilityState !== "visible") return;
+      void refresh().catch((cause: Error) => setError(cause.message));
+    };
+    window.addEventListener("focus", revalidateHistory);
+    document.addEventListener("visibilitychange", revalidateHistory);
+    return () => {
+      window.removeEventListener("focus", revalidateHistory);
+      document.removeEventListener("visibilitychange", revalidateHistory);
+    };
+  }, [sending]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
