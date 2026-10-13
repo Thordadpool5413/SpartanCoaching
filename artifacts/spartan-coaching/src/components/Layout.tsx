@@ -37,7 +37,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
+        "relative flex h-full min-h-12 items-center whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#d61f26] hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
         isActive
           ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
           : "text-[#272329]"
@@ -150,7 +150,7 @@ export function NavDropdown({ label, items, dataTestId }: {
         ref={triggerRef}
         type="button"
         className={cn(
-          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-all duration-200 hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
+          "flex h-full min-h-12 cursor-pointer items-center gap-2.5 whitespace-nowrap border-x border-transparent px-5 font-mono text-[0.84rem] font-bold uppercase tracking-[0.1em] text-[#272329] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#d61f26] hover:border-black/10 hover:bg-[#ebe6dc] hover:text-black 2xl:px-7",
           isGroupActive || open
             ? "border-[#151316] bg-[#151316] !text-white shadow-[inset_0_-3px_0_#d61f26]"
             : "text-[#272329]"
@@ -223,7 +223,7 @@ export function NavDropdown({ label, items, dataTestId }: {
               role="menuitem"
               tabIndex={open ? 0 : -1}
               className={cn(
-                "group block border border-transparent px-5 py-4 transition-colors hover:border-white/15 hover:bg-white/[0.07] focus-visible:border-[#d61f26] focus-visible:bg-white/[0.07] focus-visible:outline-none",
+                "group block border border-transparent px-5 py-4 transition-colors hover:border-white/15 hover:bg-white/[0.07] focus-visible:border-[#d61f26] focus-visible:bg-white/[0.07] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#d61f26]",
                 location === item.path
                   ? "border-[#d61f26]/50 bg-[#d61f26]/10 text-white"
                   : "text-white"
