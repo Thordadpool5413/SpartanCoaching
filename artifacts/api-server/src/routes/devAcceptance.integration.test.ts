@@ -39,7 +39,7 @@ describe.runIf(requested)("DEV acceptance: real HTTP identity, access and Coach 
 
   beforeAll(async () => {
     const orgs = await db.insert(clientOrganizations).values([
-      { name: "Acceptance Elite A " + namespace, type: "personal", status: "active", billingPlan: "individual_weekly_elite" },
+      { name: "Acceptance Elite A " + namespace, type: "company", status: "active", billingPlan: "corporate_contract_elite", seatLimit: 2 },
       { name: "Acceptance Elite B " + namespace, type: "personal", status: "active", billingPlan: "individual_weekly_elite" },
       { name: "Acceptance Standard " + namespace, type: "personal", status: "active", billingPlan: "individual_weekly" },
       { name: "Acceptance Expired " + namespace, type: "personal", status: "expired", billingPlan: "individual_weekly_elite" },
