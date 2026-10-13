@@ -1,5 +1,5 @@
 import type { Express, Response } from "express";
-import { and, asc, desc, eq, lt, ne } from "drizzle-orm";
+import { and, asc, desc, eq, lt, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   clientMembers,
@@ -89,14 +89,15 @@ async function persistTurn(input: {
       { conversationId: input.conversationId, clientRequestId: input.requestId, organizationId: input.organizationId, memberId: input.memberId, role: "user", content: input.user },
       { conversationId: input.conversationId, clientRequestId: input.requestId, organizationId: input.organizationId, memberId: input.memberId, role: "assistant", content: input.assistant },
     ]).onConflictDoNothing();
+    // A successful turn refreshes the history position and 90-day retention,
+    // even when the conversation already has a title. Keep custom titles intact.
     await tx.update(coachConversations).set({
-      title: input.user.slice(0, 80),
       updatedAt: new Date(),
+      title: sql<string>`CASE WHEN ${coachConversations.title} = 'New conversation' THEN ${input.user.slice(0, 80)} ELSE ${coachConversations.title} END`,
     }).where(and(
       eq(coachConversations.id, input.conversationId),
       eq(coachConversations.organizationId, input.organizationId),
       eq(coachConversations.memberId, input.memberId),
-      eq(coachConversations.title, "New conversation"),
     ));
   });
   const [assistant] = await db.select().from(coachMessages).where(and(
