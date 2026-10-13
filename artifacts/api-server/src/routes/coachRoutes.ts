@@ -76,7 +76,7 @@ async function ownedConversation(id: string, request: AuthedRequest) {
   return conversation;
 }
 
-async function persistTurn(input: {
+export async function persistTurn(input: {
   conversationId: string;
   requestId: string;
   organizationId: number;
